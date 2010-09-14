@@ -1,4 +1,4 @@
-package com.highnotenetworks.mobileads;
+package com.mopub.mobileads;
 
 import android.content.Intent;
 import android.net.Uri;
@@ -8,7 +8,7 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
 class AdWebViewClient extends WebViewClient {
-	private static final String BASE_ACLK_URL = "http://www.highnotenetworks.com/m/aclk";
+	private static final String BASE_ACLK_URL = "http://www.mopub.com/m/aclk";
 	private AdView adView;
 	
 	AdWebViewClient(AdView adView) {

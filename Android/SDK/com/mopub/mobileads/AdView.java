@@ -1,4 +1,4 @@
-package com.highnotenetworks.mobileads;
+package com.mopub.mobileads;
 
 import android.content.Context;
 import android.net.Uri;
@@ -9,7 +9,7 @@ import android.webkit.WebView;
 import com.google.android.maps.GeoPoint;
 
 public class AdView extends WebView {
-	private static final String BASE_AD_URL = "http://www.highnotenetworks.com/m/ad";
+	private static final String BASE_AD_URL = "http://www.mopub.com/m/ad";
 	
 	private String publisherId;
 	private String keywords;

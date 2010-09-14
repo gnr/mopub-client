@@ -2,9 +2,6 @@
 //  AdClickController.h
 //  SimpleAds
 //
-//  Created by Jim Payne on 1/31/10.
-//  Copyright 2010 Apple Inc. All rights reserved.
-//
 
 #import <UIKit/UIKit.h>
 #import "AdController.h"
