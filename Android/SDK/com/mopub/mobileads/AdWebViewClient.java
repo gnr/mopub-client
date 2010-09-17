@@ -1,4 +1,4 @@
-package com.highnotenetworks.mobileads;
+package com.mopub.mobileads;
 
 import java.io.IOException;
 

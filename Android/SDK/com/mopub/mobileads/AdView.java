@@ -1,4 +1,4 @@
-package com.highnotenetworks.mobileads;
+package com.mopub.mobileads;
 
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
