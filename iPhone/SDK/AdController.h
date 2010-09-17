@@ -7,7 +7,7 @@
 #import <CoreLocation/CoreLocation.h>
 #import <iAd/iAd.h>
 
-#define HOSTNAME @"www.mopub.com"
+#define HOSTNAME @"32-campaigns-django-port.latest.mopub-inc.appspot.com"
 
 // #define HOSTNAME @"localhost:8100"
 
