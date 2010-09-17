@@ -2,8 +2,6 @@
 //  AdClickController.m
 //  SimpleAds
 //
-//  Created by Jim Payne on 1/31/10.
-//
 
 #import "AdClickController.h"
 

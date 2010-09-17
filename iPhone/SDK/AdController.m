@@ -2,8 +2,6 @@
 //  AdController.m
 //  SimpleAds
 //
-//  Created by Jim Payne on 1/31/10.
-//
 
 #import "AdController.h"
 #import "AdClickController.h"
@@ -68,6 +66,7 @@ NSString* FORMAT_CODES[] = {
 @synthesize parent, keywords, location;
 @synthesize data, url;
 @synthesize nativeAdView;
+@synthesize clickURL;
 
 -(id)initWithFormat:(AdControllerFormat)f publisherId:(NSString *)p parentViewController:(UIViewController*)pvc {
 	[super init];
@@ -171,6 +170,9 @@ NSString* FORMAT_CODES[] = {
 		
 		[self backfillWithNothing];
 	}
+	
+	// grab the clickthrough URL from the headers as well 
+	self.clickURL = [[(NSHTTPURLResponse*)response allHeaderFields] objectForKey:@"X-Clickthrough"];
 }
 
 - (void)connection:(NSURLConnection *)connection didReceiveData:(NSData *)d {
@@ -204,40 +206,30 @@ NSString* FORMAT_CODES[] = {
 
 - (BOOL)webView:(UIWebView *)webView shouldStartLoadWithRequest:(NSURLRequest *)request navigationType:(UIWebViewNavigationType)navigationType {
 	if (navigationType == UIWebViewNavigationTypeLinkClicked) {
-		NSURL* adClickURL = NULL;
-		if ([request.URL.host isEqualToString:HOSTNAME]) {
-			adClickURL = [NSURL URLWithString:[NSString stringWithFormat:@"%@&udid=%@",
-											   [[request URL] absoluteString],
-											   [[UIDevice currentDevice] uniqueIdentifier]]];
-		} else {
-			// escape the redirect url
-			NSMutableString *redirectUrl = [NSMutableString stringWithString:[[request URL] absoluteString]];
-			NSRange wholeString = NSMakeRange(0, [redirectUrl length]);
-			[redirectUrl replaceOccurrencesOfString:@"&" withString:@"%26" options:NSCaseInsensitiveSearch range:wholeString];
-			[redirectUrl replaceOccurrencesOfString:@"+" withString:@"%2B" options:NSCaseInsensitiveSearch range:wholeString];
-			[redirectUrl replaceOccurrencesOfString:@"," withString:@"%2C" options:NSCaseInsensitiveSearch range:wholeString];
-			[redirectUrl replaceOccurrencesOfString:@"/" withString:@"%2F" options:NSCaseInsensitiveSearch range:wholeString];
-			[redirectUrl replaceOccurrencesOfString:@":" withString:@"%3A" options:NSCaseInsensitiveSearch range:wholeString];
-			[redirectUrl replaceOccurrencesOfString:@";" withString:@"%3B" options:NSCaseInsensitiveSearch range:wholeString];
-			[redirectUrl replaceOccurrencesOfString:@"=" withString:@"%3D" options:NSCaseInsensitiveSearch range:wholeString];
-			[redirectUrl replaceOccurrencesOfString:@"?" withString:@"%3F" options:NSCaseInsensitiveSearch range:wholeString];
-			[redirectUrl replaceOccurrencesOfString:@"@" withString:@"%40" options:NSCaseInsensitiveSearch range:wholeString];
-			[redirectUrl replaceOccurrencesOfString:@" " withString:@"%20" options:NSCaseInsensitiveSearch range:wholeString];
-			[redirectUrl replaceOccurrencesOfString:@"\t" withString:@"%09" options:NSCaseInsensitiveSearch range:wholeString];
-			[redirectUrl replaceOccurrencesOfString:@"#" withString:@"%23" options:NSCaseInsensitiveSearch range:wholeString];
-			[redirectUrl replaceOccurrencesOfString:@"<" withString:@"%3C" options:NSCaseInsensitiveSearch range:wholeString];
-			[redirectUrl replaceOccurrencesOfString:@">" withString:@"%3E" options:NSCaseInsensitiveSearch range:wholeString];
-			[redirectUrl replaceOccurrencesOfString:@"\"" withString:@"%22" options:NSCaseInsensitiveSearch range:wholeString];
-			[redirectUrl replaceOccurrencesOfString:@"\n" withString:@"%0A" options:NSCaseInsensitiveSearch range:wholeString];
-			
-			// create ad click URL
-			adClickURL = [NSURL URLWithString:[NSString stringWithFormat:@"http://%@/m/aclk?v=1&udid=%@&q=%@&id=%@&r=%@",
-												  HOSTNAME,
-												  [[UIDevice currentDevice] uniqueIdentifier],
-												  [keywords stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding],
-												  [publisherId stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding],
-												  redirectUrl]];
-		}
+		// escape the redirect url
+		NSMutableString *redirectUrl = [NSMutableString stringWithString:[[request URL] absoluteString]];
+		NSRange wholeString = NSMakeRange(0, [redirectUrl length]);
+		[redirectUrl replaceOccurrencesOfString:@"&" withString:@"%26" options:NSCaseInsensitiveSearch range:wholeString];
+		[redirectUrl replaceOccurrencesOfString:@"+" withString:@"%2B" options:NSCaseInsensitiveSearch range:wholeString];
+		[redirectUrl replaceOccurrencesOfString:@"," withString:@"%2C" options:NSCaseInsensitiveSearch range:wholeString];
+		[redirectUrl replaceOccurrencesOfString:@"/" withString:@"%2F" options:NSCaseInsensitiveSearch range:wholeString];
+		[redirectUrl replaceOccurrencesOfString:@":" withString:@"%3A" options:NSCaseInsensitiveSearch range:wholeString];
+		[redirectUrl replaceOccurrencesOfString:@";" withString:@"%3B" options:NSCaseInsensitiveSearch range:wholeString];
+		[redirectUrl replaceOccurrencesOfString:@"=" withString:@"%3D" options:NSCaseInsensitiveSearch range:wholeString];
+		[redirectUrl replaceOccurrencesOfString:@"?" withString:@"%3F" options:NSCaseInsensitiveSearch range:wholeString];
+		[redirectUrl replaceOccurrencesOfString:@"@" withString:@"%40" options:NSCaseInsensitiveSearch range:wholeString];
+		[redirectUrl replaceOccurrencesOfString:@" " withString:@"%20" options:NSCaseInsensitiveSearch range:wholeString];
+		[redirectUrl replaceOccurrencesOfString:@"\t" withString:@"%09" options:NSCaseInsensitiveSearch range:wholeString];
+		[redirectUrl replaceOccurrencesOfString:@"#" withString:@"%23" options:NSCaseInsensitiveSearch range:wholeString];
+		[redirectUrl replaceOccurrencesOfString:@"<" withString:@"%3C" options:NSCaseInsensitiveSearch range:wholeString];
+		[redirectUrl replaceOccurrencesOfString:@">" withString:@"%3E" options:NSCaseInsensitiveSearch range:wholeString];
+		[redirectUrl replaceOccurrencesOfString:@"\"" withString:@"%22" options:NSCaseInsensitiveSearch range:wholeString];
+		[redirectUrl replaceOccurrencesOfString:@"\n" withString:@"%0A" options:NSCaseInsensitiveSearch range:wholeString];
+		
+		// create ad click URL
+		NSString* adClickURL = [NSURL URLWithString:[NSString stringWithFormat:@"%@&r=%@",
+													   self.clickURL,
+													   redirectUrl]];
 		
 		// go get it
 		NSLog(@"%@", adClickURL);
@@ -266,6 +258,9 @@ NSString* FORMAT_CODES[] = {
 	self.webView.backgroundColor = [UIColor clearColor];
 }
 
+#pragma mark -
+#pragma mark iAd implementation
+
 - (void)backfillWithADBannerView {
 	// put an ad in place.
 	Class cls = NSClassFromString(@"ADBannerView");
@@ -289,6 +284,18 @@ NSString* FORMAT_CODES[] = {
 	[UIView beginAnimations:@"animateAdBannerOff" context:NULL];
 	banner.frame = CGRectOffset(banner.frame, 0, 480);
 	[UIView commitAnimations];
+}
+
+- (BOOL)bannerViewActionShouldBegin:(ADBannerView *)banner willLeaveApplication:(BOOL)willLeave {	
+	// ping the clickURL without a redirect parameter, for logging
+	NSURLRequest* iAdClickURL = [NSURLRequest requestWithURL:[NSURL URLWithString:self.clickURL]];
+	NSURLConnection* c = [[NSURLConnection alloc] initWithRequest:iAdClickURL delegate:nil];
+	[c start];
+	
+	// pass along to our own delegate
+	if ([self.delegate respondsToSelector:@selector(adControllerAdWillOpen:)]) {
+		[self.delegate adControllerAdWillOpen:self];
+	}
 }
 
 /*

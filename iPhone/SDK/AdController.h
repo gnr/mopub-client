@@ -9,6 +9,8 @@
 
 #define HOSTNAME @"www.mopub.com"
 
+// #define HOSTNAME @"localhost:8100"
+
 enum {
 	AdControllerFormat320x50,			// mobile banner size
 	AdControllerFormat300x250,			// medium rectangle
@@ -41,6 +43,9 @@ typedef NSUInteger AdControllerFormat;
 	
 	// native Ad View
 	UIView* nativeAdView; 
+	
+	// store the click-through URL which is encoded for tracking purposes
+	NSString* clickURL;
 }
 @property(nonatomic, retain) id<AdControllerDelegate> delegate;
 @property(assign) BOOL loaded;
@@ -59,6 +64,8 @@ typedef NSUInteger AdControllerFormat;
 @property(nonatomic, retain) NSMutableData* data;
 
 @property(nonatomic, retain) UIView* nativeAdView; 
+
+@property(nonatomic, retain) NSString* clickURL;
 
 -(id)initWithFormat:(AdControllerFormat)format publisherId:(NSString*)publisherId parentViewController:(UIViewController*)parent;
 -(void)refresh;

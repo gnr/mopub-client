@@ -2,9 +2,6 @@
 //  SimpleAdsViewController.m
 //  SimpleAds
 //
-//  Created by Jim Payne on 1/31/10.
-//  Copyright Apple Inc 2010. All rights reserved.
-//
 
 #import "SimpleAdsViewController.h"
 #import "AdController.h"
@@ -16,8 +13,12 @@
 @synthesize adController, mrectController;
 @synthesize adView, mrectView;
 
-#define PUB_ID_320x50 @"ahFoaWdobm90ZS1uZXR3b3Jrc3IMCxIEU2l0ZRi52QMM"
-#define PUB_ID_300x250 @"ahFoaWdobm90ZS1uZXR3b3Jrc3IMCxIEU2l0ZRih4QMM"
+#define PUB_ID_320x50 @"agltb3B1Yi1pbmNyDAsSBFNpdGUYudkDDA"
+#define PUB_ID_300x250 @"agltb3B1Yi1pbmNyDAsSBFNpdGUYoeEDDA"
+
+// DEV
+// #define PUB_ID_320x50 @"agltb3B1Yi1pbmNyCgsSBFNpdGUYAQw"
+// #define PUB_ID_300x250 @"agltb3B1Yi1pbmNyCgsSBFNpdGUYAQw"
 
 /*
 // The designated initializer. Override to perform setup that is required before the view is loaded.
@@ -47,19 +48,6 @@
 	self.mrectController = [[AdController alloc] initWithFormat:AdControllerFormat300x250 publisherId:PUB_ID_300x250 parentViewController:self];
 	self.mrectController.keywords = @"coffee";
 	[self.mrectView addSubview:self.mrectController.view];
-	
-	
-	// add a native ADBannerView to contrast
-	Class cls = NSClassFromString(@"ADBannerView");
-	if (cls != nil) {
-		ADBannerView* adBannerView = [[ADBannerView alloc] initWithFrame:CGRectMake(0, 410, 320, 50)];
-		adBannerView.requiredContentSizeIdentifiers = [NSSet setWithObjects:ADBannerContentSizeIdentifier320x50, nil];
-		adBannerView.currentContentSizeIdentifier = ADBannerContentSizeIdentifier320x50;
-		
-		// replace our view with the Ad view
-		[self.view addSubview:adBannerView];
-	}	
-	
 }
 
 - (IBAction) refreshAd {

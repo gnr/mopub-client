@@ -2,9 +2,6 @@
 //  SimpleAdsAppDelegate.h
 //  SimpleAds
 //
-//  Created by Jim Payne on 1/31/10.
-//  Copyright Apple Inc 2010. All rights reserved.
-//
 
 #import <UIKit/UIKit.h>
 
