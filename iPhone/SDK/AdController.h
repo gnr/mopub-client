@@ -7,9 +7,9 @@
 #import <CoreLocation/CoreLocation.h>
 #import <iAd/iAd.h>
 
-// #define HOSTNAME @"32-campaigns-django-port.latest.mopub-inc.appspot.com"
+#define HOSTNAME @"32-campaigns-django-port.latest.mopub-inc.appspot.com"
 // #define HOSTNAME @"32-campaigns.latest.mopub-inc.appspot.com"
-#define HOSTNAME @"localhost:8100"
+// #define HOSTNAME @"localhost:8100"
 
 enum {
 	AdControllerFormat320x50,			// mobile banner size
