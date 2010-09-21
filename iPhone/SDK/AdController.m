@@ -205,6 +205,7 @@ NSString* FORMAT_CODES[] = {
 }
 
 - (BOOL)webView:(UIWebView *)webView shouldStartLoadWithRequest:(NSURLRequest *)request navigationType:(UIWebViewNavigationType)navigationType {
+	NSLog(@"shouldStartLoadWithRequest URL:%@ navigationType:%d", [[request URL] absoluteString], navigationType);
 	if (navigationType == UIWebViewNavigationTypeLinkClicked) {
 		// escape the redirect url
 		NSMutableString *redirectUrl = [NSMutableString stringWithString:[[request URL] absoluteString]];
