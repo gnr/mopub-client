@@ -10,9 +10,9 @@
 @class InterstitialAdController;
 
 @interface SimpleAdsViewController : UIViewController <UITextFieldDelegate, AdControllerDelegate> {
-	UITextField* keyword;
-	UIView* adView;
-	UIView* mrectView;
+	IBOutlet UITextField* keyword;
+	IBOutlet UIView* adView;
+	IBOutlet UIView* mrectView;
 	
 	BOOL getAndShow;
 	

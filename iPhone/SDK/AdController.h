@@ -32,7 +32,10 @@ typedef NSUInteger AdControllerFormat;
 
 	NSString *keywords;
 	CLLocation *location;
+	
+	BOOL _isInterstitial;
 
+	
 @private
 	// UI elements
 	UIActivityIndicatorView *loading;	
@@ -47,6 +50,7 @@ typedef NSUInteger AdControllerFormat;
 	
 	// store the click-through URL which is encoded for tracking purposes
 	NSString *clickURL;
+	
 }
 @property(nonatomic, retain) id<AdControllerDelegate> delegate;
 @property(nonatomic, assign) BOOL loaded;

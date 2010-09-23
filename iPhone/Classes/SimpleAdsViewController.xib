@@ -81,7 +81,7 @@
 						<string key="targetRuntimeIdentifier">IBCocoaTouchFramework</string>
 						<int key="IBUIContentHorizontalAlignment">0</int>
 						<int key="IBUIContentVerticalAlignment">0</int>
-						<object class="NSFont" key="IBUIFont" id="4862423">
+						<object class="NSFont" key="IBUIFont" id="883551257">
 							<string key="NSName">Helvetica-Bold</string>
 							<double key="NSSize">15</double>
 							<int key="NSfFlags">16</int>
@@ -129,7 +129,7 @@
 						<string key="targetRuntimeIdentifier">IBCocoaTouchFramework</string>
 						<int key="IBUIContentHorizontalAlignment">0</int>
 						<int key="IBUIContentVerticalAlignment">0</int>
-						<object class="NSFont" key="IBUIFont" id="167759911">
+						<object class="NSFont" key="IBUIFont" id="231127680">
 							<string key="NSName">Helvetica-BoldOblique</string>
 							<double key="NSSize">15</double>
 							<int key="NSfFlags">16</int>
@@ -143,7 +143,7 @@
 						</object>
 						<reference key="IBUINormalTitleShadowColor" ref="469904783"/>
 					</object>
-					<object class="IBUIButton" id="856427713">
+					<object class="IBUIButton" id="38024410">
 						<reference key="NSNextResponder" ref="774585933"/>
 						<int key="NSvFlags">292</int>
 						<string key="NSFrame">{{20, 413}, {39, 38}}</string>
@@ -152,7 +152,7 @@
 						<string key="targetRuntimeIdentifier">IBCocoaTouchFramework</string>
 						<int key="IBUIContentHorizontalAlignment">0</int>
 						<int key="IBUIContentVerticalAlignment">0</int>
-						<reference key="IBUIFont" ref="167759911"/>
+						<reference key="IBUIFont" ref="231127680"/>
 						<int key="IBUIButtonType">1</int>
 						<string key="IBUINormalTitle">Get</string>
 						<reference key="IBUIHighlightedTitleColor" ref="361933665"/>
@@ -162,7 +162,7 @@
 						</object>
 						<reference key="IBUINormalTitleShadowColor" ref="469904783"/>
 					</object>
-					<object class="IBUIButton" id="126363822">
+					<object class="IBUIButton" id="929397819">
 						<reference key="NSNextResponder" ref="774585933"/>
 						<int key="NSvFlags">292</int>
 						<string key="NSFrame">{{122, 413}, {109, 37}}</string>
@@ -171,7 +171,7 @@
 						<string key="targetRuntimeIdentifier">IBCocoaTouchFramework</string>
 						<int key="IBUIContentHorizontalAlignment">0</int>
 						<int key="IBUIContentVerticalAlignment">0</int>
-						<reference key="IBUIFont" ref="4862423"/>
+						<reference key="IBUIFont" ref="883551257"/>
 						<int key="IBUIButtonType">1</int>
 						<string key="IBUINormalTitle">Get &amp; Show</string>
 						<reference key="IBUIHighlightedTitleColor" ref="361933665"/>
@@ -258,7 +258,7 @@
 				<object class="IBConnectionRecord">
 					<object class="IBCocoaTouchEventConnection" key="connection">
 						<string key="label">getInterstitial</string>
-						<reference key="source" ref="856427713"/>
+						<reference key="source" ref="38024410"/>
 						<reference key="destination" ref="372490531"/>
 						<int key="IBEventType">7</int>
 					</object>
@@ -267,7 +267,7 @@
 				<object class="IBConnectionRecord">
 					<object class="IBCocoaTouchEventConnection" key="connection">
 						<string key="label">getAndShowInterstitial</string>
-						<reference key="source" ref="126363822"/>
+						<reference key="source" ref="929397819"/>
 						<reference key="destination" ref="372490531"/>
 						<int key="IBEventType">7</int>
 					</object>
@@ -303,9 +303,9 @@
 							<reference ref="1071650057"/>
 							<reference ref="151636521"/>
 							<reference ref="118321994"/>
-							<reference ref="856427713"/>
+							<reference ref="38024410"/>
 							<reference ref="205927729"/>
-							<reference ref="126363822"/>
+							<reference ref="929397819"/>
 						</object>
 						<reference key="parent" ref="0"/>
 					</object>
@@ -336,12 +336,12 @@
 					</object>
 					<object class="IBObjectRecord">
 						<int key="objectID">19</int>
-						<reference key="object" ref="856427713"/>
+						<reference key="object" ref="38024410"/>
 						<reference key="parent" ref="774585933"/>
 					</object>
 					<object class="IBObjectRecord">
 						<int key="objectID">22</int>
-						<reference key="object" ref="126363822"/>
+						<reference key="object" ref="929397819"/>
 						<reference key="parent" ref="774585933"/>
 					</object>
 				</object>
@@ -371,7 +371,7 @@
 					<string>com.apple.InterfaceBuilder.IBCocoaTouchPlugin</string>
 					<string>com.apple.InterfaceBuilder.IBCocoaTouchPlugin</string>
 					<string>com.apple.InterfaceBuilder.IBCocoaTouchPlugin</string>
-					<string>{{660, 276}, {320, 480}}</string>
+					<string>{{560, 180}, {320, 480}}</string>
 					<string>com.apple.InterfaceBuilder.IBCocoaTouchPlugin</string>
 					<string>com.apple.InterfaceBuilder.IBCocoaTouchPlugin</string>
 					<string>com.apple.InterfaceBuilder.IBCocoaTouchPlugin</string>

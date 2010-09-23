@@ -58,6 +58,7 @@ NSString* FORMAT_CODES[] = {
 @interface AdController (Internal)
 - (void)backfillWithNothing;
 - (void)backfillWithADBannerView;
+- (NSString *)escapeURL:(NSURL *)urlIn;
 @end
 
 	
@@ -83,6 +84,8 @@ NSString* FORMAT_CODES[] = {
 		
 		self.webView = [[TouchableWebView alloc] initWithFrame:CGRectZero];
 		self.webView.delegate = self;
+		
+		_isInterstitial = NO;
 		
 		[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(applicationWillResign:) name:UIApplicationWillResignActiveNotification object:nil];
 	}	
@@ -214,12 +217,14 @@ NSString* FORMAT_CODES[] = {
 - (void)connection:(NSURLConnection *)connection didFailWithError:(NSError *)error {
 	NSLog(@"failed to load ad content... %@", error);
 	[self backfillWithNothing];
+	[connection release];
 }
 
 - (void)connectionDidFinishLoading:(NSURLConnection *)connection {
 	// set the content into the webview	
 	NSLog(@"connection did finish loading");
 	[self.webView loadData:self.data MIMEType:@"text/html" textEncodingName:@"utf-8" baseURL:self.url];
+//	[connection release];
 }
 
 - (void)viewDidAppear:(BOOL)animated{
@@ -232,7 +237,7 @@ NSString* FORMAT_CODES[] = {
 // Implement viewDidLoad to do additional setup after loading the view, typically from a nib.
 - (void)viewDidLoad {
     [super viewDidLoad];
-	[self refresh];
+	[self loadAd];
 }
 
 // when the content has loaded, we stop the loading indicator
@@ -241,7 +246,7 @@ NSString* FORMAT_CODES[] = {
 }
 
 - (void)didSelectClose:(id)sender{
-	// no-op interstitials
+	// no-op for non-interstitials
 }
 
 - (BOOL)webView:(UIWebView *)webView shouldStartLoadWithRequest:(NSURLRequest *)request navigationType:(UIWebViewNavigationType)navigationType {
@@ -265,24 +270,7 @@ NSString* FORMAT_CODES[] = {
 	}
 	else if (navigationType == UIWebViewNavigationTypeLinkClicked) {
 		// escape the redirect url
-		NSMutableString *redirectUrl = [NSMutableString stringWithString:[[request URL] absoluteString]];
-		NSRange wholeString = NSMakeRange(0, [redirectUrl length]);
-		[redirectUrl replaceOccurrencesOfString:@"&" withString:@"%26" options:NSCaseInsensitiveSearch range:wholeString];
-		[redirectUrl replaceOccurrencesOfString:@"+" withString:@"%2B" options:NSCaseInsensitiveSearch range:wholeString];
-		[redirectUrl replaceOccurrencesOfString:@"," withString:@"%2C" options:NSCaseInsensitiveSearch range:wholeString];
-		[redirectUrl replaceOccurrencesOfString:@"/" withString:@"%2F" options:NSCaseInsensitiveSearch range:wholeString];
-		[redirectUrl replaceOccurrencesOfString:@":" withString:@"%3A" options:NSCaseInsensitiveSearch range:wholeString];
-		[redirectUrl replaceOccurrencesOfString:@";" withString:@"%3B" options:NSCaseInsensitiveSearch range:wholeString];
-		[redirectUrl replaceOccurrencesOfString:@"=" withString:@"%3D" options:NSCaseInsensitiveSearch range:wholeString];
-		[redirectUrl replaceOccurrencesOfString:@"?" withString:@"%3F" options:NSCaseInsensitiveSearch range:wholeString];
-		[redirectUrl replaceOccurrencesOfString:@"@" withString:@"%40" options:NSCaseInsensitiveSearch range:wholeString];
-		[redirectUrl replaceOccurrencesOfString:@" " withString:@"%20" options:NSCaseInsensitiveSearch range:wholeString];
-		[redirectUrl replaceOccurrencesOfString:@"\t" withString:@"%09" options:NSCaseInsensitiveSearch range:wholeString];
-		[redirectUrl replaceOccurrencesOfString:@"#" withString:@"%23" options:NSCaseInsensitiveSearch range:wholeString];
-		[redirectUrl replaceOccurrencesOfString:@"<" withString:@"%3C" options:NSCaseInsensitiveSearch range:wholeString];
-		[redirectUrl replaceOccurrencesOfString:@">" withString:@"%3E" options:NSCaseInsensitiveSearch range:wholeString];
-		[redirectUrl replaceOccurrencesOfString:@"\"" withString:@"%22" options:NSCaseInsensitiveSearch range:wholeString];
-		[redirectUrl replaceOccurrencesOfString:@"\n" withString:@"%0A" options:NSCaseInsensitiveSearch range:wholeString];
+		NSString *redirectUrl = [self escapeURL:[request URL]];										
 		
 		// create ad click URL
 		NSURL* adClickURL = [NSURL URLWithString:[NSString stringWithFormat:@"%@&r=%@",
@@ -295,13 +283,24 @@ NSString* FORMAT_CODES[] = {
 			[self.delegate adControllerAdWillOpen:self];
 		}
 		AdClickController* adClickController = [[AdClickController alloc] initWithURL:adClickURL delegate:self.delegate];
-		[self.parent presentModalViewController:adClickController animated:TRUE];
+
+//		[self.parent presentModalViewController:adClickController animated:YES];
+		if (_isInterstitial){
+			[self presentModalViewController:adClickController animated:YES];
+		}
+		else {
+			[self.parent presentModalViewController:adClickController animated:YES];
+		}
+
+
+
+		[adClickController release];
 		return NO;
 	} else {
 		// other javascript loads, etc. 
 		return YES;
 	}
-	
+	return YES;
 }
 
 - (void)webView:(UIWebView *)webView didFailLoadWithError:(NSError *)error {
@@ -331,6 +330,7 @@ NSString* FORMAT_CODES[] = {
 		// put an AdBanner on top of the current view so it can 
 		// do animations and Z ordering properly on click... 
 		self.nativeAdView = adBannerView;
+		[adBannerView release];
 		[self.view.superview addSubview:self.nativeAdView];
 	} else {
 		// iOS versions before 4 
@@ -357,6 +357,29 @@ NSString* FORMAT_CODES[] = {
 	return YES;
 }
 
+- (NSString *)escapeURL:(NSURL *)urlIn{
+	NSMutableString *redirectUrl = [NSMutableString stringWithString:[urlIn absoluteString]];
+	NSRange wholeString = NSMakeRange(0, [redirectUrl length]);
+	[redirectUrl replaceOccurrencesOfString:@"&" withString:@"%26" options:NSCaseInsensitiveSearch range:wholeString];
+	[redirectUrl replaceOccurrencesOfString:@"+" withString:@"%2B" options:NSCaseInsensitiveSearch range:wholeString];
+	[redirectUrl replaceOccurrencesOfString:@"," withString:@"%2C" options:NSCaseInsensitiveSearch range:wholeString];
+	[redirectUrl replaceOccurrencesOfString:@"/" withString:@"%2F" options:NSCaseInsensitiveSearch range:wholeString];
+	[redirectUrl replaceOccurrencesOfString:@":" withString:@"%3A" options:NSCaseInsensitiveSearch range:wholeString];
+	[redirectUrl replaceOccurrencesOfString:@";" withString:@"%3B" options:NSCaseInsensitiveSearch range:wholeString];
+	[redirectUrl replaceOccurrencesOfString:@"=" withString:@"%3D" options:NSCaseInsensitiveSearch range:wholeString];
+	[redirectUrl replaceOccurrencesOfString:@"?" withString:@"%3F" options:NSCaseInsensitiveSearch range:wholeString];
+	[redirectUrl replaceOccurrencesOfString:@"@" withString:@"%40" options:NSCaseInsensitiveSearch range:wholeString];
+	[redirectUrl replaceOccurrencesOfString:@" " withString:@"%20" options:NSCaseInsensitiveSearch range:wholeString];
+	[redirectUrl replaceOccurrencesOfString:@"\t" withString:@"%09" options:NSCaseInsensitiveSearch range:wholeString];
+	[redirectUrl replaceOccurrencesOfString:@"#" withString:@"%23" options:NSCaseInsensitiveSearch range:wholeString];
+	[redirectUrl replaceOccurrencesOfString:@"<" withString:@"%3C" options:NSCaseInsensitiveSearch range:wholeString];
+	[redirectUrl replaceOccurrencesOfString:@">" withString:@"%3E" options:NSCaseInsensitiveSearch range:wholeString];
+	[redirectUrl replaceOccurrencesOfString:@"\"" withString:@"%22" options:NSCaseInsensitiveSearch range:wholeString];
+	[redirectUrl replaceOccurrencesOfString:@"\n" withString:@"%0A" options:NSCaseInsensitiveSearch range:wholeString];
+	
+	return redirectUrl;
+}
+
 /*
 // Override to allow orientations other than the default portrait orientation.
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation {
@@ -378,10 +401,6 @@ NSString* FORMAT_CODES[] = {
 // this may be called more than once, so in our logs we'll assume the last close the it correct one
 - (void)applicationWillResign:(id)sender{
 	[self didSelectClose:sender];
-}
-
-- (void)dealloc {
-    [super dealloc];
 }
 
 

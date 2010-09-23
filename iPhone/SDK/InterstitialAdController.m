@@ -12,7 +12,7 @@
 
 -(id)initWithPublisherId:(NSString *)p parentViewController:(UIViewController*)pvc {
 	if (self = [super initWithFormat:AdControllerFormatFullScreen publisherId:p parentViewController:pvc]){
-		
+		_isInterstitial = YES;
 	}
 	return self;
 }

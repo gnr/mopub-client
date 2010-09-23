@@ -14,32 +14,19 @@
 @synthesize adController, mrectController, interstitialAdController;
 @synthesize adView, mrectView;
 
-#define PUB_ID_320x50 @"agltb3B1Yi1pbmNyCgsSBFNpdGUYAQw"
-#define PUB_ID_300x250 @"agltb3B1Yi1pbmNyCgsSBFNpdGUYAQw"
-#define PUB_ID_INTERSTITIAL @"agltb3B1Yi1pbmNyCgsSBFNpdGUYAQw"
-
-// DEV
-// #define PUB_ID_320x50 @"agltb3B1Yi1pbmNyCgsSBFNpdGUYAQw"
-// #define PUB_ID_300x250 @"agltb3B1Yi1pbmNyCgsSBFNpdGUYAQw"
-
-/*
-// The designated initializer. Override to perform setup that is required before the view is loaded.
-- (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil {
-    if (self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil]) {
-        // Custom initialization
-    }
-    return self;
-}
-*/
-
-/*
-// Implement loadView to create a view hierarchy programmatically, without using a nib.
-- (void)loadView {
-}
- */
-
+#define PUB_ID_320x50 @"agltb3B1Yi1pbmNyCgsSBFNpdGUYAgw"
+#define PUB_ID_300x250 @"agltb3B1Yi1pbmNyCgsSBFNpdGUYAgw"
+#define PUB_ID_INTERSTITIAL @"agltb3B1Yi1pbmNyCgsSBFNpdGUYAgw"
 
 // Implement viewDidLoad to do additional setup after loading the view, typically from a nib. 
+
+- (void)dealloc{
+	[adController release];
+	[mrectController release];
+	[interstitialAdController release];
+	[super dealloc];
+}
+
 - (void)viewDidLoad {
     [super viewDidLoad];
 	
@@ -141,11 +128,6 @@
 - (void)viewDidUnload {
 	// Release any retained subviews of the main view.
 	// e.g. self.myOutlet = nil;
-}
-
-
-- (void)dealloc {
-    [super dealloc];
 }
 
 @end
