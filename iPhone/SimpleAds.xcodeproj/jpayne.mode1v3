@@ -300,7 +300,7 @@
 							<real>250</real>
 						</array>
 						<key>RubberWindowFrame</key>
-						<string>549 328 1249 730 0 0 1920 1058 </string>
+						<string>535 104 1249 730 0 0 1920 1058 </string>
 					</dict>
 					<key>Module</key>
 					<string>PBXSmartGroupTreeModule</string>
@@ -330,7 +330,7 @@
 										<key>_historyCapacity</key>
 										<integer>0</integer>
 										<key>bookmark</key>
-										<string>3C2E743A1248073800858DD7</string>
+										<string>3C2E7440124BFB2400858DD7</string>
 										<key>history</key>
 										<array>
 											<string>3C0818681117C5AC0083D30D</string>
@@ -355,7 +355,7 @@
 								<key>Frame</key>
 								<string>{{0, 0}, {977, 684}}</string>
 								<key>RubberWindowFrame</key>
-								<string>549 328 1249 730 0 0 1920 1058 </string>
+								<string>535 104 1249 730 0 0 1920 1058 </string>
 							</dict>
 							<key>Module</key>
 							<string>PBXNavigatorGroup</string>
@@ -375,7 +375,7 @@
 								<key>Frame</key>
 								<string>{{0, 689}, {977, 0}}</string>
 								<key>RubberWindowFrame</key>
-								<string>549 328 1249 730 0 0 1920 1058 </string>
+								<string>535 104 1249 730 0 0 1920 1058 </string>
 							</dict>
 							<key>Module</key>
 							<string>XCDetailModule</string>
@@ -539,16 +539,15 @@
 	<integer>5</integer>
 	<key>WindowOrderList</key>
 	<array>
-		<string>3C2E743B1248073800858DD7</string>
 		<string>3C2E74281247FD1A00858DD7</string>
 		<string>3C2E74231247CBC200858DD7</string>
+		<string>1C78EAAD065D492600B07095</string>
 		<string>1CD10A99069EF8BA00B06720</string>
 		<string>3C0815771115E6A70083D30D</string>
-		<string>1C78EAAD065D492600B07095</string>
 		<string>/Users/jpayne/mopub/client/iPhone/SimpleAds.xcodeproj</string>
 	</array>
 	<key>WindowString</key>
-	<string>549 328 1249 730 0 0 1920 1058 </string>
+	<string>535 104 1249 730 0 0 1920 1058 </string>
 	<key>WindowToolsV3</key>
 	<array>
 		<dict>
@@ -919,7 +918,7 @@
 			<key>WindowToolGUID</key>
 			<string>1C78EAAD065D492600B07095</string>
 			<key>WindowToolIsVisible</key>
-			<true/>
+			<false/>
 		</dict>
 		<dict>
 			<key>Identifier</key>
