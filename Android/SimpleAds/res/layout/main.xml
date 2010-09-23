@@ -4,17 +4,25 @@
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     >
-<com.mopub.mobileads.AdView
-	android:id="@+id/topadview"
-  	android:layout_width="fill_parent"
-  	android:layout_height="50px"
-	/>
+    <LinearLayout
+    	android:id="@+id/topadviewcontainer"
+    	android:orientation="vertical"
+    	android:layout_width="320px"
+    	android:layout_height="50px"
+    	>
+	    <com.mopub.mobileads.AdView
+		android:id="@+id/topadview"
+	  	android:layout_width="fill_parent"
+	  	android:layout_height="wrap_content"
+		/>
+	</LinearLayout>
+
 
 <Button
 	android:id="@+id/searchbutton"
 	android:layout_width="wrap_content"
 	android:layout_height="wrap_content"
-	android:layout_below="@id/topadview"
+	android:layout_below="@id/topadviewcontainer"
     android:layout_alignParentRight="true"
     android:layout_marginLeft="10dip"
     android:layout_marginTop="20dip"
@@ -36,5 +44,16 @@
   	android:layout_below="@id/searchbutton"
   	android:layout_marginTop="20dip"
 	/>	
+	
+<Button
+	android:id="@+id/donebutton"
+	android:layout_width="wrap_content"
+	android:layout_height="wrap_content"
+	android:layout_below="@id/middleadview"
+    android:layout_alignParentBottom="true"
+    android:layout_marginLeft="10dip"
+    android:layout_marginTop="20dip"
+	android:text="Done" 
+	/>
 	
 </RelativeLayout>

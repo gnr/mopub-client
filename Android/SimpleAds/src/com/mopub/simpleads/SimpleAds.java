@@ -39,7 +39,9 @@ public class SimpleAds extends Activity {
 			public void onClick(View v) {
 				InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
 				imm.hideSoftInputFromWindow(mSearchText.getWindowToken(), 0);
+				mTopAdView.setKeywords(mSearchText.getText().toString());
 				mMidAdView.setKeywords(mSearchText.getText().toString());
+				mTopAdView.loadAd();
 				mMidAdView.loadAd();
 			}
 		});

@@ -39,6 +39,14 @@ public class AdView extends WebView {
 		initAdView(context);
 	}
 
+	private void initAdView(Context context) {
+		this.getSettings().setJavaScriptEnabled(true);
+
+		// set web view client
+		this.webViewClient = new AdWebViewClient(this);
+		this.setWebViewClient(webViewClient);
+	}
+
 	@Override
 	public void loadUrl(String url) {
 		Runnable getUrl = new LoadUrlThread(url);
@@ -83,14 +91,6 @@ public class AdView extends WebView {
 			catch (Exception e) {
 			}
 		}
-	}
-
-	private void initAdView(Context context) {
-		this.getSettings().setJavaScriptEnabled(true);
-
-		// set web view client
-		this.webViewClient = new AdWebViewClient(this);
-		this.setWebViewClient(webViewClient);
 	}
 
 	private String generateAdUrl() {
