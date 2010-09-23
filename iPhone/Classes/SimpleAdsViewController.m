@@ -6,15 +6,17 @@
 #import "SimpleAdsViewController.h"
 #import "AdController.h"
 #import <iAd/iAd.h>
+#import "InterstitialAdController.h"
 
 @implementation SimpleAdsViewController
 
 @synthesize keyword;
-@synthesize adController, mrectController;
+@synthesize adController, mrectController, interstitialAdController;
 @synthesize adView, mrectView;
 
-#define PUB_ID_320x50 @"agltb3B1Yi1pbmNyDAsSBFNpdGUYudkDDA"
-#define PUB_ID_300x250 @"agltb3B1Yi1pbmNyDAsSBFNpdGUYoeEDDA"
+#define PUB_ID_320x50 @"agltb3B1Yi1pbmNyCgsSBFNpdGUYAQw"
+#define PUB_ID_300x250 @"agltb3B1Yi1pbmNyCgsSBFNpdGUYAQw"
+#define PUB_ID_INTERSTITIAL @"agltb3B1Yi1pbmNyCgsSBFNpdGUYAQw"
 
 // DEV
 // #define PUB_ID_320x50 @"agltb3B1Yi1pbmNyCgsSBFNpdGUYAQw"
@@ -44,10 +46,64 @@
 	self.adController = [[AdController alloc] initWithFormat:AdControllerFormat320x50 publisherId:PUB_ID_320x50 parentViewController:self];
 	self.adController.keywords = @"coffee";
 	[self.adView addSubview:self.adController.view];
-
-	self.mrectController = [[AdController alloc] initWithFormat:AdControllerFormat300x250 publisherId:PUB_ID_300x250 parentViewController:self];
+	
+	
+	// lets load the mrectController in the background this time
+	self.mrectController = [[AdController alloc] initWithFormat:AdControllerFormat300x250 publisherId:PUB_ID_320x50 parentViewController:self];
 	self.mrectController.keywords = @"coffee";
-	[self.mrectView addSubview:self.mrectController.view];
+	self.mrectController.delegate = self;
+	[self.mrectController loadAd];
+}
+
+- (IBAction) getAndShowInterstitial{
+	getAndShow = YES;
+	[self getInterstitial];
+}
+
+- (IBAction) getInterstitial{
+	interstitialAdController = [[InterstitialAdController alloc] initWithPublisherId:PUB_ID_INTERSTITIAL parentViewController:self];
+	self.interstitialAdController.delegate = self;
+	[self.interstitialAdController loadAd];
+	
+}
+
+- (IBAction) showInterstitial{
+	// we show the interstitial manually
+	// if the ad is not yet loaded, then we pop open an alert view stateing this
+	if (interstitialAdController.loaded){
+		[self presentModalViewController:interstitialAdController animated:YES];
+	}
+	else{
+		UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"" message:@"The interstitial has not yet loaded" delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil];
+		[alert show];
+		[alert release];
+	}
+}
+
+- (void)adControllerDidLoadAd:(AdController *)_adController{
+	// if for getAndShow we show the interstitial as soon as its available
+	if (getAndShow)
+		[self showInterstitial];
+
+	// we SLOWLY fade in the mrect whenever we are told the ad has been loaded up
+	if (_adController == mrectController){
+		self.mrectController.view.alpha = 0.0;
+		[self.mrectView addSubview:self.mrectController.view];
+		[UIView beginAnimations:@"foo" context:nil];
+		[UIView setAnimationDuration:2.0f];
+		[UIView setAnimationBeginsFromCurrentState:YES];
+		[UIView setAnimationCurve:UIViewAnimationCurveLinear];
+		
+		self.mrectController.view.alpha = 1.0;
+
+		[UIView commitAnimations];
+
+	}
+}
+
+- (void)interstitialDidClose:(InterstitialAdController *)_interstitialAdController{
+	[_interstitialAdController dismissModalViewControllerAnimated:YES];
+	getAndShow = NO;
 }
 
 - (IBAction) refreshAd {

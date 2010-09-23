@@ -7,15 +7,16 @@
 #import <CoreLocation/CoreLocation.h>
 #import <iAd/iAd.h>
 
-#define HOSTNAME @"32-campaigns-django-port.latest.mopub-inc.appspot.com"
+//#define HOSTNAME @"32-campaigns-django-port.latest.mopub-inc.appspot.com"
 // #define HOSTNAME @"32-campaigns.latest.mopub-inc.appspot.com"
-// #define HOSTNAME @"localhost:8100"
+ #define HOSTNAME @"localhost:8000"
 
 enum {
 	AdControllerFormat320x50,			// mobile banner size
 	AdControllerFormat300x250,			// medium rectangle
 	AdControllerFormat728x90,			// leaderboard
-	AdControllerFormat468x60			// full banner
+	AdControllerFormat468x60,			// full banner
+	AdControllerFormatFullScreen,		// full-screen interstitial
 };
 typedef NSUInteger AdControllerFormat;
 
@@ -52,7 +53,7 @@ typedef NSUInteger AdControllerFormat;
 
 @property(nonatomic, retain) UIViewController* parent;
 @property(nonatomic, assign) AdControllerFormat format;
-@property(nonatomic, retain) NSString* publisherId;
+@property(nonatomic, copy) NSString* publisherId;
 
 @property(nonatomic, retain) NSString* keywords;
 @property(nonatomic, retain) CLLocation* location;
@@ -67,8 +68,10 @@ typedef NSUInteger AdControllerFormat;
 
 @property(nonatomic, retain) NSString* clickURL;
 
--(id)initWithFormat:(AdControllerFormat)format publisherId:(NSString*)publisherId parentViewController:(UIViewController*)parent;
--(void)refresh;
+- (id)initWithFormat:(AdControllerFormat)format publisherId:(NSString*)publisherId parentViewController:(UIViewController*)parent;
+- (void)loadAd;
+- (void)refresh;
+
 @end
 
 @protocol AdControllerDelegate
@@ -86,7 +89,11 @@ typedef NSUInteger AdControllerFormat;
 /**
  * Called when the ad has been clicked and the ad landing page is about to open.
  */
--(void)adControllerAdWillOpen:(AdController*)adController;
+- (void)adControllerAdWillOpen:(AdController*)adController;
+
+- (void)didSelectClose:(id)sender;
+- (void)applicationWillResign:(id)sender;
+
 
 @end
 
