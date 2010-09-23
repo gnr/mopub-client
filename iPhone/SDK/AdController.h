@@ -26,30 +26,30 @@ typedef NSUInteger AdControllerFormat;
 	id<AdControllerDelegate> delegate;
 	BOOL loaded;
 	
-	UIViewController* parent;
+	UIViewController *parent;
 	AdControllerFormat format;
-	NSString* publisherId;
+	NSString *publisherId;
 
-	NSString* keywords;
-	CLLocation* location;
+	NSString *keywords;
+	CLLocation *location;
 
 @private
 	// UI elements
-	UIActivityIndicatorView* loading;	
-	UIWebView* webView;
+	UIActivityIndicatorView *loading;	
+	UIWebView *webView;
 	
 	// Data to hold the web request
-	NSURL* url;
-	NSMutableData* data;
+	NSURL *url;
+	NSMutableData * data;
 	
 	// native Ad View
-	UIView* nativeAdView; 
+	UIView *nativeAdView; 
 	
 	// store the click-through URL which is encoded for tracking purposes
-	NSString* clickURL;
+	NSString *clickURL;
 }
 @property(nonatomic, retain) id<AdControllerDelegate> delegate;
-@property(assign) BOOL loaded;
+@property(nonatomic, assign) BOOL loaded;
 
 @property(nonatomic, retain) UIViewController* parent;
 @property(nonatomic, assign) AdControllerFormat format;
@@ -91,7 +91,14 @@ typedef NSUInteger AdControllerFormat;
  */
 - (void)adControllerAdWillOpen:(AdController*)adController;
 
+/*
+ * Called when the ad requested to be close.
+ */
 - (void)didSelectClose:(id)sender;
+
+/*
+ * Responds to notification UIApplicationWillResignActiveNotification
+ */
 - (void)applicationWillResign:(id)sender;
 
 

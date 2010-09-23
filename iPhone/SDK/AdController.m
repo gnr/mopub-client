@@ -17,25 +17,25 @@
 @implementation TouchableWebView
 
 - (id) initWithFrame:(CGRect)frame{
-	self = [super initWithFrame:frame];
-	self.backgroundColor = [UIColor clearColor];
-	self.opaque = NO;
-	
-	// WebViews are subclass of NSObject and not UIScrollView and therefore don't allow customization.
-	// However, a UIWebView is a UIScrollViewDelegate, so it must CONTAIN a ScrollView somewhere.
-	// To use a web view like a scroll view, let's traverse the view hierarchy to find the scroll view inside the web view.
-	UIScrollView* _scrollView = nil;
-	for (UIView* v in self.subviews){
-		if ([v isKindOfClass:[UIScrollView class]]){
-			_scrollView = (UIScrollView*)v; 
-			break;
+		if (self = [super initWithFrame:frame]){
+		self.backgroundColor = [UIColor clearColor];
+		self.opaque = NO;
+		
+		// WebViews are subclass of NSObject and not UIScrollView and therefore don't allow customization.
+		// However, a UIWebView is a UIScrollViewDelegate, so it must CONTAIN a ScrollView somewhere.
+		// To use a web view like a scroll view, let's traverse the view hierarchy to find the scroll view inside the web view.
+		UIScrollView* _scrollView = nil;
+		for (UIView* v in self.subviews){
+			if ([v isKindOfClass:[UIScrollView class]]){
+				_scrollView = (UIScrollView*)v; 
+				break;
+			}
+		}
+		if (_scrollView) {
+			_scrollView.scrollEnabled = NO;
+			_scrollView.bounces = NO;
 		}
 	}
-	if (_scrollView) {
-		_scrollView.scrollEnabled = NO;
-		_scrollView.bounces = NO;
-	}
-	
 	return self;
 }
 @end
@@ -92,15 +92,30 @@ NSString* FORMAT_CODES[] = {
 		
 }
 
+- (void)dealloc{
+	[data release];
+	[parent release];
+	[publisherId release];
+	webView.delegate = nil;
+	[webView release];
+	
+	[keywords release];
+	[location release];
+	[loading release];
+	[url release];
+	[nativeAdView release];
+	[clickURL release];
+	
+	[super dealloc];
+}
+
 /*
  * Override the view loading mechanism to create a WebView with overlaid activity indicator
  */
 -(void)loadView {
 	// get dimensions for format
 	int width = FORMAT_SIZES[self.format][0], height = FORMAT_SIZES[self.format][1];
-	
-	NSLog(@"%d,%d",width,height);
-	
+		
 	// create view substructure
 	self.view = [[UIView alloc] initWithFrame:CGRectMake(0, 0, width, height)];
 	
@@ -129,6 +144,7 @@ NSString* FORMAT_CODES[] = {
 	// remove the native view
 	if (self.nativeAdView) {
 		[self.nativeAdView removeFromSuperview];
+		[self.nativeAdView release];
 		self.nativeAdView = nil;
 	}
 
