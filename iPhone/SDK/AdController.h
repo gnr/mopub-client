@@ -7,15 +7,16 @@
 #import <CoreLocation/CoreLocation.h>
 #import <iAd/iAd.h>
 
-#define HOSTNAME @"32-campaigns-django-port.latest.mopub-inc.appspot.com"
+//#define HOSTNAME @"32-campaigns-django-port.latest.mopub-inc.appspot.com"
 // #define HOSTNAME @"32-campaigns.latest.mopub-inc.appspot.com"
-// #define HOSTNAME @"localhost:8100"
+ #define HOSTNAME @"localhost:8000"
 
 enum {
 	AdControllerFormat320x50,			// mobile banner size
 	AdControllerFormat300x250,			// medium rectangle
 	AdControllerFormat728x90,			// leaderboard
-	AdControllerFormat468x60			// full banner
+	AdControllerFormat468x60,			// full banner
+	AdControllerFormatFullScreen,		// full-screen interstitial
 };
 typedef NSUInteger AdControllerFormat;
 
@@ -25,34 +26,38 @@ typedef NSUInteger AdControllerFormat;
 	id<AdControllerDelegate> delegate;
 	BOOL loaded;
 	
-	UIViewController* parent;
+	UIViewController *parent;
 	AdControllerFormat format;
-	NSString* publisherId;
+	NSString *publisherId;
 
-	NSString* keywords;
-	CLLocation* location;
+	NSString *keywords;
+	CLLocation *location;
+	
+	BOOL _isInterstitial;
 
+	
 @private
 	// UI elements
-	UIActivityIndicatorView* loading;	
-	UIWebView* webView;
+	UIActivityIndicatorView *loading;	
+	UIWebView *webView;
 	
 	// Data to hold the web request
-	NSURL* url;
-	NSMutableData* data;
+	NSURL *url;
+	NSMutableData * data;
 	
 	// native Ad View
-	UIView* nativeAdView; 
+	UIView *nativeAdView; 
 	
 	// store the click-through URL which is encoded for tracking purposes
-	NSString* clickURL;
+	NSString *clickURL;
+	
 }
 @property(nonatomic, retain) id<AdControllerDelegate> delegate;
-@property(assign) BOOL loaded;
+@property(nonatomic, assign) BOOL loaded;
 
 @property(nonatomic, retain) UIViewController* parent;
 @property(nonatomic, assign) AdControllerFormat format;
-@property(nonatomic, retain) NSString* publisherId;
+@property(nonatomic, copy) NSString* publisherId;
 
 @property(nonatomic, retain) NSString* keywords;
 @property(nonatomic, retain) CLLocation* location;
@@ -67,8 +72,10 @@ typedef NSUInteger AdControllerFormat;
 
 @property(nonatomic, retain) NSString* clickURL;
 
--(id)initWithFormat:(AdControllerFormat)format publisherId:(NSString*)publisherId parentViewController:(UIViewController*)parent;
--(void)refresh;
+- (id)initWithFormat:(AdControllerFormat)format publisherId:(NSString*)publisherId parentViewController:(UIViewController*)parent;
+- (void)loadAd;
+- (void)refresh;
+
 @end
 
 @protocol AdControllerDelegate
@@ -86,7 +93,18 @@ typedef NSUInteger AdControllerFormat;
 /**
  * Called when the ad has been clicked and the ad landing page is about to open.
  */
--(void)adControllerAdWillOpen:(AdController*)adController;
+- (void)adControllerAdWillOpen:(AdController*)adController;
+
+/*
+ * Called when the ad requested to be close.
+ */
+- (void)didSelectClose:(id)sender;
+
+/*
+ * Responds to notification UIApplicationWillResignActiveNotification
+ */
+- (void)applicationWillResign:(id)sender;
+
 
 @end
 

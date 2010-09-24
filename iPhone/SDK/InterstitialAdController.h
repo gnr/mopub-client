@@ -12,8 +12,6 @@
 @interface InterstitialAdController : AdController {
 }
 
-@property(nonatomic, readonly) BOOL ready;
-
 - (id)initWithPublisherId:(NSString *)p parentViewController:(UIViewController*)pvc;
 
 

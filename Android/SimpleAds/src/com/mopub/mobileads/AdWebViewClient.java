@@ -17,6 +17,11 @@ class AdWebViewClient extends WebViewClient {
 	public boolean shouldOverrideUrlLoading(WebView view, String url) {
 		Log.i("url", url);
 
+		// Check if this is a local call
+		if (url.startsWith("mopub://")) {
+			return true;
+		}
+
 		String uri = ((AdView) view).getClickthroughUrl();
 		if (uri != null) {
 			uri += "&r=" + Uri.encode(url);
@@ -35,6 +40,6 @@ class AdWebViewClient extends WebViewClient {
 	
 	@Override
 	public void onPageFinished(WebView view, String url) {
-		
+		((AdView)view).pageFinished();
 	}
 }

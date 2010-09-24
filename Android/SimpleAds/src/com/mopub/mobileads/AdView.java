@@ -20,14 +20,20 @@ import android.webkit.WebView;
 import com.google.android.maps.GeoPoint;
 
 public class AdView extends WebView {
-	private static final String BASE_AD_URL = "http://www.mopub.com/m/ad";
+	
+	public interface OnAdViewPageFinishedListener {
+		public boolean OnAdViewPageFinished(AdView a);
+	}
 
-	private String mAdUnitId;
-	private String mClickthroughUrl;
-	private String keywords;
-	private GeoPoint location;
+	private static final String BASE_AD_URL = "http://10.0.2.2:8082/m/ad";
 
-	private AdWebViewClient webViewClient;
+	private String mAdUnitId = null;
+	private String mClickthroughUrl = null;
+	private String keywords = null;
+	private GeoPoint location = null;
+
+	private AdWebViewClient webViewClient = null;
+	private OnAdViewPageFinishedListener mPageFinishedListener = null;
 
 	public AdView(Context context) {
 		super(context);
@@ -75,12 +81,14 @@ public class AdView extends WebView {
 						try {
 							is.close();
 						} catch (IOException e) {
+							e.printStackTrace();
 						}
 					}
 					loadDataWithBaseURL(mUrl, sb.toString(),"text/html","utf-8", null);
 				}
 			}
 			catch (Exception e) {
+				e.printStackTrace();
 			}
 		}
 	}
@@ -139,5 +147,15 @@ public class AdView extends WebView {
 	public String getClickthroughUrl() {
 		return mClickthroughUrl;
 	}
-
+	
+	// Called by the WebViewClient when the page has finished loading
+	public void pageFinished() {
+		if (mPageFinishedListener != null) {
+			mPageFinishedListener.OnAdViewPageFinished(this);
+		}
+	}
+	
+	public void setOnAdViewPageFinishedListener(OnAdViewPageFinishedListener listener) {
+		mPageFinishedListener = listener;
+	}
 }
