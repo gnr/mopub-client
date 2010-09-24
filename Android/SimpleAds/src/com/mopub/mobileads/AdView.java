@@ -21,19 +21,19 @@ import com.google.android.maps.GeoPoint;
 
 public class AdView extends WebView {
 	
-	public interface OnAdViewPageFinishedListener {
-		public boolean OnAdViewPageFinished(AdView a);
+	public interface OnAdLoadedListener {
+		public void OnAdLoaded(AdView a);
 	}
 
 	private static final String BASE_AD_URL = "http://10.0.2.2:8082/m/ad";
 
-	private String mAdUnitId = null;
-	private String mClickthroughUrl = null;
-	private String keywords = null;
-	private GeoPoint location = null;
+	private String 				mAdUnitId = null;
+	private String 				mClickthroughUrl = null;
+	private String 				mKeywords = null;
+	private GeoPoint 			mLocation = null;
 
-	private AdWebViewClient webViewClient = null;
-	private OnAdViewPageFinishedListener mPageFinishedListener = null;
+	private AdWebViewClient 	mWebViewClient = null;
+	private OnAdLoadedListener  mOnAdLoadedListener = null;
 
 	public AdView(Context context) {
 		super(context);
@@ -43,6 +43,14 @@ public class AdView extends WebView {
 	public AdView(Context context, AttributeSet attrs) {
 		super(context, attrs);
 		initAdView(context, attrs);
+	}
+
+	private void initAdView(Context context, AttributeSet attrs) {
+		getSettings().setJavaScriptEnabled(true);
+
+		// set web view client
+		mWebViewClient = new AdWebViewClient();
+		setWebViewClient(mWebViewClient);
 	}
 
 	@Override
@@ -93,14 +101,6 @@ public class AdView extends WebView {
 		}
 	}
 
-	private void initAdView(Context context, AttributeSet attrs) {
-		this.getSettings().setJavaScriptEnabled(true);
-
-		// set web view client
-		this.webViewClient = new AdWebViewClient(this);
-		this.setWebViewClient(webViewClient);
-	}
-
 	private String generateAdUrl() {
 		StringBuilder sz = new StringBuilder(BASE_AD_URL);
 		sz.append("?v=1&id=" + this.mAdUnitId);
@@ -119,21 +119,27 @@ public class AdView extends WebView {
 		Log.i("ad url", adUrl);
 		this.loadUrl(adUrl);
 	}
+	
+	public void pageFinished() {
+		if (mOnAdLoadedListener != null) {
+			mOnAdLoadedListener.OnAdLoaded(this);
+		}
+	}
 
 	public String getKeywords() {
-		return keywords;
+		return mKeywords;
 	}
 
 	public void setKeywords(String keywords) {
-		this.keywords = keywords;
+		mKeywords = keywords;
 	}
 
 	public GeoPoint getLocation() {
-		return location;
+		return mLocation;
 	}
 
 	public void setLocation(GeoPoint location) {
-		this.location = location;
+		mLocation = location;
 	}
 
 	public String getAdUnitId() {
@@ -148,14 +154,7 @@ public class AdView extends WebView {
 		return mClickthroughUrl;
 	}
 	
-	// Called by the WebViewClient when the page has finished loading
-	public void pageFinished() {
-		if (mPageFinishedListener != null) {
-			mPageFinishedListener.OnAdViewPageFinished(this);
-		}
-	}
-	
-	public void setOnAdViewPageFinishedListener(OnAdViewPageFinishedListener listener) {
-		mPageFinishedListener = listener;
+	public void setOnAdLoadedListener(OnAdLoadedListener listener) {
+		mOnAdLoadedListener = listener;
 	}
 }

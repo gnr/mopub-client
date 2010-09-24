@@ -1,7 +1,7 @@
 package com.mopub.simpleads;
 
 import com.mopub.mobileads.AdView;
-import com.mopub.mobileads.AdView.OnAdViewPageFinishedListener;
+import com.mopub.mobileads.AdView.OnAdLoadedListener;
 
 import android.app.Activity;
 import android.content.Context;
@@ -12,7 +12,7 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 
-public class SimpleAds extends Activity implements OnAdViewPageFinishedListener {
+public class SimpleAds extends Activity {
 	private AdView				mTopAdView = null;
 	private AdView				mMidAdView = null;
 	private AdView				mInterstitialAdView = null;
@@ -60,16 +60,11 @@ public class SimpleAds extends Activity implements OnAdViewPageFinishedListener 
 	public void showInterstitialAd() {
 		mInterstitialAdView = new AdView(this);
 		mInterstitialAdView.setAdUnitId("agltb3B1Yi1pbmNyCgsSBFNpdGUYDQw");
-		mInterstitialAdView.setOnAdViewPageFinishedListener(this);
+		mInterstitialAdView.setOnAdLoadedListener(new OnAdLoadedListener() {
+			public void OnAdLoaded(AdView a) {
+				setContentView(mInterstitialAdView);
+			}
+		});
 		mInterstitialAdView.loadAd();
-	}
-	
-	@Override
-	public boolean OnAdViewPageFinished(AdView a) {
-		if (a == mInterstitialAdView) {
-			setContentView(mInterstitialAdView);
-			return true;
-		}	
-		return false;
 	}
 }
