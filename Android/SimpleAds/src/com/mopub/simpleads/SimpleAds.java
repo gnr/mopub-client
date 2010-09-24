@@ -1,7 +1,7 @@
 package com.mopub.simpleads;
 
 import com.mopub.mobileads.AdView;
-import com.mopub.mobileads.OnAdViewPageFinishedListener;
+import com.mopub.mobileads.AdView.OnAdViewPageFinishedListener;
 
 import android.app.Activity;
 import android.content.Context;

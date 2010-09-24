@@ -20,6 +20,11 @@ import android.webkit.WebView;
 import com.google.android.maps.GeoPoint;
 
 public class AdView extends WebView {
+	
+	public interface OnAdViewPageFinishedListener {
+		public boolean OnAdViewPageFinished(AdView a);
+	}
+
 	private static final String BASE_AD_URL = "http://10.0.2.2:8082/m/ad";
 
 	private String mAdUnitId = null;
