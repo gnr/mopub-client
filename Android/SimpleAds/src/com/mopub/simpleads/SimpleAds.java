@@ -1,6 +1,7 @@
 package com.mopub.simpleads;
 
 import com.mopub.mobileads.AdView;
+import com.mopub.mobileads.OnAdViewPageFinishedListener;
 
 import android.app.Activity;
 import android.content.Context;
@@ -11,12 +12,14 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 
-public class SimpleAds extends Activity {
+public class SimpleAds extends Activity implements OnAdViewPageFinishedListener {
 	private AdView				mTopAdView = null;
 	private AdView				mMidAdView = null;
-	
-	private Button				mSearchButton = null;
+	private AdView				mInterstitialAdView = null;
+
 	private EditText			mSearchText = null;
+	private Button				mSearchButton = null;
+	private Button				mShowButton = null;
 
     /** Called when the activity is first created. */
     @Override
@@ -26,11 +29,11 @@ public class SimpleAds extends Activity {
         
 		// Initialize Ad components
         mTopAdView = (AdView) findViewById(R.id.topadview);
-        mTopAdView.setAdUnitId("agltb3B1Yi1pbmNyDAsSBFNpdGUYudkDDA");
+        mTopAdView.setAdUnitId("agltb3B1Yi1pbmNyCgsSBFNpdGUYDQw");
         mTopAdView.loadAd();
 		
         mMidAdView = (AdView) findViewById(R.id.middleadview);
-        mMidAdView.setAdUnitId("agltb3B1Yi1pbmNyDAsSBFNpdGUYoeEDDA");
+        mMidAdView.setAdUnitId("agltb3B1Yi1pbmNyCgsSBFNpdGUYDQw");
         mMidAdView.loadAd();
 		
         mSearchText = (EditText) findViewById(R.id.searchtext);
@@ -45,5 +48,28 @@ public class SimpleAds extends Activity {
 				mMidAdView.loadAd();
 			}
 		});
+        
+        mShowButton = (Button) findViewById(R.id.showbutton);
+        mShowButton.setOnClickListener(new OnClickListener() {
+			public void onClick(View v) {
+				showInterstitialAd();
+			}
+		});
     }
+
+	public void showInterstitialAd() {
+		mInterstitialAdView = new AdView(this);
+		mInterstitialAdView.setAdUnitId("agltb3B1Yi1pbmNyCgsSBFNpdGUYDQw");
+		mInterstitialAdView.setOnAdViewPageFinishedListener(this);
+		mInterstitialAdView.loadAd();
+	}
+	
+	@Override
+	public boolean OnAdViewPageFinished(AdView a) {
+		if (a == mInterstitialAdView) {
+			setContentView(mInterstitialAdView);
+			return true;
+		}	
+		return false;
+	}
 }
