@@ -21,7 +21,7 @@
 	
 	NSURL* url;
 }
-@property(nonatomic, retain) id<AdControllerDelegate> delegate;
+@property(nonatomic, assign) id<AdControllerDelegate> delegate;
 
 @property(nonatomic, retain) IBOutlet UIWebView* webView;
 @property(nonatomic, retain) IBOutlet UIBarButtonItem* backButton;
@@ -33,7 +33,7 @@
 @property(nonatomic, retain) IBOutlet UIActivityIndicatorView* loading;
 @property(nonatomic, retain) IBOutlet UIActivityIndicatorView* initialLoad;
 
-@property(nonatomic, retain) NSURL* url;
+@property(nonatomic, copy) NSURL* url;
 
 -(id) initWithURL:(NSURL*)u delegate:(id<AdControllerDelegate>)delegate;
 -(IBAction) openInSafari;

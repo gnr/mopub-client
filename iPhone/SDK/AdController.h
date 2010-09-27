@@ -38,12 +38,13 @@ typedef NSUInteger AdControllerFormat;
 	
 	AdClickController *adClickController;
 	
+	// boolean flag to let us know if the ad will be shown as an interstitial
 	BOOL _isInterstitial;
 
 	
 @private
 	// UI elements
-	UIActivityIndicatorView *loading;	
+	UIActivityIndicatorView *loadingIndicator;	
 	UIWebView *webView;
 	
 	// Data to hold the web request
@@ -73,7 +74,7 @@ typedef NSUInteger AdControllerFormat;
 @property(nonatomic, copy) NSString* keywords;
 @property(nonatomic, retain) CLLocation* location;
 
-@property(nonatomic, retain) UIActivityIndicatorView* loading;
+@property(nonatomic, retain) UIActivityIndicatorView* loadingIndicator;
 @property(nonatomic, retain) UIWebView* webView;
 
 @property(nonatomic, copy) NSURL* url;
@@ -87,9 +88,16 @@ typedef NSUInteger AdControllerFormat;
 @property(nonatomic, retain) AdClickController *adClickController;
 
 - (id)initWithFormat:(AdControllerFormat)format publisherId:(NSString*)publisherId parentViewController:(UIViewController*)parent;
+/**
+ * Call this method whenever you would like to load the ad
+ * should often be called in a background thread
+ */
 - (void)loadAd;
+/**
+ * Call this method whenever you would like to refresh
+ * the current ad on the screen
+ */
 - (void)refresh;
-- (void)adClickHelper:(NSURL *)desiredURL;
 
 @end
 

@@ -52,13 +52,14 @@ NSString* FORMAT_CODES[] = {
 	@"300x250",
 	@"728x90",
 	@"468x60",
-	@"300x250",
+	@"320x480",
 };
 
 @interface AdController (Internal)
 - (void)backfillWithNothing;
 - (void)backfillWithADBannerView;
 - (NSString *)escapeURL:(NSURL *)urlIn;
+- (void)adClickHelper:(NSURL *)desiredURL;
 @end
 
 	
@@ -67,7 +68,7 @@ NSString* FORMAT_CODES[] = {
 @synthesize delegate;
 @synthesize loaded;
 @synthesize format, publisherId;
-@synthesize webView, loading;
+@synthesize webView, loadingIndicator;
 @synthesize parent, keywords, location;
 @synthesize data, url;
 @synthesize nativeAdView;
@@ -84,12 +85,17 @@ NSString* FORMAT_CODES[] = {
 		self.format = f;
 		self.publisherId = p;
 		
-		self.webView = [[TouchableWebView alloc] initWithFrame:CGRectZero];
-		self.webView.delegate = self;
+		// init the webview and add self as the delegate
+		webView = [[TouchableWebView alloc] initWithFrame:CGRectZero];
+		webView.delegate = self;
 		
 		_isInterstitial = NO;
+		
+		// initialize ad Loading to False
 		adLoading = NO;
 		
+		
+		// init the exclude parameter list
 		excludeParams = [[NSMutableArray alloc] initWithCapacity:1];
 		
 		// add self to receive notifications that the application will resign
@@ -105,16 +111,23 @@ NSString* FORMAT_CODES[] = {
 	[data release];
 	[parent release];
 	[publisherId release];
+	
+	// first nil out the delegate so that this
+	// object doesn't receive any more messages
+	// then release the webview
 	webView.delegate = nil;
 	[webView release];
-	
+
 	[keywords release];
 	[location release];
-	[loading release];
+	[loadingIndicator release];
 	[url release];
 	[nativeAdView release];
 	[clickURL release];
 	[excludeParams release];
+	
+	adClickController.delegate = nil;
+	[adClickController release];
 	[super dealloc];
 }
 
@@ -131,19 +144,21 @@ NSString* FORMAT_CODES[] = {
 	}
 	
 	// create view substructure
-	self.view = [[UIView alloc] initWithFrame:CGRectMake(0, 0, width, height)];
+	UIView *thisView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, width, height)];
+	self.view = thisView;
+	[thisView release];
 	
 	// activity indicator, placed in the center
-	self.loading = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleGray];
-	self.loading.frame = CGRectMake((width - self.loading.bounds.size.width) / 2, (height - self.loading.bounds.size.height) / 2, 
-									self.loading.bounds.size.width, self.loading.bounds.size.height);
-	self.loading.hidesWhenStopped = YES;
+	loadingIndicator = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleGray];
+	loadingIndicator.frame = CGRectMake((width - self.loadingIndicator.bounds.size.width) / 2, (height - self.loadingIndicator.bounds.size.height) / 2, 
+									self.loadingIndicator.bounds.size.width, self.loadingIndicator.bounds.size.height);
+	loadingIndicator.hidesWhenStopped = YES;
 	
 	// web view - use a custom TouchableWebView to prevent "bouncing"
 	self.webView.frame = self.view.frame;
 	
 	// add them 
-	[self.view addSubview:self.loading];	
+	[self.view addSubview:self.loadingIndicator];	
 	// put the webview on the page
 	[self.view addSubview:self.webView];
 
@@ -203,10 +218,10 @@ NSString* FORMAT_CODES[] = {
 	
 	// We load manually so that we can check for a special backfill header 
 	// that instructs us to do some native things on occasion 
-	NSLog(@"ad loading via %@", self.url);
+	NSLog(@"MOPUB: ad loading via %@", self.url);
 	
 	// fire off request
-	[self.loading startAnimating];
+	[self.loadingIndicator startAnimating];
 	NSURLRequest *request = [NSURLRequest requestWithURL:self.url cachePolicy:NSURLRequestUseProtocolCachePolicy timeoutInterval:3.0];
 	[[NSURLConnection alloc] initWithRequest:request delegate:self];
 	
@@ -246,18 +261,16 @@ NSString* FORMAT_CODES[] = {
 	[self.data setLength:0];
 
 	// check for backfill headers
-	NSLog(@"headers: %@",[(NSHTTPURLResponse*)response allHeaderFields]); 
-
 	NSString* backfillKey = [[(NSHTTPURLResponse*)response allHeaderFields] objectForKey:@"X-Backfill"];
 	if ([backfillKey isEqualToString:@"iAd"]) {
 		self.loaded = TRUE;
-		[self.loading stopAnimating];
+		[self.loadingIndicator stopAnimating];
 		[connection cancel];
 		[connection release];	
 		[self backfillWithADBannerView];
 	} else if ([backfillKey isEqualToString:@"clear"]) {
 		self.loaded = TRUE;
-		[self.loading stopAnimating];
+		[self.loadingIndicator stopAnimating];
 		[connection cancel];
 		[connection release];
 		[self backfillWithNothing];
@@ -266,18 +279,22 @@ NSString* FORMAT_CODES[] = {
 	// grab the clickthrough URL from the headers as well 
 	self.clickURL = [[(NSHTTPURLResponse*)response allHeaderFields] objectForKey:@"X-Clickthrough"];
 	
+	// grab the url string that should be intercepted for the launch of a new page (c.admob.com, c.google.com, etc)
 	self.newPageURLString = [[(NSHTTPURLResponse*)response allHeaderFields] objectForKey:@"X-Launchpage"];
 }
 
+// standard data appending
 - (void)connection:(NSURLConnection *)connection didReceiveData:(NSData *)d {
 	[self.data appendData:d];
 }
 
 - (void)connection:(NSURLConnection *)connection didFailWithError:(NSError *)error {
-	NSLog(@"failed to load ad content... %@", error);
+	NSLog(@"MOPUB: failed to load ad content... %@", error);
 	[self backfillWithNothing];
 	[connection release];
 	adLoading = NO;
+	
+	// let delegate know that the ad has failed to load
 	if ([(NSObject *)self.delegate respondsToSelector:@selector(adControllerFailedLoadAd:)]){
 		[self.delegate adControllerFailedLoadAd:self];
 	}
@@ -285,10 +302,7 @@ NSString* FORMAT_CODES[] = {
 
 - (void)connectionDidFinishLoading:(NSURLConnection *)connection {
 	// set the content into the webview	
-	NSLog(@"connection did finish loading");
 	[self.webView loadData:self.data MIMEType:@"text/html" textEncodingName:@"utf-8" baseURL:self.url];
-	
-	NSLog(@"CONTENT \n%@",[[[NSString alloc] initWithData:self.data encoding:NSUTF8StringEncoding] autorelease]);
 	
 	[connection release];
 }
@@ -313,7 +327,7 @@ NSString* FORMAT_CODES[] = {
 
 // when the content has loaded, we stop the loading indicator
 - (void)webViewDidFinishLoad:(UIWebView *)_webView {
-	[self.loading stopAnimating];
+	[self.loadingIndicator stopAnimating];
 	
 	// show the webview because we know it has been loaded
 	self.webView.hidden = NO;
@@ -325,7 +339,7 @@ NSString* FORMAT_CODES[] = {
 }
 
 - (BOOL)webView:(UIWebView *)webView shouldStartLoadWithRequest:(NSURLRequest *)request navigationType:(UIWebViewNavigationType)navigationType {
-	NSLog(@"shouldStartLoadWithRequest URL:%@ navigationType:%d", [[request URL] absoluteString], navigationType);
+	NSLog(@"MOPUB: shouldStartLoadWithRequest URL:%@ navigationType:%d", [[request URL] absoluteString], navigationType);
 	if (navigationType == UIWebViewNavigationTypeOther){
 		NSURL *requestURL = [request URL];
 		if ([[requestURL scheme] isEqual:@"mopub"]){
@@ -339,6 +353,14 @@ NSString* FORMAT_CODES[] = {
 				if ([(NSObject *)self.delegate respondsToSelector:@selector(adControllerDidLoadAd:)]) {
 					adLoading = NO;
 					[self.delegate adControllerDidLoadAd:self];
+				}
+				return NO;
+			}
+			else if ([[requestURL host] isEqual:@"failLoad"]){
+				loaded = YES;
+				if ([(NSObject *)self.delegate respondsToSelector:@selector(adControllerFailedLoadAd:)]) {
+					adLoading = NO;
+					[self.delegate adControllerFailedLoadAd:self];
 				}
 				return NO;
 			}
@@ -373,8 +395,11 @@ NSString* FORMAT_CODES[] = {
 	if ([(NSObject *)self.delegate respondsToSelector:@selector(adControllerAdWillOpen:)]) {
 		[self.delegate adControllerAdWillOpen:self];
 	}
-	self.adClickController = [[AdClickController alloc] initWithURL:adClickURL delegate:self.delegate];
 	
+	adClickController = [[AdClickController alloc] initWithURL:adClickURL delegate:self.delegate];
+	
+	// if the ad is being show as an interstitial then this view may load another modal view
+	// otherwise, the ad is just a subview of what is on screen, so the parent should load the modal view
 	if (_isInterstitial){
 		[self presentModalViewController:adClickController animated:YES];
 	}
@@ -427,12 +452,12 @@ NSString* FORMAT_CODES[] = {
 }
 
 - (void)bannerView:(ADBannerView *)banner didFailToReceiveAdWithError:(NSError *)error {
-	NSLog(@"Failed to load iAd");
+	NSLog(@"MOPUB: Failed to load iAd");
 	
 	// animate away the iAd
-	[UIView beginAnimations:@"animateAdBannerOff" context:NULL];
-	banner.frame = CGRectOffset(banner.frame, 0, 480);
-	[UIView commitAnimations];
+//	[UIView beginAnimations:@"animateAdBannerOff" context:NULL];
+//	banner.frame = CGRectOffset(banner.frame, 0, 480);
+//	[UIView commitAnimations];
 	
 	// ad iAd to the list of excludes
 	[excludeParams addObject:@"iAd"];
@@ -449,8 +474,8 @@ NSString* FORMAT_CODES[] = {
 - (BOOL)bannerViewActionShouldBegin:(ADBannerView *)banner willLeaveApplication:(BOOL)willLeave {	
 	// ping the clickURL without a redirect parameter, for logging
 	NSURLRequest* iAdClickURL = [NSURLRequest requestWithURL:[NSURL URLWithString:self.clickURL]];
-	NSURLConnection* c = [[NSURLConnection alloc] initWithRequest:iAdClickURL delegate:nil];
-	[c start];
+	NSURLConnection* connection = [[NSURLConnection alloc] initWithRequest:iAdClickURL delegate:nil];
+	[connection start];
 	
 	// pass along to our own delegate
 	if ([(NSObject *)self.delegate respondsToSelector:@selector(adControllerAdWillOpen:)]) {

@@ -47,7 +47,7 @@
 	// we add a close button to the top right corner of the screen
 	if (closeButtonType == AdCloseButtonTypeDefault || closeButtonType == AdCloseButtonTypeNext){
 		[self.closeButton removeFromSuperview];
-		self.closeButton = [[UIButton buttonWithType:UIButtonTypeCustom] retain]; 
+		self.closeButton = [UIButton buttonWithType:UIButtonTypeCustom]; 
 		NSString *closeButtonImageName;
 		if (closeButtonType == AdCloseButtonTypeDefault){
 			closeButtonImageName = @"moPubCloseButtonX.png";

@@ -117,12 +117,14 @@ static NSArray *SAFARI_SCHEMES, *SAFARI_HOSTS;
 	UIImage *backImage = [[UIImage alloc] initWithCGImage:theCGImage];
 	CGImageRelease(theCGImage);
 	self.backButton.image = backImage;
+	[backImage release];
 	
 	// set fwd button image
 	CGImageRef theCGImage2 = [self createForwardArrowImageRef];
 	UIImage *fwdImage = [[UIImage alloc] initWithCGImage:theCGImage2];
 	CGImageRelease(theCGImage2);
-	self.forwardButton.image = fwdImage;	
+	self.forwardButton.image = fwdImage;
+	[fwdImage release];
 	
 	// disable button items
 	self.backButton.enabled = NO;
@@ -208,8 +210,9 @@ static NSArray *SAFARI_SCHEMES, *SAFARI_HOSTS;
 
 
 - (void)dealloc {
-    [super dealloc];
-	self.webView.delegate = nil;
+	[url copy];
+	webView.delegate = nil;
+	[super dealloc];
 }
 
 
