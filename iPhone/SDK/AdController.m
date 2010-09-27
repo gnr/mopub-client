@@ -261,14 +261,14 @@ NSString* FORMAT_CODES[] = {
 	[self.data setLength:0];
 
 	// check for backfill headers
-	NSString* backfillKey = [[(NSHTTPURLResponse*)response allHeaderFields] objectForKey:@"X-Backfill"];
-	if ([backfillKey isEqualToString:@"iAd"]) {
+	NSString* adTypeKey = [[(NSHTTPURLResponse*)response allHeaderFields] objectForKey:@"X-Adtype"];
+	if ([adTypeKey isEqualToString:@"iAd"]) {
 		self.loaded = TRUE;
 		[self.loadingIndicator stopAnimating];
 		[connection cancel];
 		[connection release];	
 		[self backfillWithADBannerView];
-	} else if ([backfillKey isEqualToString:@"clear"]) {
+	} else if ([adTypeKey isEqualToString:@"clear"]) {
 		self.loaded = TRUE;
 		[self.loadingIndicator stopAnimating];
 		[connection cancel];
