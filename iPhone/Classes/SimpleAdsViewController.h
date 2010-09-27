@@ -6,6 +6,7 @@
 
 #import <UIKit/UIKit.h>
 #import "AdController.h"
+#import "SecondViewController.h"
 
 @class InterstitialAdController;
 
@@ -19,6 +20,10 @@
 	AdController* adController;
 	AdController* mrectController;
 	InterstitialAdController *interstitialAdController;
+	InterstitialAdController *navigationInterstitialAdController;
+	
+	BOOL shownNavigationInterstitialAlready;
+
 }
 @property(nonatomic,retain) IBOutlet UITextField* keyword;
 @property(nonatomic,retain) IBOutlet UIView* adView;
@@ -26,10 +31,13 @@
 @property(nonatomic,retain) AdController* adController;
 @property(nonatomic,retain) AdController* mrectController;
 @property(nonatomic,retain) InterstitialAdController* interstitialAdController;
+@property(nonatomic,retain) InterstitialAdController* navigationInterstitialAdController;
+
 -(IBAction) refreshAd;
--(IBAction) showInterstitial;
--(IBAction) getInterstitial;
--(IBAction) getAndShowInterstitial;
+-(IBAction) showModalInterstitial;
+-(IBAction) getModalInterstitial;
+-(IBAction) getAndShowModalInterstitial;
+-(IBAction) getNavigationInterstitial;
 
 @end
 

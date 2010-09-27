@@ -20,11 +20,14 @@ enum {
 };
 typedef NSUInteger AdControllerFormat;
 
+@class AdClickController;
+
 @protocol AdControllerDelegate;
 
 @interface AdController : UIViewController <UIWebViewDelegate, ADBannerViewDelegate> {
 	id<AdControllerDelegate> delegate;
 	BOOL loaded;
+	BOOL adLoading;
 	
 	UIViewController *parent;
 	AdControllerFormat format;
@@ -32,6 +35,8 @@ typedef NSUInteger AdControllerFormat;
 
 	NSString *keywords;
 	CLLocation *location;
+	
+	AdClickController *adClickController;
 	
 	BOOL _isInterstitial;
 
@@ -51,6 +56,12 @@ typedef NSUInteger AdControllerFormat;
 	// store the click-through URL which is encoded for tracking purposes
 	NSString *clickURL;
 	
+	// store the click host for other ad networks c.admob.com, c.google.com, c.quattro.com, from teh header
+	NSString *newPageURLString;
+	
+	// array of strings of parameters to include the the ad request ?exclude=iAd...
+	NSMutableArray *excludeParams;
+	
 }
 @property(nonatomic, retain) id<AdControllerDelegate> delegate;
 @property(nonatomic, assign) BOOL loaded;
@@ -59,22 +70,26 @@ typedef NSUInteger AdControllerFormat;
 @property(nonatomic, assign) AdControllerFormat format;
 @property(nonatomic, copy) NSString* publisherId;
 
-@property(nonatomic, retain) NSString* keywords;
+@property(nonatomic, copy) NSString* keywords;
 @property(nonatomic, retain) CLLocation* location;
 
 @property(nonatomic, retain) UIActivityIndicatorView* loading;
 @property(nonatomic, retain) UIWebView* webView;
 
-@property(nonatomic, retain) NSURL* url;
+@property(nonatomic, copy) NSURL* url;
 @property(nonatomic, retain) NSMutableData* data;
 
 @property(nonatomic, retain) UIView* nativeAdView; 
 
-@property(nonatomic, retain) NSString* clickURL;
+@property(nonatomic, copy) NSString* clickURL;
+@property(nonatomic, copy) NSString* newPageURLString;
+
+@property(nonatomic, retain) AdClickController *adClickController;
 
 - (id)initWithFormat:(AdControllerFormat)format publisherId:(NSString*)publisherId parentViewController:(UIViewController*)parent;
 - (void)loadAd;
 - (void)refresh;
+- (void)adClickHelper:(NSURL *)desiredURL;
 
 @end
 
@@ -89,6 +104,12 @@ typedef NSUInteger AdControllerFormat;
  * Called when the ad creative has been loaded.
  */
 -(void)adControllerDidLoadAd:(AdController*)adController;
+
+/**
+ * Called when the ad creative has failed to load.
+ */
+-(void)adControllerFailedLoadAd:(AdController*)adController;
+
 
 /**
  * Called when the ad has been clicked and the ad landing page is about to open.

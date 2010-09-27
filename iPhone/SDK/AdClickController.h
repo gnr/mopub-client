@@ -9,15 +9,15 @@
 @interface AdClickController : UIViewController <UIWebViewDelegate, UIActionSheetDelegate> {
 	id<AdControllerDelegate> delegate;
 	
-	UIWebView* webView;
-	UIBarButtonItem* backButton;
-	UIBarButtonItem* forwardButton;
-	UIBarButtonItem* refreshButton;
-	UIBarButtonItem* safariButton;
-	UIBarButtonItem* doneButton;
+	IBOutlet UIWebView* webView;
+	IBOutlet UIBarButtonItem* backButton;
+	IBOutlet UIBarButtonItem* forwardButton;
+	IBOutlet UIBarButtonItem* refreshButton;
+	IBOutlet UIBarButtonItem* safariButton;
+	IBOutlet UIBarButtonItem* doneButton;
 	
-	UIActivityIndicatorView* loading;
-	UIActivityIndicatorView* initialLoad;
+	IBOutlet UIActivityIndicatorView* loading;
+	IBOutlet UIActivityIndicatorView* initialLoad;
 	
 	NSURL* url;
 }

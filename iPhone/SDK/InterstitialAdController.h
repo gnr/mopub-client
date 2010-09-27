@@ -9,11 +9,24 @@
 #import <Foundation/Foundation.h>
 #import "AdController.h"
 
+enum {
+	AdCloseButtonTypeDefault,
+	AdCloseButtonTypeNone,
+	AdCloseButtonTypeNext,
+};
+typedef NSUInteger AdCloseButtonType;
+
 @interface InterstitialAdController : AdController {
+	BOOL wasStatusBarHidden;
+	UIButton *closeButton;
+	AdCloseButtonType closeButtonType;
+	BOOL _inNavigationController;
 }
 
-- (id)initWithPublisherId:(NSString *)p parentViewController:(UIViewController*)pvc;
+@property (nonatomic,retain) UIButton *closeButton;
 
+- (id)initWithPublisherId:(NSString *)p parentViewController:(UIViewController*)pvc;
+- (void)makeCloseButton;
 
 @end
 
