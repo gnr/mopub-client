@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
+import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpGet;
@@ -72,9 +73,26 @@ public class AdView extends WebView {
 				HttpGet httpget = new HttpGet(mUrl);  
 				HttpResponse response = httpclient.execute(httpget);
 				HttpEntity entity = response.getEntity();
-				mClickthroughUrl = response.getFirstHeader("X-Clickthrough").getValue();
-				Log.i("clickthrough url", mClickthroughUrl);
+				
 				if (entity != null) {
+					// Get the various header messages
+					Header ctHeader = response.getFirstHeader("X-Clickthrough");
+					if (ctHeader != null) {
+						mClickthroughUrl = ctHeader.getValue();
+						Log.i("clickthrough url", mClickthroughUrl);
+					}
+					else {
+						mClickthroughUrl = null;
+					}
+					
+					// If there is no ad, don't bother loading the data
+					Header bfHeader = response.getFirstHeader("X-Backfill");
+					if (bfHeader != null) {
+						if (bfHeader.getValue() == "clear") {
+							return;
+						}
+					}
+					
 					InputStream is = entity.getContent();
 					BufferedReader reader = new BufferedReader(new InputStreamReader(is));
 					StringBuilder sb = new StringBuilder();
