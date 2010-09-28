@@ -26,7 +26,7 @@ public class AdView extends WebView {
 		public void OnAdLoaded(AdView a);
 	}
 
-	private static final String BASE_AD_URL = "http://localhost:8082/m/ad";
+	private static final String BASE_AD_URL = "http://33-campaigns.latest.mopub-inc.appspot.com/m/ad";
 
 	private String 				mAdUnitId = null;
 	private String 				mClickthroughUrl = null;

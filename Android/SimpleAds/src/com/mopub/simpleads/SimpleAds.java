@@ -29,11 +29,11 @@ public class SimpleAds extends Activity {
         
 		// Initialize Ad components
         mTopAdView = (AdView) findViewById(R.id.topadview);
-        mTopAdView.setAdUnitId("agltb3B1Yi1pbmNyCgsSBFNpdGUYAgw");
+        mTopAdView.setAdUnitId("agltb3B1Yi1pbmNyDAsSBFNpdGUY2aQGDA");
         mTopAdView.loadAd();
 		
         mMidAdView = (AdView) findViewById(R.id.middleadview);
-        mMidAdView.setAdUnitId("agltb3B1Yi1pbmNyCgsSBFNpdGUYAgw");
+        mMidAdView.setAdUnitId("agltb3B1Yi1pbmNyDAsSBFNpdGUY2aQGDA");
         mMidAdView.loadAd();
 		
         mSearchText = (EditText) findViewById(R.id.searchtext);
@@ -59,7 +59,7 @@ public class SimpleAds extends Activity {
 
 	public void showInterstitialAd() {
 		mInterstitialAdView = new AdView(this);
-		mInterstitialAdView.setAdUnitId("agltb3B1Yi1pbmNyCgsSBFNpdGUYAgw");
+		mInterstitialAdView.setAdUnitId("agltb3B1Yi1pbmNyDAsSBFNpdGUY2aQGDA");
 		mInterstitialAdView.setOnAdLoadedListener(new OnAdLoadedListener() {
 			public void OnAdLoaded(AdView a) {
 				setContentView(mInterstitialAdView);
