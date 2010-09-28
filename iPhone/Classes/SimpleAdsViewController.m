@@ -16,7 +16,7 @@
 
 #define PUB_ID_320x50 @"agltb3B1Yi1pbmNyCgsSBFNpdGUYAww"
 #define PUB_ID_300x250 @"agltb3B1Yi1pbmNyCgsSBFNpdGUYAww"
-#define PUB_ID_INTERSTITIAL @"agltb3B1Yi1pbmNyCgsSBFNpdGUYAww"
+#define PUB_ID_INTERSTITIAL @"agltb3B1Yi1pbmNyCgsSBFNpdGUYEQw"
 
 // Implement viewDidLoad to do additional setup after loading the view, typically from a nib. 
 
@@ -32,6 +32,7 @@
 	
 	self.adController = [[AdController alloc] initWithFormat:AdControllerFormat320x50 publisherId:PUB_ID_320x50 parentViewController:self];
 	self.adController.keywords = @"coffee";
+	self.adController.delegate = self;
 	[self.adView addSubview:self.adController.view];
 	
 	

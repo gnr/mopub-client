@@ -211,6 +211,8 @@ static NSArray *SAFARI_SCHEMES, *SAFARI_HOSTS;
 
 - (void)dealloc {
 	[url copy];
+	
+	// remove self as delegate of webview
 	webView.delegate = nil;
 	[super dealloc];
 }

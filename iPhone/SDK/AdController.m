@@ -125,7 +125,7 @@ NSString* FORMAT_CODES[] = {
 	[nativeAdView release];
 	[clickURL release];
 	[excludeParams release];
-	
+	[newPageURLString release];
 	adClickController.delegate = nil;
 	[adClickController release];
 	[super dealloc];
@@ -200,16 +200,6 @@ NSString* FORMAT_CODES[] = {
 	}
 	
 	self.url = [NSURL URLWithString:urlString];
-	
-	//
-	// This is a hack to always get back an interstitial
-	//
-	if (_isInterstitial){
-		self.url = [NSURL URLWithString:[NSString stringWithFormat:@"http://localhost:8000/account/test/?w=%f&h=%f",
-										 0.0,//self.view.frame.size.width,
-										 0.0]];//self.view.frame.size.height]];
-	}
-	
 	
 	// inform delegate we are about to start loading...
 	if ([(NSObject *)self.delegate respondsToSelector:@selector(adControllerWillLoadAd:)]) {
@@ -293,6 +283,7 @@ NSString* FORMAT_CODES[] = {
 	[self backfillWithNothing];
 	[connection release];
 	adLoading = NO;
+	[loadingIndicator stopAnimating];
 	
 	// let delegate know that the ad has failed to load
 	if ([(NSObject *)self.delegate respondsToSelector:@selector(adControllerFailedLoadAd:)]){
@@ -454,7 +445,7 @@ NSString* FORMAT_CODES[] = {
 - (void)bannerView:(ADBannerView *)banner didFailToReceiveAdWithError:(NSError *)error {
 	NSLog(@"MOPUB: Failed to load iAd");
 	
-	// animate away the iAd
+// animate away the iAd
 //	[UIView beginAnimations:@"animateAdBannerOff" context:NULL];
 //	banner.frame = CGRectOffset(banner.frame, 0, 480);
 //	[UIView commitAnimations];
@@ -467,15 +458,15 @@ NSString* FORMAT_CODES[] = {
 		self.nativeAdView = nil;
 	}
 	
-	// then try another ad call 
+	// then try another ad call to verify see if there is another ad creative that can fill this spot
+	// if this fails the delegate will be notified
 	[self loadAd];
 }
 
 - (BOOL)bannerViewActionShouldBegin:(ADBannerView *)banner willLeaveApplication:(BOOL)willLeave {	
 	// ping the clickURL without a redirect parameter, for logging
 	NSURLRequest* iAdClickURL = [NSURLRequest requestWithURL:[NSURL URLWithString:self.clickURL]];
-	NSURLConnection* connection = [[NSURLConnection alloc] initWithRequest:iAdClickURL delegate:nil];
-	[connection start];
+	[[NSURLConnection alloc] initWithRequest:iAdClickURL delegate:nil];
 	
 	// pass along to our own delegate
 	if ([(NSObject *)self.delegate respondsToSelector:@selector(adControllerAdWillOpen:)]) {
