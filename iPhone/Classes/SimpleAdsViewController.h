@@ -6,11 +6,12 @@
 
 #import <UIKit/UIKit.h>
 #import "AdController.h"
+#import "InterstitialAdController.h"
 #import "SecondViewController.h"
 
 @class InterstitialAdController;
 
-@interface SimpleAdsViewController : UIViewController <UITextFieldDelegate, AdControllerDelegate> {
+@interface SimpleAdsViewController : UIViewController <UITextFieldDelegate, InterstitialAdControllerDelegate> {
 	IBOutlet UITextField* keyword;
 	IBOutlet UIView* adView;
 	IBOutlet UIView* mrectView;

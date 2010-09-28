@@ -31,7 +31,7 @@ typedef NSUInteger AdControllerFormat;
 	
 	UIViewController *parent;
 	AdControllerFormat format;
-	NSString *publisherId;
+	NSString *adUnitId;
 
 	NSString *keywords;
 	CLLocation *location;
@@ -69,7 +69,7 @@ typedef NSUInteger AdControllerFormat;
 
 @property(nonatomic, retain) UIViewController* parent;
 @property(nonatomic, assign) AdControllerFormat format;
-@property(nonatomic, copy) NSString* publisherId;
+@property(nonatomic, copy) NSString* adUnitId;
 
 @property(nonatomic, copy) NSString* keywords;
 @property(nonatomic, retain) CLLocation* location;
@@ -87,7 +87,7 @@ typedef NSUInteger AdControllerFormat;
 
 @property(nonatomic, retain) AdClickController *adClickController;
 
-- (id)initWithFormat:(AdControllerFormat)format publisherId:(NSString*)publisherId parentViewController:(UIViewController*)parent;
+- (id)initWithFormat:(AdControllerFormat)format adUnitId:(NSString*)publisherId parentViewController:(UIViewController*)parent;
 /**
  * Call this method whenever you would like to load the ad
  * should often be called in a background thread
@@ -98,6 +98,18 @@ typedef NSUInteger AdControllerFormat;
  * the current ad on the screen
  */
 - (void)refresh;
+
+/**
+ * Call this method whenever the application closes (maybe after a loading up content, etc)
+ * the current ad on the screen (mopub will track time on screen,etc)
+ */
+- (void)closeAd;
+
+/**
+ * Informs the webview that the application would like to dismiss the add
+ */
+
+- (void)didSelectClose:(id)sender;
 
 @end
 

@@ -30,9 +30,8 @@ typedef NSUInteger AdCloseButtonType;
 
 @end
 
-@protocol InterstitialAdControllerDelegate
+@protocol InterstitialAdControllerDelegate <AdControllerDelegate>
 
-@optional
 
 -(void)interstitialDidClose:(InterstitialAdController *)interstitialAdController;
 

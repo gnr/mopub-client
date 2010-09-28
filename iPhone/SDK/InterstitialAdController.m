@@ -12,9 +12,8 @@
 
 @synthesize closeButton;
 
-
--(id)initWithPublisherId:(NSString *)p parentViewController:(UIViewController*)pvc{
-	if (self = [super initWithFormat:AdControllerFormatFullScreen publisherId:p parentViewController:pvc]){
+-(id)initWithPublisherId:(NSString *)a parentViewController:(UIViewController*)pvc{
+	if (self = [super initWithFormat:AdControllerFormatFullScreen adUnitId:a parentViewController:pvc]){
 		_isInterstitial = YES;
 		_inNavigationController = [pvc isKindOfClass:[UINavigationController class]];
 		
@@ -29,6 +28,9 @@
 	return self;
 }
 
+- (void)viewWillAppear:(BOOL)animated{
+	[super viewWillAppear:animated];
+}
 
 - (void)loadView{
 	[super loadView];
@@ -59,7 +61,6 @@
 		[closeButton setImage:closeButtonImage forState:UIControlStateNormal];
 		[closeButton sizeToFit];
 		closeButton.frame = CGRectMake(320-closeButton.frame.size.width-10.0, 10.0, closeButton.frame.size.width, closeButton.frame.size.height);
-		NSLog(@"%f,%f,%f,%f",closeButton.frame.origin.x,closeButton.frame.origin.y,closeButton.frame.size.width,closeButton.frame.size.height);
 		[closeButton addTarget:self action:@selector(didSelectClose:) forControlEvents:UIControlEventTouchUpInside];
 		[self.view addSubview:closeButton];
 		[self.view bringSubviewToFront:closeButton];
@@ -72,9 +73,7 @@
 }
 
 - (void)didSelectClose:(id)sender{
-	// tell the webpage that the webview has been dismissed by the user
-	// this is a good place to record time spent on site
-	[self.webView stringByEvaluatingJavaScriptFromString:@"webviewDidClose();"]; 
+	[super didSelectClose:sender];
 	
 	// return the state of the status bar
 	[UIApplication sharedApplication].statusBarHidden = wasStatusBarHidden;

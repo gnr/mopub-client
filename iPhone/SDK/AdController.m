@@ -67,7 +67,7 @@ NSString* FORMAT_CODES[] = {
 
 @synthesize delegate;
 @synthesize loaded;
-@synthesize format, publisherId;
+@synthesize format, adUnitId;
 @synthesize webView, loadingIndicator;
 @synthesize parent, keywords, location;
 @synthesize data, url;
@@ -76,14 +76,14 @@ NSString* FORMAT_CODES[] = {
 @synthesize adClickController;
 @synthesize newPageURLString;
 
--(id)initWithFormat:(AdControllerFormat)f publisherId:(NSString *)p parentViewController:(UIViewController*)pvc {
+-(id)initWithFormat:(AdControllerFormat)f adUnitId:(NSString *)a parentViewController:(UIViewController*)pvc {
 	if (self = [super init]){
 		self.data = [NSMutableData data];
 
 		// set format + publisherId, the two immutable properties of this ad controller
 		self.parent = pvc;
 		self.format = f;
-		self.publisherId = p;
+		self.adUnitId = a;
 		
 		// init the webview and add self as the delegate
 		webView = [[TouchableWebView alloc] initWithFrame:CGRectZero];
@@ -110,7 +110,7 @@ NSString* FORMAT_CODES[] = {
 - (void)dealloc{
 	[data release];
 	[parent release];
-	[publisherId release];
+	[adUnitId release];
 	
 	// first nil out the delegate so that this
 	// object doesn't receive any more messages
@@ -161,8 +161,12 @@ NSString* FORMAT_CODES[] = {
 	[self.view addSubview:self.loadingIndicator];	
 	// put the webview on the page but hide it until its loaded
 	[self.view addSubview:self.webView];
-	self.webView.hidden = YES;
+//	self.webView.hidden = YES;
 
+}
+
+- (void)viewWillAppear:(BOOL)animated{
+	
 }
 
 - (void)loadAd{
@@ -180,12 +184,12 @@ NSString* FORMAT_CODES[] = {
 	// create URL based on the parameters provided to us
 	//
 	
-	NSString *urlString = [NSString stringWithFormat:@"http://%@/m/ad?v=1&f=%@&udid=%@&q=%@&id=%@&w=%f&h=%f", 
+	NSString *urlString = [NSString stringWithFormat:@"http://%@/m/ad?v=2&f=%@&udid=%@&q=%@&id=%@&w=%f&h=%f", 
 						   HOSTNAME,
 						   f,
 						   [[UIDevice currentDevice] uniqueIdentifier],
 						   [keywords stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding],
-						   [publisherId stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding],
+						   [adUnitId stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding],
 						   0.0,
 						   0.0
 						   ];
@@ -216,7 +220,6 @@ NSString* FORMAT_CODES[] = {
 	
 	NSURLRequest *request = [NSURLRequest requestWithURL:self.url cachePolicy:NSURLRequestUseProtocolCachePolicy timeoutInterval:3.0];
 	[[NSURLConnection alloc] initWithRequest:request delegate:self];
-	
 
 }
 
@@ -224,6 +227,9 @@ NSString* FORMAT_CODES[] = {
 	[excludeParams removeAllObjects];
 	// remove the native view
 	[self loadAd];
+}
+
+- (void)closeAd{
 }
 
 - (void)connection:(NSURLConnection *)connection didReceiveResponse:(NSURLResponse *)response {
@@ -295,8 +301,12 @@ NSString* FORMAT_CODES[] = {
 
 - (void)connectionDidFinishLoading:(NSURLConnection *)connection {
 	// set the content into the webview	
+	
 	[self.webView loadData:self.data MIMEType:@"text/html" textEncodingName:@"utf-8" baseURL:self.url];
 	
+	NSString *response = [[NSString alloc] initWithData:self.data encoding:NSUTF8StringEncoding];
+	NSLog(@"%@",response);
+	[response release];
 	[connection release];
 }
 
@@ -321,14 +331,16 @@ NSString* FORMAT_CODES[] = {
 // when the content has loaded, we stop the loading indicator
 - (void)webViewDidFinishLoad:(UIWebView *)_webView {
 	[self.loadingIndicator stopAnimating];
-	
+	[self.webView setNeedsDisplay];
 //	// show the webview because we know it has been loaded
-//	self.webView.hidden = NO;
+	self.webView.hidden = NO;
 
 }
 
 - (void)didSelectClose:(id)sender{
-	// no-op for non-interstitials
+	// tell the webpage that the webview has been dismissed by the user
+	// this is a good place to record time spent on site
+	[self.webView stringByEvaluatingJavaScriptFromString:@"webviewDidClose();"]; 
 }
 
 - (BOOL)webView:(UIWebView *)webView shouldStartLoadWithRequest:(NSURLRequest *)request navigationType:(UIWebViewNavigationType)navigationType {
