@@ -39,10 +39,11 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
 class AdWebViewClient extends WebViewClient {
-	private String 	mClickthroughUrl = null;
+	private String 	mClickthroughUrl = "";
 	
 	public void setClickthroughUrl(String url) {
 		mClickthroughUrl = url;
+		Log.i("clickthrough url", mClickthroughUrl);
 	}
 	
 	@Override
@@ -56,7 +57,9 @@ class AdWebViewClient extends WebViewClient {
 		}
 
 		String uri = url;
-		if (mClickthroughUrl != null  && !url.startsWith("http://www.mopub.com")) {
+
+		if (mClickthroughUrl != "") {
+			Log.i("test","test");
 			uri = mClickthroughUrl + "&r=" + Uri.encode(url);
 		}
 		
