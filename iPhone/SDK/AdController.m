@@ -159,8 +159,9 @@ NSString* FORMAT_CODES[] = {
 	
 	// add them 
 	[self.view addSubview:self.loadingIndicator];	
-	// put the webview on the page
+	// put the webview on the page but hide it until its loaded
 	[self.view addSubview:self.webView];
+	self.webView.hidden = YES;
 
 }
 
@@ -212,6 +213,7 @@ NSString* FORMAT_CODES[] = {
 	
 	// fire off request
 	[self.loadingIndicator startAnimating];
+	
 	NSURLRequest *request = [NSURLRequest requestWithURL:self.url cachePolicy:NSURLRequestUseProtocolCachePolicy timeoutInterval:3.0];
 	[[NSURLConnection alloc] initWithRequest:request delegate:self];
 	
@@ -320,8 +322,8 @@ NSString* FORMAT_CODES[] = {
 - (void)webViewDidFinishLoad:(UIWebView *)_webView {
 	[self.loadingIndicator stopAnimating];
 	
-	// show the webview because we know it has been loaded
-	self.webView.hidden = NO;
+//	// show the webview because we know it has been loaded
+//	self.webView.hidden = NO;
 
 }
 
@@ -334,7 +336,7 @@ NSString* FORMAT_CODES[] = {
 	if (navigationType == UIWebViewNavigationTypeOther){
 		NSURL *requestURL = [request URL];
 		if ([[requestURL scheme] isEqual:@"mopub"]){
-			if ([[requestURL host] isEqual:@"done"]){
+			if ([[requestURL host] isEqual:@"close"]){
 				// lets the delegate (self) that the webview would like to close itself, only really matter for interstital
 				[self didSelectClose:nil];
 				return NO;
@@ -343,6 +345,7 @@ NSString* FORMAT_CODES[] = {
 				loaded = YES;
 				if ([(NSObject *)self.delegate respondsToSelector:@selector(adControllerDidLoadAd:)]) {
 					adLoading = NO;
+					self.webView.hidden = NO;
 					[self.delegate adControllerDidLoadAd:self];
 				}
 				return NO;
