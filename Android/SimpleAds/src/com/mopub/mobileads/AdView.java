@@ -60,10 +60,9 @@ public class AdView extends WebView {
 		public void OnAdLoaded(AdView a);
 	}
 
-	private static final String BASE_AD_URL = "http://10.0.2.2:8082/m/ad";
+	private static final String BASE_AD_URL = "http://34-stats.latest.mopub-inc.appspot.com/m/ad";
 
 	private String 				mAdUnitId = null;
-	private String 				mClickthroughUrl = null;
 	private String 				mKeywords = null;
 	private GeoPoint 			mLocation = null;
 
@@ -120,11 +119,10 @@ public class AdView extends WebView {
 					// Get the various header messages
 					Header ctHeader = response.getFirstHeader("X-Clickthrough");
 					if (ctHeader != null) {
-						mClickthroughUrl = ctHeader.getValue();
-						Log.i("clickthrough url", mClickthroughUrl);
+						mWebViewClient.setClickthroughUrl(ctHeader.getValue());
 					}
 					else {
-						mClickthroughUrl = null;
+						mWebViewClient.setClickthroughUrl("");
 					}
 					
 					// If there is no ad, don't bother loading the data
@@ -210,10 +208,6 @@ public class AdView extends WebView {
 		mAdUnitId = adUnitId;
 	}
 
-	public String getClickthroughUrl() {
-		return mClickthroughUrl;
-	}
-	
 	public void setOnAdLoadedListener(OnAdLoadedListener listener) {
 		mOnAdLoadedListener = listener;
 	}
