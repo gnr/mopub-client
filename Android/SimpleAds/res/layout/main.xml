@@ -18,7 +18,7 @@
     	>
 	    <com.mopub.mobileads.AdView
 		android:id="@+id/topadview"
-	  	android:layout_width="fill_parent"
+	  	android:layout_width="wrap_content"
 	  	android:layout_height="wrap_content"
 		/>
 	</LinearLayout>
@@ -45,7 +45,7 @@
 
 <com.mopub.mobileads.AdView
 	android:id="@+id/middleadview"
-  	android:layout_width="fill_parent"
+  	android:layout_width="wrap_content"
   	android:layout_height="wrap_content"
   	android:layout_below="@id/searchbutton"
   	android:layout_marginTop="20dip"

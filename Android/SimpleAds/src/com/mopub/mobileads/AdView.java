@@ -16,6 +16,8 @@ import android.net.Uri;
 import android.provider.Settings.Secure;
 import android.util.AttributeSet;
 import android.util.Log;
+import android.view.MotionEvent;
+import android.view.View;
 import android.webkit.WebView;
 
 import com.google.android.maps.GeoPoint;
@@ -26,7 +28,7 @@ public class AdView extends WebView {
 		public void OnAdLoaded(AdView a);
 	}
 
-	private static final String BASE_AD_URL = "http://33-campaigns.latest.mopub-inc.appspot.com/m/ad";
+	private static final String BASE_AD_URL = "http://10.0.2.2:8082/m/ad";
 
 	private String 				mAdUnitId = null;
 	private String 				mClickthroughUrl = null;
@@ -48,6 +50,14 @@ public class AdView extends WebView {
 
 	private void initAdView(Context context, AttributeSet attrs) {
 		getSettings().setJavaScriptEnabled(true);
+		// Set transparent background so that unfilled web view isn't white
+		setBackgroundColor(0);
+		// Prevent user from scrolling the web view since it always adds a margin
+		setOnTouchListener(new View.OnTouchListener() {
+			public boolean onTouch(View v, MotionEvent event) {
+				return(event.getAction() == MotionEvent.ACTION_MOVE);
+			}
+		});
 
 		// set web view client
 		mWebViewClient = new AdWebViewClient();
