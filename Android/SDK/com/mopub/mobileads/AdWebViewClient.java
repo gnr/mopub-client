@@ -1,85 +1,77 @@
+/*
+ * Copyright (c) 2010, MoPub Inc.
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are
+ * met:
+ *
+ * * Redistributions of source code must retain the above copyright
+ *   notice, this list of conditions and the following disclaimer.
+ *
+ * * Redistributions in binary form must reproduce the above copyright
+ *   notice, this list of conditions and the following disclaimer in the
+ *   documentation and/or other materials provided with the distribution.
+ *
+ * * Neither the name of 'MoPub Inc.' nor the names of its contributors
+ *   may be used to endorse or promote products derived from this software
+ *   without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
+ * TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+ * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+ * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
+
 package com.mopub.mobileads;
-
-import java.io.IOException;
-import java.net.URI;
-
-import org.apache.http.HttpResponse;
-import org.apache.http.client.RedirectHandler;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.protocol.HttpContext;
-
 
 import android.content.Intent;
 import android.net.Uri;
-import android.os.AsyncTask;
-import android.provider.Settings.Secure;
 import android.util.Log;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
 class AdWebViewClient extends WebViewClient {
-	private static final String BASE_ACLK_URL = "http://www.mopub.com/m/aclk";
-	private AdView adView;
+	private String 	mClickthroughUrl = null;
 	
-	AdWebViewClient(AdView adView) {
-		this.adView = adView;
+	public void setClickthroughUrl(String url) {
+		mClickthroughUrl = url;
 	}
 	
 	@Override
 	public boolean shouldOverrideUrlLoading(WebView view, String url) {
 		Log.i("url", url);
 
-		// Route the ad click through our backend for tracking purposes
-		StringBuilder sz = new StringBuilder(BASE_ACLK_URL);
-		sz.append("?v=1&id=" + this.adView.getAdUnitId());
-		sz.append("&udid=" + System.getProperty(Secure.ANDROID_ID));
-		if (this.adView.getKeywords() != null) {
-			sz.append("&q=" + Uri.encode(adView.getKeywords()));
+		// Check if this is a local call
+		if (url.startsWith("mopub://")) {
+			//TODO: Handle ad callbacks
+			return true;
 		}
-		if (this.adView.getLocation() != null) {
-			sz.append("&ll=" + (this.adView.getLocation().getLatitudeE6() / 1000000.0) + "," + (this.adView.getLocation().getLongitudeE6() / 1000000.0));
+
+		String uri = url;
+		if (mClickthroughUrl != null  && !url.startsWith("http://www.mopub.com")) {
+			uri = mClickthroughUrl + "&r=" + Uri.encode(url);
 		}
-		sz.append("&r=" + Uri.encode(url));
 		
 		// Log the request asynchronously
-		String uri = sz.toString();
 		Log.i("aclk", uri);
-		new TrackClickTask().execute(uri);
 
 		// and fire off a system wide intent
-		adView.getContext().startActivity(new Intent(android.content.Intent.ACTION_VIEW, Uri.parse(url)));
+		view.getContext().startActivity(new Intent(android.content.Intent.ACTION_VIEW, Uri.parse(uri)));
 		return true;
 	}
 	
 	@Override
 	public void onPageFinished(WebView view, String url) {
-		
+		if (view instanceof AdView) {
+			((AdView)view).pageFinished();
+		}
 	}
-	
-	 private class TrackClickTask extends AsyncTask<String, Void, Void> {
-	     protected Void doInBackground(String... urls) {
-	    	 DefaultHttpClient httpclient = new DefaultHttpClient();
-	    	 // TODO: Would be really nice if we didn't have to do this redirect weirdness
-	    	 httpclient.setRedirectHandler(new RedirectHandler() {
-	    		 public URI getLocationURI(HttpResponse response,
-	    				 HttpContext context) {
-	    			 return null;
-	    		 }
-
-	    		 public boolean isRedirectRequested(HttpResponse response,
-	    				 HttpContext context) {
-	    			 return false;
-	    		 }
-	    	 });
-
-	    	 HttpGet httpget = new HttpGet(urls[0]);  
-
-	    	 try {
-	    		 httpclient.execute(httpget);  
-	    	 } catch (IOException e) {
-	    	 }
-	    	 return null;
-	     }
-	 }
 }
