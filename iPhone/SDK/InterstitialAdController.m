@@ -12,7 +12,34 @@
 
 @synthesize closeButton;
 
--(id)initWithPublisherId:(NSString *)a parentViewController:(UIViewController*)pvc{
++ (InterstitialAdController *)sharedInterstitialAdControllerForAdUnitId:(NSString *)a{
+//	static InterstitialAdController *sharedInterstitialAdController;
+	
+	static NSMutableArray *sharedInterstitialAdControllers;
+	
+	@synchronized(self)
+	{
+		if (!sharedInterstitialAdControllers)
+			sharedInterstitialAdControllers = [[NSMutableArray alloc] initWithCapacity:1];
+		
+		InterstitialAdController *sharedInterstitialAdController = nil;
+		for (InterstitialAdController *interstialAdController in sharedInterstitialAdControllers){
+			if ([interstialAdController.adUnitId isEqual:a]){
+				sharedInterstitialAdController = interstialAdController;
+				break;
+			}
+		}
+			
+			
+		if (!sharedInterstitialAdController){
+			sharedInterstitialAdController = [[InterstitialAdController alloc] initWithAdUnitId:a parentViewController:nil];
+			[sharedInterstitialAdControllers addObject:sharedInterstitialAdController];
+		}
+		return sharedInterstitialAdController;
+	}
+}
+
+-(id)initWithAdUnitId:(NSString *)a parentViewController:(UIViewController*)pvc{
 	if (self = [super initWithFormat:AdControllerFormatFullScreen adUnitId:a parentViewController:pvc]){
 		_isInterstitial = YES;
 		_inNavigationController = [pvc isKindOfClass:[UINavigationController class]];
@@ -30,13 +57,30 @@
 
 - (void)viewWillAppear:(BOOL)animated{
 	[super viewWillAppear:animated];
+	if ([(NSObject *)self.delegate respondsToSelector:@selector(interstitialWillAppear:)]){
+		[(NSObject *)self.delegate performSelector:@selector(interstitialWillAppear:) withObject:self];
+	}
+}
+
+- (void)viewDidAppear:(BOOL)animated{
+	[super viewDidAppear:animated];
+	if ([(NSObject *)self.delegate respondsToSelector:@selector(interstitialDidAppear:)]){
+		[(NSObject *)self.delegate performSelector:@selector(interstitialDidAppear:) withObject:self];
+	}
+}
+		
+- (void)viewDidLoad{
+	[super viewDidLoad];
 }
 
 - (void)loadView{
 	[super loadView];
 	
 	// no-op if not in a navigation view
-	[self.navigationController setNavigationBarHidden:YES animated:YES];
+	wasNavigationBarHidden = self.navigationController.navigationBarHidden;
+	// hide the navigation bar
+	[self.navigationController setNavigationBarHidden:YES animated:NO];
+		
 	// store that the state of the status bar
 	wasStatusBarHidden = [UIApplication sharedApplication].statusBarHidden;
 	// hide the status bar
@@ -77,13 +121,19 @@
 	
 	// return the state of the status bar
 	[UIApplication sharedApplication].statusBarHidden = wasStatusBarHidden;
+	// return the state of the navigation bar
+	[self.navigationController setNavigationBarHidden:wasNavigationBarHidden animated:NO];
+	
 	// tell the delegate that the webview would like to be closed
 
 	// resign from caring about any webview interactions
 	self.webView.delegate = nil;
 	//signal to the delegate to move on
 	[(NSObject *)self.delegate performSelector:@selector(interstitialDidClose:) withObject:self];
-
+	
+	if (_inNavigationController){
+		[self.navigationController setNavigationBarHidden:NO animated:NO];
+	}
 
 }
 

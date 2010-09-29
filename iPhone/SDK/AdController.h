@@ -17,6 +17,8 @@ enum {
 	AdControllerFormat728x90,			// leaderboard
 	AdControllerFormat468x60,			// full banner
 	AdControllerFormatFullScreen,		// full-screen interstitial
+	AdControllerFormatCustom,			// custom size
+
 };
 typedef NSUInteger AdControllerFormat;
 
@@ -51,6 +53,9 @@ typedef NSUInteger AdControllerFormat;
 	NSURL *url;
 	NSMutableData * data;
 	
+	// Native Ad Fail url
+	NSURL *failURL;
+
 	// native Ad View
 	UIView *nativeAdView; 
 	
@@ -79,6 +84,9 @@ typedef NSUInteger AdControllerFormat;
 
 @property(nonatomic, copy) NSURL* url;
 @property(nonatomic, retain) NSMutableData* data;
+
+@property(nonatomic, copy) NSURL* failURL;
+
 
 @property(nonatomic, retain) UIView* nativeAdView; 
 

@@ -7,10 +7,12 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "InterstitialAdController.h"
 
-
-@interface SecondViewController : UIViewController {
+@interface SecondViewController : UIViewController <InterstitialAdControllerDelegate> {
 
 }
+
+- (IBAction) showInterstitial:(id)sender;
 
 @end

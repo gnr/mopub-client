@@ -7,6 +7,7 @@
 //
 
 #import "SecondViewController.h"
+#import "SimpleAdsViewController.h"
 
 
 @implementation SecondViewController
@@ -41,6 +42,19 @@
     return (interfaceOrientation == UIInterfaceOrientationPortrait);
 }
 */
+
+- (IBAction) showInterstitial:(id)sender{
+	InterstitialAdController *interstitialAdController = [InterstitialAdController sharedInterstitialAdControllerForAdUnitId:PUB_ID_INTERSTITIAL];
+	if (interstitialAdController.loaded){
+		interstitialAdController.delegate = self; // sign up as the delegate so that we can tear it down appropriately
+		[self presentModalViewController:interstitialAdController animated:YES];
+		[interstitialAdController release];
+	}
+}
+
+- (void)interstitialDidClose:(InterstitialAdController *)interstitialAdController{
+	[interstitialAdController dismissModalViewControllerAnimated:YES];
+}
 
 - (void)didReceiveMemoryWarning {
     // Releases the view if it doesn't have a superview.

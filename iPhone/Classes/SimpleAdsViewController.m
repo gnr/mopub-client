@@ -14,9 +14,6 @@
 @synthesize adController, mrectController, interstitialAdController, navigationInterstitialAdController;
 @synthesize adView, mrectView;
 
-#define PUB_ID_320x50 @"agltb3B1Yi1pbmNyCgsSBFNpdGUYAgw"
-#define PUB_ID_300x250 @"agltb3B1Yi1pbmNyCgsSBFNpdGUYAww"
-#define PUB_ID_INTERSTITIAL @"agltb3B1Yi1pbmNyCgsSBFNpdGUYAww"
 
 // Implement viewDidLoad to do additional setup after loading the view, typically from a nib. 
 
@@ -40,12 +37,12 @@
 	self.mrectController = [[AdController alloc] initWithFormat:AdControllerFormat300x250 adUnitId:PUB_ID_320x50 parentViewController:self];
 	self.mrectController.keywords = @"coffee";
 	self.mrectController.delegate = self;
-//	[self.mrectController loadAd];
+	[self.mrectController loadAd];
 }
 
 - (IBAction) getNavigationInterstitial{
 	if (!shownNavigationInterstitialAlready){
-		self.navigationInterstitialAdController = [[InterstitialAdController alloc] initWithPublisherId:PUB_ID_INTERSTITIAL parentViewController:self.navigationController];
+		self.navigationInterstitialAdController = [[InterstitialAdController alloc] initWithAdUnitId:PUB_ID_INTERSTITIAL parentViewController:self.navigationController];
 		self.navigationInterstitialAdController.delegate = self;
 		[self.navigationInterstitialAdController loadAd];
 	}
@@ -65,8 +62,8 @@
 }
 
 - (IBAction) getModalInterstitial{
-	self.interstitialAdController = [[InterstitialAdController alloc] initWithPublisherId:PUB_ID_INTERSTITIAL parentViewController:self];
-	self.interstitialAdController.delegate = self;
+	self.interstitialAdController = [InterstitialAdController sharedInterstitialAdControllerForAdUnitId:PUB_ID_INTERSTITIAL];	
+	self.interstitialAdController.delegate = nil;
 	[self.interstitialAdController loadAd];
 	
 }
@@ -77,17 +74,18 @@
 
 - (void)adControllerDidLoadAd:(AdController *)_adController{
 	NSLog(@"AD DID LOAD %@",_adController);
-	
-	// if for getAndShow we show the interstitial as soon as its available
-	if (getAndShow & _adController == interstitialAdController)
-		[self showModalInterstitial];
-	
+
+	// if the adcontroller is the navigational interstitial
 	if (_adController == self.navigationInterstitialAdController){
 		[self.navigationController pushViewController:self.navigationInterstitialAdController animated:YES];
 	}
+	// if its an interstitial we show it right away
+	else if ([_adController isKindOfClass:[InterstitialAdController class]])
+		[self presentModalViewController:_adController animated:YES];
+		
 	
 	// we SLOWLY fade in the mrect whenever we are told the ad has been loaded up
-	if (_adController == mrectController){
+	else if (_adController == mrectController){
 		self.mrectController.view.alpha = 0.0;
 		[self.mrectView addSubview:self.mrectController.view];
 		[UIView beginAnimations:@"fadeIn" context:nil];
@@ -108,19 +106,16 @@
 }
 
 - (void)interstitialDidClose:(InterstitialAdController *)_interstitialAdController{
-	if (_interstitialAdController == self.interstitialAdController){
-		[_interstitialAdController dismissModalViewControllerAnimated:YES];
-		getAndShow = NO;
-	}
-	else if (_interstitialAdController == self.navigationInterstitialAdController){
+	if (_interstitialAdController == self.navigationInterstitialAdController){
 		[self.navigationController popViewControllerAnimated:NO];
 		SecondViewController *vc = [[SecondViewController alloc] initWithNibName:@"SecondViewController" bundle:nil];
 		[self.navigationController pushViewController:vc animated:YES]; 
-		[vc.navigationController setNavigationBarHidden:NO animated:YES];
 		[vc release];
 		shownNavigationInterstitialAlready = YES;
 	}
-
+	else {
+		[_interstitialAdController dismissModalViewControllerAnimated:YES];
+	}
 }
 
 - (IBAction) refreshAd {

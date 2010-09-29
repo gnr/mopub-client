@@ -46,6 +46,7 @@ int FORMAT_SIZES[][2] = {
 	{728, 90},
 	{468, 60},
 	{320, 480},
+	{0,0},
 };
 NSString* FORMAT_CODES[] = {
 	@"320x50",
@@ -53,6 +54,7 @@ NSString* FORMAT_CODES[] = {
 	@"728x90",
 	@"468x60",
 	@"320x480",
+	@"0x0",
 };
 
 @interface AdController (Internal)
@@ -60,6 +62,7 @@ NSString* FORMAT_CODES[] = {
 - (void)backfillWithADBannerView;
 - (NSString *)escapeURL:(NSURL *)urlIn;
 - (void)adClickHelper:(NSURL *)desiredURL;
+- (void)loadAdWithURL:(NSURL *)adUrl;
 @end
 
 	
@@ -70,11 +73,12 @@ NSString* FORMAT_CODES[] = {
 @synthesize format, adUnitId;
 @synthesize webView, loadingIndicator;
 @synthesize parent, keywords, location;
-@synthesize data, url;
+@synthesize data, url, failURL;
 @synthesize nativeAdView;
 @synthesize clickURL;
 @synthesize adClickController;
 @synthesize newPageURLString;
+
 
 -(id)initWithFormat:(AdControllerFormat)f adUnitId:(NSString *)a parentViewController:(UIViewController*)pvc {
 	if (self = [super init]){
@@ -128,6 +132,7 @@ NSString* FORMAT_CODES[] = {
 	[newPageURLString release];
 	adClickController.delegate = nil;
 	[adClickController release];
+	[failURL release];
 	[super dealloc];
 }
 
@@ -166,70 +171,86 @@ NSString* FORMAT_CODES[] = {
 }
 
 - (void)viewWillAppear:(BOOL)animated{
-	
+	[super viewWillAppear:animated];
 }
 
-- (void)loadAd{
-	adLoading = YES;
-	NSString* f = FORMAT_CODES[self.format];
-	self.loaded = FALSE;
-	
-	// remove the native view
-	if (self.nativeAdView) {
-		[self.nativeAdView removeFromSuperview];
-		self.nativeAdView = nil;
-	}
-	
-	//
-	// create URL based on the parameters provided to us
-	//
-	
-	NSString *urlString = [NSString stringWithFormat:@"http://%@/m/ad?v=2&f=%@&udid=%@&q=%@&id=%@&w=%f&h=%f", 
-						   HOSTNAME,
-						   f,
-						   [[UIDevice currentDevice] uniqueIdentifier],
-						   [keywords stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding],
-						   [adUnitId stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding],
-						   0.0,
-						   0.0
-						   ];
-	
-	// append on location if it has been passed in
-	if (self.location){
-		urlString = [urlString stringByAppendingFormat:@"&ll=%f,%f",location.coordinate.latitude,location.coordinate.longitude];
-	}
-	
-	// add all the exclude parameters
-	for (NSString *excludeParam in excludeParams){
-		urlString = [urlString stringByAppendingFormat:@"&exclude=%@",excludeParam];
-	}
-	
-	self.url = [NSURL URLWithString:urlString];
-	
-	// inform delegate we are about to start loading...
-	if ([(NSObject *)self.delegate respondsToSelector:@selector(adControllerWillLoadAd:)]) {
-		[self.delegate adControllerWillLoadAd:self];
-	}
-	
-	// We load manually so that we can check for a special backfill header 
-	// that instructs us to do some native things on occasion 
-	NSLog(@"MOPUB: ad loading via %@", self.url);
-	
-	// fire off request
-	[self.loadingIndicator startAnimating];
-	
-	NSURLRequest *request = [NSURLRequest requestWithURL:self.url cachePolicy:NSURLRequestUseProtocolCachePolicy timeoutInterval:3.0];
-	[[NSURLConnection alloc] initWithRequest:request delegate:self];
+- (void)loadAdWithURL:(NSURL *)adUrl{
+	// only loads if its not already in the process of getting the assets
+	if (!adLoading){
+		adLoading = YES;
+		NSString* f = FORMAT_CODES[self.format];
+		self.loaded = FALSE;
+		
+		// remove the native view
+		if (self.nativeAdView) {
+			[self.nativeAdView removeFromSuperview];
+			((ADBannerView *)self.nativeAdView).delegate = nil;
+			self.nativeAdView = nil;
+		}
+		
+		//
+		// create URL based on the parameters provided to us if a url was not passed in
+		//
+		if (!adUrl){
+			NSString *urlString = [NSString stringWithFormat:@"http://%@/m/ad?v=2&f=%@&udid=%@&q=%@&id=%@&w=%f&h=%f", 
+								   HOSTNAME,
+								   f,
+								   [[UIDevice currentDevice] uniqueIdentifier],
+								   [keywords stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding],
+								   [adUnitId stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding],
+								   0.0,
+								   0.0
+								   ];
+			
+			// append on location if it has been passed in
+			if (self.location){
+				urlString = [urlString stringByAppendingFormat:@"&ll=%f,%f",location.coordinate.latitude,location.coordinate.longitude];
+			}
+			
+			// add all the exclude parameters
+			for (NSString *excludeParam in excludeParams){
+				urlString = [urlString stringByAppendingFormat:@"&exclude=%@",excludeParam];
+			}
+			
+			self.url = [NSURL URLWithString:urlString];
+		}
+		else {
+			self.url = adUrl;
+		}
 
+		
+		// inform delegate we are about to start loading...
+		if ([(NSObject *)self.delegate respondsToSelector:@selector(adControllerWillLoadAd:)]) {
+			[self.delegate adControllerWillLoadAd:self];
+		}
+		
+		// We load manually so that we can check for a special backfill header 
+		// that instructs us to do some native things on occasion 
+		NSLog(@"MOPUB: ad loading via %@", self.url);
+
+		// start the spinner
+		[self.loadingIndicator startAnimating];
+		
+		// fire off request
+		NSURLRequest *request = [NSURLRequest requestWithURL:self.url cachePolicy:NSURLRequestUseProtocolCachePolicy timeoutInterval:3.0];
+		[[NSURLConnection alloc] initWithRequest:request delegate:self];
+	}
+}
+
+-(void) loadAd{
+	[self loadAdWithURL:nil];
 }
 
 -(void)refresh {
+	// start afresh 
 	[excludeParams removeAllObjects];
-	// remove the native view
+	// load the ad again
 	[self loadAd];
 }
 
 - (void)closeAd{
+	// act as though the application close of the ad is the same as the user's
+	[self didSelectClose:nil];
 }
 
 - (void)connection:(NSURLConnection *)connection didReceiveResponse:(NSURLResponse *)response {
@@ -258,7 +279,7 @@ NSString* FORMAT_CODES[] = {
 	// initialize the data
 	[self.data setLength:0];
 
-	// check for backfill headers
+	// check for ad types
 	NSString* adTypeKey = [[(NSHTTPURLResponse*)response allHeaderFields] objectForKey:@"X-Adtype"];
 	if ([adTypeKey isEqualToString:@"iAd"]) {
 		self.loaded = TRUE;
@@ -279,6 +300,11 @@ NSString* FORMAT_CODES[] = {
 	
 	// grab the url string that should be intercepted for the launch of a new page (c.admob.com, c.google.com, etc)
 	self.newPageURLString = [[(NSHTTPURLResponse*)response allHeaderFields] objectForKey:@"X-Launchpage"];
+	
+	// grab the fail URL for rollover from the headers as well
+	NSString *failURLString = [[(NSHTTPURLResponse*)response allHeaderFields] objectForKey:@"X-Failurl"];
+	if (failURLString)
+		self.failURL = [NSURL URLWithString:failURLString];
 }
 
 // standard data appending
@@ -288,6 +314,7 @@ NSString* FORMAT_CODES[] = {
 
 - (void)connection:(NSURLConnection *)connection didFailWithError:(NSError *)error {
 	NSLog(@"MOPUB: failed to load ad content... %@", error);
+	
 	[self backfillWithNothing];
 	[connection release];
 	adLoading = NO;
@@ -301,12 +328,14 @@ NSString* FORMAT_CODES[] = {
 
 - (void)connectionDidFinishLoading:(NSURLConnection *)connection {
 	// set the content into the webview	
-	
 	[self.webView loadData:self.data MIMEType:@"text/html" textEncodingName:@"utf-8" baseURL:self.url];
-	
+
+	// print out the response for debugging purposes
 	NSString *response = [[NSString alloc] initWithData:self.data encoding:NSUTF8StringEncoding];
 	NSLog(@"%@",response);
 	[response release];
+	
+	// release the connection
 	[connection release];
 }
 
@@ -322,7 +351,7 @@ NSString* FORMAT_CODES[] = {
     [super viewDidLoad];
 	
 	// if the ad has already been loaded or is in the process of being loaded
-	// do nothing
+	// do nothing otherwise load the ad
 	if (!adLoading && !loaded){
 		[self loadAd];
 	}
@@ -332,7 +361,8 @@ NSString* FORMAT_CODES[] = {
 - (void)webViewDidFinishLoad:(UIWebView *)_webView {
 	[self.loadingIndicator stopAnimating];
 	[self.webView setNeedsDisplay];
-//	// show the webview because we know it has been loaded
+
+	// show the webview because we know it has been loaded
 	self.webView.hidden = NO;
 
 }
@@ -343,10 +373,15 @@ NSString* FORMAT_CODES[] = {
 	[self.webView stringByEvaluatingJavaScriptFromString:@"webviewDidClose();"]; 
 }
 
+
+// Intercept special urls
 - (BOOL)webView:(UIWebView *)webView shouldStartLoadWithRequest:(NSURLRequest *)request navigationType:(UIWebViewNavigationType)navigationType {
 	NSLog(@"MOPUB: shouldStartLoadWithRequest URL:%@ navigationType:%d", [[request URL] absoluteString], navigationType);
+	
 	if (navigationType == UIWebViewNavigationTypeOther){
 		NSURL *requestURL = [request URL];
+		
+		// intercept mopub specific urls mopub://close, mopub://finishLoad, mopub://failLoad
 		if ([[requestURL scheme] isEqual:@"mopub"]){
 			if ([[requestURL host] isEqual:@"close"]){
 				// lets the delegate (self) that the webview would like to close itself, only really matter for interstital
@@ -354,23 +389,27 @@ NSString* FORMAT_CODES[] = {
 				return NO;
 			}
 			else if ([[requestURL host] isEqual:@"finishLoad"]){
+				//lets the delegate know that the the ad has succesfully loaded 
 				loaded = YES;
+				adLoading = NO;
 				if ([(NSObject *)self.delegate respondsToSelector:@selector(adControllerDidLoadAd:)]) {
-					adLoading = NO;
-					self.webView.hidden = NO;
 					[self.delegate adControllerDidLoadAd:self];
 				}
+				self.webView.hidden = NO;
 				return NO;
 			}
 			else if ([[requestURL host] isEqual:@"failLoad"]){
+				//lets the delegate know that the the ad has failed to loaded 
 				loaded = YES;
+				adLoading = NO;
 				if ([(NSObject *)self.delegate respondsToSelector:@selector(adControllerFailedLoadAd:)]) {
-					adLoading = NO;
 					[self.delegate adControllerFailedLoadAd:self];
 				}
+				self.webView.hidden = NO;
 				return NO;
 			}
 		}
+		// interecepts special url that we want to intercept ex: c.admob.com
 		if (self.newPageURLString){
 			if ([[requestURL absoluteString] hasPrefix:self.newPageURLString]){
 				[self adClickHelper:[request URL]];
@@ -378,13 +417,12 @@ NSString* FORMAT_CODES[] = {
 			}
 		}
 	}
+	// interecept user clicks to open appropriately
 	else if (navigationType == UIWebViewNavigationTypeLinkClicked) {
 		[self adClickHelper:[request URL]];
 		return NO;
-	} else {
-		// other javascript loads, etc. 
-		return YES;
 	}
+	// other javascript loads, etc. 
 	return YES;
 }
 
@@ -402,7 +440,9 @@ NSString* FORMAT_CODES[] = {
 		[self.delegate adControllerAdWillOpen:self];
 	}
 	
-	adClickController = [[AdClickController alloc] initWithURL:adClickURL delegate:self.delegate];
+	
+	// inited but release in the dealloc
+	adClickController = [[AdClickController alloc] initWithURL:adClickURL delegate:self.delegate]; 
 	
 	// if the ad is being show as an interstitial then this view may load another modal view
 	// otherwise, the ad is just a subview of what is on screen, so the parent should load the modal view
@@ -412,11 +452,6 @@ NSString* FORMAT_CODES[] = {
 	else {
 		[self.parent presentModalViewController:adClickController animated:YES];
 	}
-	
-	[adClickController release];
-	// go get it
-	NSLog(@"%@", adClickURL);
-
 }
 
 - (void)webView:(UIWebView *)webView didFailLoadWithError:(NSError *)error {
@@ -460,13 +495,6 @@ NSString* FORMAT_CODES[] = {
 - (void)bannerView:(ADBannerView *)banner didFailToReceiveAdWithError:(NSError *)error {
 	NSLog(@"MOPUB: Failed to load iAd");
 	
-// animate away the iAd
-//	[UIView beginAnimations:@"animateAdBannerOff" context:NULL];
-//	banner.frame = CGRectOffset(banner.frame, 0, 480);
-//	[UIView commitAnimations];
-	
-	// ad iAd to the list of excludes
-	[excludeParams addObject:@"iAd"];
 	
 	if (self.nativeAdView) {
 		[self.nativeAdView removeFromSuperview];
@@ -475,7 +503,7 @@ NSString* FORMAT_CODES[] = {
 	
 	// then try another ad call to verify see if there is another ad creative that can fill this spot
 	// if this fails the delegate will be notified
-	[self loadAd];
+	[self loadAdWithURL:self.failURL];
 }
 
 - (BOOL)bannerViewActionShouldBegin:(ADBannerView *)banner willLeaveApplication:(BOOL)willLeave {	
