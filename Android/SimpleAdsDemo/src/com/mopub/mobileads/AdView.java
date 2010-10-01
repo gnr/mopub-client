@@ -44,6 +44,7 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
 
 import android.content.Context;
+import android.location.Location;
 import android.net.Uri;
 import android.provider.Settings.Secure;
 import android.util.AttributeSet;
@@ -51,8 +52,6 @@ import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.webkit.WebView;
-
-import com.google.android.maps.GeoPoint;
 
 public class AdView extends WebView {
 
@@ -64,7 +63,7 @@ public class AdView extends WebView {
 
 	private String 				mAdUnitId = null;
 	private String 				mKeywords = null;
-	private GeoPoint 			mLocation = null;
+	private Location 			mLocation = null;
 
 	private AdWebViewClient 	mWebViewClient = null;
 	private OnAdLoadedListener  mOnAdLoadedListener = null;
@@ -169,8 +168,7 @@ public class AdView extends WebView {
 			sz.append("&q=" + Uri.encode(getKeywords()));
 		}
 		if (this.getLocation() != null) {
-			sz.append("&ll=" + (this.getLocation().getLatitudeE6() / 1000000.0) + ","
-					+ (this.getLocation().getLongitudeE6() / 1000000.0));
+			sz.append("&ll=" + mLocation.getLatitude() + "," + mLocation.getLongitude());
 		}
 		return sz.toString();
 	}
@@ -195,11 +193,11 @@ public class AdView extends WebView {
 		mKeywords = keywords;
 	}
 
-	public GeoPoint getLocation() {
+	public Location getLocation() {
 		return mLocation;
 	}
 
-	public void setLocation(GeoPoint location) {
+	public void setLocation(Location location) {
 		mLocation = location;
 	}
 
