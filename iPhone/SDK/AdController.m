@@ -201,7 +201,7 @@ NSString* FORMAT_CODES[] = {
 								   0.0,
 								   0.0
 								   ];
-			
+			NSLog(@"urlString: %@",urlString);
 			// append on location if it has been passed in
 			if (self.location){
 				urlString = [urlString stringByAppendingFormat:@"&ll=%f,%f",location.coordinate.latitude,location.coordinate.longitude];
@@ -232,7 +232,24 @@ NSString* FORMAT_CODES[] = {
 		[self.loadingIndicator startAnimating];
 		
 		// fire off request
-		NSURLRequest *request = [NSURLRequest requestWithURL:self.url cachePolicy:NSURLRequestUseProtocolCachePolicy timeoutInterval:3.0];
+		NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:self.url cachePolicy:NSURLRequestUseProtocolCachePolicy timeoutInterval:3.0];
+		
+		// sets the user agent so that we know where the request is coming from !important for targeting!
+		if ([request respondsToSelector:@selector(setValue:forHTTPHeaderField:)]) {
+			NSString *systemVersion = [[UIDevice currentDevice] systemVersion];
+			NSString *systemName = [[UIDevice currentDevice] systemName];
+			NSString *model = [[UIDevice currentDevice] model];
+			NSString *bundleName = [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleName"];
+			NSString *appVersion = [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleVersion"];			
+			NSString *userAgentString = [NSString stringWithFormat:@"%@/%@ (%@; U; CPU %@ %@ like Mac OS X; %@)",
+																	bundleName,appVersion,model,
+																	systemName,systemVersion,[[NSLocale currentLocale] localeIdentifier]];
+			NSLog(@"user: %@",userAgentString);
+			[request setValue:userAgentString forHTTPHeaderField:@"User_Agent"];
+
+			
+		}		
+		
 		[[NSURLConnection alloc] initWithRequest:request delegate:self];
 	}
 }
