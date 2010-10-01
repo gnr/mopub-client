@@ -60,7 +60,7 @@ public class AdView extends WebView {
 		public void OnAdLoaded(AdView a);
 	}
 
-	private static final String BASE_AD_URL = "http://www.mopub.com/m/ad";
+	private static final String BASE_AD_URL = "http://ads.mopub.com/m/ad";
 
 	private String 				mAdUnitId = null;
 	private String 				mKeywords = null;
