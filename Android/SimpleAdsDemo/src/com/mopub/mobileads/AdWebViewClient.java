@@ -40,12 +40,12 @@ import android.webkit.WebViewClient;
 
 class AdWebViewClient extends WebViewClient {
 	private String 	mClickthroughUrl = "";
-	
+
 	public void setClickthroughUrl(String url) {
 		mClickthroughUrl = url;
 		Log.i("clickthrough url", mClickthroughUrl);
 	}
-	
+
 	@Override
 	public boolean shouldOverrideUrlLoading(WebView view, String url) {
 		Log.i("url", url);
@@ -59,10 +59,9 @@ class AdWebViewClient extends WebViewClient {
 		String uri = url;
 
 		if (mClickthroughUrl != "") {
-			Log.i("test","test");
 			uri = mClickthroughUrl + "&r=" + Uri.encode(url);
 		}
-		
+
 		// Log the request asynchronously
 		Log.i("aclk", uri);
 
@@ -70,7 +69,7 @@ class AdWebViewClient extends WebViewClient {
 		view.getContext().startActivity(new Intent(android.content.Intent.ACTION_VIEW, Uri.parse(uri)));
 		return true;
 	}
-	
+
 	@Override
 	public void onPageFinished(WebView view, String url) {
 		if (view instanceof AdView) {

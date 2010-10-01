@@ -55,12 +55,12 @@ import android.webkit.WebView;
 import com.google.android.maps.GeoPoint;
 
 public class AdView extends WebView {
-	
+
 	public interface OnAdLoadedListener {
 		public void OnAdLoaded(AdView a);
 	}
 
-	private static final String BASE_AD_URL = "http://34-stats.latest.mopub-inc.appspot.com/m/ad";
+	private static final String BASE_AD_URL = "http://www.mopub.com/m/ad";
 
 	private String 				mAdUnitId = null;
 	private String 				mKeywords = null;
@@ -81,8 +81,10 @@ public class AdView extends WebView {
 
 	private void initAdView(Context context, AttributeSet attrs) {
 		getSettings().setJavaScriptEnabled(true);
+
 		// Set transparent background so that unfilled web view isn't white
 		setBackgroundColor(0);
+
 		// Prevent user from scrolling the web view since it always adds a margin
 		setOnTouchListener(new View.OnTouchListener() {
 			public boolean onTouch(View v, MotionEvent event) {
@@ -100,7 +102,7 @@ public class AdView extends WebView {
 		Runnable getUrl = new LoadUrlThread(url);
 		new Thread(getUrl).start();
 	}
-	
+
 	public class LoadUrlThread implements Runnable {
 		private String mUrl;
 
@@ -114,7 +116,7 @@ public class AdView extends WebView {
 				HttpGet httpget = new HttpGet(mUrl);  
 				HttpResponse response = httpclient.execute(httpget);
 				HttpEntity entity = response.getEntity();
-				
+
 				if (entity != null) {
 					// Get the various header messages
 					Header ctHeader = response.getFirstHeader("X-Clickthrough");
@@ -124,7 +126,7 @@ public class AdView extends WebView {
 					else {
 						mWebViewClient.setClickthroughUrl("");
 					}
-					
+
 					// If there is no ad, don't bother loading the data
 					Header bfHeader = response.getFirstHeader("X-Adtype");
 					if (bfHeader != null) {
@@ -132,7 +134,7 @@ public class AdView extends WebView {
 							return;
 						}
 					}
-					
+
 					InputStream is = entity.getContent();
 					BufferedReader reader = new BufferedReader(new InputStreamReader(is));
 					StringBuilder sb = new StringBuilder();
@@ -167,7 +169,8 @@ public class AdView extends WebView {
 			sz.append("&q=" + Uri.encode(getKeywords()));
 		}
 		if (this.getLocation() != null) {
-			sz.append("&ll=" + (this.getLocation().getLatitudeE6() / 1000000.0) + "," + (this.getLocation().getLongitudeE6() / 1000000.0));
+			sz.append("&ll=" + (this.getLocation().getLatitudeE6() / 1000000.0) + ","
+					+ (this.getLocation().getLongitudeE6() / 1000000.0));
 		}
 		return sz.toString();
 	}
@@ -177,7 +180,7 @@ public class AdView extends WebView {
 		Log.i("ad url", adUrl);
 		this.loadUrl(adUrl);
 	}
-	
+
 	public void pageFinished() {
 		if (mOnAdLoadedListener != null) {
 			mOnAdLoadedListener.OnAdLoaded(this);
@@ -203,7 +206,7 @@ public class AdView extends WebView {
 	public String getAdUnitId() {
 		return mAdUnitId;
 	}
-	
+
 	public void setAdUnitId(String adUnitId) {
 		mAdUnitId = adUnitId;
 	}
