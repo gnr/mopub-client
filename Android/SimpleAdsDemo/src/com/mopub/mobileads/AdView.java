@@ -58,7 +58,11 @@ public class AdView extends WebView {
 	public interface OnAdLoadedListener {
 		public void OnAdLoaded(AdView a);
 	}
-
+	
+	public interface OnAdClosedListener {
+		public void OnAdClosed(AdView a);
+	}
+	
 	private static final String BASE_AD_URL = "http://www.mopub.com/m/ad";
 
 	private String 				mAdUnitId = null;
@@ -67,6 +71,7 @@ public class AdView extends WebView {
 
 	private AdWebViewClient 	mWebViewClient = null;
 	private OnAdLoadedListener  mOnAdLoadedListener = null;
+	private OnAdClosedListener  mOnAdClosedListener = null;
 
 	public AdView(Context context) {
 		super(context);
@@ -98,6 +103,8 @@ public class AdView extends WebView {
 
 	@Override
 	public void loadUrl(String url) {
+		// Have to override loadUrl in order to get the headers, which
+		// MoPub uses to pass control information to the client
 		Runnable getUrl = new LoadUrlThread(url);
 		new Thread(getUrl).start();
 	}
@@ -184,6 +191,12 @@ public class AdView extends WebView {
 			mOnAdLoadedListener.OnAdLoaded(this);
 		}
 	}
+	
+	public void pageClosed() {
+		if (mOnAdClosedListener != null) {
+			mOnAdClosedListener.OnAdClosed(this);
+		}
+	}
 
 	public String getKeywords() {
 		return mKeywords;
@@ -211,5 +224,9 @@ public class AdView extends WebView {
 
 	public void setOnAdLoadedListener(OnAdLoadedListener listener) {
 		mOnAdLoadedListener = listener;
+	}
+
+	public void setOnAdClosedListener(OnAdClosedListener listener) {
+		mOnAdClosedListener = listener;
 	}
 }

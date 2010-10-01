@@ -32,6 +32,8 @@
 
 package com.mopub.mobileads;
 
+import com.mopub.mobileads.AdView.OnAdClosedListener;
+
 import android.app.Activity;
 import android.os.Bundle;
 
@@ -48,6 +50,12 @@ public class InterstitialAdActivity extends Activity {
 		mInterstitialAdView = new AdView(this);
 		mInterstitialAdView.setAdUnitId(adUnitId);
 		mInterstitialAdView.loadAd();
+		mInterstitialAdView.setOnAdClosedListener(new OnAdClosedListener() {
+			public void OnAdClosed(AdView a) {
+				setResult(RESULT_OK);
+				finish();
+			}
+		});
 		setContentView(mInterstitialAdView);
 	}
 }
