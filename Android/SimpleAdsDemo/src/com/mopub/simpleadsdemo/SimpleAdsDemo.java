@@ -90,6 +90,8 @@ public class SimpleAdsDemo extends Activity {
 	}
 
 	public void showInterstitialAd() {
-		startActivity(new Intent(this, InterstitialAdActivity.class));
+		Intent i = new Intent(this, InterstitialAdActivity.class);
+		i.putExtra("com.mopub.mobileads.AdUnitId", "agltb3B1Yi1pbmNyDAsSBFNpdGUY2aQGDA");
+		startActivity(i);
 	}
 }
