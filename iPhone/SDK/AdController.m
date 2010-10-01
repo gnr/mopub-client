@@ -244,7 +244,6 @@ NSString* FORMAT_CODES[] = {
 			NSString *userAgentString = [NSString stringWithFormat:@"%@/%@ (%@; U; CPU %@ %@ like Mac OS X; %@)",
 																	bundleName,appVersion,model,
 																	systemName,systemVersion,[[NSLocale currentLocale] localeIdentifier]];
-			NSLog(@"user: %@",userAgentString);
 			[request setValue:userAgentString forHTTPHeaderField:@"User_Agent"];
 
 			
