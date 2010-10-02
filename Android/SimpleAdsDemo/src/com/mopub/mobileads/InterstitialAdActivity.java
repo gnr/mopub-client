@@ -46,7 +46,6 @@ public class InterstitialAdActivity extends Activity {
 		super.onCreate(savedInstanceState);
 		
 		String adUnitId = getIntent().getStringExtra("com.mopub.mobileads.AdUnitId");
-
 		mInterstitialAdView = new AdView(this);
 		mInterstitialAdView.setAdUnitId(adUnitId);
 		mInterstitialAdView.loadAd();

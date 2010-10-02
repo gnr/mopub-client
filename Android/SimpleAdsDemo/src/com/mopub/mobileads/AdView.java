@@ -63,7 +63,7 @@ public class AdView extends WebView {
 		public void OnAdClosed(AdView a);
 	}
 	
-	private static final String BASE_AD_URL = "http://www.mopub.com/m/ad";
+	private static final String BASE_AD_URL = "http://ads.mopub.com/m/ad";
 
 	private String 				mAdUnitId = null;
 	private String 				mKeywords = null;
@@ -103,6 +103,10 @@ public class AdView extends WebView {
 
 	@Override
 	public void loadUrl(String url) {
+		if (url.startsWith("javascript:")) {
+			super.loadUrl(url);
+		}
+		
 		// Have to override loadUrl in order to get the headers, which
 		// MoPub uses to pass control information to the client
 		Runnable getUrl = new LoadUrlThread(url);

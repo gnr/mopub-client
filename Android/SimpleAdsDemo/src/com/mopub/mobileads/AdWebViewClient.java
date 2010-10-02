@@ -54,7 +54,7 @@ class AdWebViewClient extends WebViewClient {
 		if (url.startsWith("mopub://")) {
 			//TODO: Handle ad callbacks
 			if (url.equals("mopub://close") && view instanceof AdView) {
-				((AdView)view).pageFinished();
+				((AdView)view).pageClosed();
 			}
 			return true;
 		}

@@ -52,7 +52,6 @@ public class SimpleAdsDemo extends Activity {
 	private EditText			mSearchText = null;
 	private Button				mSearchButton = null;
 	private Button				mShowButton = null;
-	private Button				mLoadButton = null;
 
 	private final int			INTERSTITIAL_AD_REQUEST = 0;
 
@@ -90,17 +89,11 @@ public class SimpleAdsDemo extends Activity {
 				showInterstitialAd();
 			}
 		});
-		mLoadButton = (Button) findViewById(R.id.loadbutton);
-		mLoadButton.setOnClickListener(new OnClickListener() {
-			public void onClick(View v) {
-				showInterstitialAd();
-			}
-		});
 	}
 
 	public void showInterstitialAd() {
 		Intent i = new Intent(this, InterstitialAdActivity.class);
-		i.putExtra("com.mopub.mobileads.AdUnitId", "agltb3B1Yi1pbmNyDAsSBFNpdGUY2aQGDA");
+		i.putExtra("com.mopub.mobileads.AdUnitId", "agltb3B1Yi1pbmNyDAsSBFNpdGUYstgHDA");
 		startActivityForResult(i, INTERSTITIAL_AD_REQUEST);
 	}
 	
