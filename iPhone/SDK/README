@@ -52,24 +52,26 @@ AppDelegate.m
 ...
 
 InterstitialAdController *interstitialAdController = [InterstitialAdController sharedInterstitialAdControllerForAdUnitId:PUB_ID_INTERSTITIAL];	
-interstitialAdController.delegate =  (id<InterstitialAdControllerDelegate>)viewController; // the View Controller Object that will first appear on screen
+interstitialAdController.delegate =  self; // the View Controller Object that will first appear on screen
 [interstitialAdController loadAd];
 [interstitialAdController release];
 
 ...
 }
 
-MyUIViewController.m
---------------------
-
-#import AdController.h
+#pragma mark -
+#pragma mark Interstitial handling
 
 // Show the ad as soon as its ready
 - (void)adControllerDidLoadAd:(AdController *)_adController{
 	
 	// if its an interstitial we show it right away
 	if ([_adController isKindOfClass:[InterstitialAdController class]])
-		[self presentModalViewController:_adController animated:YES];
+		[self.tabBarController.selectedViewController presentModalViewController:_adController animated:YES];
+}
+
+- (void)adControllerFailedLoadAd:(AdController *)adController {
+	NSLog(@"Failed to load interstitial...");
 }
 
 // hide the ad when its to be closed
@@ -85,8 +87,6 @@ MyUIViewController.m
 // Sent when the interstitial is on screen
 - (void)interstitialDidAppear:(InterstitialAdController *)interstitialAdController {
 }
-
-
 
 
 Downstream Placement:

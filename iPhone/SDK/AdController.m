@@ -187,14 +187,12 @@ NSString* FORMAT_CODES[] = {
 		// create URL based on the parameters provided to us if a url was not passed in
 		//
 		if (!adUrl){
-			NSString *urlString = [NSString stringWithFormat:@"http://%@/m/ad?v=2&f=%@&udid=%@&q=%@&id=%@&w=%f&h=%f", 
+			NSString *urlString = [NSString stringWithFormat:@"http://%@/m/ad?v=2&f=%@&udid=%@&q=%@&id=%@", 
 								   HOSTNAME,
 								   f,
 								   [[UIDevice currentDevice] uniqueIdentifier],
 								   [keywords stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding],
-								   [adUnitId stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding],
-								   0.0,
-								   0.0
+								   [adUnitId stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]
 								   ];
 			
 			// append on location if it has been passed in
