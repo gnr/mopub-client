@@ -1,6 +1,6 @@
 //
 //  AdClickController.h
-//  SimpleAds
+//  Copyright (c) 2010 MoPub Inc.
 //
 
 #import <UIKit/UIKit.h>
