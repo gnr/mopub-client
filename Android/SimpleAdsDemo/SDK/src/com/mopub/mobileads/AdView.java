@@ -63,7 +63,8 @@ public class AdView extends WebView {
 		public void OnAdClosed(AdView a);
 	}
 	
-	private static final String BASE_AD_URL = "http://ads.mopub.com/m/ad";
+	private static final String BASE_AD_HOST = "ads.mopub.com";
+	private static final String BASE_AD_HANDLER = "/m/ad";
 
 	private String 				mAdUnitId = null;
 	private String 				mKeywords = null;
@@ -172,7 +173,7 @@ public class AdView extends WebView {
 	}
 
 	private String generateAdUrl() {
-		StringBuilder sz = new StringBuilder(BASE_AD_URL);
+		StringBuilder sz = new StringBuilder("http://"+BASE_AD_HOST+BASE_AD_HANDLER);
 		sz.append("?v=1&id=" + this.mAdUnitId);
 		sz.append("&udid=" + System.getProperty(Secure.ANDROID_ID));
 		if (this.getKeywords() != null) {
