@@ -37,7 +37,7 @@
 }
 
 -(id)initWithAdUnitId:(NSString *)a parentViewController:(UIViewController*)pvc{
-	if (self = [super initWithFormat:AdControllerFormatFullScreen adUnitId:a parentViewController:pvc]){
+	if (self = [super initWithFormat:AdControllerFormatFullScreeniPhonePortrait adUnitId:a parentViewController:pvc]){
 		_isInterstitial = YES;
 		_inNavigationController = [pvc isKindOfClass:[UINavigationController class]];
 		
