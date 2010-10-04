@@ -245,8 +245,6 @@ NSString* FORMAT_CODES[] = {
 																	bundleName,appVersion,model,
 																	systemName,systemVersion,[[NSLocale currentLocale] localeIdentifier]];
 			[request setValue:userAgentString forHTTPHeaderField:@"User_Agent"];
-
-			
 		}		
 		
 		[[NSURLConnection alloc] initWithRequest:request delegate:self];
@@ -300,12 +298,14 @@ NSString* FORMAT_CODES[] = {
 	if ([adTypeKey isEqualToString:@"iAd"]) {
 		self.loaded = TRUE;
 		[self.loadingIndicator stopAnimating];
+		adLoading = NO;
 		[connection cancel];
 		[connection release];	
 		[self backfillWithADBannerView];
 	} else if ([adTypeKey isEqualToString:@"clear"]) {
 		self.loaded = TRUE;
 		[self.loadingIndicator stopAnimating];
+		adLoading = NO;
 		[connection cancel];
 		[connection release];
 		[self backfillWithNothing];
@@ -336,10 +336,6 @@ NSString* FORMAT_CODES[] = {
 	adLoading = NO;
 	[loadingIndicator stopAnimating];
 	
-	// let delegate know that the ad has failed to load
-	if ([(NSObject *)self.delegate respondsToSelector:@selector(adControllerFailedLoadAd:)]){
-		[self.delegate adControllerFailedLoadAd:self];
-	}
 }
 
 - (void)connectionDidFinishLoading:(NSURLConnection *)connection {
@@ -350,6 +346,9 @@ NSString* FORMAT_CODES[] = {
 	NSString *response = [[NSString alloc] initWithData:self.data encoding:NSUTF8StringEncoding];
 	NSLog(@"%@",response);
 	[response release];
+	
+	// set ad loading to be False
+	adLoading = NO;
 	
 	// release the connection
 	[connection release];
@@ -480,6 +479,12 @@ NSString* FORMAT_CODES[] = {
 
 - (void)backfillWithNothing {
 	self.webView.backgroundColor = [UIColor clearColor];
+
+	// let delegate know that the ad has failed to load
+	if ([(NSObject *)self.delegate respondsToSelector:@selector(adControllerFailedLoadAd:)]){
+		[self.delegate adControllerFailedLoadAd:self];
+	}
+	
 }
 
 #pragma mark -
@@ -499,13 +504,21 @@ NSString* FORMAT_CODES[] = {
 		self.nativeAdView = adBannerView;
 		[self.view.superview addSubview:self.nativeAdView];
 		[adBannerView release];
-		
+				
 		// hide the webview so that it doesn't shine through
 		self.webView.hidden = YES;
 	} else {
 		// iOS versions before 4 
-		[self backfillWithNothing];
+		[self loadAdWithURL:self.failURL];
 	}
+}
+
+- (void)bannerViewDidLoadAd:(ADBannerView *)banner{
+	adLoading = NO;
+	if ([(NSObject *)self.delegate respondsToSelector:@selector(adControllerDidLoadAd:)]) {
+		[self.delegate adControllerDidLoadAd:self];
+	}
+	
 }
 
 - (void)bannerView:(ADBannerView *)banner didFailToReceiveAdWithError:(NSError *)error {
