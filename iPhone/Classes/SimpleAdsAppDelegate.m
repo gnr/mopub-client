@@ -25,9 +25,9 @@
 	viewController.navigationItem.title = @"Nav Controller";
 	
 	
-	interstitialAdController = [[InterstitialAdController alloc] initWithAdUnitId:PUB_ID_INTERSTITIAL parentViewController:nil];
-	interstitialAdController.delegate = viewController; // the SimpleAdsViewController Object controller is response for showing the ad once its ready
-	[interstitialAdController loadAd];
+//	interstitialAdController = [[InterstitialAdController alloc] initWithAdUnitId:PUB_ID_INTERSTITIAL parentViewController:nil];
+//	interstitialAdController.delegate = viewController; // the SimpleAdsViewController Object controller is response for showing the ad once its ready
+//	[interstitialAdController loadAd];
 	
 	
     [window addSubview:navigationController.view];

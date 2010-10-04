@@ -1,10 +1,9 @@
 //
 //  AdClickController.m
-//  SimpleAds
+//  Copyright (c) 2010 MoPub Inc.
 //
 
 #import "AdClickController.h"
-
 
 @implementation AdClickController
 
@@ -19,13 +18,13 @@ static NSArray *SAFARI_SCHEMES, *SAFARI_HOSTS;
 
 + (void)initialize {
 	SAFARI_SCHEMES = [[NSArray arrayWithObjects:
-					  @"tel",
-					  @"sms",
-					  nil] retain];
+					   @"tel",
+					   @"sms",
+					   nil] retain];
 	SAFARI_HOSTS = [[NSArray arrayWithObjects:
-					@"phobos.apple.com",
-					@"maps.google.com",
-					nil] retain];
+					 @"phobos.apple.com",
+					 @"maps.google.com",
+					 nil] retain];
 }
 
 - (id)initWithURL:(NSURL *)u delegate:(id<AdControllerDelegate>) d {
@@ -108,7 +107,7 @@ static NSArray *SAFARI_SCHEMES, *SAFARI_HOSTS;
 // Implement viewDidLoad to do additional setup after loading the view, typically from a nib.
 - (void)viewDidLoad {
     [super viewDidLoad];
-
+	
 	// load the url
 	[self.webView loadRequest:[NSURLRequest requestWithURL:self.url]];
 	
@@ -186,14 +185,6 @@ static NSArray *SAFARI_SCHEMES, *SAFARI_HOSTS;
 	
 	return image;
 }
-
-/*
-// Override to allow orientations other than the default portrait orientation.
-- (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation {
-    // Return YES for supported orientations
-    return (interfaceOrientation == UIInterfaceOrientationPortrait);
-}
-*/
 
 - (void)didReceiveMemoryWarning {
     // Releases the view if it doesn't have a superview.
