@@ -44,6 +44,7 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
 
 import android.content.Context;
+import android.location.Location;
 import android.net.Uri;
 import android.provider.Settings.Secure;
 import android.util.AttributeSet;
@@ -52,23 +53,25 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.webkit.WebView;
 
-import com.google.android.maps.GeoPoint;
-
 public class AdView extends WebView {
-	
+
 	public interface OnAdLoadedListener {
 		public void OnAdLoaded(AdView a);
 	}
-
-	private static final String BASE_AD_URL = "http://10.0.2.2:8082/m/ad";
+	
+	public interface OnAdClosedListener {
+		public void OnAdClosed(AdView a);
+	}
+	
+	private static final String BASE_AD_URL = "http://ads.mopub.com/m/ad";
 
 	private String 				mAdUnitId = null;
-	private String 				mClickthroughUrl = null;
 	private String 				mKeywords = null;
-	private GeoPoint 			mLocation = null;
+	private Location 			mLocation = null;
 
 	private AdWebViewClient 	mWebViewClient = null;
 	private OnAdLoadedListener  mOnAdLoadedListener = null;
+	private OnAdClosedListener  mOnAdClosedListener = null;
 
 	public AdView(Context context) {
 		super(context);
@@ -82,8 +85,10 @@ public class AdView extends WebView {
 
 	private void initAdView(Context context, AttributeSet attrs) {
 		getSettings().setJavaScriptEnabled(true);
+
 		// Set transparent background so that unfilled web view isn't white
 		setBackgroundColor(0);
+
 		// Prevent user from scrolling the web view since it always adds a margin
 		setOnTouchListener(new View.OnTouchListener() {
 			public boolean onTouch(View v, MotionEvent event) {
@@ -98,10 +103,16 @@ public class AdView extends WebView {
 
 	@Override
 	public void loadUrl(String url) {
+		if (url.startsWith("javascript:")) {
+			super.loadUrl(url);
+		}
+		
+		// Have to override loadUrl in order to get the headers, which
+		// MoPub uses to pass control information to the client
 		Runnable getUrl = new LoadUrlThread(url);
 		new Thread(getUrl).start();
 	}
-	
+
 	public class LoadUrlThread implements Runnable {
 		private String mUrl;
 
@@ -115,18 +126,17 @@ public class AdView extends WebView {
 				HttpGet httpget = new HttpGet(mUrl);  
 				HttpResponse response = httpclient.execute(httpget);
 				HttpEntity entity = response.getEntity();
-				
+
 				if (entity != null) {
 					// Get the various header messages
 					Header ctHeader = response.getFirstHeader("X-Clickthrough");
 					if (ctHeader != null) {
-						mClickthroughUrl = ctHeader.getValue();
-						Log.i("clickthrough url", mClickthroughUrl);
+						mWebViewClient.setClickthroughUrl(ctHeader.getValue());
 					}
 					else {
-						mClickthroughUrl = null;
+						mWebViewClient.setClickthroughUrl("");
 					}
-					
+
 					// If there is no ad, don't bother loading the data
 					Header bfHeader = response.getFirstHeader("X-Adtype");
 					if (bfHeader != null) {
@@ -134,7 +144,7 @@ public class AdView extends WebView {
 							return;
 						}
 					}
-					
+
 					InputStream is = entity.getContent();
 					BufferedReader reader = new BufferedReader(new InputStreamReader(is));
 					StringBuilder sb = new StringBuilder();
@@ -169,7 +179,7 @@ public class AdView extends WebView {
 			sz.append("&q=" + Uri.encode(getKeywords()));
 		}
 		if (this.getLocation() != null) {
-			sz.append("&ll=" + (this.getLocation().getLatitudeE6() / 1000000.0) + "," + (this.getLocation().getLongitudeE6() / 1000000.0));
+			sz.append("&ll=" + mLocation.getLatitude() + "," + mLocation.getLongitude());
 		}
 		return sz.toString();
 	}
@@ -179,10 +189,16 @@ public class AdView extends WebView {
 		Log.i("ad url", adUrl);
 		this.loadUrl(adUrl);
 	}
-	
+
 	public void pageFinished() {
 		if (mOnAdLoadedListener != null) {
 			mOnAdLoadedListener.OnAdLoaded(this);
+		}
+	}
+	
+	public void pageClosed() {
+		if (mOnAdClosedListener != null) {
+			mOnAdClosedListener.OnAdClosed(this);
 		}
 	}
 
@@ -194,27 +210,27 @@ public class AdView extends WebView {
 		mKeywords = keywords;
 	}
 
-	public GeoPoint getLocation() {
+	public Location getLocation() {
 		return mLocation;
 	}
 
-	public void setLocation(GeoPoint location) {
+	public void setLocation(Location location) {
 		mLocation = location;
 	}
 
 	public String getAdUnitId() {
 		return mAdUnitId;
 	}
-	
+
 	public void setAdUnitId(String adUnitId) {
 		mAdUnitId = adUnitId;
 	}
 
-	public String getClickthroughUrl() {
-		return mClickthroughUrl;
-	}
-	
 	public void setOnAdLoadedListener(OnAdLoadedListener listener) {
 		mOnAdLoadedListener = listener;
+	}
+
+	public void setOnAdClosedListener(OnAdClosedListener listener) {
+		mOnAdClosedListener = listener;
 	}
 }

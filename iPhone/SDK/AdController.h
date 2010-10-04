@@ -1,24 +1,20 @@
 //
 //  AdController.h
-//  SimpleAds
+//  Copyright (c) 2010 MoPub Inc.
 //
 
 #import <UIKit/UIKit.h>
 #import <CoreLocation/CoreLocation.h>
 #import <iAd/iAd.h>
 
-//#define HOSTNAME @"32-campaigns-django-port.latest.mopub-inc.appspot.com"
-// #define HOSTNAME @"32-campaigns.latest.mopub-inc.appspot.com"
-#define HOSTNAME @"localhost:8000"
+#define HOSTNAME @"ads.mopub.com"
 
 enum {
 	AdControllerFormat320x50,			// mobile banner size
 	AdControllerFormat300x250,			// medium rectangle
 	AdControllerFormat728x90,			// leaderboard
 	AdControllerFormat468x60,			// full banner
-	AdControllerFormatFullScreen,		// full-screen interstitial
-	AdControllerFormatCustom,			// custom size
-
+	AdControllerFormatFullScreeniPhonePortrait,		// full-screen interstitial for iPhone
 };
 typedef NSUInteger AdControllerFormat;
 
@@ -42,7 +38,6 @@ typedef NSUInteger AdControllerFormat;
 	
 	// boolean flag to let us know if the ad will be shown as an interstitial
 	BOOL _isInterstitial;
-
 	
 @private
 	// UI elements
@@ -86,7 +81,6 @@ typedef NSUInteger AdControllerFormat;
 @property(nonatomic, retain) NSMutableData* data;
 
 @property(nonatomic, copy) NSURL* failURL;
-
 
 @property(nonatomic, retain) UIView* nativeAdView; 
 
@@ -137,7 +131,6 @@ typedef NSUInteger AdControllerFormat;
  * Called when the ad creative has failed to load.
  */
 -(void)adControllerFailedLoadAd:(AdController*)adController;
-
 
 /**
  * Called when the ad has been clicked and the ad landing page is about to open.

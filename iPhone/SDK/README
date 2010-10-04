@@ -51,24 +51,27 @@ AppDelegate.m
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {    
 ...
 
-self.interstitialAdController = [InterstitialAdController sharedInterstitialAdControllerForAdUnitId:PUB_ID_INTERSTITIAL];	
-self.interstitialAdController.delegate =  (MyUIViewController *)viewController; // the View Controller Object that will first appear on screen
-[self.interstitialAdController loadAd];
+InterstitialAdController *interstitialAdController = [InterstitialAdController sharedInterstitialAdControllerForAdUnitId:PUB_ID_INTERSTITIAL];	
+interstitialAdController.delegate =  self; // the View Controller Object that will first appear on screen
+[interstitialAdController loadAd];
+[interstitialAdController release];
 
 ...
 }
 
-MyUIViewController.m
---------------------
-
-#import AdController.h
+#pragma mark -
+#pragma mark Interstitial handling
 
 // Show the ad as soon as its ready
 - (void)adControllerDidLoadAd:(AdController *)_adController{
 	
 	// if its an interstitial we show it right away
-	else if ([_adController isKindOfClass:[InterstitialAdController class]])
-		[self presentModalViewController:_adController animated:YES];
+	if ([_adController isKindOfClass:[InterstitialAdController class]])
+		[self.tabBarController.selectedViewController presentModalViewController:_adController animated:YES];
+}
+
+- (void)adControllerFailedLoadAd:(AdController *)adController {
+	NSLog(@"Failed to load interstitial...");
 }
 
 // hide the ad when its to be closed
@@ -78,12 +81,12 @@ MyUIViewController.m
 
 // Sent with the interstitial is about to appear, it is a good place to save state in case
 // the user leaves the application from the interstitial
-- (void)interstitialWillAppear:(InterstitialAdController *)interstitialAdController;
+- (void)interstitialWillAppear:(InterstitialAdController *)interstitialAdController {
+}
 
 // Sent when the interstitial is on screen
-- (void)interstitialDidAppear:(InterstitialAdController *)interstitialAdController;
-
-
+- (void)interstitialDidAppear:(InterstitialAdController *)interstitialAdController {
+}
 
 
 Downstream Placement:
@@ -136,8 +139,10 @@ MyUIViewController.m
 
 // Sent with the interstitial is about to appear, it is a good place to save state in case
 // the user leaves the application from the interstitial
-- (void)interstitialWillAppear:(InterstitialAdController *)interstitialAdController;
+- (void)interstitialWillAppear:(InterstitialAdController *)interstitialAdController {
+}
 
 // Sent when the interstitial is on screen
-- (void)interstitialDidAppear:(InterstitialAdController *)interstitialAdController;
+- (void)interstitialDidAppear:(InterstitialAdController *)interstitialAdController {
+}
 

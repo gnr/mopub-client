@@ -65,9 +65,8 @@
 	android:layout_height="wrap_content"
   	android:layout_below="@id/bottomlayout"
   	android:layout_alignParentBottom="true"
-	android:text="Load Interstitial" 
+	android:text="Show Interstitial -> Load Ad" 
 	/>
-	
 	</RelativeLayout>
 	
 </LinearLayout>

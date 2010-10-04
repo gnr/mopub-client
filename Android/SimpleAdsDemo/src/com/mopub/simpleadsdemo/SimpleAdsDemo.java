@@ -30,13 +30,14 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package com.mopub.simpleads;
+package com.mopub.simpleadsdemo;
 
 import com.mopub.mobileads.AdView;
-import com.mopub.mobileads.AdView.OnAdLoadedListener;
+import com.mopub.mobileads.InterstitialAdActivity;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -44,33 +45,34 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 
-public class SimpleAds extends Activity {
+public class SimpleAdsDemo extends Activity {
 	private AdView				mTopAdView = null;
 	private AdView				mMidAdView = null;
-	private AdView				mInterstitialAdView = null;
 
 	private EditText			mSearchText = null;
 	private Button				mSearchButton = null;
 	private Button				mShowButton = null;
 
-    /** Called when the activity is first created. */
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.main);
-        
+	private final int			INTERSTITIAL_AD_REQUEST = 0;
+
+	/** Called when the activity is first created. */
+	@Override
+	public void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.main);
+
 		// Initialize Ad components
-        mTopAdView = (AdView) findViewById(R.id.topadview);
-        mTopAdView.setAdUnitId("agltb3B1Yi1pbmNyDAsSBFNpdGUY2aQGDA");
-        mTopAdView.loadAd();
-		
-        mMidAdView = (AdView) findViewById(R.id.middleadview);
-        mMidAdView.setAdUnitId("agltb3B1Yi1pbmNyDAsSBFNpdGUY2aQGDA");
-        mMidAdView.loadAd();
-		
-        mSearchText = (EditText) findViewById(R.id.searchtext);
-        mSearchButton = (Button) findViewById(R.id.searchbutton);
-        mSearchButton.setOnClickListener(new OnClickListener() {
+		mTopAdView = (AdView) findViewById(R.id.topadview);
+		mTopAdView.setAdUnitId("agltb3B1Yi1pbmNyDAsSBFNpdGUY2aQGDA");
+		mTopAdView.loadAd();
+
+		mMidAdView = (AdView) findViewById(R.id.middleadview);
+		mMidAdView.setAdUnitId("agltb3B1Yi1pbmNyDAsSBFNpdGUY2aQGDA");
+		mMidAdView.loadAd();
+
+		mSearchText = (EditText) findViewById(R.id.searchtext);
+		mSearchButton = (Button) findViewById(R.id.searchbutton);
+		mSearchButton.setOnClickListener(new OnClickListener() {
 			public void onClick(View v) {
 				InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
 				imm.hideSoftInputFromWindow(mSearchText.getWindowToken(), 0);
@@ -80,23 +82,27 @@ public class SimpleAds extends Activity {
 				mMidAdView.loadAd();
 			}
 		});
-        
-        mShowButton = (Button) findViewById(R.id.showbutton);
-        mShowButton.setOnClickListener(new OnClickListener() {
+
+		mShowButton = (Button) findViewById(R.id.showbutton);
+		mShowButton.setOnClickListener(new OnClickListener() {
 			public void onClick(View v) {
 				showInterstitialAd();
 			}
 		});
-    }
+	}
 
 	public void showInterstitialAd() {
-		mInterstitialAdView = new AdView(this);
-		mInterstitialAdView.setAdUnitId("agltb3B1Yi1pbmNyDAsSBFNpdGUY2aQGDA");
-		mInterstitialAdView.setOnAdLoadedListener(new OnAdLoadedListener() {
-			public void OnAdLoaded(AdView a) {
-				setContentView(mInterstitialAdView);
-			}
-		});
-		mInterstitialAdView.loadAd();
+		Intent i = new Intent(this, InterstitialAdActivity.class);
+		i.putExtra("com.mopub.mobileads.AdUnitId", "agltb3B1Yi1pbmNyDAsSBFNpdGUYstgHDA");
+		startActivityForResult(i, INTERSTITIAL_AD_REQUEST);
+	}
+	
+	// Listen for results from the interstitial ad
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+	    switch (requestCode) {
+	    case INTERSTITIAL_AD_REQUEST:
+	    	// Handle interstitial closed result here if needed.
+	    	// This is called immediately before onResume()
+	    }
 	}
 }
