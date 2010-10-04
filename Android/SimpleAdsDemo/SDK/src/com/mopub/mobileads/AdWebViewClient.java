@@ -32,22 +32,51 @@
 
 package com.mopub.mobileads;
 
-import android.app.Activity;
-import android.os.Bundle;
+import android.content.Intent;
+import android.net.Uri;
+import android.util.Log;
+import android.webkit.WebView;
+import android.webkit.WebViewClient;
 
-public class InterstitialAdActivity extends Activity {
-	private AdView				mInterstitialAdView = null;
-	
-	/** Called when the activity is first created. */
+class AdWebViewClient extends WebViewClient {
+	private String 	mClickthroughUrl = "";
+
+	public void setClickthroughUrl(String url) {
+		mClickthroughUrl = url;
+		Log.i("clickthrough url", mClickthroughUrl);
+	}
+
 	@Override
-	public void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		
-		String adUnitId = getIntent().getStringExtra("com.mopub.mobileads.AdUnitId");
+	public boolean shouldOverrideUrlLoading(WebView view, String url) {
+		Log.i("url", url);
 
-		mInterstitialAdView = new AdView(this);
-		mInterstitialAdView.setAdUnitId(adUnitId);
-		mInterstitialAdView.loadAd();
-		setContentView(mInterstitialAdView);
+		// Check if this is a local call
+		if (url.startsWith("mopub://")) {
+			//TODO: Handle ad callbacks
+			if (url.equals("mopub://close") && view instanceof AdView) {
+				((AdView)view).pageClosed();
+			}
+			return true;
+		}
+
+		String uri = url;
+
+		if (mClickthroughUrl != "") {
+			uri = mClickthroughUrl + "&r=" + Uri.encode(url);
+		}
+
+		// Log the request asynchronously
+		Log.i("aclk", uri);
+
+		// and fire off a system wide intent
+		view.getContext().startActivity(new Intent(android.content.Intent.ACTION_VIEW, Uri.parse(uri)));
+		return true;
+	}
+
+	@Override
+	public void onPageFinished(WebView view, String url) {
+		if (view instanceof AdView) {
+			((AdView)view).pageFinished();
+		}
 	}
 }

@@ -32,20 +32,29 @@
 
 package com.mopub.mobileads;
 
+import com.mopub.mobileads.AdView.OnAdClosedListener;
+
 import android.app.Activity;
 import android.os.Bundle;
 
 public class InterstitialAdActivity extends Activity {
 	private AdView				mInterstitialAdView = null;
-
+	
 	/** Called when the activity is first created. */
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-
+		
+		String adUnitId = getIntent().getStringExtra("com.mopub.mobileads.AdUnitId");
 		mInterstitialAdView = new AdView(this);
-		mInterstitialAdView.setAdUnitId("agltb3B1Yi1pbmNyDAsSBFNpdGUY2aQGDA");
+		mInterstitialAdView.setAdUnitId(adUnitId);
 		mInterstitialAdView.loadAd();
+		mInterstitialAdView.setOnAdClosedListener(new OnAdClosedListener() {
+			public void OnAdClosed(AdView a) {
+				setResult(RESULT_OK);
+				finish();
+			}
+		});
 		setContentView(mInterstitialAdView);
 	}
 }

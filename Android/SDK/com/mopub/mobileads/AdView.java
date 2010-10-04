@@ -44,6 +44,7 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
 
 import android.content.Context;
+import android.location.Location;
 import android.net.Uri;
 import android.provider.Settings.Secure;
 import android.util.AttributeSet;
@@ -52,22 +53,25 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.webkit.WebView;
 
-import com.google.android.maps.GeoPoint;
-
 public class AdView extends WebView {
 
 	public interface OnAdLoadedListener {
 		public void OnAdLoaded(AdView a);
 	}
-
+	
+	public interface OnAdClosedListener {
+		public void OnAdClosed(AdView a);
+	}
+	
 	private static final String BASE_AD_URL = "http://ads.mopub.com/m/ad";
 
 	private String 				mAdUnitId = null;
 	private String 				mKeywords = null;
-	private GeoPoint 			mLocation = null;
+	private Location 			mLocation = null;
 
 	private AdWebViewClient 	mWebViewClient = null;
 	private OnAdLoadedListener  mOnAdLoadedListener = null;
+	private OnAdClosedListener  mOnAdClosedListener = null;
 
 	public AdView(Context context) {
 		super(context);
@@ -99,6 +103,12 @@ public class AdView extends WebView {
 
 	@Override
 	public void loadUrl(String url) {
+		if (url.startsWith("javascript:")) {
+			super.loadUrl(url);
+		}
+		
+		// Have to override loadUrl in order to get the headers, which
+		// MoPub uses to pass control information to the client
 		Runnable getUrl = new LoadUrlThread(url);
 		new Thread(getUrl).start();
 	}
@@ -169,8 +179,7 @@ public class AdView extends WebView {
 			sz.append("&q=" + Uri.encode(getKeywords()));
 		}
 		if (this.getLocation() != null) {
-			sz.append("&ll=" + (this.getLocation().getLatitudeE6() / 1000000.0) + ","
-					+ (this.getLocation().getLongitudeE6() / 1000000.0));
+			sz.append("&ll=" + mLocation.getLatitude() + "," + mLocation.getLongitude());
 		}
 		return sz.toString();
 	}
@@ -186,6 +195,12 @@ public class AdView extends WebView {
 			mOnAdLoadedListener.OnAdLoaded(this);
 		}
 	}
+	
+	public void pageClosed() {
+		if (mOnAdClosedListener != null) {
+			mOnAdClosedListener.OnAdClosed(this);
+		}
+	}
 
 	public String getKeywords() {
 		return mKeywords;
@@ -195,11 +210,11 @@ public class AdView extends WebView {
 		mKeywords = keywords;
 	}
 
-	public GeoPoint getLocation() {
+	public Location getLocation() {
 		return mLocation;
 	}
 
-	public void setLocation(GeoPoint location) {
+	public void setLocation(Location location) {
 		mLocation = location;
 	}
 
@@ -213,5 +228,9 @@ public class AdView extends WebView {
 
 	public void setOnAdLoadedListener(OnAdLoadedListener listener) {
 		mOnAdLoadedListener = listener;
+	}
+
+	public void setOnAdClosedListener(OnAdClosedListener listener) {
+		mOnAdClosedListener = listener;
 	}
 }

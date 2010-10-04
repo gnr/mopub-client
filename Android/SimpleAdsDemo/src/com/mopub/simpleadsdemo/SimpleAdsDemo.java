@@ -53,6 +53,8 @@ public class SimpleAdsDemo extends Activity {
 	private Button				mSearchButton = null;
 	private Button				mShowButton = null;
 
+	private final int			INTERSTITIAL_AD_REQUEST = 0;
+
 	/** Called when the activity is first created. */
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -91,7 +93,16 @@ public class SimpleAdsDemo extends Activity {
 
 	public void showInterstitialAd() {
 		Intent i = new Intent(this, InterstitialAdActivity.class);
-		i.putExtra("com.mopub.mobileads.AdUnitId", "agltb3B1Yi1pbmNyDAsSBFNpdGUY2aQGDA");
-		startActivity(i);
+		i.putExtra("com.mopub.mobileads.AdUnitId", "agltb3B1Yi1pbmNyDAsSBFNpdGUYstgHDA");
+		startActivityForResult(i, INTERSTITIAL_AD_REQUEST);
+	}
+	
+	// Listen for results from the interstitial ad
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+	    switch (requestCode) {
+	    case INTERSTITIAL_AD_REQUEST:
+	    	// Handle interstitial closed result here if needed.
+	    	// This is called immediately before onResume()
+	    }
 	}
 }

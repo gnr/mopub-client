@@ -58,8 +58,13 @@ public class AdView extends WebView {
 	public interface OnAdLoadedListener {
 		public void OnAdLoaded(AdView a);
 	}
-
-	private static final String BASE_AD_URL = "http://www.mopub.com/m/ad";
+	
+	public interface OnAdClosedListener {
+		public void OnAdClosed(AdView a);
+	}
+	
+	private static final String BASE_AD_HOST = "ads.mopub.com";
+	private static final String BASE_AD_HANDLER = "/m/ad";
 
 	private String 				mAdUnitId = null;
 	private String 				mKeywords = null;
@@ -67,6 +72,7 @@ public class AdView extends WebView {
 
 	private AdWebViewClient 	mWebViewClient = null;
 	private OnAdLoadedListener  mOnAdLoadedListener = null;
+	private OnAdClosedListener  mOnAdClosedListener = null;
 
 	public AdView(Context context) {
 		super(context);
@@ -98,6 +104,12 @@ public class AdView extends WebView {
 
 	@Override
 	public void loadUrl(String url) {
+		if (url.startsWith("javascript:")) {
+			super.loadUrl(url);
+		}
+		
+		// Have to override loadUrl in order to get the headers, which
+		// MoPub uses to pass control information to the client
 		Runnable getUrl = new LoadUrlThread(url);
 		new Thread(getUrl).start();
 	}
@@ -161,7 +173,7 @@ public class AdView extends WebView {
 	}
 
 	private String generateAdUrl() {
-		StringBuilder sz = new StringBuilder(BASE_AD_URL);
+		StringBuilder sz = new StringBuilder("http://"+BASE_AD_HOST+BASE_AD_HANDLER);
 		sz.append("?v=1&id=" + this.mAdUnitId);
 		sz.append("&udid=" + System.getProperty(Secure.ANDROID_ID));
 		if (this.getKeywords() != null) {
@@ -174,6 +186,9 @@ public class AdView extends WebView {
 	}
 
 	public void loadAd() {
+		if (mAdUnitId == null) {
+			throw new RuntimeException("AdUnitId isn't set");
+		}
 		String adUrl = generateAdUrl();
 		Log.i("ad url", adUrl);
 		this.loadUrl(adUrl);
@@ -182,6 +197,12 @@ public class AdView extends WebView {
 	public void pageFinished() {
 		if (mOnAdLoadedListener != null) {
 			mOnAdLoadedListener.OnAdLoaded(this);
+		}
+	}
+	
+	public void pageClosed() {
+		if (mOnAdClosedListener != null) {
+			mOnAdClosedListener.OnAdClosed(this);
 		}
 	}
 
@@ -211,5 +232,9 @@ public class AdView extends WebView {
 
 	public void setOnAdLoadedListener(OnAdLoadedListener listener) {
 		mOnAdLoadedListener = listener;
+	}
+
+	public void setOnAdClosedListener(OnAdClosedListener listener) {
+		mOnAdClosedListener = listener;
 	}
 }
