@@ -40,6 +40,7 @@ import java.io.InputStreamReader;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
+import org.apache.http.HttpStatus;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
 
@@ -69,6 +70,7 @@ public class AdView extends WebView {
 	private String 				mAdUnitId = null;
 	private String 				mKeywords = null;
 	private Location 			mLocation = null;
+	private boolean				mAdLoaded = false;
 
 	private AdWebViewClient 	mWebViewClient = null;
 	private OnAdLoadedListener  mOnAdLoadedListener = null;
@@ -108,12 +110,14 @@ public class AdView extends WebView {
 			super.loadUrl(url);
 		}
 		
-		// Have to override loadUrl in order to get the headers, which
-		// MoPub uses to pass control information to the client
+
 		Runnable getUrl = new LoadUrlThread(url);
 		new Thread(getUrl).start();
 	}
 
+	// Have to override loadUrl() in order to get the headers, which
+	// MoPub uses to pass control information to the client.  Unfortunately
+	// WebView doesn't let us get to the headers...
 	public class LoadUrlThread implements Runnable {
 		private String mUrl;
 
@@ -126,48 +130,60 @@ public class AdView extends WebView {
 				DefaultHttpClient httpclient = new DefaultHttpClient();
 				HttpGet httpget = new HttpGet(mUrl);  
 				HttpResponse response = httpclient.execute(httpget);
-				HttpEntity entity = response.getEntity();
-
-				if (entity != null) {
-					// Get the various header messages
-					Header ctHeader = response.getFirstHeader("X-Clickthrough");
-					if (ctHeader != null) {
-						mWebViewClient.setClickthroughUrl(ctHeader.getValue());
-					}
-					else {
-						mWebViewClient.setClickthroughUrl("");
-					}
-
-					// If there is no ad, don't bother loading the data
-					Header bfHeader = response.getFirstHeader("X-Adtype");
-					if (bfHeader != null) {
-						if (bfHeader.getValue() == "clear") {
-							return;
-						}
-					}
-
-					InputStream is = entity.getContent();
-					BufferedReader reader = new BufferedReader(new InputStreamReader(is));
-					StringBuilder sb = new StringBuilder();
-
-					String line = null;
-					try {
-						while ((line = reader.readLine()) != null) {
-							sb.append(line + "\n");
-						}
-					} catch (IOException e) {
-					} finally {
-						try {
-							is.close();
-						} catch (IOException e) {
-							e.printStackTrace();
-						}
-					}
-					loadDataWithBaseURL(mUrl, sb.toString(),"text/html","utf-8", null);
+				
+				if (response.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
+					pageFinished();
+					return;
 				}
+
+				HttpEntity entity = response.getEntity();
+				if (entity == null || entity.getContentLength() == 0) {
+					pageFinished();
+					return;
+				}
+
+				// Get the various header messages
+				// If there is no ad, don't bother loading the data
+				Header bfHeader = response.getFirstHeader("X-Adtype");
+				if (bfHeader == null || bfHeader.getValue() == "clear") {
+					pageFinished();
+					return;
+				}
+
+				mAdLoaded = true;
+
+				Header ctHeader = response.getFirstHeader("X-Clickthrough");
+				if (ctHeader != null) {
+					mWebViewClient.setClickthroughUrl(ctHeader.getValue());
+				}
+				else {
+					mWebViewClient.setClickthroughUrl("");
+				}
+
+				InputStream is = entity.getContent();
+				BufferedReader reader = new BufferedReader(new InputStreamReader(is));
+				StringBuilder sb = new StringBuilder();
+
+				String line = null;
+				try {
+					while ((line = reader.readLine()) != null) {
+						sb.append(line + "\n");
+					}
+				} catch (IOException e) {
+					pageFinished();
+					return;
+				} finally {
+					try {
+						is.close();
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+				}
+				loadDataWithBaseURL(mUrl, sb.toString(),"text/html","utf-8", null);
 			}
 			catch (Exception e) {
-				e.printStackTrace();
+				pageFinished();
+				return;
 			}
 		}
 	}
@@ -186,6 +202,7 @@ public class AdView extends WebView {
 	}
 
 	public void loadAd() {
+		mAdLoaded = false;
 		if (mAdUnitId == null) {
 			throw new RuntimeException("AdUnitId isn't set");
 		}
@@ -194,6 +211,10 @@ public class AdView extends WebView {
 		this.loadUrl(adUrl);
 	}
 
+	public boolean adLoaded() {
+		return mAdLoaded;
+	}
+	
 	public void pageFinished() {
 		if (mOnAdLoadedListener != null) {
 			mOnAdLoadedListener.OnAdLoaded(this);
