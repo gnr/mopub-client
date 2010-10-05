@@ -1,6 +1,6 @@
 //
 //  SimpleAdsViewController.m
-//  SimpleAds
+//  Copyright (c) 2010 MoPub Inc.
 //
 
 #import "SimpleAdsViewController.h"
@@ -31,13 +31,6 @@
 	self.adController.keywords = @"coffee";
 	self.adController.delegate = self;
 	[self.adView addSubview:self.adController.view];
-	
-	
-	// lets load the mrectController in the background this time
-//	self.mrectController = [[AdController alloc] initWithFormat:AdControllerFormat300x250 adUnitId:PUB_ID_320x50 parentViewController:self];
-//	self.mrectController.keywords = @"coffee";
-//	self.mrectController.delegate = self;
-//	[self.mrectController loadAd];
 }
 
 - (IBAction) getNavigationInterstitial{

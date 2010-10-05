@@ -1,6 +1,6 @@
 //
 //  SimpleAdsViewController.h
-//  SimpleAds
+//  Copyright (c) 2010 MoPub Inc.
 //
 //
 
