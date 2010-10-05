@@ -1,6 +1,6 @@
 //
 //  SimpleAdsViewController.h
-//  SimpleAds
+//  Copyright (c) 2010 MoPub Inc.
 //
 //
 
@@ -9,10 +9,9 @@
 #import "InterstitialAdController.h"
 #import "SecondViewController.h"
 
-#define PUB_ID_320x50 @"agltb3B1Yi1pbmNyDAsSBFNpdGUYj5wJDA"
-//#define PUB_ID_320x50 @"agltb3B1Yi1pbmNyDAsSBFNpdGUYjZwJDA"
-#define PUB_ID_300x250 @"agltb3B1Yi1pbmNyCgsSBFNpdGUYAww"
-#define PUB_ID_INTERSTITIAL @"agltb3B1Yi1pbmNyCgsSBFNpdGUYAww"
+#define PUB_ID_320x50 @"agltb3B1Yi1pbmNyDAsSBFNpdGUY-cAHDA"
+#define PUB_ID_300x250 @"agltb3B1Yi1pbmNyDAsSBFNpdGUY4cgHDA"
+#define PUB_ID_INTERSTITIAL @"agltb3B1Yi1pbmNyDAsSBFNpdGUYqasJDA"
 
 @class InterstitialAdController;
 

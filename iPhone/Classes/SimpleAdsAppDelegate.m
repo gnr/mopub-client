@@ -1,6 +1,6 @@
 //
 //  SimpleAdsAppDelegate.m
-//  SimpleAds
+//  Copyright (c) 2010 MoPub Inc.
 //
 //
 

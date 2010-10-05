@@ -3,7 +3,7 @@
 //  SimpleAds
 //
 //  Created by Nafis Jamal on 9/24/10.
-//  Copyright 2010 Stanford. All rights reserved.
+//  Copyright (c) 2010 MoPub Inc.
 //
 
 #import <UIKit/UIKit.h>
