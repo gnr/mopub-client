@@ -44,6 +44,7 @@ import android.view.View.OnClickListener;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Toast;
 
 public class SimpleAdsDemo extends Activity {
 	private AdView				mTopAdView = null;
@@ -93,7 +94,7 @@ public class SimpleAdsDemo extends Activity {
 
 	public void showInterstitialAd() {
 		Intent i = new Intent(this, InterstitialAdActivity.class);
-		i.putExtra("com.mopub.mobileads.AdUnitId", "agltb3B1Yi1pbmNyDAsSBFNpdGUYstgHDA");
+		i.putExtra("com.mopub.mobileads.AdUnitId", "agltb3B1Yi1pbmNyDAsSBFNpdGUY2aQGDA");
 		startActivityForResult(i, INTERSTITIAL_AD_REQUEST);
 	}
 	
@@ -103,6 +104,9 @@ public class SimpleAdsDemo extends Activity {
 	    case INTERSTITIAL_AD_REQUEST:
 	    	// Handle interstitial closed result here if needed.
 	    	// This is called immediately before onResume()
+	    	if (resultCode == RESULT_CANCELED) {
+	    		Toast.makeText(this, "No ad available", Toast.LENGTH_SHORT).show();
+	    	}
 	    }
 	}
 }

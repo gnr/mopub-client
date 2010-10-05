@@ -34,10 +34,10 @@
 	
 	
 	// lets load the mrectController in the background this time
-	self.mrectController = [[AdController alloc] initWithFormat:AdControllerFormat300x250 adUnitId:PUB_ID_320x50 parentViewController:self];
-	self.mrectController.keywords = @"coffee";
-	self.mrectController.delegate = self;
-	[self.mrectController loadAd];
+//	self.mrectController = [[AdController alloc] initWithFormat:AdControllerFormat300x250 adUnitId:PUB_ID_320x50 parentViewController:self];
+//	self.mrectController.keywords = @"coffee";
+//	self.mrectController.delegate = self;
+//	[self.mrectController loadAd];
 }
 
 - (IBAction) getNavigationInterstitial{
@@ -127,7 +127,7 @@
 	
 	// update mrect
 	self.mrectController.keywords = keyword.text;
-//	[self.mrectController refresh];
+	[self.mrectController refresh];
 }
 
 - (BOOL)textFieldShouldReturn:(UITextField *)textField {

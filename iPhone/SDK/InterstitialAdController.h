@@ -1,9 +1,8 @@
 //
 //  InterstitialAdController.h
-//  SimpleAds
+//  Copyright (c) 2010 MoPub Inc.
 //
 //  Created by Nafis Jamal on 9/21/10.
-//  Copyright 2010 Stanford. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -28,6 +27,7 @@ typedef NSUInteger AdCloseButtonType;
 @property (nonatomic,retain) UIButton *closeButton;
 
 + (InterstitialAdController *)sharedInterstitialAdControllerForAdUnitId:(NSString *)a;
+
 // if you are initing from the application delegate then you can say parentViewController = nil
 - (id)initWithAdUnitId:(NSString *)p parentViewController:(UIViewController*)pvc;
 - (void)makeCloseButton;

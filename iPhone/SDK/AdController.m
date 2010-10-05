@@ -1,6 +1,6 @@
 //
 //  AdController.m
-//  SimpleAds
+//  Copyright (c) 2010 MoPub Inc.
 //
 
 #import "AdController.h"
@@ -11,8 +11,6 @@
 @interface TouchableWebView : UIWebView  {
 }
 @end
-
-
 
 @implementation TouchableWebView
 
@@ -93,12 +91,10 @@ NSString* FORMAT_CODES[] = {
 		webView = [[TouchableWebView alloc] initWithFrame:CGRectZero];
 		webView.delegate = self;
 		
-		_isInterstitial = NO;
-		
 		// initialize ad Loading to False
 		adLoading = NO;
-		
-		
+		_isInterstitial = NO;
+				
 		// init the exclude parameter list
 		excludeParams = [[NSMutableArray alloc] initWithCapacity:1];
 		
@@ -164,10 +160,9 @@ NSString* FORMAT_CODES[] = {
 	
 	// add them 
 	[self.view addSubview:self.loadingIndicator];	
+
 	// put the webview on the page but hide it until its loaded
 	[self.view addSubview:self.webView];
-//	self.webView.hidden = YES;
-
 }
 
 - (void)viewWillAppear:(BOOL)animated{
@@ -192,16 +187,14 @@ NSString* FORMAT_CODES[] = {
 		// create URL based on the parameters provided to us if a url was not passed in
 		//
 		if (!adUrl){
-			NSString *urlString = [NSString stringWithFormat:@"http://%@/m/ad?v=2&f=%@&udid=%@&q=%@&id=%@&w=%f&h=%f", 
+			NSString *urlString = [NSString stringWithFormat:@"http://%@/m/ad?v=2&f=%@&udid=%@&q=%@&id=%@", 
 								   HOSTNAME,
 								   f,
 								   [[UIDevice currentDevice] uniqueIdentifier],
 								   [keywords stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding],
-								   [adUnitId stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding],
-								   0.0,
-								   0.0
+								   [adUnitId stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]
 								   ];
-			NSLog(@"urlString: %@",urlString);
+			
 			// append on location if it has been passed in
 			if (self.location){
 				urlString = [urlString stringByAppendingFormat:@"&ll=%f,%f",location.coordinate.latitude,location.coordinate.longitude];
@@ -245,8 +238,6 @@ NSString* FORMAT_CODES[] = {
 																	bundleName,appVersion,model,
 																	systemName,systemVersion,[[NSLocale currentLocale] localeIdentifier]];
 			[request setValue:userAgentString forHTTPHeaderField:@"User_Agent"];
-
-			
 		}		
 		
 		[[NSURLConnection alloc] initWithRequest:request delegate:self];
@@ -300,12 +291,14 @@ NSString* FORMAT_CODES[] = {
 	if ([adTypeKey isEqualToString:@"iAd"]) {
 		self.loaded = TRUE;
 		[self.loadingIndicator stopAnimating];
+		adLoading = NO;
 		[connection cancel];
 		[connection release];	
 		[self backfillWithADBannerView];
 	} else if ([adTypeKey isEqualToString:@"clear"]) {
 		self.loaded = TRUE;
 		[self.loadingIndicator stopAnimating];
+		adLoading = NO;
 		[connection cancel];
 		[connection release];
 		[self backfillWithNothing];
@@ -336,10 +329,6 @@ NSString* FORMAT_CODES[] = {
 	adLoading = NO;
 	[loadingIndicator stopAnimating];
 	
-	// let delegate know that the ad has failed to load
-	if ([(NSObject *)self.delegate respondsToSelector:@selector(adControllerFailedLoadAd:)]){
-		[self.delegate adControllerFailedLoadAd:self];
-	}
 }
 
 - (void)connectionDidFinishLoading:(NSURLConnection *)connection {
@@ -350,6 +339,9 @@ NSString* FORMAT_CODES[] = {
 	NSString *response = [[NSString alloc] initWithData:self.data encoding:NSUTF8StringEncoding];
 	NSLog(@"%@",response);
 	[response release];
+	
+	// set ad loading to be False
+	adLoading = NO;
 	
 	// release the connection
 	[connection release];
@@ -480,6 +472,12 @@ NSString* FORMAT_CODES[] = {
 
 - (void)backfillWithNothing {
 	self.webView.backgroundColor = [UIColor clearColor];
+
+	// let delegate know that the ad has failed to load
+	if ([(NSObject *)self.delegate respondsToSelector:@selector(adControllerFailedLoadAd:)]){
+		[self.delegate adControllerFailedLoadAd:self];
+	}
+	
 }
 
 #pragma mark -
@@ -499,13 +497,21 @@ NSString* FORMAT_CODES[] = {
 		self.nativeAdView = adBannerView;
 		[self.view.superview addSubview:self.nativeAdView];
 		[adBannerView release];
-		
+				
 		// hide the webview so that it doesn't shine through
 		self.webView.hidden = YES;
 	} else {
 		// iOS versions before 4 
-		[self backfillWithNothing];
+		[self loadAdWithURL:self.failURL];
 	}
+}
+
+- (void)bannerViewDidLoadAd:(ADBannerView *)banner{
+	adLoading = NO;
+	if ([(NSObject *)self.delegate respondsToSelector:@selector(adControllerDidLoadAd:)]) {
+		[self.delegate adControllerDidLoadAd:self];
+	}
+	
 }
 
 - (void)bannerView:(ADBannerView *)banner didFailToReceiveAdWithError:(NSError *)error {
@@ -556,14 +562,6 @@ NSString* FORMAT_CODES[] = {
 	
 	return redirectUrl;
 }
-
-/*
-// Override to allow orientations other than the default portrait orientation.
-- (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation {
-    // Return YES for supported orientations
-    return (interfaceOrientation == UIInterfaceOrientationPortrait);
-}
-*/
 
 - (void)didReceiveMemoryWarning {
     // Releases the view if it doesn't have a superview.

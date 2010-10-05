@@ -1,9 +1,8 @@
 //
 //  InterstitialAdController.m
-//  SimpleAds
+//  Copyright (c) 2010 MoPub Inc.
 //
 //  Created by Nafis Jamal on 9/21/10.
-//  Copyright 2010 Stanford. All rights reserved.
 //
 
 #import "InterstitialAdController.h"
@@ -12,9 +11,7 @@
 
 @synthesize closeButton;
 
-+ (InterstitialAdController *)sharedInterstitialAdControllerForAdUnitId:(NSString *)a{
-//	static InterstitialAdController *sharedInterstitialAdController;
-	
++ (InterstitialAdController *)sharedInterstitialAdControllerForAdUnitId:(NSString *)a{	
 	static NSMutableArray *sharedInterstitialAdControllers;
 	
 	@synchronized(self)
@@ -40,7 +37,7 @@
 }
 
 -(id)initWithAdUnitId:(NSString *)a parentViewController:(UIViewController*)pvc{
-	if (self = [super initWithFormat:AdControllerFormatFullScreen adUnitId:a parentViewController:pvc]){
+	if (self = [super initWithFormat:AdControllerFormatFullScreeniPhonePortrait adUnitId:a parentViewController:pvc]){
 		_isInterstitial = YES;
 		_inNavigationController = [pvc isKindOfClass:[UINavigationController class]];
 		
@@ -128,6 +125,7 @@
 
 	// resign from caring about any webview interactions
 	self.webView.delegate = nil;
+	
 	//signal to the delegate to move on
 	[(NSObject *)self.delegate performSelector:@selector(interstitialDidClose:) withObject:self];
 	
@@ -150,7 +148,6 @@
 		closeButtonType = AdCloseButtonTypeNext;
 	}
 	// we can add other button types too, like a next arrow etc.
-//	[self makeCloseButton];
 	[super connection:connection didReceiveResponse:response];
 }
 																		  
