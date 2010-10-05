@@ -7,6 +7,7 @@
 #import "SimpleAdsAppDelegate.h"
 #import "SimpleAdsViewController.h"
 #import "InterstitialAdController.h"
+#import "AdConversionTracker.h"
 
 @implementation SimpleAdsAppDelegate
 
@@ -16,7 +17,7 @@
 @synthesize interstitialAdController;
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {    
-    
+    [[AdConversionTracker sharedConversionTracker] reportApplicationOpen];
     // Override point for customization after app launch    
 	
 	
