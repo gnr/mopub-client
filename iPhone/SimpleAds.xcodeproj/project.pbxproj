@@ -16,6 +16,7 @@
 		3C03ED8A124956F9009A8263 /* InterstitialAdController.m in Sources */ = {isa = PBXBuildFile; fileRef = 3C03ED89124956F9009A8263 /* InterstitialAdController.m */; };
 		3C2D3411124C883800371209 /* SecondViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 3C2D3410124C883800371209 /* SecondViewController.m */; };
 		3C2D3415124C886000371209 /* SecondViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 3C2D3414124C886000371209 /* SecondViewController.xib */; };
+		3CA757A9125BC9EF005A93FE /* AdConversionTracker.m in Sources */ = {isa = PBXBuildFile; fileRef = 3CA757A8125BC9EF005A93FE /* AdConversionTracker.m */; };
 		3CA849AF11D5238400DD01C1 /* iAd.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3CA849AE11D5238400DD01C1 /* iAd.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
 		3CA94138124C3D470025DC6F /* moPubCloseButtonNext.png in Resources */ = {isa = PBXBuildFile; fileRef = 3CA94137124C3D470025DC6F /* moPubCloseButtonNext.png */; };
 		3CB0F50F124ADD54002A3B55 /* moPubCloseButtonX.png in Resources */ = {isa = PBXBuildFile; fileRef = 3CB0F50E124ADD54002A3B55 /* moPubCloseButtonX.png */; };
@@ -41,6 +42,8 @@
 		3C2D340F124C883800371209 /* SecondViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SecondViewController.h; sourceTree = "<group>"; };
 		3C2D3410124C883800371209 /* SecondViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SecondViewController.m; sourceTree = "<group>"; };
 		3C2D3414124C886000371209 /* SecondViewController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = SecondViewController.xib; sourceTree = "<group>"; };
+		3CA757A7125BC9EF005A93FE /* AdConversionTracker.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AdConversionTracker.h; sourceTree = "<group>"; };
+		3CA757A8125BC9EF005A93FE /* AdConversionTracker.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AdConversionTracker.m; sourceTree = "<group>"; };
 		3CA849AE11D5238400DD01C1 /* iAd.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = iAd.framework; path = System/Library/Frameworks/iAd.framework; sourceTree = SDKROOT; };
 		3CA94137124C3D470025DC6F /* moPubCloseButtonNext.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = moPubCloseButtonNext.png; sourceTree = "<group>"; };
 		3CB0F50E124ADD54002A3B55 /* moPubCloseButtonX.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = moPubCloseButtonX.png; sourceTree = "<group>"; };
@@ -145,6 +148,8 @@
 				3CB4A0F9113F5E96000DB158 /* AdController.m */,
 				3C03ED88124956F9009A8263 /* InterstitialAdController.h */,
 				3C03ED89124956F9009A8263 /* InterstitialAdController.m */,
+				3CA757A7125BC9EF005A93FE /* AdConversionTracker.h */,
+				3CA757A8125BC9EF005A93FE /* AdConversionTracker.m */,
 			);
 			path = SDK;
 			sourceTree = "<group>";
@@ -220,6 +225,7 @@
 				3CB4A0FD113F5E96000DB158 /* AdController.m in Sources */,
 				3C03ED8A124956F9009A8263 /* InterstitialAdController.m in Sources */,
 				3C2D3411124C883800371209 /* SecondViewController.m in Sources */,
+				3CA757A9125BC9EF005A93FE /* AdConversionTracker.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -263,7 +269,7 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 3.1;
 				PREBINDING = NO;
-				SDKROOT = iphoneos4.0;
+				SDKROOT = iphoneos4.1;
 			};
 			name = Debug;
 		};
