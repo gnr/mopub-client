@@ -60,7 +60,7 @@ public class InterstitialAdActivity extends Activity {
 		});
 		mInterstitialAdView.setOnAdLoadedListener(new OnAdLoadedListener() {
 			public void OnAdLoaded(AdView a) {
-				if (a.adLoaded()) {
+				if (a.hasAd()) {
 					setVisible(true);
 				}
 				else {

@@ -71,7 +71,7 @@ public class AdView extends WebView {
 	private String 				mAdUnitId = null;
 	private String 				mKeywords = null;
 	private Location 			mLocation = null;
-	private boolean				mAdLoaded = false;
+	private boolean				mHasAd = false;
 
 	private AdWebViewClient 	mWebViewClient = null;
 	private OnAdLoadedListener  mOnAdLoadedListener = null;
@@ -152,7 +152,7 @@ public class AdView extends WebView {
 				}
 
 				// If we made it this far, an ad has been loaded
-				mAdLoaded = true;
+				mHasAd = true;
 
 				Header ctHeader = response.getFirstHeader("X-Clickthrough");
 				if (ctHeader != null) {
@@ -204,7 +204,7 @@ public class AdView extends WebView {
 	}
 
 	public void loadAd() {
-		mAdLoaded = false;
+		mHasAd = false;
 		if (mAdUnitId == null) {
 			throw new RuntimeException("AdUnitId isn't set in com.mopub.mobileads.AdView");
 		}
@@ -233,8 +233,8 @@ public class AdView extends WebView {
 		loadUrl(adUrl);
 	}
 
-	public boolean adLoaded() {
-		return mAdLoaded;
+	public boolean hasAd() {
+		return mHasAd;
 	}
 	
 	public void pageFinished() {
