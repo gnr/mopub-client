@@ -123,7 +123,7 @@ public class AdView extends WebView {
 	// Have to override loadUrl() in order to get the headers, which
 	// MoPub uses to pass control information to the client.  Unfortunately
 	// WebView doesn't let us get to the headers...
-	public class LoadUrlThread implements Runnable {
+	protected class LoadUrlThread implements Runnable {
 		private String mUrl;
 
 		public LoadUrlThread(String url) {

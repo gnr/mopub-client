@@ -49,12 +49,19 @@ public class InterstitialAdActivity extends Activity {
 		setVisible(false);
 		
 		String adUnitId = getIntent().getStringExtra("com.mopub.mobileads.AdUnitId");
+		String keywords = getIntent().getStringExtra("com.mopub.mobileads.Keywords");
+
 		if (adUnitId == null) {
 			throw new RuntimeException("AdUnitId isn't set in com.mopub.mobileads.InterstitialAdActivity");
 		}
 		
+		
 		mInterstitialAdView = new AdView(this);
 		mInterstitialAdView.setAdUnitId(adUnitId);
+		if (keywords != null) {
+			mInterstitialAdView.setKeywords(keywords);
+		}
+		
 		mInterstitialAdView.loadAd();
 		mInterstitialAdView.setOnAdClosedListener(new OnAdClosedListener() {
 			public void OnAdClosed(AdView a) {
