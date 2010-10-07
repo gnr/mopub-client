@@ -18,8 +18,9 @@
     	>
 	    <com.mopub.mobileads.AdView
 		android:id="@+id/topadview"
-	  	android:layout_width="wrap_content"
+	  	android:layout_width="320px"
 	  	android:layout_height="wrap_content"
+	  	android:layout_gravity="center"
 		/>
 	</LinearLayout>
 
@@ -42,14 +43,14 @@
 	android:layout_toLeftOf="@id/searchbutton"
 	android:layout_alignTop="@id/searchbutton"
 	/>
-
-<com.mopub.mobileads.AdView
-	android:id="@+id/middleadview"
-  	android:layout_width="wrap_content"
-  	android:layout_height="wrap_content"
-  	android:layout_below="@id/searchbutton"
-  	android:layout_marginTop="20dip"
-	/>	
+	<com.mopub.mobileads.AdView
+		android:id="@+id/middleadview"
+  		android:layout_width="320px"
+  		android:layout_height="wrap_content"
+  		android:layout_gravity="center"
+   		android:layout_below="@id/searchbutton" 	
+  		android:layout_marginTop="20dip"
+  		/>	
 </RelativeLayout>
 	
 
