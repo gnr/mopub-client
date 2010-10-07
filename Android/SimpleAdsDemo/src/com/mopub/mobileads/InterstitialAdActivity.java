@@ -49,6 +49,10 @@ public class InterstitialAdActivity extends Activity {
 		setVisible(false);
 		
 		String adUnitId = getIntent().getStringExtra("com.mopub.mobileads.AdUnitId");
+		if (adUnitId == null) {
+			throw new RuntimeException("AdUnitId isn't set in com.mopub.mobileads.InterstitialAdActivity");
+		}
+		
 		mInterstitialAdView = new AdView(this);
 		mInterstitialAdView.setAdUnitId(adUnitId);
 		mInterstitialAdView.loadAd();

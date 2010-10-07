@@ -70,6 +70,7 @@ public class AdView extends WebView {
 
 	private String 				mAdUnitId = null;
 	private String 				mKeywords = null;
+	private String				mUrl = null;
 	private Location 			mLocation = null;
 	private boolean				mHasAd = false;
 
@@ -90,9 +91,6 @@ public class AdView extends WebView {
 	private void initAdView(Context context, AttributeSet attrs) {
 		getSettings().setJavaScriptEnabled(true);
 
-		// Set transparent background so that unfilled web view isn't white
-		setBackgroundColor(0);
-
 		// Prevent user from scrolling the web view since it always adds a margin
 		setOnTouchListener(new View.OnTouchListener() {
 			public boolean onTouch(View v, MotionEvent event) {
@@ -107,13 +105,19 @@ public class AdView extends WebView {
 
 	@Override
 	public void loadUrl(String url) {
-		if (url.startsWith("javascript:")) {
-			super.loadUrl(url);
+		mUrl = url;
+		if (mUrl.startsWith("javascript:")) {
+			super.loadUrl(mUrl);
 		}
 		
 
-		Runnable getUrl = new LoadUrlThread(url);
+		Runnable getUrl = new LoadUrlThread(mUrl);
 		new Thread(getUrl).start();
+	}
+	
+	@Override
+	public void reload() {
+		loadUrl(mUrl);
 	}
 
 	// Have to override loadUrl() in order to get the headers, which
