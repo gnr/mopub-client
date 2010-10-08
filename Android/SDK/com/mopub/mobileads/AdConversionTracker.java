@@ -50,15 +50,14 @@ public class AdConversionTracker {
 	private Context		mContext = null;
 	private String		mAppId = null;
 	
-	public AdConversionTracker(Context context) {
-		mContext = context;
+	public AdConversionTracker() {
 	}
 
-	public void reportAppOpen(String appId) {
-		if (appId == null || mContext == null) {
+	public void reportAppOpen(Context context, String appId) {
+		if (context == null || appId == null) {
 			return;
 		}
-		
+		mContext = context;
 		mAppId = appId;
 		
 	    SharedPreferences settings = mContext.getSharedPreferences("mopubSettings", 0);

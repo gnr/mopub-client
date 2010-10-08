@@ -64,7 +64,7 @@ public class SimpleAdsDemo extends Activity {
 		setContentView(R.layout.main);
 
 		// Conversion tracking
-		new AdConversionTracker(this).reportAppOpen("agltb3B1Yi1pbmNyDAsSBFNpdGUY2aQGDA");
+		new AdConversionTracker().reportAppOpen(this,"agltb3B1Yi1pbmNyDAsSBFNpdGUY2aQGDA");
 		
 		// Initialize Ad components
 		mTopAdView = (AdView) findViewById(R.id.topadview);

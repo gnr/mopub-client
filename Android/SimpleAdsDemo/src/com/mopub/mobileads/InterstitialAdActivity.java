@@ -50,6 +50,7 @@ public class InterstitialAdActivity extends Activity {
 		
 		String adUnitId = getIntent().getStringExtra("com.mopub.mobileads.AdUnitId");
 		String keywords = getIntent().getStringExtra("com.mopub.mobileads.Keywords");
+		int timeout = getIntent().getIntExtra("com.mopub.mobileads.Timeout", 0);
 
 		if (adUnitId == null) {
 			throw new RuntimeException("AdUnitId isn't set in com.mopub.mobileads.InterstitialAdActivity");
@@ -61,7 +62,10 @@ public class InterstitialAdActivity extends Activity {
 		if (keywords != null) {
 			mInterstitialAdView.setKeywords(keywords);
 		}
-		
+		if (timeout > 0) {
+		  mInterstitialAdView.setTimeout(timeout);
+		}
+ 		
 		mInterstitialAdView.loadAd();
 		mInterstitialAdView.setOnAdClosedListener(new OnAdClosedListener() {
 			public void OnAdClosed(AdView a) {
