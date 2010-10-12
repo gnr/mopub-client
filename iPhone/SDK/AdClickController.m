@@ -27,10 +27,14 @@ static NSArray *SAFARI_SCHEMES, *SAFARI_HOSTS;
 					 nil] retain];
 }
 
-- (id)initWithURL:(NSURL *)u delegate:(id<AdControllerDelegate>) d {
-	[self initWithNibName:@"AdClickController" bundle:nil];
-	self.delegate = d;
-	self.url = u;
+- (id)initWithURL:(NSURL *)u delegate:(id<AdClickControllerDelegate>) d {
+	if (self = [super initWithNibName:@"AdClickController" bundle:nil]){
+		self.delegate = d;
+		self.url = u;
+		NSLog(@"webview retainCount: %d",[self.webView retainCount]);
+
+		
+	}
 	return self;
 }
 
@@ -57,7 +61,7 @@ static NSArray *SAFARI_SCHEMES, *SAFARI_HOSTS;
 }
 
 - (IBAction) done {
-	[self dismissModalViewControllerAnimated:TRUE];
+	[self.delegate dismissModalViewForAdClickController:self];
 }
 
 - (IBAction) back {
@@ -73,7 +77,7 @@ static NSArray *SAFARI_SCHEMES, *SAFARI_HOSTS;
 }
 
 - (BOOL)webView:(UIWebView *)w shouldStartLoadWithRequest:(NSURLRequest *)request navigationType:(UIWebViewNavigationType)navigationType {
-	NSLog(@"%@", request.URL);
+	NSLog(@"MOPUB: %@", request.URL);
 	if ([SAFARI_HOSTS containsObject:request.URL.host] || 
 		[SAFARI_SCHEMES containsObject:request.URL.scheme]) {
 		[self dismissModalViewControllerAnimated:NO];
@@ -89,7 +93,7 @@ static NSArray *SAFARI_SCHEMES, *SAFARI_HOSTS;
 	[self.loading startAnimating];
 }
 
-- (void)webViewDidFinishLoad:(UIWebView *)webView {
+- (void)webViewDidFinishLoad:(UIWebView *)_webView {
 	[self.loading stopAnimating];
 	
 	self.refreshButton.enabled = YES;
@@ -98,7 +102,7 @@ static NSArray *SAFARI_SCHEMES, *SAFARI_HOSTS;
 	self.forwardButton.enabled = self.webView.canGoForward;
 }
 
-- (void)webView:(UIWebView *)webView didFailLoadWithError:(NSError *)error {
+- (void)webView:(UIWebView *)_webView didFailLoadWithError:(NSError *)error {
 	UIAlertView* alert = [[UIAlertView alloc] initWithTitle:@"Could not load page" message:[error localizedDescription] delegate:self cancelButtonTitle:@"OK" otherButtonTitles:nil];
 	[alert show];
 	[alert release];
@@ -201,10 +205,25 @@ static NSArray *SAFARI_SCHEMES, *SAFARI_HOSTS;
 
 
 - (void)dealloc {
-	[url copy];
+	[url release];
+
+	
+	NSLog(@"webview retainCount: %d",[self.webView retainCount]);
+	
+	// release all the IBOutlets by nil-ing them out
+	self.webView.delegate = nil;
+	self.webView = nil;
+	self.backButton = nil;
+	self.forwardButton = nil;
+	self.refreshButton = nil;
+	self.safariButton = nil;
+	self.doneButton = nil;
+	
+	self.loading = nil;
+	self.initialLoad = nil;
+	
 	
 	// remove self as delegate of webview
-	webView.delegate = nil;
 	[super dealloc];
 }
 

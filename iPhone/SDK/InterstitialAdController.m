@@ -11,14 +11,25 @@
 
 @synthesize closeButton;
 
-+ (InterstitialAdController *)sharedInterstitialAdControllerForAdUnitId:(NSString *)a{	
+
++ (NSMutableArray *)sharedInterstitialAdControllers{
 	static NSMutableArray *sharedInterstitialAdControllers;
+	
+	@synchronized(self){
+		// set up array of interstitial ad controllers
+		if (!sharedInterstitialAdControllers)
+			sharedInterstitialAdControllers = [[NSMutableArray alloc] initWithCapacity:1];
+	}
+	return sharedInterstitialAdControllers;
+	
+}
+
++ (InterstitialAdController *)sharedInterstitialAdControllerForAdUnitId:(NSString *)a{	
+	NSMutableArray *sharedInterstitialAdControllers = [InterstitialAdController sharedInterstitialAdControllers];
 	
 	@synchronized(self)
 	{
-		if (!sharedInterstitialAdControllers)
-			sharedInterstitialAdControllers = [[NSMutableArray alloc] initWithCapacity:1];
-		
+		// find the correct ad controller based on the adunit id
 		InterstitialAdController *sharedInterstitialAdController = nil;
 		for (InterstitialAdController *interstialAdController in sharedInterstitialAdControllers){
 			if ([interstialAdController.adUnitId isEqual:a]){
@@ -27,17 +38,24 @@
 			}
 		}
 			
-			
+		
+		// make the ad controller if it doesn't exist
 		if (!sharedInterstitialAdController){
-			sharedInterstitialAdController = [[InterstitialAdController alloc] initWithAdUnitId:a parentViewController:nil];
+			sharedInterstitialAdController = [[[InterstitialAdController alloc] initWithAdUnitId:a parentViewController:nil] autorelease];
 			[sharedInterstitialAdControllers addObject:sharedInterstitialAdController];
 		}
 		return sharedInterstitialAdController;
 	}
 }
 
++ (void)removeSharedInterstitialAdController:(InterstitialAdController *)interstitialAdController{
+	NSMutableArray *sharedInterstitialAdControllers = [InterstitialAdController sharedInterstitialAdControllers];
+	[sharedInterstitialAdControllers removeObject:interstitialAdController];
+}
+
 -(id)initWithAdUnitId:(NSString *)a parentViewController:(UIViewController*)pvc{
-	if (self = [super initWithFormat:AdControllerFormatFullScreeniPhonePortrait adUnitId:a parentViewController:pvc]){
+	if (self = [super initWithSize:[[UIScreen mainScreen] bounds].size adUnitId:a parentViewController:pvc])
+	{
 		_isInterstitial = YES;
 		_inNavigationController = [pvc isKindOfClass:[UINavigationController class]];
 		
@@ -54,20 +72,22 @@
 
 - (void)viewWillAppear:(BOOL)animated{
 	[super viewWillAppear:animated];
-	if ([(NSObject *)self.delegate respondsToSelector:@selector(interstitialWillAppear:)]){
-		[(NSObject *)self.delegate performSelector:@selector(interstitialWillAppear:) withObject:self];
+	if ([self.delegate respondsToSelector:@selector(interstitialWillAppear:)]){
+		[self.delegate performSelector:@selector(interstitialWillAppear:) withObject:self];
 	}
 }
 
 - (void)viewDidAppear:(BOOL)animated{
 	[super viewDidAppear:animated];
-	if ([(NSObject *)self.delegate respondsToSelector:@selector(interstitialDidAppear:)]){
-		[(NSObject *)self.delegate performSelector:@selector(interstitialDidAppear:) withObject:self];
+	if ([self.delegate respondsToSelector:@selector(interstitialDidAppear:)]){
+		[self.delegate performSelector:@selector(interstitialDidAppear:) withObject:self];
 	}
 }
 		
 - (void)viewDidLoad{
 	[super viewDidLoad];
+	[self makeCloseButton];
+
 }
 
 - (void)loadView{
@@ -83,7 +103,6 @@
 	// hide the status bar
 	[UIApplication sharedApplication].statusBarHidden = YES;
 	
-	[self makeCloseButton];
 }
 
 - (void)makeCloseButton{
@@ -127,7 +146,7 @@
 	self.webView.delegate = nil;
 	
 	//signal to the delegate to move on
-	[(NSObject *)self.delegate performSelector:@selector(interstitialDidClose:) withObject:self];
+	[self.delegate performSelector:@selector(interstitialDidClose:) withObject:self];
 	
 	if (_inNavigationController){
 		[self.navigationController setNavigationBarHidden:NO animated:NO];

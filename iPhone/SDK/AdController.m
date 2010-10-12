@@ -68,23 +68,23 @@ NSString* FORMAT_CODES[] = {
 
 @synthesize delegate;
 @synthesize loaded;
-@synthesize format, adUnitId;
+@synthesize adUnitId;
+@synthesize size;
 @synthesize webView, loadingIndicator;
 @synthesize parent, keywords, location;
 @synthesize data, url, failURL;
 @synthesize nativeAdView;
 @synthesize clickURL;
-@synthesize adClickController;
 @synthesize newPageURLString;
 
 
--(id)initWithFormat:(AdControllerFormat)f adUnitId:(NSString *)a parentViewController:(UIViewController*)pvc {
+- (id)initWithSize:(CGSize)_size adUnitId:(NSString*)a parentViewController:(UIViewController*)pvc{
 	if (self = [super init]){
 		self.data = [NSMutableData data];
-
+		
 		// set format + publisherId, the two immutable properties of this ad controller
 		self.parent = pvc;
-		self.format = f;
+		self.size = _size;
 		self.adUnitId = a;
 		
 		// init the webview and add self as the delegate
@@ -94,19 +94,44 @@ NSString* FORMAT_CODES[] = {
 		// initialize ad Loading to False
 		adLoading = NO;
 		_isInterstitial = NO;
-				
+		
 		// init the exclude parameter list
 		excludeParams = [[NSMutableArray alloc] initWithCapacity:1];
 		
 		// add self to receive notifications that the application will resign
 		[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(applicationWillResign:) name:UIApplicationWillResignActiveNotification object:nil];
 	}	
-
-	// create the webview and activity indicator in the requisite shape
 	return self;
-		
 }
 
+
+//-(id)initWithFormat:(AdControllerFormat)f adUnitId:(NSString *)a parentViewController:(UIViewController*)pvc {
+//	if (self = [super init]){
+//		self.data = [NSMutableData data];
+//
+//		// set format + publisherId, the two immutable properties of this ad controller
+//		self.parent = pvc;
+//		self.format = f;
+//		self.adUnitId = a;
+//		
+//		// init the webview and add self as the delegate
+//		webView = [[TouchableWebView alloc] initWithFrame:CGRectZero];
+//		webView.delegate = self;
+//		
+//		// initialize ad Loading to False
+//		adLoading = NO;
+//		_isInterstitial = NO;
+//				
+//		// init the exclude parameter list
+//		excludeParams = [[NSMutableArray alloc] initWithCapacity:1];
+//		
+//		// add self to receive notifications that the application will resign
+//		[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(applicationWillResign:) name:UIApplicationWillResignActiveNotification object:nil];
+//	}	
+//
+//	return self;
+//}
+//
 - (void)dealloc{
 	[data release];
 	[parent release];
@@ -126,8 +151,7 @@ NSString* FORMAT_CODES[] = {
 	[clickURL release];
 	[excludeParams release];
 	[newPageURLString release];
-	adClickController.delegate = nil;
-	[adClickController release];
+	
 	[failURL release];
 	[super dealloc];
 }
@@ -136,33 +160,12 @@ NSString* FORMAT_CODES[] = {
  * Override the view loading mechanism to create a WebView with overlaid activity indicator
  */
 -(void)loadView {
-	// get dimensions for format
-	int width = FORMAT_SIZES[self.format][0], height = FORMAT_SIZES[self.format][1];
-	
-	if (_isInterstitial) {
-		width = [[UIScreen mainScreen] bounds].size.width;
-		height = [[UIScreen mainScreen] bounds].size.height;
-	}
 	
 	// create view substructure
-	UIView *thisView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, width, height)];
+	UIView *thisView = [[UIView alloc] initWithFrame:CGRectMake(0.0,0.0,self.size.width,self.size.height)];
 	self.view = thisView;
 	[thisView release];
 	
-	// activity indicator, placed in the center
-	loadingIndicator = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleGray];
-	loadingIndicator.frame = CGRectMake((width - self.loadingIndicator.bounds.size.width) / 2, (height - self.loadingIndicator.bounds.size.height) / 2, 
-									self.loadingIndicator.bounds.size.width, self.loadingIndicator.bounds.size.height);
-	loadingIndicator.hidesWhenStopped = YES;
-	
-	// web view - use a custom TouchableWebView to prevent "bouncing"
-	self.webView.frame = self.view.frame;
-	
-	// add them 
-	[self.view addSubview:self.loadingIndicator];	
-
-	// put the webview on the page but hide it until its loaded
-	[self.view addSubview:self.webView];
 }
 
 - (void)viewWillAppear:(BOOL)animated{
@@ -173,7 +176,7 @@ NSString* FORMAT_CODES[] = {
 	// only loads if its not already in the process of getting the assets
 	if (!adLoading){
 		adLoading = YES;
-		NSString* f = FORMAT_CODES[self.format];
+//		NSString* f = FORMAT_CODES[self.format];
 		self.loaded = FALSE;
 		
 		// remove the native view
@@ -187,9 +190,8 @@ NSString* FORMAT_CODES[] = {
 		// create URL based on the parameters provided to us if a url was not passed in
 		//
 		if (!adUrl){
-			NSString *urlString = [NSString stringWithFormat:@"http://%@/m/ad?v=2&f=%@&udid=%@&q=%@&id=%@", 
+			NSString *urlString = [NSString stringWithFormat:@"http://%@/m/ad?v=2&udid=%@&q=%@&id=%@", 
 								   HOSTNAME,
-								   f,
 								   [[UIDevice currentDevice] uniqueIdentifier],
 								   [keywords stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding],
 								   [adUnitId stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]
@@ -213,7 +215,7 @@ NSString* FORMAT_CODES[] = {
 
 		
 		// inform delegate we are about to start loading...
-		if ([(NSObject *)self.delegate respondsToSelector:@selector(adControllerWillLoadAd:)]) {
+		if ([self.delegate respondsToSelector:@selector(adControllerWillLoadAd:)]) {
 			[self.delegate adControllerWillLoadAd:self];
 		}
 		
@@ -337,7 +339,7 @@ NSString* FORMAT_CODES[] = {
 
 	// print out the response for debugging purposes
 	NSString *response = [[NSString alloc] initWithData:self.data encoding:NSUTF8StringEncoding];
-	NSLog(@"%@",response);
+	NSLog(@"MOPUB: %@",response);
 	[response release];
 	
 	// set ad loading to be False
@@ -358,6 +360,23 @@ NSString* FORMAT_CODES[] = {
 - (void)viewDidLoad {
     [super viewDidLoad];
 	
+	// activity indicator, placed in the center
+	loadingIndicator = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleGray];
+
+	loadingIndicator.center = self.view.center;
+	loadingIndicator.hidesWhenStopped = YES;
+	
+	// web view - use a custom TouchableWebView to prevent "bouncing"
+	self.webView.frame = self.view.frame;
+	self.webView.autoresizingMask = UIViewAutoresizingFlexibleWidth;
+	
+	// add them 
+	[self.view addSubview:self.loadingIndicator];	
+	
+	// put the webview on the page but hide it until its loaded
+	[self.view addSubview:self.webView];
+	
+	
 	// if the ad has already been loaded or is in the process of being loaded
 	// do nothing otherwise load the ad
 	if (!adLoading && !loaded){
@@ -368,7 +387,7 @@ NSString* FORMAT_CODES[] = {
 // when the content has loaded, we stop the loading indicator
 - (void)webViewDidFinishLoad:(UIWebView *)_webView {
 	[self.loadingIndicator stopAnimating];
-	[self.webView setNeedsDisplay];
+//	[self.webView setNeedsDisplay];
 
 	// show the webview because we know it has been loaded
 	self.webView.hidden = NO;
@@ -400,17 +419,17 @@ NSString* FORMAT_CODES[] = {
 				//lets the delegate know that the the ad has succesfully loaded 
 				loaded = YES;
 				adLoading = NO;
-				if ([(NSObject *)self.delegate respondsToSelector:@selector(adControllerDidLoadAd:)]) {
+				if ([self.delegate respondsToSelector:@selector(adControllerDidLoadAd:)]) {
 					[self.delegate adControllerDidLoadAd:self];
 				}
 				self.webView.hidden = NO;
 				return NO;
 			}
 			else if ([[requestURL host] isEqual:@"failLoad"]){
-				//lets the delegate know that the the ad has failed to loaded 
+				//lets the delegate know that the the ad has failed to be loaded 
 				loaded = YES;
 				adLoading = NO;
-				if ([(NSObject *)self.delegate respondsToSelector:@selector(adControllerFailedLoadAd:)]) {
+				if ([self.delegate respondsToSelector:@selector(adControllerFailedLoadAd:)]) {
 					[self.delegate adControllerFailedLoadAd:self];
 				}
 				self.webView.hidden = NO;
@@ -444,26 +463,56 @@ NSString* FORMAT_CODES[] = {
 											  redirectUrl]];
 	
 	
-	if ([(NSObject *)self.delegate respondsToSelector:@selector(adControllerAdWillOpen:)]) {
+	if ([self.delegate respondsToSelector:@selector(adControllerAdWillOpen:)]) {
 		[self.delegate adControllerAdWillOpen:self];
 	}
 	
 	
 	// inited but release in the dealloc
-	adClickController = [[AdClickController alloc] initWithURL:adClickURL delegate:self.delegate]; 
+	AdClickController *_adClickController = [[AdClickController alloc] initWithURL:adClickURL delegate:self]; 
+	
+	// signal to the delegate if it cares that the click controller is about to be presented
+	if ([self.delegate respondsToSelector:@selector(willPresentModalViewForAd:)]){
+		[self.delegate performSelector:@selector(willPresentModalViewForAd:) withObject:self];
+	}
 	
 	// if the ad is being show as an interstitial then this view may load another modal view
 	// otherwise, the ad is just a subview of what is on screen, so the parent should load the modal view
 	if (_isInterstitial){
-		[self presentModalViewController:adClickController animated:YES];
+		[self presentModalViewController:_adClickController animated:YES];
 	}
 	else {
-		[self.parent presentModalViewController:adClickController animated:YES];
+		[self.parent presentModalViewController:_adClickController animated:YES];
 	}
+	
+	// signal to the delegate if it cares that the click controller has been presented
+	if ([self.delegate respondsToSelector:@selector(didPresentModalViewForAd:)]){
+		[self.delegate performSelector:@selector(didPresentModalViewForAd:) withObject:self];
+	}
+	
+	[_adClickController release];
 }
 
+
+- (void)dismissModalViewForAdClickController:(AdClickController *)_adClickController{
+	// signal to the delegate if it cares that the click controller is about to be torn down
+	if ([self.delegate respondsToSelector:@selector(willPresentModalViewForAd:)]){
+		[self.delegate performSelector:@selector(willPresentModalViewForAd:) withObject:self];
+	}
+	
+	
+	[_adClickController dismissModalViewControllerAnimated:YES];
+	
+	// signal to the delegate if it cares that the click controller has been torn down
+	if ([self.delegate respondsToSelector:@selector(didPresentModalViewForAd:)]){
+		[self.delegate performSelector:@selector(didPresentModalViewForAd:) withObject:self];
+	}
+	
+}
+
+
 - (void)webView:(UIWebView *)webView didFailLoadWithError:(NSError *)error {
-	NSLog(@"Ad load failed with error: %@", error);
+	NSLog(@"MOPUB: Ad load failed with error: %@", error);
 }
 
 
@@ -474,7 +523,7 @@ NSString* FORMAT_CODES[] = {
 	self.webView.backgroundColor = [UIColor clearColor];
 
 	// let delegate know that the ad has failed to load
-	if ([(NSObject *)self.delegate respondsToSelector:@selector(adControllerFailedLoadAd:)]){
+	if ([self.delegate respondsToSelector:@selector(adControllerFailedLoadAd:)]){
 		[self.delegate adControllerFailedLoadAd:self];
 	}
 	
@@ -508,7 +557,7 @@ NSString* FORMAT_CODES[] = {
 
 - (void)bannerViewDidLoadAd:(ADBannerView *)banner{
 	adLoading = NO;
-	if ([(NSObject *)self.delegate respondsToSelector:@selector(adControllerDidLoadAd:)]) {
+	if ([self.delegate respondsToSelector:@selector(adControllerDidLoadAd:)]) {
 		[self.delegate adControllerDidLoadAd:self];
 	}
 	
@@ -534,7 +583,7 @@ NSString* FORMAT_CODES[] = {
 	[[NSURLConnection alloc] initWithRequest:iAdClickURL delegate:nil];
 	
 	// pass along to our own delegate
-	if ([(NSObject *)self.delegate respondsToSelector:@selector(adControllerAdWillOpen:)]) {
+	if ([self.delegate respondsToSelector:@selector(adControllerAdWillOpen:)]) {
 		[self.delegate adControllerAdWillOpen:self];
 	}
 	return YES;

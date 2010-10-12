@@ -6,36 +6,28 @@
 #import <UIKit/UIKit.h>
 #import <CoreLocation/CoreLocation.h>
 #import <iAd/iAd.h>
+#import "AdClickController.h"
 
-#define HOSTNAME @"ads.mopub.com"
+#define HOSTNAME @"localhost:8000"
 
-enum {
-	AdControllerFormat320x50,			// mobile banner size
-	AdControllerFormat300x250,			// medium rectangle
-	AdControllerFormat728x90,			// leaderboard
-	AdControllerFormat468x60,			// full banner
-	AdControllerFormatFullScreeniPhonePortrait,		// full-screen interstitial for iPhone
-};
-typedef NSUInteger AdControllerFormat;
 
 @class AdClickController;
 
 @protocol AdControllerDelegate;
 
-@interface AdController : UIViewController <UIWebViewDelegate, ADBannerViewDelegate> {
+
+@interface AdController : UIViewController <UIWebViewDelegate, ADBannerViewDelegate, AdClickControllerDelegate> {
 	id<AdControllerDelegate> delegate;
 	BOOL loaded;
 	BOOL adLoading;
 	
 	UIViewController *parent;
-	AdControllerFormat format;
+	CGSize size;
 	NSString *adUnitId;
 
 	NSString *keywords;
 	CLLocation *location;
-	
-	AdClickController *adClickController;
-	
+		
 	// boolean flag to let us know if the ad will be shown as an interstitial
 	BOOL _isInterstitial;
 	
@@ -64,11 +56,11 @@ typedef NSUInteger AdControllerFormat;
 	NSMutableArray *excludeParams;
 	
 }
-@property(nonatomic, retain) id<AdControllerDelegate> delegate;
+@property(nonatomic, assign) id <AdControllerDelegate> delegate;
 @property(nonatomic, assign) BOOL loaded;
 
 @property(nonatomic, retain) UIViewController* parent;
-@property(nonatomic, assign) AdControllerFormat format;
+@property(nonatomic, assign) CGSize size;
 @property(nonatomic, copy) NSString* adUnitId;
 
 @property(nonatomic, copy) NSString* keywords;
@@ -87,9 +79,11 @@ typedef NSUInteger AdControllerFormat;
 @property(nonatomic, copy) NSString* clickURL;
 @property(nonatomic, copy) NSString* newPageURLString;
 
-@property(nonatomic, retain) AdClickController *adClickController;
 
-- (id)initWithFormat:(AdControllerFormat)format adUnitId:(NSString*)publisherId parentViewController:(UIViewController*)parent;
+
+- (id)initWithSize:(CGSize)size adUnitId:(NSString*)publisherId parentViewController:(UIViewController*)parent;
+
+
 /**
  * Call this method whenever you would like to load the ad
  * should often be called in a background thread
@@ -115,7 +109,7 @@ typedef NSUInteger AdControllerFormat;
 
 @end
 
-@protocol AdControllerDelegate
+@protocol AdControllerDelegate <NSObject>
 @optional
 /**
  * Called when the ad controller is about to load a new ad creative
@@ -141,6 +135,27 @@ typedef NSUInteger AdControllerFormat;
  * Called when the ad requested to be close.
  */
 - (void)didSelectClose:(id)sender;
+
+/*
+ * Called when the ad has been clicked an a full screen webview will be presented
+ */
+- (void)willPresentModalViewForAd:(AdController*)adController;
+
+/*
+ * Called when the full screen webview has been presented
+ */
+- (void)didPresentModalViewForAd:(AdController*)adController;
+
+/*
+ * Called just before dismissing a full screen view.
+ */
+
+- (void)willDismissModalViewForAd:(AdController*)adController;
+
+/*
+ * Called just after dismissing a full screen view.
+ */
+- (void)didDismissModalViewForAd:(AdController*)adController;
 
 /*
  * Responds to notification UIApplicationWillResignActiveNotification

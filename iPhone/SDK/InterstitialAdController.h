@@ -27,6 +27,8 @@ typedef NSUInteger AdCloseButtonType;
 @property (nonatomic,retain) UIButton *closeButton;
 
 + (InterstitialAdController *)sharedInterstitialAdControllerForAdUnitId:(NSString *)a;
++ (void)removeSharedInterstitialAdController:(InterstitialAdController *)interstitialAdController;
++ (NSMutableArray *)sharedInterstitialAdControllers;
 
 // if you are initing from the application delegate then you can say parentViewController = nil
 - (id)initWithAdUnitId:(NSString *)p parentViewController:(UIViewController*)pvc;

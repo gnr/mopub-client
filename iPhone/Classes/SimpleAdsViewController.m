@@ -27,15 +27,23 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
 	
-	self.adController = [[AdController alloc] initWithFormat:AdControllerFormat320x50 adUnitId:PUB_ID_320x50 parentViewController:self];
+	
+	// put the ad on screen and have it appear as soon as its ready
+	self.adController = [[AdController alloc] initWithSize:self.adView.frame.size adUnitId:PUB_ID_320x50 parentViewController:self];
 	self.adController.keywords = @"coffee";
 	self.adController.delegate = self;
 	[self.adView addSubview:self.adController.view];
+	
+	// set up the ad controller, but don't display the ad until we get a callback
+	self.mrectController = [[AdController alloc] initWithSize:self.mrectView.frame.size adUnitId:PUB_ID_300x250 parentViewController:self];
+	self.mrectController.keywords = @"coffee";
+	self.mrectController.delegate = self;
+	[self.mrectController loadAd];
 }
 
 - (IBAction) getNavigationInterstitial{
 	if (!shownNavigationInterstitialAlready){
-		self.navigationInterstitialAdController = [[InterstitialAdController alloc] initWithAdUnitId:PUB_ID_INTERSTITIAL parentViewController:self.navigationController];
+		self.navigationInterstitialAdController = [InterstitialAdController sharedInterstitialAdControllerForAdUnitId:PUB_ID_INTERSTITIAL];
 		self.navigationInterstitialAdController.delegate = self;
 		[self.navigationInterstitialAdController loadAd];
 	}
@@ -56,7 +64,8 @@
 
 - (IBAction) getModalInterstitial{
 	self.interstitialAdController = [InterstitialAdController sharedInterstitialAdControllerForAdUnitId:PUB_ID_INTERSTITIAL];	
-	self.interstitialAdController.delegate = nil;
+	self.interstitialAdController.delegate = self;
+	self.interstitialAdController.keywords = @"coffee";
 	[self.interstitialAdController loadAd];
 	
 }
@@ -108,6 +117,8 @@
 	}
 	else {
 		[_interstitialAdController dismissModalViewControllerAnimated:YES];
+		// release the object
+		[InterstitialAdController removeSharedInterstitialAdController:_interstitialAdController];
 	}
 }
 

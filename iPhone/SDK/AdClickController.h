@@ -4,10 +4,11 @@
 //
 
 #import <UIKit/UIKit.h>
-#import "AdController.h"
+
+@protocol AdClickControllerDelegate;
 
 @interface AdClickController : UIViewController <UIWebViewDelegate, UIActionSheetDelegate> {
-	id<AdControllerDelegate> delegate;
+	id<AdClickControllerDelegate> delegate;
 	
 	IBOutlet UIWebView* webView;
 	IBOutlet UIBarButtonItem* backButton;
@@ -21,7 +22,7 @@
 	
 	NSURL* url;
 }
-@property(nonatomic, assign) id<AdControllerDelegate> delegate;
+@property(nonatomic, assign) id <AdClickControllerDelegate> delegate;
 
 @property(nonatomic, retain) IBOutlet UIWebView* webView;
 @property(nonatomic, retain) IBOutlet UIBarButtonItem* backButton;
@@ -35,7 +36,7 @@
 
 @property(nonatomic, copy) NSURL* url;
 
--(id) initWithURL:(NSURL*)u delegate:(id<AdControllerDelegate>)delegate;
+-(id) initWithURL:(NSURL*)u delegate:(id<AdClickControllerDelegate>)delegate;
 -(IBAction) openInSafari;
 -(IBAction) refresh;
 -(IBAction) done;
@@ -46,5 +47,12 @@
 - (CGContextRef)createContext;
 - (CGImageRef)createBackArrowImageRef;
 - (CGImageRef)createForwardArrowImageRef;
+
+@end
+
+@protocol AdClickControllerDelegate <NSObject>
+@optional
+
+- (void)dismissModalViewForAdClickController:(AdClickController *)adClickController;
 
 @end
