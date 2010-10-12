@@ -43,6 +43,9 @@ import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.params.BasicHttpParams;
+import org.apache.http.params.HttpConnectionParams;
+import org.apache.http.params.HttpParams;
 
 import android.content.Context;
 import android.location.Location;
@@ -70,8 +73,10 @@ public class AdView extends WebView {
 
 	private String 				mAdUnitId = null;
 	private String 				mKeywords = null;
+	private String				mUrl = null;
 	private Location 			mLocation = null;
-	private boolean				mAdLoaded = false;
+	private int           		mTimeout = -1; // HTTP connection timeout in msec
+	private boolean				mHasAd = false;
 
 	private AdWebViewClient 	mWebViewClient = null;
 	private OnAdLoadedListener  mOnAdLoadedListener = null;
@@ -90,9 +95,6 @@ public class AdView extends WebView {
 	private void initAdView(Context context, AttributeSet attrs) {
 		getSettings().setJavaScriptEnabled(true);
 
-		// Set transparent background so that unfilled web view isn't white
-		setBackgroundColor(0);
-
 		// Prevent user from scrolling the web view since it always adds a margin
 		setOnTouchListener(new View.OnTouchListener() {
 			public boolean onTouch(View v, MotionEvent event) {
@@ -107,19 +109,24 @@ public class AdView extends WebView {
 
 	@Override
 	public void loadUrl(String url) {
-		if (url.startsWith("javascript:")) {
-			super.loadUrl(url);
+		mUrl = url;
+		if (mUrl.startsWith("javascript:")) {
+			super.loadUrl(mUrl);
 		}
-		
 
-		Runnable getUrl = new LoadUrlThread(url);
+		Runnable getUrl = new LoadUrlThread(mUrl);
 		new Thread(getUrl).start();
 	}
 
+	@Override
+	public void reload() {
+		loadUrl(mUrl);
+	}
+	
 	// Have to override loadUrl() in order to get the headers, which
 	// MoPub uses to pass control information to the client.  Unfortunately
 	// WebView doesn't let us get to the headers...
-	public class LoadUrlThread implements Runnable {
+	private class LoadUrlThread implements Runnable {
 		private String mUrl;
 
 		public LoadUrlThread(String url) {
@@ -128,7 +135,19 @@ public class AdView extends WebView {
 
 		public void run() {
 			try {
-				DefaultHttpClient httpclient = new DefaultHttpClient();
+				HttpParams httpParameters = new BasicHttpParams();
+
+			  if (mTimeout > 0) {
+				  // Set the timeout in milliseconds until a connection is established.
+				  int timeoutConnection = mTimeout;
+				  HttpConnectionParams.setConnectionTimeout(httpParameters, timeoutConnection);
+				  // Set the default socket timeout (SO_TIMEOUT) 
+				  // in milliseconds which is the timeout for waiting for data.
+				  int timeoutSocket = mTimeout;
+				  HttpConnectionParams.setSoTimeout(httpParameters, timeoutSocket);
+			  }
+				
+				DefaultHttpClient httpclient = new DefaultHttpClient(httpParameters);
 				HttpGet httpget = new HttpGet(mUrl);  
 				HttpResponse response = httpclient.execute(httpget);
 				
@@ -152,7 +171,7 @@ public class AdView extends WebView {
 				}
 
 				// If we made it this far, an ad has been loaded
-				mAdLoaded = true;
+				mHasAd = true;
 
 				Header ctHeader = response.getFirstHeader("X-Clickthrough");
 				if (ctHeader != null) {
@@ -204,7 +223,7 @@ public class AdView extends WebView {
 	}
 
 	public void loadAd() {
-		mAdLoaded = false;
+		mHasAd = false;
 		if (mAdUnitId == null) {
 			throw new RuntimeException("AdUnitId isn't set in com.mopub.mobileads.AdView");
 		}
@@ -233,8 +252,8 @@ public class AdView extends WebView {
 		loadUrl(adUrl);
 	}
 
-	public boolean adLoaded() {
-		return mAdLoaded;
+	public boolean hasAd() {
+		return mHasAd;
 	}
 	
 	public void pageFinished() {
@@ -271,6 +290,12 @@ public class AdView extends WebView {
 
 	public void setAdUnitId(String adUnitId) {
 		mAdUnitId = adUnitId;
+	}
+
+	public void setTimeout(int milliseconds) {
+		if (milliseconds > 0) {
+			mTimeout = milliseconds;
+		}
 	}
 
 	public void setOnAdLoadedListener(OnAdLoadedListener listener) {

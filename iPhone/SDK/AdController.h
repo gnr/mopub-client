@@ -8,7 +8,7 @@
 #import <iAd/iAd.h>
 #import "AdClickController.h"
 
-#define HOSTNAME @"localhost:8000"
+#define HOSTNAME @"ads.mopub.com"
 
 
 @class AdClickController;
