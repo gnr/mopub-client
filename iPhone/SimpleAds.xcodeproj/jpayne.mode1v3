@@ -302,7 +302,7 @@
 							<real>250</real>
 						</array>
 						<key>RubberWindowFrame</key>
-						<string>68 196 1249 730 0 0 1920 1058 </string>
+						<string>591 164 1249 730 0 0 1920 1058 </string>
 					</dict>
 					<key>Module</key>
 					<string>PBXSmartGroupTreeModule</string>
@@ -318,7 +318,7 @@
 								<key>PBXProjectModuleGUID</key>
 								<string>1CE0B20306471E060097A5F4</string>
 								<key>PBXProjectModuleLabel</key>
-								<string>SecondViewController.h</string>
+								<string>SimpleAdsAppDelegate.h</string>
 								<key>PBXSplitModuleInNavigatorKey</key>
 								<dict>
 									<key>Split0</key>
@@ -326,24 +326,11 @@
 										<key>PBXProjectModuleGUID</key>
 										<string>1CE0B20406471E060097A5F4</string>
 										<key>PBXProjectModuleLabel</key>
-										<string>SecondViewController.h</string>
-										<key>_historyCapacity</key>
-										<integer>0</integer>
-										<key>bookmark</key>
-										<string>3CC4D6F1125BCAF200212F16</string>
+										<string>SimpleAdsAppDelegate.h</string>
 										<key>history</key>
 										<array>
 											<string>3C0818681117C5AC0083D30D</string>
 											<string>3C92F34111C8592900AED241</string>
-											<string>3CC4D6E8125BCAF200212F16</string>
-											<string>3CC4D6E9125BCAF200212F16</string>
-											<string>3CC4D6EA125BCAF200212F16</string>
-											<string>3CC4D6EB125BCAF200212F16</string>
-											<string>3CC4D6EC125BCAF200212F16</string>
-											<string>3CC4D6ED125BCAF200212F16</string>
-											<string>3CC4D6EE125BCAF200212F16</string>
-											<string>3CC4D6EF125BCAF200212F16</string>
-											<string>3CC4D6F0125BCAF200212F16</string>
 										</array>
 									</dict>
 									<key>SplitCount</key>
@@ -357,7 +344,7 @@
 								<key>Frame</key>
 								<string>{{0, 0}, {977, 684}}</string>
 								<key>RubberWindowFrame</key>
-								<string>68 196 1249 730 0 0 1920 1058 </string>
+								<string>591 164 1249 730 0 0 1920 1058 </string>
 							</dict>
 							<key>Module</key>
 							<string>PBXNavigatorGroup</string>
@@ -377,7 +364,7 @@
 								<key>Frame</key>
 								<string>{{0, 689}, {977, 0}}</string>
 								<key>RubberWindowFrame</key>
-								<string>68 196 1249 730 0 0 1920 1058 </string>
+								<string>591 164 1249 730 0 0 1920 1058 </string>
 							</dict>
 							<key>Module</key>
 							<string>XCDetailModule</string>
@@ -401,9 +388,9 @@
 			</array>
 			<key>TableOfContents</key>
 			<array>
-				<string>3CC4D6D4125BCA1600212F16</string>
+				<string>3CC4D78F1264F23100212F16</string>
 				<string>1CE0B1FE06471DED0097A5F4</string>
-				<string>3CC4D6D5125BCA1600212F16</string>
+				<string>3CC4D7901264F23100212F16</string>
 				<string>1CE0B20306471E060097A5F4</string>
 				<string>1CE0B20506471E060097A5F4</string>
 			</array>
@@ -541,16 +528,11 @@
 	<integer>5</integer>
 	<key>WindowOrderList</key>
 	<array>
-		<string>1C530D57069F1CE1000CFCEE</string>
-		<string>3CC4D6F2125BCAF200212F16</string>
-		<string>3CC4D6F3125BCAF200212F16</string>
-		<string>1C78EAAD065D492600B07095</string>
-		<string>1CD10A99069EF8BA00B06720</string>
 		<string>3C0815771115E6A70083D30D</string>
 		<string>/Users/jpayne/mopub-client/iPhone/SimpleAds.xcodeproj</string>
 	</array>
 	<key>WindowString</key>
-	<string>68 196 1249 730 0 0 1920 1058 </string>
+	<string>591 164 1249 730 0 0 1920 1058 </string>
 	<key>WindowToolsV3</key>
 	<array>
 		<dict>
@@ -627,7 +609,7 @@
 			<key>TableOfContents</key>
 			<array>
 				<string>3C0815771115E6A70083D30D</string>
-				<string>3CC4D6D6125BCA1600212F16</string>
+				<string>3CC4D7911264F23100212F16</string>
 				<string>1CD0528F0623707200166675</string>
 				<string>XCMainBuildResultsModuleGUID</string>
 			</array>
