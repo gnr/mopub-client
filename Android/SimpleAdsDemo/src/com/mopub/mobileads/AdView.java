@@ -52,6 +52,7 @@ import android.location.Location;
 import android.location.LocationManager;
 import android.net.Uri;
 import android.provider.Settings.Secure;
+import android.telephony.TelephonyManager;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -212,7 +213,9 @@ public class AdView extends WebView {
 	private String generateAdUrl() {
 		StringBuilder sz = new StringBuilder("http://"+BASE_AD_HOST+BASE_AD_HANDLER);
 		sz.append("?v=2&id=" + mAdUnitId);
-		sz.append("&udid=" + System.getProperty(Secure.ANDROID_ID));
+//		sz.append("&udid=" + System.getProperty(Secure.ANDROID_ID));
+		TelephonyManager tm = (TelephonyManager)getContext().getSystemService(Context.TELEPHONY_SERVICE);
+		sz.append("&udid="+tm.getDeviceId());
 		if (mKeywords != null) {
 			sz.append("&q=" + Uri.encode(mKeywords));
 		}
