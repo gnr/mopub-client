@@ -32,6 +32,7 @@
 
 package com.mopub.simpleadsdemo;
 
+import com.mopub.mobileads.AdConversionTracker;
 import com.mopub.mobileads.AdView;
 import com.mopub.mobileads.InterstitialAdActivity;
 
@@ -62,6 +63,9 @@ public class SimpleAdsDemo extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.main);
 
+		// Conversion tracking
+		new AdConversionTracker().reportAppOpen(this,"agltb3B1Yi1pbmNyDAsSBFNpdGUY2aQGDA");
+		
 		// Initialize Ad components
 		mTopAdView = (AdView) findViewById(R.id.topadview);
 		mTopAdView.setAdUnitId("agltb3B1Yi1pbmNyDAsSBFNpdGUY2aQGDA");
