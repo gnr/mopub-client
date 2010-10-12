@@ -57,17 +57,25 @@
 	if (self = [super initWithSize:[[UIScreen mainScreen] bounds].size adUnitId:a parentViewController:pvc])
 	{
 		_isInterstitial = YES;
-		_inNavigationController = [pvc isKindOfClass:[UINavigationController class]];
-		
-		if (_inNavigationController) {
-			closeButtonType = AdCloseButtonTypeNext;
-		}
-		else {
-			closeButtonType = AdCloseButtonTypeDefault;
-		}
-
+		self.parent = pvc;
 	}
 	return self;
+}
+
+- (void)setParent:(UIViewController *)vc{
+	[vc retain];
+	[parent release];
+	parent = vc;
+	
+	_inNavigationController = [parent isKindOfClass:[UINavigationController class]];
+	
+	if (_inNavigationController) {
+		closeButtonType = AdCloseButtonTypeNext;
+	}
+	else {
+		closeButtonType = AdCloseButtonTypeDefault;
+	}
+	
 }
 
 - (void)viewWillAppear:(BOOL)animated{

@@ -17,7 +17,7 @@
 
 
 @interface AdController : UIViewController <UIWebViewDelegate, ADBannerViewDelegate, AdClickControllerDelegate> {
-	id<AdControllerDelegate> delegate;
+	id<AdControllerDelegate> delegate; 
 	BOOL loaded;
 	BOOL adLoading;
 	

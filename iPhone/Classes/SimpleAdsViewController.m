@@ -45,6 +45,7 @@
 	if (!shownNavigationInterstitialAlready){
 		self.navigationInterstitialAdController = [InterstitialAdController sharedInterstitialAdControllerForAdUnitId:PUB_ID_INTERSTITIAL];
 		self.navigationInterstitialAdController.delegate = self;
+		self.navigationInterstitialAdController.parent = self.navigationController;
 		[self.navigationInterstitialAdController loadAd];
 	}
 	else {
