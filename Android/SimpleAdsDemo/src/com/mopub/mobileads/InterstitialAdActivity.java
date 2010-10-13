@@ -33,10 +33,12 @@
 package com.mopub.mobileads;
 
 import com.mopub.mobileads.AdView.OnAdClosedListener;
+import com.mopub.mobileads.AdView.OnAdFailedListener;
 import com.mopub.mobileads.AdView.OnAdLoadedListener;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.util.Log;
 
 public class InterstitialAdActivity extends Activity {
 	private AdView				mInterstitialAdView = null;
@@ -75,13 +77,15 @@ public class InterstitialAdActivity extends Activity {
 		});
 		mInterstitialAdView.setOnAdLoadedListener(new OnAdLoadedListener() {
 			public void OnAdLoaded(AdView a) {
-				if (a.hasAd()) {
-					setVisible(true);
-				}
-				else {
-					setResult(RESULT_CANCELED);
-					finish();
-				}
+				Log.i("mopub","ad loaded");
+				setVisible(true);
+			}
+		});
+		mInterstitialAdView.setOnAdFailedListener(new OnAdFailedListener() {
+			public void OnAdFailed(AdView a) {
+				Log.i("mopub","ad failed");
+				setResult(RESULT_CANCELED);
+				finish();
 			}
 		});
 
