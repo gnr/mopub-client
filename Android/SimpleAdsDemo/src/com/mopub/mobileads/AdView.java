@@ -214,8 +214,12 @@ public class AdView extends WebView {
 		StringBuilder sz = new StringBuilder("http://"+BASE_AD_HOST+BASE_AD_HANDLER);
 		sz.append("?v=2&id=" + mAdUnitId);
 //		sz.append("&udid=" + System.getProperty(Secure.ANDROID_ID));
-		TelephonyManager tm = (TelephonyManager)getContext().getSystemService(Context.TELEPHONY_SERVICE);
-		sz.append("&udid="+tm.getDeviceId());
+		try {
+			TelephonyManager tm = (TelephonyManager)getContext().getSystemService(Context.TELEPHONY_SERVICE);
+			sz.append("&udid="+tm.getDeviceId());
+		} catch (SecurityException e) {
+		}
+
 		if (mKeywords != null) {
 			sz.append("&q=" + Uri.encode(mKeywords));
 		}
