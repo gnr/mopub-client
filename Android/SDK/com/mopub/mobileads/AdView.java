@@ -51,7 +51,6 @@ import android.content.Context;
 import android.location.Location;
 import android.location.LocationManager;
 import android.net.Uri;
-import android.provider.Settings.Secure;
 import android.telephony.TelephonyManager;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -149,7 +148,8 @@ public class AdView extends WebView {
 			  }
 				
 				DefaultHttpClient httpclient = new DefaultHttpClient(httpParameters);
-				HttpGet httpget = new HttpGet(mUrl);  
+				HttpGet httpget = new HttpGet(mUrl);
+				httpget.addHeader("User-Agent", getSettings().getUserAgentString());
 				HttpResponse response = httpclient.execute(httpget);
 				
 				if (response.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
