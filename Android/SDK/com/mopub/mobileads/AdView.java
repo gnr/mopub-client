@@ -155,6 +155,7 @@ public class AdView extends WebView {
 				HttpGet httpget = new HttpGet(mUrl);
 				httpget.addHeader("User-Agent", getSettings().getUserAgentString());
 				HttpResponse response = httpclient.execute(httpget);
+				Log.i("mopub user agent:",getSettings().getUserAgentString());
 				
 				if (response.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
 					pageFailed();
@@ -177,6 +178,15 @@ public class AdView extends WebView {
 
 				// If we made it this far, an ad has been loaded
 
+				// Redirect if we get an X-Launchpage header
+				Header rdHeader = response.getFirstHeader("X-Launchpage");
+				if (rdHeader != null) {
+					mWebViewClient.setRedirectUrl(rdHeader.getValue());
+				}
+				else {
+					mWebViewClient.setRedirectUrl("");
+				}
+				
 				Header ctHeader = response.getFirstHeader("X-Clickthrough");
 				if (ctHeader != null) {
 					mWebViewClient.setClickthroughUrl(ctHeader.getValue());

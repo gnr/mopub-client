@@ -68,11 +68,11 @@ public class SimpleAdsDemo extends Activity {
 		
 		// Initialize Ad components
 		mTopAdView = (AdView) findViewById(R.id.topadview);
-		mTopAdView.setAdUnitId("agltb3B1Yi1pbmNyDAsSBFNpdGUY2aQGDA");
+		mTopAdView.setAdUnitId("agltb3B1Yi1pbmNyDAsSBFNpdGUY2Y8NDA");
 		mTopAdView.loadAd();
 
 		mMidAdView = (AdView) findViewById(R.id.middleadview);
-		mMidAdView.setAdUnitId("agltb3B1Yi1pbmNyDAsSBFNpdGUY2aQGDA");
+		mMidAdView.setAdUnitId("agltb3B1Yi1pbmNyDAsSBFNpdGUY2Y8NDA");
 		mMidAdView.loadAd();
 
 		mSearchText = (EditText) findViewById(R.id.searchtext);
