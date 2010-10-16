@@ -32,9 +32,9 @@
 
 package com.mopub.simpleadsdemo;
 
-import com.mopub.mobileads.AdConversionTracker;
-import com.mopub.mobileads.AdView;
-import com.mopub.mobileads.InterstitialAdActivity;
+import com.mopub.mobileads.MoPubConversionTracker;
+import com.mopub.mobileads.MoPubView;
+import com.mopub.mobileads.MoPubActivity;
 
 import android.app.Activity;
 import android.content.Context;
@@ -48,8 +48,8 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 public class SimpleAdsDemo extends Activity {
-	private AdView				mTopAdView = null;
-	private AdView				mMidAdView = null;
+	private MoPubView		mTopBanner = null;
+	private MoPubView		mMidBanner = null;
 
 	private EditText			mSearchText = null;
 	private Button				mSearchButton = null;
@@ -64,16 +64,16 @@ public class SimpleAdsDemo extends Activity {
 		setContentView(R.layout.main);
 
 		// Conversion tracking
-		new AdConversionTracker().reportAppOpen(this,"agltb3B1Yi1pbmNyDAsSBFNpdGUY2aQGDA");
+		new MoPubConversionTracker().reportAppOpen(this,"agltb3B1Yi1pbmNyDAsSBFNpdGUY2aQGDA");
 		
 		// Initialize Ad components
-		mTopAdView = (AdView) findViewById(R.id.topadview);
-		mTopAdView.setAdUnitId("agltb3B1Yi1pbmNyDAsSBFNpdGUY2Y8NDA");
-		mTopAdView.loadAd();
+		mTopBanner = (MoPubView) findViewById(R.id.topadview);
+		mTopBanner.setAdUnitId("agltb3B1Yi1pbmNyDAsSBFNpdGUY2aQGDA");
+		mTopBanner.loadAd();
 
-		mMidAdView = (AdView) findViewById(R.id.middleadview);
-		mMidAdView.setAdUnitId("agltb3B1Yi1pbmNyDAsSBFNpdGUY2Y8NDA");
-		mMidAdView.loadAd();
+		mMidBanner = (MoPubView) findViewById(R.id.middleadview);
+		mMidBanner.setAdUnitId("agltb3B1Yi1pbmNyDAsSBFNpdGUY2aQGDA");
+		mMidBanner.loadAd();
 
 		mSearchText = (EditText) findViewById(R.id.searchtext);
 		mSearchButton = (Button) findViewById(R.id.searchbutton);
@@ -81,10 +81,10 @@ public class SimpleAdsDemo extends Activity {
 			public void onClick(View v) {
 				InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
 				imm.hideSoftInputFromWindow(mSearchText.getWindowToken(), 0);
-				mTopAdView.setKeywords(mSearchText.getText().toString());
-				mMidAdView.setKeywords(mSearchText.getText().toString());
-				mTopAdView.loadAd();
-				mMidAdView.loadAd();
+				mTopBanner.setKeywords(mSearchText.getText().toString());
+				mMidBanner.setKeywords(mSearchText.getText().toString());
+				mTopBanner.loadAd();
+				mMidBanner.loadAd();
 			}
 		});
 
@@ -97,7 +97,7 @@ public class SimpleAdsDemo extends Activity {
 	}
 
 	public void showInterstitialAd() {
-		Intent i = new Intent(this, InterstitialAdActivity.class);
+		Intent i = new Intent(this, MoPubActivity.class);
 		i.putExtra("com.mopub.mobileads.AdUnitId", "agltb3B1Yi1pbmNyDAsSBFNpdGUYstgHDA");
 		startActivityForResult(i, INTERSTITIAL_AD_REQUEST);
 	}

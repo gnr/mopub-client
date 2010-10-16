@@ -32,24 +32,24 @@
 
 package com.mopub.mobileads;
 
-import com.mopub.mobileads.AdView.OnAdClosedListener;
-import com.mopub.mobileads.AdView.OnAdFailedListener;
-import com.mopub.mobileads.AdView.OnAdLoadedListener;
+import com.mopub.mobileads.MoPubView.OnAdClosedListener;
+import com.mopub.mobileads.MoPubView.OnAdFailedListener;
+import com.mopub.mobileads.MoPubView.OnAdLoadedListener;
 
 import android.app.Activity;
 import android.os.Bundle;
 import android.util.Log;
 
-public class InterstitialAdActivity extends Activity {
-	private AdView				mInterstitialAdView = null;
-	
+public class MoPubActivity extends Activity {
+	private MoPubView				mMoPubLayout = null;
+
 	/** Called when the activity is first created. */
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		
+
 		setVisible(false);
-		
+
 		String adUnitId = getIntent().getStringExtra("com.mopub.mobileads.AdUnitId");
 		String keywords = getIntent().getStringExtra("com.mopub.mobileads.Keywords");
 		int timeout = getIntent().getIntExtra("com.mopub.mobileads.Timeout", 0);
@@ -57,38 +57,37 @@ public class InterstitialAdActivity extends Activity {
 		if (adUnitId == null) {
 			throw new RuntimeException("AdUnitId isn't set in com.mopub.mobileads.InterstitialAdActivity");
 		}
-		
-		
-		mInterstitialAdView = new AdView(this);
-		mInterstitialAdView.setAdUnitId(adUnitId);
+
+		mMoPubLayout = new MoPubView(this);
+		mMoPubLayout.setAdUnitId(adUnitId);
 		if (keywords != null) {
-			mInterstitialAdView.setKeywords(keywords);
+			mMoPubLayout.setKeywords(keywords);
 		}
 		if (timeout > 0) {
-		  mInterstitialAdView.setTimeout(timeout);
+			mMoPubLayout.setTimeout(timeout);
 		}
- 		
-		mInterstitialAdView.loadAd();
-		mInterstitialAdView.setOnAdClosedListener(new OnAdClosedListener() {
-			public void OnAdClosed(AdView a) {
+
+		mMoPubLayout.loadAd();
+		mMoPubLayout.setOnAdClosedListener(new OnAdClosedListener() {
+			public void OnAdClosed(MoPubView a) {
 				setResult(RESULT_OK);
 				finish();
 			}
 		});
-		mInterstitialAdView.setOnAdLoadedListener(new OnAdLoadedListener() {
-			public void OnAdLoaded(AdView a) {
+		mMoPubLayout.setOnAdLoadedListener(new OnAdLoadedListener() {
+			public void OnAdLoaded(MoPubView a) {
 				Log.i("mopub","ad loaded");
 				setVisible(true);
 			}
 		});
-		mInterstitialAdView.setOnAdFailedListener(new OnAdFailedListener() {
-			public void OnAdFailed(AdView a) {
+		mMoPubLayout.setOnAdFailedListener(new OnAdFailedListener() {
+			public void OnAdFailed(MoPubView a) {
 				Log.i("mopub","ad failed");
 				setResult(RESULT_CANCELED);
 				finish();
 			}
 		});
 
-		setContentView(mInterstitialAdView);
+		setContentView(mMoPubLayout);
 	}
 }

@@ -10,26 +10,17 @@
     android:layout_width="fill_parent"
     android:layout_height="wrap_content"
     >
-    <LinearLayout
-    	android:id="@+id/topadviewcontainer"
-    	android:orientation="vertical"
+    <com.mopub.mobileads.MoPubView
+    	android:id="@+id/topadview"
     	android:layout_width="fill_parent"
     	android:layout_height="50px"
-    	>
-	    <com.mopub.mobileads.AdView
-		android:id="@+id/topadview"
-	  	android:layout_width="320px"
-	  	android:layout_height="wrap_content"
-	  	android:layout_gravity="center"
-		/>
-	</LinearLayout>
-
+    	/>
 
 <Button
 	android:id="@+id/searchbutton"
 	android:layout_width="wrap_content"
 	android:layout_height="wrap_content"
-	android:layout_below="@id/topadviewcontainer"
+	android:layout_below="@id/topadview"
     android:layout_alignParentRight="true"
     android:layout_marginLeft="10dip"
     android:layout_marginTop="20dip"
@@ -43,14 +34,12 @@
 	android:layout_toLeftOf="@id/searchbutton"
 	android:layout_alignTop="@id/searchbutton"
 	/>
-	<com.mopub.mobileads.AdView
-		android:id="@+id/middleadview"
-  		android:layout_width="320px"
-  		android:layout_height="wrap_content"
-  		android:layout_gravity="center"
-   		android:layout_below="@id/searchbutton" 	
-  		android:layout_marginTop="20dip"
-  		/>	
+  	<com.mopub.mobileads.MoPubView
+    	android:id="@+id/middleadview"
+    	android:layout_width="fill_parent"
+    	android:layout_height="50px"
+    	android:layout_below="@id/searchbutton"
+    	/>
 </RelativeLayout>
 	
 
