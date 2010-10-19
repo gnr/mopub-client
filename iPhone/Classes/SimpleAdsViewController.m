@@ -64,6 +64,7 @@
 
 - (IBAction) getModalInterstitial{
 	self.interstitialAdController = [InterstitialAdController sharedInterstitialAdControllerForAdUnitId:PUB_ID_INTERSTITIAL];	
+	self.interstitialAdController.parent = self;
 	self.interstitialAdController.delegate = self;
 	self.interstitialAdController.keywords = @"coffee";
 	[self.interstitialAdController loadAd];

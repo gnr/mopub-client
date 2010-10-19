@@ -117,8 +117,6 @@
 - (void)viewWillAppear:(BOOL)animated{
 	[super viewWillAppear:animated];
 	
-	
-	
 	if ([self.delegate respondsToSelector:@selector(interstitialWillAppear:)]){
 		[self.delegate performSelector:@selector(interstitialWillAppear:) withObject:self];
 	}
@@ -143,6 +141,7 @@
 	// hide the status bar
 	[UIApplication sharedApplication].statusBarHidden = YES;
 	
+	
 	self.view.backgroundColor = backgroundColor;
 	
 	CGSize screenSize = [UIScreen mainScreen].bounds.size;
@@ -155,6 +154,8 @@
 
 - (void)loadView{
 	[super loadView];
+	
+	
 }
 
 

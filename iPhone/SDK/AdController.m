@@ -356,11 +356,14 @@ static NSDictionary *GAdHdrToAttr;
 
 - (void)connectionDidFinishLoading:(NSURLConnection *)connection {
 	// set the content into the webview	
+	
+	webView.delegate = self;
 	[self.webView loadData:self.data MIMEType:@"text/html" textEncodingName:@"utf-8" baseURL:self.url];
+
 
 	// print out the response for debugging purposes
 	NSString *response = [[NSString alloc] initWithData:self.data encoding:NSUTF8StringEncoding];
-	NSLog(@"MOPUB: %@",response);
+	NSLog(@"MOPUB: response %@",response);
 	[response release];
 	
 	// set ad loading to be False
