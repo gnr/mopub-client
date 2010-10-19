@@ -322,7 +322,7 @@
 
 -(void)adControllerDidLoadAd:(AdController*)adController{
 	if ([self.delegate respondsToSelector:@selector(adControllerDidLoadAd:)]){
-		[self.delegate adControllerDidLoadAd:self];
+		[self.delegate adControllerDidLoadAd:self.adController];
 	}	
 }
 

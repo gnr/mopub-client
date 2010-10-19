@@ -79,7 +79,7 @@
 	NSLog(@"AD DID LOAD %@",_adController);
 
 	// if the adcontroller is the navigational interstitial
-	if (_adController == self.navigationInterstitialAdController){
+	if ([_adController isKindOfClass:[InterstitialAdController class]] && _adController.parent == self.navigationController){
 		[self.navigationController pushViewController:self.navigationInterstitialAdController animated:YES];
 	}
 	// if its an interstitial we show it right away
@@ -103,9 +103,9 @@
 }
 
 - (void)adControllerFailedLoadAd:(AdController *)_adController{
-	UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"MoPub" message:@"Ad Failed to Load" delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil];
-	[alert show];
-	[alert release];
+//	UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"MoPub" message:@"Ad Failed to Load" delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil];
+//	[alert show];
+//	[alert release];
 }
 
 - (void)interstitialDidClose:(InterstitialAdController *)_interstitialAdController{
