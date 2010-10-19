@@ -50,6 +50,8 @@ import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 
 import android.content.Context;
+import android.content.Intent;
+import android.graphics.Bitmap;
 import android.location.Location;
 import android.location.LocationManager;
 import android.net.Uri;
@@ -59,6 +61,7 @@ import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.webkit.WebView;
+import android.webkit.WebViewClient;
 
 public class AdView extends WebView {
 
@@ -72,9 +75,7 @@ public class AdView extends WebView {
 	private int					mTimeout = -1; // HTTP connection timeout in msec
 	
 	private Handler				mHandler = null;
-
 	private WeakReference<MoPubView>	mMoPubViewReference;
-	private AdWebViewClient 	mWebViewClient = null;
 
 	public AdView(Context context, MoPubView view) {
 		super(context);
@@ -95,8 +96,7 @@ public class AdView extends WebView {
 		setBackgroundColor(0);
 
 		// set web view client
-		mWebViewClient = new AdWebViewClient();
-		setWebViewClient(mWebViewClient);
+		setWebViewClient(new AdWebViewClient());
 	}
 
 	@Override
@@ -357,5 +357,52 @@ public class AdView extends WebView {
 
 	public String getRedirectUrl() { 
 		return mRedirectUrl; 
-	} 
+	}
+
+	class AdWebViewClient extends WebViewClient {
+		@Override
+		public boolean shouldOverrideUrlLoading(WebView view, String url) {
+			Log.d("MoPub", "url: "+url);
+
+			// Check if this is a local call
+			if (url.startsWith("mopub://")) {
+				if (url.equals("mopub://close")) {
+					((AdView)view).pageClosed();
+				}
+				else if (url.equals("mopub://reload")) {
+					((AdView)view).reload();
+				}
+				return true;
+			}
+
+			String uri = url;
+
+			String clickthroughUrl = ((AdView)view).getClickthroughUrl(); 
+			if (clickthroughUrl != null) { 
+				uri = clickthroughUrl + "&r=" + Uri.encode(url); 
+			}
+
+			Log.d("MoPub", "click url: "+uri);
+
+			// and fire off a system wide intent
+			view.getContext().startActivity(new Intent(android.content.Intent.ACTION_VIEW, Uri.parse(uri)));
+			return true;
+		}
+
+		@Override
+		public void onPageFinished(WebView view, String url) {
+			if (view instanceof AdView) {
+				((AdView)view).pageFinished();
+			}
+		}
+
+		@Override
+		public void onPageStarted(WebView view, String url, Bitmap favicon) {
+			String redirectUrl = ((AdView)view).getRedirectUrl(); 
+			if (redirectUrl != null && url.startsWith(redirectUrl)) { 
+				view.stopLoading();
+				view.getContext().startActivity(new Intent(android.content.Intent.ACTION_VIEW, Uri.parse(url)));
+			}
+		}
+	}
 }
