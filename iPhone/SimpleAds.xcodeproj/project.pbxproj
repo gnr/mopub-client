@@ -250,10 +250,6 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = SimpleAds_Prefix.pch;
 				INFOPLIST_FILE = "SimpleAds-Info.plist";
-				LIBRARY_SEARCH_PATHS = (
-					"$(inherited)",
-					"\"$(SRCROOT)/Library\"",
-				);
 				PRODUCT_NAME = SimpleAds;
 			};
 			name = Debug;

@@ -31,9 +31,6 @@ static NSArray *SAFARI_SCHEMES, *SAFARI_HOSTS;
 	if (self = [super initWithNibName:@"AdClickController" bundle:nil]){
 		self.delegate = d;
 		self.url = u;
-		NSLog(@"webview retainCount: %d",[self.webView retainCount]);
-
-		
 	}
 	return self;
 }
@@ -207,9 +204,6 @@ static NSArray *SAFARI_SCHEMES, *SAFARI_HOSTS;
 - (void)dealloc {
 	[url release];
 
-	
-	NSLog(@"webview retainCount: %d",[self.webView retainCount]);
-	
 	// release all the IBOutlets by nil-ing them out
 	self.webView.delegate = nil;
 	self.webView = nil;

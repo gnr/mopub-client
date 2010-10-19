@@ -79,15 +79,15 @@
 	if (_interstitialAdController.parent == self.navigationController){
 		[self.navigationController pushViewController:self.navigationInterstitialAdController animated:YES];
 	}
-	// if its an interstitial we show it right away
-	[self presentModalViewController:_interstitialAdController animated:YES];
+	else{
+		// if its an interstitial we show it right away
+		[self presentModalViewController:_interstitialAdController animated:YES];
+	}
 	
 }
 
 - (void)adControllerDidLoadAd:(AdController *)_adController{
 	NSLog(@"AD DID LOAD %@",_adController);
-
-		
 	
 	// we SLOWLY fade in the mrect whenever we are told the ad has been loaded up
 	if (_adController == mrectController){
