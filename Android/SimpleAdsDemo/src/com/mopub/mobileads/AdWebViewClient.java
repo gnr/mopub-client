@@ -32,8 +32,6 @@
 
 package com.mopub.mobileads;
 
-import com.mopub.mobileads.util.MoPubUtil;
-
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
@@ -42,22 +40,9 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
 class AdWebViewClient extends WebViewClient {
-	private String 	mClickthroughUrl = "";
-	private String 	mRedirectUrl = "";
-
-	public void setClickthroughUrl(String url) {
-		mClickthroughUrl = url;
-		if (MoPubUtil.DEBUG) Log.d(MoPubUtil.TAG, "clickthrough url: "+mClickthroughUrl);
-	}
-	
-	public void setRedirectUrl(String url) {
-		mRedirectUrl = url;
-		if (MoPubUtil.DEBUG) Log.d(MoPubUtil.TAG, "redirect url: "+mRedirectUrl);
-	}
-
 	@Override
 	public boolean shouldOverrideUrlLoading(WebView view, String url) {
-		if (MoPubUtil.DEBUG) Log.d(MoPubUtil.TAG, "url: "+url);
+		Log.d("MoPub", "url: "+url);
 
 		// Check if this is a local call
 		if (url.startsWith("mopub://")) {
@@ -72,12 +57,12 @@ class AdWebViewClient extends WebViewClient {
 
 		String uri = url;
 
-		if (mClickthroughUrl != "") {
-			uri = mClickthroughUrl + "&r=" + Uri.encode(url);
+		String clickthroughUrl = ((AdView)view).getClickthroughUrl(); 
+		if (clickthroughUrl != null) { 
+			uri = clickthroughUrl + "&r=" + Uri.encode(url); 
 		}
 
-		if (MoPubUtil.DEBUG) Log.d(MoPubUtil.TAG, "click url: "+uri);
-
+		Log.d("MoPub", "click url: "+uri);
 
 		// and fire off a system wide intent
 		view.getContext().startActivity(new Intent(android.content.Intent.ACTION_VIEW, Uri.parse(uri)));
@@ -93,7 +78,8 @@ class AdWebViewClient extends WebViewClient {
 	
 	@Override
 	public void onPageStarted(WebView view, String url, Bitmap favicon) {
-		if (!mRedirectUrl.equals("") && url.startsWith(mRedirectUrl)) {
+		String redirectUrl = ((AdView)view).getRedirectUrl(); 
+		if (redirectUrl != null && url.startsWith(redirectUrl)) { 
 			view.stopLoading();
 			view.getContext().startActivity(new Intent(android.content.Intent.ACTION_VIEW, Uri.parse(url)));
 		}

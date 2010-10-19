@@ -36,11 +36,13 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.lang.ref.WeakReference;
 
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
+import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.params.BasicHttpParams;
@@ -51,8 +53,8 @@ import android.content.Context;
 import android.location.Location;
 import android.location.LocationManager;
 import android.net.Uri;
-import android.telephony.TelephonyManager;
-import android.util.AttributeSet;
+import android.os.Handler;
+import android.provider.Settings.Secure;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
@@ -60,43 +62,26 @@ import android.webkit.WebView;
 
 public class AdView extends WebView {
 
-	public interface OnAdLoadedListener {
-		public void OnAdLoaded(AdView a);
-	}
-	
-	public interface OnAdFailedListener {
-		public void OnAdFailed(AdView a);
-	}
-	
-	public interface OnAdClosedListener {
-		public void OnAdClosed(AdView a);
-	}
-	
-	private static final String BASE_AD_HOST = "ads.mopub.com";
-	private static final String BASE_AD_HANDLER = "/m/ad";
-
 	private String 				mAdUnitId = null;
 	private String 				mKeywords = null;
 	private String				mUrl = null;
+	private String				mClickthroughUrl = null; 
+	private String				mRedirectUrl = null; 
+	private String				mFailUrl = null; 
 	private Location 			mLocation = null;
-	private int           		mTimeout = -1; // HTTP connection timeout in msec
+	private int					mTimeout = -1; // HTTP connection timeout in msec
+	
+	private Handler				mHandler = null;
 
+	private WeakReference<MoPubView>	mMoPubViewReference;
 	private AdWebViewClient 	mWebViewClient = null;
-	private OnAdLoadedListener  mOnAdLoadedListener = null;
-	private OnAdFailedListener  mOnAdFailedListener = null;
-	private OnAdClosedListener  mOnAdClosedListener = null;
 
-	public AdView(Context context) {
+	public AdView(Context context, MoPubView view) {
 		super(context);
-		initAdView(context, null);
-	}
-
-	public AdView(Context context, AttributeSet attrs) {
-		super(context, attrs);
-		initAdView(context, attrs);
-	}
-
-	private void initAdView(Context context, AttributeSet attrs) {
+		
+		this.mMoPubViewReference = new WeakReference<MoPubView>(view);
+		mHandler = new Handler();
+		
 		getSettings().setJavaScriptEnabled(true);
 
 		// Prevent user from scrolling the web view since it always adds a margin
@@ -105,6 +90,9 @@ public class AdView extends WebView {
 				return(event.getAction() == MotionEvent.ACTION_MOVE);
 			}
 		});
+
+		// Set background transparent since some ads don't fill the full width
+		setBackgroundColor(0);
 
 		// set web view client
 		mWebViewClient = new AdWebViewClient();
@@ -119,14 +107,15 @@ public class AdView extends WebView {
 		}
 
 		Runnable getUrl = new LoadUrlThread(mUrl);
-		new Thread(getUrl).start();
+		// Need to run a Handler since it needs to update the UI when done
+		mHandler.post(getUrl);
 	}
 
 	@Override
 	public void reload() {
 		loadUrl(mUrl);
 	}
-	
+
 	// Have to override loadUrl() in order to get the headers, which
 	// MoPub uses to pass control information to the client.  Unfortunately
 	// WebView doesn't let us get to the headers...
@@ -141,22 +130,21 @@ public class AdView extends WebView {
 			try {
 				HttpParams httpParameters = new BasicHttpParams();
 
-			  if (mTimeout > 0) {
-				  // Set the timeout in milliseconds until a connection is established.
-				  int timeoutConnection = mTimeout;
-				  HttpConnectionParams.setConnectionTimeout(httpParameters, timeoutConnection);
-				  // Set the default socket timeout (SO_TIMEOUT) 
-				  // in milliseconds which is the timeout for waiting for data.
-				  int timeoutSocket = mTimeout;
-				  HttpConnectionParams.setSoTimeout(httpParameters, timeoutSocket);
-			  }
-				
+				if (mTimeout > 0) {
+					// Set the timeout in milliseconds until a connection is established.
+					int timeoutConnection = mTimeout;
+					HttpConnectionParams.setConnectionTimeout(httpParameters, timeoutConnection);
+					// Set the default socket timeout (SO_TIMEOUT) 
+					// in milliseconds which is the timeout for waiting for data.
+					int timeoutSocket = mTimeout;
+					HttpConnectionParams.setSoTimeout(httpParameters, timeoutSocket);
+				}
+
 				DefaultHttpClient httpclient = new DefaultHttpClient(httpParameters);
 				HttpGet httpget = new HttpGet(mUrl);
 				httpget.addHeader("User-Agent", getSettings().getUserAgentString());
 				HttpResponse response = httpclient.execute(httpget);
-				Log.i("mopub user agent:",getSettings().getUserAgentString());
-				
+
 				if (response.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
 					pageFailed();
 					return;
@@ -170,29 +158,50 @@ public class AdView extends WebView {
 
 				// Get the various header messages
 				// If there is no ad, don't bother loading the data
-				Header bfHeader = response.getFirstHeader("X-Adtype");
-				if (bfHeader == null || bfHeader.getValue() == "clear") {
+				Header atHeader = response.getFirstHeader("X-Adtype");
+				if (atHeader == null || atHeader.getValue().equals("clear")) {
 					pageFailed();
 					return;
 				}
 
 				// If we made it this far, an ad has been loaded
 
-				// Redirect if we get an X-Launchpage header
+				// Redirect if we get an X-Launchpage header so that AdMob clicks work
 				Header rdHeader = response.getFirstHeader("X-Launchpage");
 				if (rdHeader != null) {
-					mWebViewClient.setRedirectUrl(rdHeader.getValue());
+					mRedirectUrl = rdHeader.getValue();
 				}
 				else {
-					mWebViewClient.setRedirectUrl("");
+					mRedirectUrl = null;
 				}
-				
+
 				Header ctHeader = response.getFirstHeader("X-Clickthrough");
 				if (ctHeader != null) {
-					mWebViewClient.setClickthroughUrl(ctHeader.getValue());
+					mClickthroughUrl = ctHeader.getValue();
 				}
 				else {
-					mWebViewClient.setClickthroughUrl("");
+					mClickthroughUrl = null;
+				}
+
+				Header flHeader = response.getFirstHeader("X-Failurl"); 
+				if (flHeader != null) { 
+					mFailUrl = flHeader.getValue(); 
+				} 
+				else { 
+					mFailUrl = null; 
+				} 
+
+				// Handle requests for native SDK ads
+				if (atHeader.getValue().toLowerCase().equals("adsense")) {
+					Log.i("MoPub","Load AdSense ad");
+					MoPubView view = mMoPubViewReference.get();
+					if (view != null) {
+						Header npHeader = response.getFirstHeader("X-Nativeparams"); 
+						if (npHeader != null) { 
+							view.loadAdSense(npHeader.getValue()); 
+						} 
+					}
+					return;
 				}
 
 				InputStream is = entity.getContent();
@@ -217,6 +226,7 @@ public class AdView extends WebView {
 				loadDataWithBaseURL(mUrl, sb.toString(),"text/html","utf-8", null);
 			}
 			catch (Exception e) {
+				e.printStackTrace();
 				pageFailed();
 				return;
 			}
@@ -224,14 +234,9 @@ public class AdView extends WebView {
 	}
 
 	private String generateAdUrl() {
-		StringBuilder sz = new StringBuilder("http://"+BASE_AD_HOST+BASE_AD_HANDLER);
+		StringBuilder sz = new StringBuilder("http://"+MoPubView.HOST+MoPubView.AD_HANDLER);
 		sz.append("?v=2&id=" + mAdUnitId);
-//		sz.append("&udid=" + System.getProperty(Secure.ANDROID_ID));
-		try {
-			TelephonyManager tm = (TelephonyManager)getContext().getSystemService(Context.TELEPHONY_SERVICE);
-			sz.append("&udid="+tm.getDeviceId());
-		} catch (SecurityException e) {
-		}
+		sz.append("&udid=" + Secure.getString(getContext().getContentResolver(), Secure.ANDROID_ID));
 
 		if (mKeywords != null) {
 			sz.append("&q=" + Uri.encode(mKeywords));
@@ -246,7 +251,7 @@ public class AdView extends WebView {
 		if (mAdUnitId == null) {
 			throw new RuntimeException("AdUnitId isn't set in com.mopub.mobileads.AdView");
 		}
-		
+
 		// Get the last location if one hasn't been provided through setLocation()
 		// This leaves mLocation = null if no providers are available
 		if (mLocation == null) {
@@ -265,28 +270,55 @@ public class AdView extends WebView {
 			else if (loc_network != null && loc_network.getTime() > mLocation.getTime())
 				mLocation = loc_network;
 		}
-    	
+
 		String adUrl = generateAdUrl();
-		Log.i("ad url", adUrl);
+		Log.d("MoPub", "ad url: "+adUrl);
 		loadUrl(adUrl);
 	}
-	
+
+	public void loadFailUrl() { 
+		if (mFailUrl != null) { 
+			loadUrl(mFailUrl); 
+		} 
+		else { 
+			pageFailed(); 
+		} 
+	} 
+
+	public void registerClick() { 
+		if (mClickthroughUrl == null) 
+			return; 
+
+		new Thread(new Runnable() { 
+			public void run () { 
+				try { 
+					DefaultHttpClient httpclient = new DefaultHttpClient(); 
+					HttpGet httpget = new HttpGet(mClickthroughUrl); 
+					httpget.addHeader("User-Agent", getSettings().getUserAgentString()); 
+					httpclient.execute(httpget); 
+				} catch (ClientProtocolException e) { 
+				} catch (IOException e) { 
+				} 
+			} 
+		}).start(); 
+	}
+
 	public void pageFinished() {
-		if (mOnAdLoadedListener != null) {
-			mOnAdLoadedListener.OnAdLoaded(this);
-		}
+		MoPubView view = mMoPubViewReference.get();
+		if (view != null)
+			view.adLoaded();
 	}
-	
+
 	public void pageFailed() {
-		if (mOnAdFailedListener != null) {
-			mOnAdFailedListener.OnAdFailed(this);
-		}
+		MoPubView view = mMoPubViewReference.get();
+		if (view != null)
+			view.adFailed();
 	}
-	
+
 	public void pageClosed() {
-		if (mOnAdClosedListener != null) {
-			mOnAdClosedListener.OnAdClosed(this);
-		}
+		MoPubView view = mMoPubViewReference.get();
+		if (view != null)
+			view.adClosed();
 	}
 
 	public String getKeywords() {
@@ -319,15 +351,11 @@ public class AdView extends WebView {
 		}
 	}
 
-	public void setOnAdLoadedListener(OnAdLoadedListener listener) {
-		mOnAdLoadedListener = listener;
-	}
-	
-	public void setOnAdFailedListener(OnAdFailedListener listener) {
-		mOnAdFailedListener = listener;
-	}
-	
-	public void setOnAdClosedListener(OnAdClosedListener listener) {
-		mOnAdClosedListener = listener;
-	}
+	public String getClickthroughUrl() { 
+		return mClickthroughUrl; 
+	} 
+
+	public String getRedirectUrl() { 
+		return mRedirectUrl; 
+	} 
 }

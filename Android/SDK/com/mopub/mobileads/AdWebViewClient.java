@@ -40,26 +40,12 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
 class AdWebViewClient extends WebViewClient {
-	private String 	mClickthroughUrl = "";
-	private String 	mRedirectUrl = "";
-
-	public void setClickthroughUrl(String url) {
-		mClickthroughUrl = url;
-		Log.i("clickthrough url", mClickthroughUrl);
-	}
-	
-	public void setRedirectUrl(String url) {
-		mRedirectUrl = url;
-		Log.i("redirect url", mRedirectUrl);
-	}
-
 	@Override
 	public boolean shouldOverrideUrlLoading(WebView view, String url) {
-		Log.i("url", url);
+		Log.d("MoPub", "url: "+url);
 
 		// Check if this is a local call
 		if (url.startsWith("mopub://")) {
-			//TODO: Handle ad callbacks
 			if (url.equals("mopub://close")) {
 				((AdView)view).pageClosed();
 			}
@@ -71,12 +57,12 @@ class AdWebViewClient extends WebViewClient {
 
 		String uri = url;
 
-		if (mClickthroughUrl != "") {
-			uri = mClickthroughUrl + "&r=" + Uri.encode(url);
+		String clickthroughUrl = ((AdView)view).getClickthroughUrl(); 
+		if (clickthroughUrl != null) { 
+			uri = clickthroughUrl + "&r=" + Uri.encode(url); 
 		}
 
-		// Log the request asynchronously
-		Log.i("aclk", uri);
+		Log.d("MoPub", "click url: "+uri);
 
 		// and fire off a system wide intent
 		view.getContext().startActivity(new Intent(android.content.Intent.ACTION_VIEW, Uri.parse(uri)));
@@ -92,8 +78,8 @@ class AdWebViewClient extends WebViewClient {
 	
 	@Override
 	public void onPageStarted(WebView view, String url, Bitmap favicon) {
-		if (!mRedirectUrl.equals("") && url.startsWith(mRedirectUrl)) {
-			Log.i("onPageStarted",url);
+		String redirectUrl = ((AdView)view).getRedirectUrl(); 
+		if (redirectUrl != null && url.startsWith(redirectUrl)) { 
 			view.stopLoading();
 			view.getContext().startActivity(new Intent(android.content.Intent.ACTION_VIEW, Uri.parse(url)));
 		}

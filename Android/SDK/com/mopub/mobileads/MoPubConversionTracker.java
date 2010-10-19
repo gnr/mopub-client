@@ -43,14 +43,14 @@ import android.content.SharedPreferences;
 import android.provider.Settings.Secure;
 import android.util.Log;
 
-public class AdConversionTracker {
-	private static final String BASE_AD_HOST = "ads.mopub.com";
-	private static final String BASE_AD_HANDLER = "/m/open";
-	
+public class MoPubConversionTracker {	
 	private Context		mContext = null;
 	private String		mAppId = null;
 	
-	public AdConversionTracker() {
+	static private String TRACK_HOST = "ads.mopub.com";
+	static private String TRACK_HANDLER = "/m/track";
+	
+	public MoPubConversionTracker() {
 	}
 
 	public void reportAppOpen(Context context, String appId) {
@@ -68,11 +68,11 @@ public class AdConversionTracker {
 
     Runnable mTrackOpen = new Runnable() {
 		public void run() {
-			StringBuilder sz = new StringBuilder("http://"+BASE_AD_HOST+BASE_AD_HANDLER);
+			StringBuilder sz = new StringBuilder("http://"+TRACK_HOST+TRACK_HANDLER);
 			sz.append("?v=2&id=" + mAppId);
-			sz.append("&udid=" + System.getProperty(Secure.ANDROID_ID));
+			sz.append("&udid=" + Secure.getString(mContext.getContentResolver(), Secure.ANDROID_ID));
 			String url = sz.toString();
-			Log.i("mopub", "conversion track: "+url);
+			Log.d("MoPub", "conversion track: "+url);
 
 			try {
 				DefaultHttpClient httpclient = new DefaultHttpClient();
