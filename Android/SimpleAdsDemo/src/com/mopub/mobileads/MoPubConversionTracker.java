@@ -38,8 +38,6 @@ import org.apache.http.HttpStatus;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
 
-import com.mopub.mobileads.util.MoPubUtil;
-
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.provider.Settings.Secure;
@@ -48,6 +46,9 @@ import android.util.Log;
 public class MoPubConversionTracker {	
 	private Context		mContext = null;
 	private String		mAppId = null;
+	
+	static private String TRACK_HOST = "ads.mopub.com";
+	static private String TRACK_HANDLER = "/m/track";
 	
 	public MoPubConversionTracker() {
 	}
@@ -67,11 +68,11 @@ public class MoPubConversionTracker {
 
     Runnable mTrackOpen = new Runnable() {
 		public void run() {
-			StringBuilder sz = new StringBuilder("http://"+MoPubUtil.HOST+MoPubUtil.TRACK_HANDLER);
+			StringBuilder sz = new StringBuilder("http://"+TRACK_HOST+TRACK_HANDLER);
 			sz.append("?v=2&id=" + mAppId);
 			sz.append("&udid=" + Secure.getString(mContext.getContentResolver(), Secure.ANDROID_ID));
 			String url = sz.toString();
-			if (MoPubUtil.DEBUG) Log.d(MoPubUtil.TAG, "conversion track: "+url);
+			Log.d("MoPub", "conversion track: "+url);
 
 			try {
 				DefaultHttpClient httpclient = new DefaultHttpClient();
