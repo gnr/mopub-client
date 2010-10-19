@@ -51,7 +51,6 @@ import android.content.Context;
 import android.location.Location;
 import android.location.LocationManager;
 import android.net.Uri;
-import android.provider.Settings.Secure;
 import android.telephony.TelephonyManager;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -63,6 +62,10 @@ public class AdView extends WebView {
 
 	public interface OnAdLoadedListener {
 		public void OnAdLoaded(AdView a);
+	}
+	
+	public interface OnAdFailedListener {
+		public void OnAdFailed(AdView a);
 	}
 	
 	public interface OnAdClosedListener {
@@ -77,10 +80,10 @@ public class AdView extends WebView {
 	private String				mUrl = null;
 	private Location 			mLocation = null;
 	private int           		mTimeout = -1; // HTTP connection timeout in msec
-	private boolean				mHasAd = false;
 
 	private AdWebViewClient 	mWebViewClient = null;
 	private OnAdLoadedListener  mOnAdLoadedListener = null;
+	private OnAdFailedListener  mOnAdFailedListener = null;
 	private OnAdClosedListener  mOnAdClosedListener = null;
 
 	public AdView(Context context) {
@@ -149,17 +152,19 @@ public class AdView extends WebView {
 			  }
 				
 				DefaultHttpClient httpclient = new DefaultHttpClient(httpParameters);
-				HttpGet httpget = new HttpGet(mUrl);  
+				HttpGet httpget = new HttpGet(mUrl);
+				httpget.addHeader("User-Agent", getSettings().getUserAgentString());
 				HttpResponse response = httpclient.execute(httpget);
+				Log.i("mopub user agent:",getSettings().getUserAgentString());
 				
 				if (response.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
-					pageFinished();
+					pageFailed();
 					return;
 				}
 
 				HttpEntity entity = response.getEntity();
 				if (entity == null || entity.getContentLength() == 0) {
-					pageFinished();
+					pageFailed();
 					return;
 				}
 
@@ -167,13 +172,21 @@ public class AdView extends WebView {
 				// If there is no ad, don't bother loading the data
 				Header bfHeader = response.getFirstHeader("X-Adtype");
 				if (bfHeader == null || bfHeader.getValue() == "clear") {
-					pageFinished();
+					pageFailed();
 					return;
 				}
 
 				// If we made it this far, an ad has been loaded
-				mHasAd = true;
 
+				// Redirect if we get an X-Launchpage header
+				Header rdHeader = response.getFirstHeader("X-Launchpage");
+				if (rdHeader != null) {
+					mWebViewClient.setRedirectUrl(rdHeader.getValue());
+				}
+				else {
+					mWebViewClient.setRedirectUrl("");
+				}
+				
 				Header ctHeader = response.getFirstHeader("X-Clickthrough");
 				if (ctHeader != null) {
 					mWebViewClient.setClickthroughUrl(ctHeader.getValue());
@@ -192,7 +205,7 @@ public class AdView extends WebView {
 						sb.append(line + "\n");
 					}
 				} catch (IOException e) {
-					pageFinished();
+					pageFailed();
 					return;
 				} finally {
 					try {
@@ -204,7 +217,7 @@ public class AdView extends WebView {
 				loadDataWithBaseURL(mUrl, sb.toString(),"text/html","utf-8", null);
 			}
 			catch (Exception e) {
-				pageFinished();
+				pageFailed();
 				return;
 			}
 		}
@@ -214,8 +227,12 @@ public class AdView extends WebView {
 		StringBuilder sz = new StringBuilder("http://"+BASE_AD_HOST+BASE_AD_HANDLER);
 		sz.append("?v=2&id=" + mAdUnitId);
 //		sz.append("&udid=" + System.getProperty(Secure.ANDROID_ID));
-		TelephonyManager tm = (TelephonyManager)getContext().getSystemService(Context.TELEPHONY_SERVICE);
-		sz.append("&udid="+tm.getDeviceId());
+		try {
+			TelephonyManager tm = (TelephonyManager)getContext().getSystemService(Context.TELEPHONY_SERVICE);
+			sz.append("&udid="+tm.getDeviceId());
+		} catch (SecurityException e) {
+		}
+
 		if (mKeywords != null) {
 			sz.append("&q=" + Uri.encode(mKeywords));
 		}
@@ -226,7 +243,6 @@ public class AdView extends WebView {
 	}
 
 	public void loadAd() {
-		mHasAd = false;
 		if (mAdUnitId == null) {
 			throw new RuntimeException("AdUnitId isn't set in com.mopub.mobileads.AdView");
 		}
@@ -254,14 +270,16 @@ public class AdView extends WebView {
 		Log.i("ad url", adUrl);
 		loadUrl(adUrl);
 	}
-
-	public boolean hasAd() {
-		return mHasAd;
-	}
 	
 	public void pageFinished() {
 		if (mOnAdLoadedListener != null) {
 			mOnAdLoadedListener.OnAdLoaded(this);
+		}
+	}
+	
+	public void pageFailed() {
+		if (mOnAdFailedListener != null) {
+			mOnAdFailedListener.OnAdFailed(this);
 		}
 	}
 	
@@ -304,7 +322,11 @@ public class AdView extends WebView {
 	public void setOnAdLoadedListener(OnAdLoadedListener listener) {
 		mOnAdLoadedListener = listener;
 	}
-
+	
+	public void setOnAdFailedListener(OnAdFailedListener listener) {
+		mOnAdFailedListener = listener;
+	}
+	
 	public void setOnAdClosedListener(OnAdClosedListener listener) {
 		mOnAdClosedListener = listener;
 	}

@@ -33,6 +33,7 @@
 package com.mopub.mobileads;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.util.Log;
 import android.webkit.WebView;
@@ -40,10 +41,16 @@ import android.webkit.WebViewClient;
 
 class AdWebViewClient extends WebViewClient {
 	private String 	mClickthroughUrl = "";
+	private String 	mRedirectUrl = "";
 
 	public void setClickthroughUrl(String url) {
 		mClickthroughUrl = url;
 		Log.i("clickthrough url", mClickthroughUrl);
+	}
+	
+	public void setRedirectUrl(String url) {
+		mRedirectUrl = url;
+		Log.i("redirect url", mRedirectUrl);
 	}
 
 	@Override
@@ -80,6 +87,15 @@ class AdWebViewClient extends WebViewClient {
 	public void onPageFinished(WebView view, String url) {
 		if (view instanceof AdView) {
 			((AdView)view).pageFinished();
+		}
+	}
+	
+	@Override
+	public void onPageStarted(WebView view, String url, Bitmap favicon) {
+		if (!mRedirectUrl.equals("") && url.startsWith(mRedirectUrl)) {
+			Log.i("onPageStarted",url);
+			view.stopLoading();
+			view.getContext().startActivity(new Intent(android.content.Intent.ACTION_VIEW, Uri.parse(url)));
 		}
 	}
 }
