@@ -13,9 +13,11 @@
 		1DF5F4E00D08C38300B7A737 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1DF5F4DF0D08C38300B7A737 /* UIKit.framework */; };
 		288765A50DF7441C002DB57D /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 288765A40DF7441C002DB57D /* CoreGraphics.framework */; };
 		28D7ACF80DDB3853001CB0EB /* SimpleAdsViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 28D7ACF70DDB3853001CB0EB /* SimpleAdsViewController.m */; };
+		3C2A6E601267DE92002A108E /* iAd.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3C2A6E5F1267DE92002A108E /* iAd.framework */; };
 		3C85B12712650EBF0049D853 /* moPubCloseButtonNext.png in Resources */ = {isa = PBXBuildFile; fileRef = 3C85B12512650EBF0049D853 /* moPubCloseButtonNext.png */; };
 		3C85B12812650EBF0049D853 /* moPubCloseButtonX.png in Resources */ = {isa = PBXBuildFile; fileRef = 3C85B12612650EBF0049D853 /* moPubCloseButtonX.png */; };
-		3CA849AF11D5238400DD01C1 /* iAd.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3CA849AE11D5238400DD01C1 /* iAd.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
+		3C9DAEE41268C61F0069A397 /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3C9DAEE31268C61F0069A397 /* AVFoundation.framework */; };
+		3C9DAEE81268C6340069A397 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3C9DAEE71268C6340069A397 /* SystemConfiguration.framework */; };
 		3CB4A0F2113F5E75000DB158 /* MainWindow.xib in Resources */ = {isa = PBXBuildFile; fileRef = 3CB4A0F0113F5E75000DB158 /* MainWindow.xib */; };
 		3CB4A0F3113F5E75000DB158 /* SimpleAdsViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 3CB4A0F1113F5E75000DB158 /* SimpleAdsViewController.xib */; };
 		3CB4A0FB113F5E96000DB158 /* AdClickController.m in Sources */ = {isa = PBXBuildFile; fileRef = 3CB4A0F6113F5E96000DB158 /* AdClickController.m */; };
@@ -37,9 +39,11 @@
 		28D7ACF60DDB3853001CB0EB /* SimpleAdsViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SimpleAdsViewController.h; sourceTree = "<group>"; };
 		28D7ACF70DDB3853001CB0EB /* SimpleAdsViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SimpleAdsViewController.m; sourceTree = "<group>"; };
 		29B97316FDCFA39411CA2CEA /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		3C2A6E5F1267DE92002A108E /* iAd.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = iAd.framework; path = System/Library/Frameworks/iAd.framework; sourceTree = SDKROOT; };
 		3C85B12512650EBF0049D853 /* moPubCloseButtonNext.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = moPubCloseButtonNext.png; sourceTree = "<group>"; };
 		3C85B12612650EBF0049D853 /* moPubCloseButtonX.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = moPubCloseButtonX.png; sourceTree = "<group>"; };
-		3CA849AE11D5238400DD01C1 /* iAd.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = iAd.framework; path = System/Library/Frameworks/iAd.framework; sourceTree = SDKROOT; };
+		3C9DAEE31268C61F0069A397 /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
+		3C9DAEE71268C6340069A397 /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
 		3CB4A0F0113F5E75000DB158 /* MainWindow.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = MainWindow.xib; sourceTree = "<group>"; };
 		3CB4A0F1113F5E75000DB158 /* SimpleAdsViewController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = SimpleAdsViewController.xib; sourceTree = "<group>"; };
 		3CB4A0F5113F5E96000DB158 /* AdClickController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AdClickController.h; sourceTree = "<group>"; };
@@ -65,7 +69,9 @@
 				1D60589F0D05DD5A006BFB54 /* Foundation.framework in Frameworks */,
 				1DF5F4E00D08C38300B7A737 /* UIKit.framework in Frameworks */,
 				288765A50DF7441C002DB57D /* CoreGraphics.framework in Frameworks */,
-				3CA849AF11D5238400DD01C1 /* iAd.framework in Frameworks */,
+				3C2A6E601267DE92002A108E /* iAd.framework in Frameworks */,
+				3C9DAEE41268C61F0069A397 /* AVFoundation.framework in Frameworks */,
+				3C9DAEE81268C6340069A397 /* SystemConfiguration.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -128,10 +134,12 @@
 		29B97323FDCFA39411CA2CEA /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				3CA849AE11D5238400DD01C1 /* iAd.framework */,
 				1DF5F4DF0D08C38300B7A737 /* UIKit.framework */,
 				1D30AB110D05D00D00671497 /* Foundation.framework */,
 				288765A40DF7441C002DB57D /* CoreGraphics.framework */,
+				3C2A6E5F1267DE92002A108E /* iAd.framework */,
+				3C9DAEE31268C61F0069A397 /* AVFoundation.framework */,
+				3C9DAEE71268C6340069A397 /* SystemConfiguration.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -143,10 +151,10 @@
 				3C85B12612650EBF0049D853 /* moPubCloseButtonX.png */,
 				3CC4D77A1264DC7300212F16 /* AdConversionTracker.h */,
 				3CC4D77B1264DC7300212F16 /* AdConversionTracker.m */,
-				3CC4D77C1264DC7300212F16 /* InterstitialAdController.h */,
-				3CC4D77D1264DC7300212F16 /* InterstitialAdController.m */,
 				3CB4A0F5113F5E96000DB158 /* AdClickController.h */,
 				3CB4A0F6113F5E96000DB158 /* AdClickController.m */,
+				3CC4D77C1264DC7300212F16 /* InterstitialAdController.h */,
+				3CC4D77D1264DC7300212F16 /* InterstitialAdController.m */,
 				3CB4A0F7113F5E96000DB158 /* AdClickController.xib */,
 				3CB4A0F8113F5E96000DB158 /* AdController.h */,
 				3CB4A0F9113F5E96000DB158 /* AdController.m */,
@@ -242,6 +250,10 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = SimpleAds_Prefix.pch;
 				INFOPLIST_FILE = "SimpleAds-Info.plist";
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"$(SRCROOT)/Library\"",
+				);
 				PRODUCT_NAME = SimpleAds;
 			};
 			name = Debug;
@@ -254,6 +266,10 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = SimpleAds_Prefix.pch;
 				INFOPLIST_FILE = "SimpleAds-Info.plist";
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"$(SRCROOT)/Library\"",
+				);
 				PRODUCT_NAME = SimpleAds;
 				VALIDATE_PRODUCT = YES;
 			};
@@ -268,7 +284,9 @@
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 3.1;
+				OTHER_CFLAGS = "";
 				PREBINDING = NO;
+				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "";
 				SDKROOT = iphoneos4.0;
 			};
 			name = Debug;

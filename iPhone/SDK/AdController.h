@@ -9,12 +9,11 @@
 #import "AdClickController.h"
 
 #define HOSTNAME @"ads.mopub.com"
-
+//#define GoogleAdSenseAvailable 1
 
 @class AdClickController;
 
 @protocol AdControllerDelegate;
-
 
 @interface AdController : UIViewController <UIWebViewDelegate, ADBannerViewDelegate, AdClickControllerDelegate> {
 	id<AdControllerDelegate> delegate; 
@@ -45,6 +44,7 @@
 
 	// native Ad View
 	UIView *nativeAdView; 
+	UIViewController *nativeAdViewController;
 	
 	// store the click-through URL which is encoded for tracking purposes
 	NSString *clickURL;
@@ -75,6 +75,8 @@
 @property(nonatomic, copy) NSURL* failURL;
 
 @property(nonatomic, retain) UIView* nativeAdView; 
+@property(nonatomic, retain) UIViewController* nativeAdViewController; 
+
 
 @property(nonatomic, copy) NSString* clickURL;
 @property(nonatomic, copy) NSString* newPageURLString;

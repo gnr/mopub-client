@@ -7,9 +7,15 @@
 
 #import "InterstitialAdController.h"
 
+@interface InterstitialAdController (Internal)
+- (UIColor *)colorForHex:(NSString *)hexColor;
+@end
+
+
 @implementation InterstitialAdController
 
-@synthesize closeButton;
+@synthesize closeButton, adUnitId, delegate, adController;
+@synthesize backgroundColor;
 
 
 + (NSMutableArray *)sharedInterstitialAdControllers{
@@ -54,12 +60,34 @@
 }
 
 -(id)initWithAdUnitId:(NSString *)a parentViewController:(UIViewController*)pvc{
-	if (self = [super initWithSize:[[UIScreen mainScreen] bounds].size adUnitId:a parentViewController:pvc])
+	if (self = [super init])
 	{
-		_isInterstitial = YES;
 		self.parent = pvc;
+		adUnitId = [a copy];
+
 	}
 	return self;
+}
+
+
+- (BOOL)loaded{
+	return self.adController.loaded;
+}
+
+- (void)setKeywords:(NSString *)kw{
+	self.adController.keywords = kw;
+}
+
+- (NSString *)keywords{
+	return self.adController.keywords;
+}
+
+- (AdController *)adController{
+	if (!_adController){
+		_adController = [[AdController alloc] initWithSize:[[UIScreen mainScreen] bounds].size adUnitId:adUnitId parentViewController:self];
+		_adController.delegate = self;		
+	}
+	return _adController;
 }
 
 - (void)setParent:(UIViewController *)vc{
@@ -75,11 +103,21 @@
 	else {
 		closeButtonType = AdCloseButtonTypeDefault;
 	}
-	
+}
+
+- (UIViewController *)parent{
+	return parent;
+}
+
+- (void)loadAd{
+	[self.adController loadAd];
 }
 
 - (void)viewWillAppear:(BOOL)animated{
 	[super viewWillAppear:animated];
+	
+	
+	
 	if ([self.delegate respondsToSelector:@selector(interstitialWillAppear:)]){
 		[self.delegate performSelector:@selector(interstitialWillAppear:) withObject:self];
 	}
@@ -91,27 +129,37 @@
 		[self.delegate performSelector:@selector(interstitialDidAppear:) withObject:self];
 	}
 }
-		
-- (void)viewDidLoad{
-	[super viewDidLoad];
+- (void)viewDidLoad {
+    [super viewDidLoad];
+	
+	// no-op if not in a navigation view
+	wasNavigationBarHidden = self.navigationController.navigationBarHidden;
+	// hide the navigation bar
+	[self.navigationController setNavigationBarHidden:YES animated:NO];
+	
+	// store that the state of the status bar
+	wasStatusBarHidden = [UIApplication sharedApplication].statusBarHidden;
+	// hide the status bar
+	[UIApplication sharedApplication].statusBarHidden = YES;
+	
+	self.view.backgroundColor = backgroundColor;
+	
+	CGSize screenSize = [UIScreen mainScreen].bounds.size;
+	
+	int width = 300.0;
+	int height = 250.0;
+	
+	
+	self.adController.view.frame = CGRectMake((screenSize.width-width)/2.0,(screenSize.height-height)/2.0,width,height);
+	[self.view addSubview:self.adController.view];
 	[self makeCloseButton];
 
 }
 
 - (void)loadView{
 	[super loadView];
-	
-	// no-op if not in a navigation view
-	wasNavigationBarHidden = self.navigationController.navigationBarHidden;
-	// hide the navigation bar
-	[self.navigationController setNavigationBarHidden:YES animated:NO];
-		
-	// store that the state of the status bar
-	wasStatusBarHidden = [UIApplication sharedApplication].statusBarHidden;
-	// hide the status bar
-	[UIApplication sharedApplication].statusBarHidden = YES;
-	
 }
+
 
 - (void)makeCloseButton{
 	// we add a close button to the top right corner of the screen
@@ -141,19 +189,20 @@
 }
 
 - (void)didSelectClose:(id)sender{
-	[super didSelectClose:sender];
+	[self.adController didSelectClose:sender];
 	
 	// return the state of the status bar
 	[UIApplication sharedApplication].statusBarHidden = wasStatusBarHidden;
 	// return the state of the navigation bar
 	[self.navigationController setNavigationBarHidden:wasNavigationBarHidden animated:NO];
 	
-	// tell the delegate that the webview would like to be closed
-
-	// resign from caring about any webview interactions
-	self.webView.delegate = nil;
 	
-	//signal to the delegate to move on
+	// resign from caring about any webview interactions
+	self.adController.webView.delegate = nil;
+	
+	// tell the delegate that the webview would like to be closed
+	// the delegate is responsible for tearing down the view, usually
+	// with dismissModalViewController
 	[self.delegate performSelector:@selector(interstitialDidClose:) withObject:self];
 	
 	if (_inNavigationController){
@@ -161,6 +210,33 @@
 	}
 
 }
+
+- (void)adControllerDidReceiveResponseParams:(NSDictionary *)params{
+	NSString *closeButtonChoice = [params objectForKey:@"X-Closebutton"];
+	NSString *_backgroundColor = [params objectForKey:@"X-Backgroundcolor"];
+	
+	if (_backgroundColor){
+		self.backgroundColor = [self colorForHex:_backgroundColor];
+	}
+	else {
+		self.backgroundColor = [UIColor colorWithRed:0.0 green:0.0 blue:0.0 alpha:1.0];
+	}
+
+	
+								 
+								 
+	
+	if (closeButtonChoice == nil){
+		closeButtonType = closeButtonType; // keep the same
+	}
+	else if ([closeButtonChoice isEqual: @"None"]){
+		closeButtonType = AdCloseButtonTypeNone;
+	}
+	else if ([closeButtonChoice isEqual:@"Next"]){\
+		closeButtonType = AdCloseButtonTypeNext;
+	}
+}
+
 
 - (void)connection:(NSURLConnection *)connection didReceiveResponse:(NSURLResponse *)response {
 	NSString* closeButtonChoice = [[(NSHTTPURLResponse*)response allHeaderFields] objectForKey:@"X-Closebutton"];
@@ -180,8 +256,124 @@
 																		  
 - (void)dealloc{
 	[closeButton release];
+	_adController.delegate = nil;
+	[_adController release];
+	[adUnitId release];
+	[parent release];
+	[backgroundColor release];
 	[super dealloc];
 }
+
+- (UIColor *) colorForHex:(NSString *)hexColor {
+	hexColor = [[hexColor stringByTrimmingCharactersInSet:
+				 [NSCharacterSet whitespaceAndNewlineCharacterSet]
+				 ] uppercaseString];  
+	
+    // String should be 6 or 7 characters if it includes '#'  
+    if ([hexColor length] < 6) 
+		return [UIColor blackColor];  
+	
+    // strip # if it appears  
+    if ([hexColor hasPrefix:@"#"]) 
+		hexColor = [hexColor substringFromIndex:1];  
+	
+    // if the value isn't 6 characters at this point return 
+    // the color black	
+    if ([hexColor length] != 6) 
+		return [UIColor blackColor];  
+	
+    // Separate into r, g, b substrings  
+    NSRange range;  
+    range.location = 0;  
+    range.length = 2; 
+	
+    NSString *rString = [hexColor substringWithRange:range];  
+	
+    range.location = 2;  
+    NSString *gString = [hexColor substringWithRange:range];  
+	
+    range.location = 4;  
+    NSString *bString = [hexColor substringWithRange:range];  
+	
+	
+    // Scan values  
+    unsigned int r, g, b;  
+    [[NSScanner scannerWithString:rString] scanHexInt:&r];  
+    [[NSScanner scannerWithString:gString] scanHexInt:&g];  
+    [[NSScanner scannerWithString:bString] scanHexInt:&b];  
+
+	
+    return [UIColor colorWithRed:((float) r / 255.0f)  
+                           green:((float) g / 255.0f)  
+                            blue:((float) b / 255.0f)  
+                           alpha:1.0f];  
+	
+}
+
+# pragma
+# pragma AdControllerDelegate Methods Passthroughs
+# pragma
+
+-(void)adControllerWillLoadAd:(AdController*)adController{
+	if ([self.delegate respondsToSelector:@selector(adControllerWillLoadAd:)]){
+		[self.delegate adControllerWillLoadAd:self.adController];
+	}
+}
+
+-(void)adControllerDidLoadAd:(AdController*)adController{
+	if ([self.delegate respondsToSelector:@selector(adControllerDidLoadAd:)]){
+		[self.delegate adControllerDidLoadAd:self];
+	}	
+}
+
+- (void)adControllerFailedLoadAd:(AdController*)adController{
+	if ([self.delegate respondsToSelector:@selector(adControllerFailedLoadAd:)]){
+		[self.delegate adControllerFailedLoadAd:self.adController];
+	}
+}
+
+- (void)adControllerAdWillOpen:(AdController*)adController{
+	if ([self.delegate respondsToSelector:@selector(adControllerAdWillOpen:)]){
+		[self.delegate adControllerAdWillOpen:self.adController];
+	}
+	
+}
+
+
+- (void)willPresentModalViewForAd:(AdController*)adController{
+	if ([self.delegate respondsToSelector:@selector(willPresentModalViewForAd:)]){
+		[self.delegate willPresentModalViewForAd:self.adController];
+	}
+	
+}
+
+- (void)didPresentModalViewForAd:(AdController*)adController{
+	if ([self.delegate respondsToSelector:@selector(didPresentModalViewForAd:)]){
+		[self.delegate didPresentModalViewForAd:self.adController];
+	}
+	
+}
+
+- (void)willDismissModalViewForAd:(AdController*)adController{
+	if ([self.delegate respondsToSelector:@selector(willDismissModalViewForAd:)]){
+		[self.delegate willDismissModalViewForAd:self.adController];
+	}
+}
+
+- (void)didDismissModalViewForAd:(AdController*)adController{
+	if ([self.delegate respondsToSelector:@selector(didDismissModalViewForAd:)]){
+		[self.delegate didDismissModalViewForAd:self.adController];
+	}
+	
+}
+
+- (void)applicationWillResign:(id)sender{
+	if ([self.delegate respondsToSelector:@selector(applicationWillResign:)]){
+		[self.delegate applicationWillResign:sender];
+	}
+	
+}
+
 
 @end
 

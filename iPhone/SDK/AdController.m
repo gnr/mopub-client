@@ -8,6 +8,11 @@
 #import <CoreLocation/CoreLocation.h>
 #import <iAd/iAd.h>
 
+#ifdef GoogleAdSenseAvailable
+	#import "GADAdViewController.h"
+	#import "GADAdSenseParameters.h"
+#endif
+
 @interface TouchableWebView : UIWebView  {
 }
 @end
@@ -38,31 +43,19 @@
 }
 @end
 
-int FORMAT_SIZES[][2] = {
-	{320, 50},
-	{300, 250},
-	{728, 90},
-	{468, 60},
-	{320, 480},
-	{0,0},
-};
-NSString* FORMAT_CODES[] = {
-	@"320x50",
-	@"300x250",
-	@"728x90",
-	@"468x60",
-	@"320x480",
-	@"0x0",
-};
-
 @interface AdController (Internal)
 - (void)backfillWithNothing;
 - (void)backfillWithADBannerView;
+- (void)backfillWithAdSenseWithParams:(NSDictionary *)params;
+
 - (NSString *)escapeURL:(NSURL *)urlIn;
 - (void)adClickHelper:(NSURL *)desiredURL;
 - (void)loadAdWithURL:(NSURL *)adUrl;
 @end
 
+# ifdef GoogleAdSenseAvailable
+static NSDictionary *GAdHdrToAttr;
+# endif
 	
 @implementation AdController
 
@@ -73,9 +66,38 @@ NSString* FORMAT_CODES[] = {
 @synthesize webView, loadingIndicator;
 @synthesize parent, keywords, location;
 @synthesize data, url, failURL;
-@synthesize nativeAdView;
+@synthesize nativeAdView, nativeAdViewController;
 @synthesize clickURL;
 @synthesize newPageURLString;
+
+
+# ifdef GoogleAdSenseAvailable
++ (void)load {
+	GAdHdrToAttr = [[NSDictionary alloc] initWithObjectsAndKeys:
+							kGADAdSenseClientID,@"Gclientid",
+							kGADAdSenseCompanyName,@"Gcompanyname",
+							kGADAdSenseAppName,@"Gappname",
+							kGADAdSenseApplicationAppleID,@"Gappid",
+							kGADAdSenseKeywords,@"Gkeywords",
+							kGADAdSenseIsTestAdRequest,@"Gtestadrequest",
+							kGADAdSenseAppWebContentURL,@"Gappwebcontenturl", 
+							kGADAdSenseChannelIDs,@"Gchannelids",
+							kGADAdSenseAdType,@"Gadtype",
+							kGADAdSenseHostID,@"Ghostid",
+							kGADAdSenseAdBackgroundColor,@"Gbackgroundcolor",
+							kGADAdSenseAdTopBackgroundColor,@"Gadtopbackgroundcolor",
+							kGADAdSenseAdBorderColor,@"Gadbordercolor",
+							kGADAdSenseAdLinkColor,@"Gadlinkcolor",
+							kGADAdSenseAdTextColor,@"Gadtextcolor",
+							kGADAdSenseAdURLColor,@"Gadurlolor",
+							kGADExpandDirection,@"Gexpandirection",
+							kGADAdSenseAlternateAdColor,@"Galternateadcolor",
+							kGADAdSenseAlternateAdURL,@"Galternateadurl",
+							kGADAdSenseAllowAdsafeMedium,@"Gallowadsafemedium",
+							nil];
+	
+}
+# endif
 
 
 - (id)initWithSize:(CGSize)_size adUnitId:(NSString*)a parentViewController:(UIViewController*)pvc{
@@ -104,34 +126,16 @@ NSString* FORMAT_CODES[] = {
 	return self;
 }
 
+- (void)setNativeAdViewController:(UIViewController *)vc{
+	[vc retain];
+	// unsubscribe as delegate
+	if ([nativeAdViewController respondsToSelector:@selector(setDelegate:)]){
+		[nativeAdViewController performSelector:@selector(setDelegate:) withObject:nil];
+	}
+	[nativeAdViewController release];
+	nativeAdViewController = vc;
+}
 
-//-(id)initWithFormat:(AdControllerFormat)f adUnitId:(NSString *)a parentViewController:(UIViewController*)pvc {
-//	if (self = [super init]){
-//		self.data = [NSMutableData data];
-//
-//		// set format + publisherId, the two immutable properties of this ad controller
-//		self.parent = pvc;
-//		self.format = f;
-//		self.adUnitId = a;
-//		
-//		// init the webview and add self as the delegate
-//		webView = [[TouchableWebView alloc] initWithFrame:CGRectZero];
-//		webView.delegate = self;
-//		
-//		// initialize ad Loading to False
-//		adLoading = NO;
-//		_isInterstitial = NO;
-//				
-//		// init the exclude parameter list
-//		excludeParams = [[NSMutableArray alloc] initWithCapacity:1];
-//		
-//		// add self to receive notifications that the application will resign
-//		[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(applicationWillResign:) name:UIApplicationWillResignActiveNotification object:nil];
-//	}	
-//
-//	return self;
-//}
-//
 - (void)dealloc{
 	[data release];
 	[parent release];
@@ -148,6 +152,12 @@ NSString* FORMAT_CODES[] = {
 	[loadingIndicator release];
 	[url release];
 	[nativeAdView release];
+	
+	if ([nativeAdViewController respondsToSelector:@selector(setDelegate:)]){
+		[nativeAdViewController performSelector:@selector(setDelegate:) withObject:nil];
+	}
+	[nativeAdViewController release];
+	
 	[clickURL release];
 	[excludeParams release];
 	[newPageURLString release];
@@ -176,7 +186,6 @@ NSString* FORMAT_CODES[] = {
 	// only loads if its not already in the process of getting the assets
 	if (!adLoading){
 		adLoading = YES;
-//		NSString* f = FORMAT_CODES[self.format];
 		self.loaded = FALSE;
 		
 		// remove the native view
@@ -287,23 +296,9 @@ NSString* FORMAT_CODES[] = {
 	
 	// initialize the data
 	[self.data setLength:0];
-
-	// check for ad types
-	NSString* adTypeKey = [[(NSHTTPURLResponse*)response allHeaderFields] objectForKey:@"X-Adtype"];
-	if ([adTypeKey isEqualToString:@"iAd"]) {
-		self.loaded = TRUE;
-		[self.loadingIndicator stopAnimating];
-		adLoading = NO;
-		[connection cancel];
-		[connection release];	
-		[self backfillWithADBannerView];
-	} else if ([adTypeKey isEqualToString:@"clear"]) {
-		self.loaded = TRUE;
-		[self.loadingIndicator stopAnimating];
-		adLoading = NO;
-		[connection cancel];
-		[connection release];
-		[self backfillWithNothing];
+	
+	if ([delegate respondsToSelector:@selector(adControllerDidReceiveResponseParams:)]){
+		[delegate performSelector:@selector(adControllerDidReceiveResponseParams:) withObject:[(NSHTTPURLResponse*)response allHeaderFields]];
 	}
 	
 	// grab the clickthrough URL from the headers as well 
@@ -316,6 +311,32 @@ NSString* FORMAT_CODES[] = {
 	NSString *failURLString = [[(NSHTTPURLResponse*)response allHeaderFields] objectForKey:@"X-Failurl"];
 	if (failURLString)
 		self.failURL = [NSURL URLWithString:failURLString];
+
+	// check for ad types
+	NSString* adTypeKey = [[(NSHTTPURLResponse*)response allHeaderFields] objectForKey:@"X-Adtype"];
+	if ([adTypeKey isEqualToString:@"iAd"]) {
+		self.loaded = TRUE;
+		[self.loadingIndicator stopAnimating];
+		adLoading = NO;
+		[connection cancel];
+		[connection release];	
+		[self backfillWithADBannerView];
+	} else if ([adTypeKey isEqualToString:@"adsense"]){
+		self.loaded = TRUE;
+		[self.loadingIndicator stopAnimating];
+		adLoading = NO;
+		[connection cancel];
+		[connection release];
+		[self backfillWithAdSenseWithParams:[(NSHTTPURLResponse *)response allHeaderFields]];	
+	} else if ([adTypeKey isEqualToString:@"clear"]) {
+		self.loaded = TRUE;
+		[self.loadingIndicator stopAnimating];
+		adLoading = NO;
+		[connection cancel];
+		[connection release];
+		[self backfillWithNothing];
+	}
+	
 }
 
 // standard data appending
@@ -529,6 +550,143 @@ NSString* FORMAT_CODES[] = {
 	
 }
 
+#pragma mark
+#pragma mark AFMA implementation
+#pragma mark 
+
+- (NSDictionary *)simpleJsonStringToDictionary:(NSString *)jsonString{
+	// remove leading and trailing {","} respectively
+	jsonString = [jsonString substringWithRange:NSMakeRange(2, [jsonString length] - 4)];
+	NSMutableDictionary *jsonDictionary = [NSMutableDictionary dictionary]; // autoreleased
+	NSArray *keyValuePairs = [jsonString componentsSeparatedByString:@"\",\""];
+	for (NSString *keyValueString in keyValuePairs){
+		NSArray *keyValue = [keyValueString componentsSeparatedByString:@"\":\""];
+		NSString *key = [keyValue objectAtIndex:0];
+		NSString *value = [keyValue objectAtIndex:1];
+		[jsonDictionary setObject:value forKey:key];
+	}
+	return jsonDictionary;
+}
+
+- (void)backfillWithAdSenseWithParams:(NSDictionary *)params{
+# ifdef GoogleAdSenseAvailable
+	NSLog(@"MOPUB: fetching GAd");
+	GADAdViewController *adViewController = [[GADAdViewController alloc] initWithDelegate:(id<GADAdViewControllerDelegate>)self];
+	
+	NSMutableDictionary *attributes = [[NSMutableDictionary alloc] initWithCapacity:5];
+	
+	NSDictionary *adSenseParameters = [self simpleJsonStringToDictionary:[params objectForKey:@"X-Nativeparams"]];
+	
+	for (NSString *key in adSenseParameters){
+		NSObject *value = [adSenseParameters objectForKey:key];
+		if (value && ![(NSString *)value isEqual:@""]) {
+			SEL selector = NSSelectorFromString([NSString stringWithFormat:@"%@KeyConvert:",key]);
+			if ([self respondsToSelector:selector]){
+				value = [self performSelector:selector withObject:(NSString *)value];
+			}
+			[attributes setObject:value forKey:[GAdHdrToAttr objectForKey:key]];
+		}				
+	}
+
+	
+	CGFloat width = [[params objectForKey:@"X-Width"] floatValue];
+	CGFloat height = [[params objectForKey:@"X-Height"] floatValue];
+	
+	if (width == 320.0 && height == 50.0){
+		adViewController.adSize = kGADAdSize320x50; 
+	}
+	else if (width == 300.0 && height == 250.0){
+		adViewController.adSize = kGADAdSize300x250;
+	}
+	else if (width == 468.0 && height == 60.0){
+		adViewController.adSize = kGADAdSize468x60;
+	}
+	else if (width == 728.0 && height == 90.0){
+		adViewController.adSize = kGADAdSize728x90;
+	}
+
+	[adViewController loadGoogleAd:attributes];
+	adViewController.view.frame = CGRectMake(0.0, 0.0, width, height);
+	self.nativeAdView = adViewController.view;
+	self.nativeAdViewController = adViewController;
+		
+	[self.view addSubview:self.nativeAdView];
+	
+	// hide the webview so that it doesn't shine through
+	self.webView.hidden = YES;
+
+# else
+	[self loadAdWithURL:self.failURL];
+# endif	
+	
+}
+
+# ifdef GoogleAdSenseAvailable
+- (NSNumber *)GtestadrequestKeyConvert:(NSString *)str{
+	return [NSNumber numberWithInt:[str intValue]];
+}
+
+- (NSArray *)GchannelidsKeyConvert:(NSString *)str{
+	// chop off [" and "]
+	str = [str substringWithRange:NSMakeRange(2, [str length] - 4)];
+	return [str componentsSeparatedByString:@"', '"]; 
+}
+
+- (NSString *)GadtypeKeyConvert:(NSString *)str{
+	if ([str isEqual:@"GADAdSenseTextAdType"])
+		return kGADAdSenseTextAdType;
+	if ([str isEqual:@"GADAdSenseImageAdType"])
+		return kGADAdSenseImageAdType;
+	if ([str isEqual:@"GADAdSenseTextImageAdType"])
+		return kGADAdSenseTextImageAdType; 
+	return kGADAdSenseTextImageAdType;
+}
+
+
+- (UIViewController *)viewControllerForModalPresentation:
+(GADAdViewController *)adController {
+	return parent;
+}
+
+// Called each time the ad has been clicked
+- (GADAdClickAction)adControllerActionModelForAdClick:
+(GADAdViewController *)adController {
+	// track the click on the mopub servers
+	NSURLRequest* gAdClickURLRequest = [NSURLRequest requestWithURL:[NSURL URLWithString:self.clickURL]];
+	[[[NSURLConnection alloc] initWithRequest:gAdClickURLRequest delegate:nil] autorelease];
+	NSLog(@"MOPUB: Tracking click %@",[gAdClickURLRequest URL]);
+
+	return GAD_ACTION_DISPLAY_INTERNAL_WEBSITE_VIEW;
+}
+
+- (void)loadSucceeded:(GADAdViewController *)adController
+          withResults:(NSDictionary *)results {
+	// Successful load. You can examine the results for interesting things.
+	NSLog(@"GAd Load Succeeded: %@", results);
+	adLoading = NO;
+	if ([self.delegate respondsToSelector:@selector(adControllerDidLoadAd:)]) {
+		[self.delegate adControllerDidLoadAd:self];
+	}
+	
+}
+
+- (void)loadFailed:(GADAdViewController *)adController
+         withError:(NSError *) error {
+	// Handle error here.
+	NSLog(@"MOPUB: Failed to load GAD %@",error);
+	
+	if (self.nativeAdView) {
+		[self.nativeAdView removeFromSuperview];
+		self.nativeAdView = nil;
+	}
+	
+	// then try another ad call to verify see if there is another ad creative that can fill this spot
+	// if this fails the delegate will be notified
+	[self loadAdWithURL:self.failURL];
+}
+#endif
+
+
 #pragma mark -
 #pragma mark iAd implementation
 
@@ -579,8 +737,10 @@ NSString* FORMAT_CODES[] = {
 
 - (BOOL)bannerViewActionShouldBegin:(ADBannerView *)banner willLeaveApplication:(BOOL)willLeave {	
 	// ping the clickURL without a redirect parameter, for logging
-	NSURLRequest* iAdClickURL = [NSURLRequest requestWithURL:[NSURL URLWithString:self.clickURL]];
-	[[NSURLConnection alloc] initWithRequest:iAdClickURL delegate:nil];
+	NSURLRequest* iAdClickURLRequest = [NSURLRequest requestWithURL:[NSURL URLWithString:self.clickURL]];
+	[[[NSURLConnection alloc] initWithRequest:iAdClickURLRequest delegate:nil] autorelease];
+	NSLog(@"MOPUB: Tracking click %@",[iAdClickURLRequest URL]);
+
 	
 	// pass along to our own delegate
 	if ([self.delegate respondsToSelector:@selector(adControllerAdWillOpen:)]) {

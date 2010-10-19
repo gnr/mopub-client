@@ -15,16 +15,37 @@ enum {
 };
 typedef NSUInteger AdCloseButtonType;
 
-@interface InterstitialAdController : AdController {
+
+
+
+@protocol InterstitialAdControllerDelegate;
+
+
+
+@interface InterstitialAdController : UIViewController <AdControllerDelegate> {
 	BOOL wasStatusBarHidden;
 	BOOL wasNavigationBarHidden;
 	
 	UIButton *closeButton;
 	AdCloseButtonType closeButtonType;
 	BOOL _inNavigationController;
+	
+	AdController* _adController;
+	NSString *adUnitId;
+	UIViewController *parent;
+	UIColor *backgroundColor;
+	
+	id<InterstitialAdControllerDelegate> delegate;
 }
 
 @property (nonatomic,retain) UIButton *closeButton;
+@property (nonatomic,retain) UIViewController *parent;
+@property (nonatomic, assign) id<InterstitialAdControllerDelegate> delegate;
+@property (nonatomic, copy) NSString *keywords;
+@property (nonatomic, readonly) BOOL loaded;
+@property (nonatomic, copy) NSString *adUnitId;
+@property (nonatomic, retain) AdController *adController;
+@property (nonatomic, retain) UIColor *backgroundColor;
 
 + (InterstitialAdController *)sharedInterstitialAdControllerForAdUnitId:(NSString *)a;
 + (void)removeSharedInterstitialAdController:(InterstitialAdController *)interstitialAdController;
@@ -33,6 +54,8 @@ typedef NSUInteger AdCloseButtonType;
 // if you are initing from the application delegate then you can say parentViewController = nil
 - (id)initWithAdUnitId:(NSString *)p parentViewController:(UIViewController*)pvc;
 - (void)makeCloseButton;
+- (void)adControllerDidReceiveResponseParams:(NSDictionary *)params;
+- (void)loadAd;
 
 @end
 

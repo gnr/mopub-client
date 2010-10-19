@@ -5,7 +5,6 @@
 
 #import "SimpleAdsViewController.h"
 #import "AdController.h"
-#import <iAd/iAd.h>
 #import "InterstitialAdController.h"
 
 @implementation SimpleAdsViewController
@@ -38,6 +37,7 @@
 	self.mrectController = [[AdController alloc] initWithSize:self.mrectView.frame.size adUnitId:PUB_ID_300x250 parentViewController:self];
 	self.mrectController.keywords = @"coffee";
 	self.mrectController.delegate = self;
+//	[self.mrectView addSubview:self.mrectController.view];
 	[self.mrectController loadAd];
 }
 
