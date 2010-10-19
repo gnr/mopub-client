@@ -64,6 +64,7 @@
 	{
 		self.parent = pvc;
 		adUnitId = [a copy];
+		adSize = [[UIScreen mainScreen] bounds].size;
 
 	}
 	return self;
@@ -84,7 +85,7 @@
 
 - (AdController *)adController{
 	if (!_adController){
-		_adController = [[AdController alloc] initWithSize:[[UIScreen mainScreen] bounds].size adUnitId:adUnitId parentViewController:self];
+		_adController = [[AdController alloc] initWithSize:adSize adUnitId:adUnitId parentViewController:self];
 		_adController.delegate = self;		
 	}
 	return _adController;
@@ -145,12 +146,8 @@
 	self.view.backgroundColor = backgroundColor;
 	
 	CGSize screenSize = [UIScreen mainScreen].bounds.size;
-	
-	int width = 300.0;
-	int height = 250.0;
-	
-	
-	self.adController.view.frame = CGRectMake((screenSize.width-width)/2.0,(screenSize.height-height)/2.0,width,height);
+
+	self.adController.view.frame = CGRectMake((screenSize.width-adSize.width)/2.0,(screenSize.height-adSize.height)/2.0,adSize.width,adSize.height);
 	[self.view addSubview:self.adController.view];
 	[self makeCloseButton];
 
@@ -214,6 +211,12 @@
 - (void)adControllerDidReceiveResponseParams:(NSDictionary *)params{
 	NSString *closeButtonChoice = [params objectForKey:@"X-Closebutton"];
 	NSString *_backgroundColor = [params objectForKey:@"X-Backgroundcolor"];
+	NSString *width = [params objectForKey:@"X-Width"];
+	NSString *height = [params objectForKey:@"X-Height"];
+	
+	if (width && height)
+		adSize = CGSizeMake([width floatValue], [height floatValue]);
+
 	
 	if (_backgroundColor){
 		self.backgroundColor = [self colorForHex:_backgroundColor];
@@ -321,8 +324,8 @@
 }
 
 -(void)adControllerDidLoadAd:(AdController*)adController{
-	if ([self.delegate respondsToSelector:@selector(adControllerDidLoadAd:)]){
-		[self.delegate adControllerDidLoadAd:self.adController];
+	if ([self.delegate respondsToSelector:@selector(interstitialDidLoad:)]){
+		[self.delegate interstitialDidLoad:self];
 	}	
 }
 

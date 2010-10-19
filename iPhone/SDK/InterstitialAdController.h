@@ -36,6 +36,8 @@ typedef NSUInteger AdCloseButtonType;
 	UIColor *backgroundColor;
 	
 	id<InterstitialAdControllerDelegate> delegate;
+	
+	CGSize adSize;
 }
 
 @property (nonatomic,retain) UIButton *closeButton;
@@ -67,6 +69,10 @@ typedef NSUInteger AdCloseButtonType;
 - (void)interstitialDidClose:(InterstitialAdController *)interstitialAdController;
 
 @optional
+
+// Sent with the interstitial content has been loaded
+- (void)interstitialDidLoad:(InterstitialAdController *)interstitialAdController;
+
 
 // Sent with the interstitial is about to appear, it is a good place to save state in case
 // the user leaves the application from the interstitial

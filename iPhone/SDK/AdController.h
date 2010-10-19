@@ -9,7 +9,7 @@
 #import "AdClickController.h"
 
 #define HOSTNAME @"ads.mopub.com"
-//#define GoogleAdSenseAvailable 1
+//#define GoogleAdSenseAvailable 1 // Now defined as a preprocessor macro "Other C Flags"
 
 @class AdClickController;
 
