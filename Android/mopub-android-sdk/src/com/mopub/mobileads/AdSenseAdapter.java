@@ -40,6 +40,7 @@ import org.json.JSONTokener;
 
 import android.util.Log;
 import android.view.Gravity;
+import android.view.View;
 import android.widget.FrameLayout;
 
 import com.google.ads.GoogleAdView;
@@ -87,6 +88,7 @@ public class AdSenseAdapter implements AdViewListener {
 		AdSenseSpec.AdType adtype = AdType.TEXT_IMAGE;
 		Boolean testState = false;
 		String keywords = "";
+		String channelId = "";
 		try {
 			String at = object.getString("Gadtype");
 			if (at.equals("GADAdSenseTextAdType")) {
@@ -105,6 +107,10 @@ public class AdSenseAdapter implements AdViewListener {
 			keywords = object.getString("Gkeywords");
 		} catch (JSONException e) {
 		}
+		try {
+			channelId = object.getString("Gchannelids");
+		} catch (JSONException e) {
+		}
 
 		if (keywords == null || keywords.equals("")) {
 			keywords = "None";
@@ -114,33 +120,44 @@ public class AdSenseAdapter implements AdViewListener {
 		.setCompanyName(companyName) // Set company name. (Required) 
 		.setAppName(appName) // Set application name. (Required) 
 		.setKeywords(keywords) // Specify keywords. 
-		.setChannel("1364897473") // Set channel ID. 
+		.setChannel(channelId) // Set channel ID. 
 		.setAdType(adtype) // Set ad type to Text. 
 		//.setExpandDirection(AdSenseSpec.ExpandDirection.TOP)
 		.setAdTestEnabled(testState); // Keep
-
+		
 		if (view.getAdWidth() == 300 && view.getAdHeight() == 250) {
 			adSenseSpec.setAdFormat(AdFormat.FORMAT_300x250);
+		}
+		else {
+			adSenseSpec.setAdFormat(AdFormat.FORMAT_320x50);
 		}
 
 		mAdView.setAdViewListener(this);
 		Log.d("MoPub","Showing AdSense ad...");
 
-		view.removeAllViews();
-		FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(
-				FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT);
-		layoutParams.gravity = Gravity.CENTER_HORIZONTAL | Gravity.CENTER_VERTICAL;
-		view.addView(mAdView, layoutParams);
+	    // The GoogleAdView has to be in the view hierarchy to make a request
+		mAdView.setVisibility(View.INVISIBLE);
+	    view.addView(mAdView, new FrameLayout.LayoutParams(
+	    		FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT));
 
 		mAdView.showAds(adSenseSpec);
-
-		// For AdSense, go ahead and call adLoaded() since if it's not visible on screen, it won't load...
-		view.adLoaded();
 	}
 
 	public void onStartFetchAd() {}
 
-	public void onFinishFetchAd() {}
+	public void onFinishFetchAd() {
+		MoPubView view = mMoPubViewReference.get(); 
+		if (view != null) {
+			view.removeAllViews();
+			mAdView.setVisibility(View.VISIBLE);
+			FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(
+					FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT);
+			layoutParams.gravity = Gravity.CENTER_HORIZONTAL | Gravity.CENTER_VERTICAL;
+			view.addView(mAdView, layoutParams);
+			
+			view.adLoaded(); 
+		} 
+	}
 
 	public void onClickAd() {
 		Log.d("MoPub", "AdSense clicked"); 

@@ -288,11 +288,13 @@ public class AdView extends WebView {
 
 	@Override
 	public void reload() {
+		Log.d("MoPub", "Reload ad: "+mUrl);
 		loadUrl(mUrl);
 	}
 
 	public void loadFailUrl() { 
 		if (mFailUrl != null) { 
+			Log.d("MoPub", "Loading failover url: "+mFailUrl);
 			loadUrl(mFailUrl); 
 		} 
 		else { 
@@ -321,7 +323,8 @@ public class AdView extends WebView {
 		Log.i("MoPub","pageFinished");
 		mMoPubView.removeAllViews();
 		FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(
-				320, FrameLayout.LayoutParams.WRAP_CONTENT, Gravity.CENTER);
+				//320, FrameLayout.LayoutParams.WRAP_CONTENT, Gravity.CENTER);
+				320, 50, Gravity.CENTER);
 		mMoPubView.addView(this, layoutParams);
 		mMoPubView.adLoaded();
 	}

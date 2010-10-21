@@ -55,8 +55,7 @@ public class MoPubView extends FrameLayout {
 		public void OnAdClosed(MoPubView m);
 	}
 
-	public static String HOST = "10.0.2.2:8082";
-	//public static String HOST = "ads.mopub.com";
+	public static String HOST = "ads.mopub.com";
 	public static String AD_HANDLER = "/m/ad";
 
 	private AdView	mAdView;
@@ -81,7 +80,6 @@ public class MoPubView extends FrameLayout {
 	}
 
 	public void loadFailUrl() {
-		removeAllViews();
 		mAdView.loadFailUrl();
 	}
 
