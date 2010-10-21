@@ -356,11 +356,14 @@ static NSDictionary *GAdHdrToAttr;
 
 - (void)connectionDidFinishLoading:(NSURLConnection *)connection {
 	// set the content into the webview	
+	
+	webView.delegate = self;
 	[self.webView loadData:self.data MIMEType:@"text/html" textEncodingName:@"utf-8" baseURL:self.url];
+
 
 	// print out the response for debugging purposes
 	NSString *response = [[NSString alloc] initWithData:self.data encoding:NSUTF8StringEncoding];
-	NSLog(@"MOPUB: %@",response);
+	NSLog(@"MOPUB: response %@",response);
 	[response release];
 	
 	// set ad loading to be False
@@ -542,6 +545,7 @@ static NSDictionary *GAdHdrToAttr;
 
 - (void)backfillWithNothing {
 	self.webView.backgroundColor = [UIColor clearColor];
+	self.webView.hidden = YES;
 
 	// let delegate know that the ad has failed to load
 	if ([self.delegate respondsToSelector:@selector(adControllerFailedLoadAd:)]){
@@ -603,8 +607,7 @@ static NSDictionary *GAdHdrToAttr;
 	}
 	else if (width == 728.0 && height == 90.0){
 		adViewController.adSize = kGADAdSize728x90;
-	}
-
+	
 	[adViewController loadGoogleAd:attributes];
 	adViewController.view.frame = CGRectMake(0.0, 0.0, width, height);
 	self.nativeAdView = adViewController.view;

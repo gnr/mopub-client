@@ -37,7 +37,6 @@
 	self.mrectController = [[AdController alloc] initWithSize:self.mrectView.frame.size adUnitId:PUB_ID_300x250 parentViewController:self];
 	self.mrectController.keywords = @"coffee";
 	self.mrectController.delegate = self;
-//	[self.mrectView addSubview:self.mrectController.view];
 	[self.mrectController loadAd];
 }
 
@@ -65,6 +64,7 @@
 
 - (IBAction) getModalInterstitial{
 	self.interstitialAdController = [InterstitialAdController sharedInterstitialAdControllerForAdUnitId:PUB_ID_INTERSTITIAL];	
+	self.interstitialAdController.parent = self;
 	self.interstitialAdController.delegate = self;
 	self.interstitialAdController.keywords = @"coffee";
 	[self.interstitialAdController loadAd];
@@ -75,20 +75,23 @@
 	[self presentModalViewController:interstitialAdController animated:YES];
 }
 
-- (void)adControllerDidLoadAd:(AdController *)_adController{
-	NSLog(@"AD DID LOAD %@",_adController);
-
+- (void)interstitialDidLoad:(InterstitialAdController *)_interstitialAdController{
 	// if the adcontroller is the navigational interstitial
-	if ([_adController isKindOfClass:[InterstitialAdController class]] && _adController.parent == self.navigationController){
+	if (_interstitialAdController.parent == self.navigationController){
 		[self.navigationController pushViewController:self.navigationInterstitialAdController animated:YES];
 	}
-	// if its an interstitial we show it right away
-	else if ([_adController isKindOfClass:[InterstitialAdController class]])
-		[self presentModalViewController:_adController animated:YES];
-		
+	else{
+		// if its an interstitial we show it right away
+		[self presentModalViewController:_interstitialAdController animated:YES];
+	}
+	
+}
+
+- (void)adControllerDidLoadAd:(AdController *)_adController{
+	NSLog(@"AD DID LOAD %@",_adController);
 	
 	// we SLOWLY fade in the mrect whenever we are told the ad has been loaded up
-	else if (_adController == mrectController){
+	if (_adController == mrectController){
 		self.mrectController.view.alpha = 0.0;
 		[self.mrectView addSubview:self.mrectController.view];
 		[UIView beginAnimations:@"fadeIn" context:nil];
