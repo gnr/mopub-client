@@ -46,13 +46,15 @@ import android.widget.Button;
 import android.widget.RelativeLayout;
 
 public class MoPubActivity extends Activity {
-	private MoPubView				mMoPubView = null;
+	private MoPubView				mMoPubView;
+	private RelativeLayout			mLayout;
 
 	/** Called when the activity is first created. */
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
+		// Don't display the interstitial until we get an ad
 		setVisible(false);
 
 		String adUnitId = getIntent().getStringExtra("com.mopub.mobileads.AdUnitId");
@@ -72,7 +74,6 @@ public class MoPubActivity extends Activity {
 			mMoPubView.setTimeout(timeout);
 		}
 
-		mMoPubView.loadAd();
 		mMoPubView.setOnAdClosedListener(new OnAdClosedListener() {
 			public void OnAdClosed(MoPubView a) {
 				setResult(RESULT_OK);
@@ -82,6 +83,11 @@ public class MoPubActivity extends Activity {
 		mMoPubView.setOnAdLoadedListener(new OnAdLoadedListener() {
 			public void OnAdLoaded(MoPubView a) {
 				Log.i("mopub","ad loaded");
+				/*
+				if (!a.isFullPage()) {
+					showButton();
+				}
+				*/
 				setVisible(true);
 			}
 		});
@@ -92,12 +98,22 @@ public class MoPubActivity extends Activity {
 				finish();
 			}
 		});
+		
+		mMoPubView.loadAd();
 
 		this.getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
-		RelativeLayout layout = new RelativeLayout(this);
+		mLayout = new RelativeLayout(this);
 		
+		final RelativeLayout.LayoutParams adViewLayout = new RelativeLayout.LayoutParams(
+				RelativeLayout.LayoutParams.FILL_PARENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
+		adViewLayout.addRule(RelativeLayout.CENTER_IN_PARENT);
+		mLayout.addView(mMoPubView, adViewLayout);
+		
+		setContentView(mLayout);
+	}
+	
+	public void showButton() {
 		Button button = new Button(this);
-		button.setId(0);
 		button.setText("Continue");
 		button.setOnClickListener(new OnClickListener() {
 			public void onClick(View v) {
@@ -108,13 +124,6 @@ public class MoPubActivity extends Activity {
 		final RelativeLayout.LayoutParams buttonLayout = new RelativeLayout.LayoutParams(
 				RelativeLayout.LayoutParams.FILL_PARENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
 		buttonLayout.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
-		layout.addView(button, buttonLayout);
-		
-		final RelativeLayout.LayoutParams adViewLayout = new RelativeLayout.LayoutParams(
-				RelativeLayout.LayoutParams.FILL_PARENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
-		adViewLayout.addRule(RelativeLayout.ABOVE, 0);
-		adViewLayout.addRule(RelativeLayout.CENTER_IN_PARENT);
-		layout.addView(mMoPubView, adViewLayout);
-		setContentView(layout);
+		mLayout.addView(button, buttonLayout);		
 	}
 }

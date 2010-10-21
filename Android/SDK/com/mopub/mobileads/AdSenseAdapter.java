@@ -45,6 +45,7 @@ import android.widget.FrameLayout;
 import com.google.ads.GoogleAdView;
 import com.google.ads.AdViewListener;
 import com.google.ads.AdSenseSpec;
+import com.google.ads.AdSenseSpec.AdFormat;
 import com.google.ads.AdSenseSpec.AdType;
 
 import com.mopub.mobileads.MoPubView;
@@ -58,84 +59,88 @@ public class AdSenseAdapter implements AdViewListener {
 		this.mMoPubViewReference = new WeakReference<MoPubView>(view);
 		mParams = params;
 	}
-	
+
 	public void loadAd() {
 		MoPubView view = mMoPubViewReference.get();
 		if(view == null) {
 			return;
 		}
-		
+
 		mAdView = new GoogleAdView(view.getContext());
-        final FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(
-                FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT);
-        layoutParams.gravity = Gravity.CENTER_HORIZONTAL | Gravity.CENTER_VERTICAL;
-        view.addView(mAdView, layoutParams);
 
-        // The following parameters are required.  Fail if they aren't set
-        JSONObject object; 
-        String pubId; 
-        String companyName; 
-        String appName;
-        try { 
-        	object = (JSONObject) new JSONTokener(mParams).nextValue(); 
-        	pubId = object.getString("Gclientid"); 
-        	companyName = object.getString("Gcompanyname"); 
-        	appName = object.getString("Gappname"); 
-        } catch (JSONException e) { 
-        	view.adFailed(); 
-        	return; 
-        }
-        
-        // The rest of the parameters are optional
-        AdSenseSpec.AdType adtype = AdType.TEXT_IMAGE;
-        Boolean testState = false;
-        String defaultKeywords = "";
-        try {
-        	String at = object.getString("Gadtype");
-        	if (at.equals("GADAdSenseTextAdType")) {
-        		adtype = AdType.TEXT;
-        	}
-        	else if (at.equals("GADAdSenseImageAdType")) {
-        		adtype = AdType.IMAGE;
-        	}
-        } catch (JSONException e) {
-        }
-        try {
-        	testState = object.getString("Gtestadrequest").equals("1");
-        } catch (JSONException e) {
-        }
-        try {
-        	defaultKeywords = object.getString("Gkeywords");
-        } catch (JSONException e) {
-        }
-        
-        String keywords = view.getKeywords();
-        if (keywords == null) {
-        	keywords = defaultKeywords;
-        }
+		// The following parameters are required.  Fail if they aren't set
+		JSONObject object; 
+		String pubId; 
+		String companyName; 
+		String appName;
+		try { 
+			object = (JSONObject) new JSONTokener(mParams).nextValue(); 
+			pubId = object.getString("Gclientid"); 
+			companyName = object.getString("Gcompanyname"); 
+			appName = object.getString("Gappname"); 
+		} catch (JSONException e) { 
+			view.adFailed(); 
+			return; 
+		}
 
-        AdSenseSpec adSenseSpec = new AdSenseSpec(pubId) // Specify client ID. (Required) 
-        .setCompanyName(companyName) // Set company name. (Required) 
-        .setAppName(appName) // Set application name. (Required) 
-        .setKeywords(keywords) // Specify keywords. 
-        .setChannel("1364897473") // Set channel ID. 
-        .setAdType(adtype) // Set ad type to Text. 
-        .setExpandDirection(AdSenseSpec.ExpandDirection.TOP)
-        .setAdTestEnabled(testState); // Keep
+		// The rest of the parameters are optional
+		AdSenseSpec.AdType adtype = AdType.TEXT_IMAGE;
+		Boolean testState = false;
+		String keywords = "";
+		try {
+			String at = object.getString("Gadtype");
+			if (at.equals("GADAdSenseTextAdType")) {
+				adtype = AdType.TEXT;
+			}
+			else if (at.equals("GADAdSenseImageAdType")) {
+				adtype = AdType.IMAGE;
+			}
+		} catch (JSONException e) {
+		}
+		try {
+			testState = object.getString("Gtestadrequest").equals("1");
+		} catch (JSONException e) {
+		}
+		try {
+			keywords = object.getString("Gkeywords");
+		} catch (JSONException e) {
+		}
+
+		if (keywords == null || keywords.equals("")) {
+			keywords = "None";
+		}
+
+		AdSenseSpec adSenseSpec = new AdSenseSpec(pubId) // Specify client ID. (Required) 
+		.setCompanyName(companyName) // Set company name. (Required) 
+		.setAppName(appName) // Set application name. (Required) 
+		.setKeywords(keywords) // Specify keywords. 
+		.setChannel("1364897473") // Set channel ID. 
+		.setAdType(adtype) // Set ad type to Text. 
+		//.setExpandDirection(AdSenseSpec.ExpandDirection.TOP)
+		.setAdTestEnabled(testState); // Keep
+
+		if (view.getAdWidth() == 300 && view.getAdHeight() == 250) {
+			adSenseSpec.setAdFormat(AdFormat.FORMAT_300x250);
+		}
 
 		mAdView.setAdViewListener(this);
+		Log.d("MoPub","Showing AdSense ad...");
+
+		view.removeAllViews();
+		FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(
+				FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT);
+		layoutParams.gravity = Gravity.CENTER_HORIZONTAL | Gravity.CENTER_VERTICAL;
+		view.addView(mAdView, layoutParams);
+
 		mAdView.showAds(adSenseSpec);
+
+		// For AdSense, go ahead and call adLoaded() since if it's not visible on screen, it won't load...
+		view.adLoaded();
 	}
-	
+
 	public void onStartFetchAd() {}
 
-	public void onFinishFetchAd() {
-		Log.d("MoPub","Got AdSense Ad"); 
-		MoPubView view = mMoPubViewReference.get(); 
-		if (view != null) { 
-			view.adLoaded(); 
-		} 
-	}
+	public void onFinishFetchAd() {}
 
 	public void onClickAd() {
 		Log.d("MoPub", "AdSense clicked"); 
