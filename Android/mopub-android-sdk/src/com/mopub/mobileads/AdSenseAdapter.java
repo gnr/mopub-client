@@ -32,15 +32,12 @@
 
 package com.mopub.mobileads;
 
-import java.lang.ref.WeakReference;
-
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 
 import android.util.Log;
 import android.view.Gravity;
-import android.view.View;
 import android.widget.FrameLayout;
 
 import com.google.ads.GoogleAdView;
@@ -53,21 +50,16 @@ import com.mopub.mobileads.MoPubView;
 
 public class AdSenseAdapter implements AdViewListener {
 	private GoogleAdView 					mAdView;
-	private final WeakReference<MoPubView> 	mMoPubViewReference;
+	private final MoPubView					mMoPubView;
 	private String 							mParams;
 
 	public AdSenseAdapter(MoPubView view, String params) {
-		this.mMoPubViewReference = new WeakReference<MoPubView>(view);
+		mMoPubView = view;
 		mParams = params;
 	}
 
 	public void loadAd() {
-		MoPubView view = mMoPubViewReference.get();
-		if(view == null) {
-			return;
-		}
-
-		mAdView = new GoogleAdView(view.getContext());
+		mAdView = new GoogleAdView(mMoPubView.getContext());
 
 		// The following parameters are required.  Fail if they aren't set
 		JSONObject object; 
@@ -80,7 +72,7 @@ public class AdSenseAdapter implements AdViewListener {
 			companyName = object.getString("Gcompanyname"); 
 			appName = object.getString("Gappname"); 
 		} catch (JSONException e) { 
-			view.adFailed(); 
+			mMoPubView.adFailed(); 
 			return; 
 		}
 
@@ -124,8 +116,8 @@ public class AdSenseAdapter implements AdViewListener {
 		.setAdType(adtype) // Set ad type to Text. 
 		//.setExpandDirection(AdSenseSpec.ExpandDirection.TOP)
 		.setAdTestEnabled(testState); // Keep
-		
-		if (view.getAdWidth() == 300 && view.getAdHeight() == 250) {
+
+		if (mMoPubView.getAdWidth() == 300 && mMoPubView.getAdHeight() == 250) {
 			adSenseSpec.setAdFormat(AdFormat.FORMAT_300x250);
 		}
 		else {
@@ -135,43 +127,30 @@ public class AdSenseAdapter implements AdViewListener {
 		mAdView.setAdViewListener(this);
 		Log.d("MoPub","Showing AdSense ad...");
 
-	    // The GoogleAdView has to be in the view hierarchy to make a request
-		mAdView.setVisibility(View.INVISIBLE);
-	    view.addView(mAdView, new FrameLayout.LayoutParams(
-	    		FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT));
-
+		// The GoogleAdView has to be in the view hierarchy to make a request
+		mMoPubView.removeAllViews();
+		FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(
+				FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT);
+		layoutParams.gravity = Gravity.CENTER_HORIZONTAL | Gravity.CENTER_VERTICAL;
+		mMoPubView.addView(mAdView, layoutParams);
+		
 		mAdView.showAds(adSenseSpec);
 	}
 
 	public void onStartFetchAd() {}
 
 	public void onFinishFetchAd() {
-		MoPubView view = mMoPubViewReference.get(); 
-		if (view != null) {
-			view.removeAllViews();
-			mAdView.setVisibility(View.VISIBLE);
-			FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(
-					FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT);
-			layoutParams.gravity = Gravity.CENTER_HORIZONTAL | Gravity.CENTER_VERTICAL;
-			view.addView(mAdView, layoutParams);
-			
-			view.adLoaded(); 
-		} 
+		Log.d("MoPub", "AdSense finished"); 
+		mMoPubView.adLoaded(); 
 	}
 
 	public void onClickAd() {
 		Log.d("MoPub", "AdSense clicked"); 
-		MoPubView view = mMoPubViewReference.get(); 
-		if (view != null) { 
-			view.registerClick(); 
-		} 
+		mMoPubView.registerClick(); 
 	}
 
 	public void onAdFetchFailure() {
 		Log.d("MoPub", "AdSense failed. Trying another"); 
-		MoPubView view = mMoPubViewReference.get(); 
-		if (view != null) { 
-			view.loadFailUrl(); 
-		} 
+		mMoPubView.loadFailUrl(); 
 	} 
 }
