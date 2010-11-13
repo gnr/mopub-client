@@ -14,19 +14,26 @@
 		288765A50DF7441C002DB57D /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 288765A40DF7441C002DB57D /* CoreGraphics.framework */; };
 		28D7ACF80DDB3853001CB0EB /* SimpleAdsViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 28D7ACF70DDB3853001CB0EB /* SimpleAdsViewController.m */; };
 		3C2A6E601267DE92002A108E /* iAd.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3C2A6E5F1267DE92002A108E /* iAd.framework */; };
-		3C85B12712650EBF0049D853 /* moPubCloseButtonNext.png in Resources */ = {isa = PBXBuildFile; fileRef = 3C85B12512650EBF0049D853 /* moPubCloseButtonNext.png */; };
-		3C85B12812650EBF0049D853 /* moPubCloseButtonX.png in Resources */ = {isa = PBXBuildFile; fileRef = 3C85B12612650EBF0049D853 /* moPubCloseButtonX.png */; };
+		3C8277F71280C6F3000BC019 /* MoPubCustomAdAdapter.m in Sources */ = {isa = PBXBuildFile; fileRef = 3C8277E11280C6F3000BC019 /* MoPubCustomAdAdapter.m */; };
+		3C8277F81280C6F3000BC019 /* MoPubGoogleAdSenseAdapter.m in Sources */ = {isa = PBXBuildFile; fileRef = 3C8277E31280C6F3000BC019 /* MoPubGoogleAdSenseAdapter.m */; };
+		3C8277F91280C6F3000BC019 /* MoPubIAdAdapter.m in Sources */ = {isa = PBXBuildFile; fileRef = 3C8277E51280C6F3000BC019 /* MoPubIAdAdapter.m */; };
+		3C8277FA1280C6F3000BC019 /* MoPubNativeSDKAdapter.m in Sources */ = {isa = PBXBuildFile; fileRef = 3C8277E71280C6F3000BC019 /* MoPubNativeSDKAdapter.m */; };
+		3C8277FB1280C6F3000BC019 /* AdClickController.m in Sources */ = {isa = PBXBuildFile; fileRef = 3C8277E91280C6F3000BC019 /* AdClickController.m */; };
+		3C8277FC1280C6F3000BC019 /* AdClickController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 3C8277EA1280C6F3000BC019 /* AdClickController.xib */; };
+		3C8277FD1280C6F3000BC019 /* AdController.m in Sources */ = {isa = PBXBuildFile; fileRef = 3C8277EC1280C6F3000BC019 /* AdController.m */; };
+		3C8277FE1280C6F3000BC019 /* AdConversionTracker.m in Sources */ = {isa = PBXBuildFile; fileRef = 3C8277EE1280C6F3000BC019 /* AdConversionTracker.m */; };
+		3C8277FF1280C6F3000BC019 /* InterstitialAdController.m in Sources */ = {isa = PBXBuildFile; fileRef = 3C8277F01280C6F3000BC019 /* InterstitialAdController.m */; };
+		3C8278001280C6F3000BC019 /* MoPubClassWrapper.m in Sources */ = {isa = PBXBuildFile; fileRef = 3C8277F21280C6F3000BC019 /* MoPubClassWrapper.m */; };
+		3C8278011280C6F3000BC019 /* moPubCloseButtonNext.png in Resources */ = {isa = PBXBuildFile; fileRef = 3C8277F31280C6F3000BC019 /* moPubCloseButtonNext.png */; };
+		3C8278021280C6F3000BC019 /* moPubCloseButtonX.png in Resources */ = {isa = PBXBuildFile; fileRef = 3C8277F41280C6F3000BC019 /* moPubCloseButtonX.png */; };
+		3C8278031280C6F3000BC019 /* MoPubNativeSDKRegistry.m in Sources */ = {isa = PBXBuildFile; fileRef = 3C8277F61280C6F3000BC019 /* MoPubNativeSDKRegistry.m */; };
 		3C9DAEE41268C61F0069A397 /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3C9DAEE31268C61F0069A397 /* AVFoundation.framework */; };
 		3C9DAEE81268C6340069A397 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3C9DAEE71268C6340069A397 /* SystemConfiguration.framework */; };
 		3CB4A0F2113F5E75000DB158 /* MainWindow.xib in Resources */ = {isa = PBXBuildFile; fileRef = 3CB4A0F0113F5E75000DB158 /* MainWindow.xib */; };
 		3CB4A0F3113F5E75000DB158 /* SimpleAdsViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 3CB4A0F1113F5E75000DB158 /* SimpleAdsViewController.xib */; };
-		3CB4A0FB113F5E96000DB158 /* AdClickController.m in Sources */ = {isa = PBXBuildFile; fileRef = 3CB4A0F6113F5E96000DB158 /* AdClickController.m */; };
-		3CB4A0FC113F5E96000DB158 /* AdClickController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 3CB4A0F7113F5E96000DB158 /* AdClickController.xib */; };
-		3CB4A0FD113F5E96000DB158 /* AdController.m in Sources */ = {isa = PBXBuildFile; fileRef = 3CB4A0F9113F5E96000DB158 /* AdController.m */; };
 		3CC4D7781264DC6800212F16 /* SecondViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 3CC4D7761264DC6800212F16 /* SecondViewController.m */; };
 		3CC4D7791264DC6800212F16 /* SecondViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 3CC4D7771264DC6800212F16 /* SecondViewController.xib */; };
-		3CC4D77E1264DC7300212F16 /* AdConversionTracker.m in Sources */ = {isa = PBXBuildFile; fileRef = 3CC4D77B1264DC7300212F16 /* AdConversionTracker.m */; };
-		3CC4D77F1264DC7300212F16 /* InterstitialAdController.m in Sources */ = {isa = PBXBuildFile; fileRef = 3CC4D77D1264DC7300212F16 /* InterstitialAdController.m */; };
+		3CD8E7BC1275F91C0017DBB7 /* libGoogleAds.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 3CD8E7BB1275F91C0017DBB7 /* libGoogleAds.a */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -40,24 +47,42 @@
 		28D7ACF70DDB3853001CB0EB /* SimpleAdsViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SimpleAdsViewController.m; sourceTree = "<group>"; };
 		29B97316FDCFA39411CA2CEA /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		3C2A6E5F1267DE92002A108E /* iAd.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = iAd.framework; path = System/Library/Frameworks/iAd.framework; sourceTree = SDKROOT; };
-		3C85B12512650EBF0049D853 /* moPubCloseButtonNext.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = moPubCloseButtonNext.png; sourceTree = "<group>"; };
-		3C85B12612650EBF0049D853 /* moPubCloseButtonX.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = moPubCloseButtonX.png; sourceTree = "<group>"; };
+		3C8277E01280C6F3000BC019 /* MoPubCustomAdAdapter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MoPubCustomAdAdapter.h; sourceTree = "<group>"; };
+		3C8277E11280C6F3000BC019 /* MoPubCustomAdAdapter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MoPubCustomAdAdapter.m; sourceTree = "<group>"; };
+		3C8277E21280C6F3000BC019 /* MoPubGoogleAdSenseAdapter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MoPubGoogleAdSenseAdapter.h; sourceTree = "<group>"; };
+		3C8277E31280C6F3000BC019 /* MoPubGoogleAdSenseAdapter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MoPubGoogleAdSenseAdapter.m; sourceTree = "<group>"; };
+		3C8277E41280C6F3000BC019 /* MoPubIAdAdapter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MoPubIAdAdapter.h; sourceTree = "<group>"; };
+		3C8277E51280C6F3000BC019 /* MoPubIAdAdapter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MoPubIAdAdapter.m; sourceTree = "<group>"; };
+		3C8277E61280C6F3000BC019 /* MoPubNativeSDKAdapter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MoPubNativeSDKAdapter.h; sourceTree = "<group>"; };
+		3C8277E71280C6F3000BC019 /* MoPubNativeSDKAdapter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MoPubNativeSDKAdapter.m; sourceTree = "<group>"; };
+		3C8277E81280C6F3000BC019 /* AdClickController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AdClickController.h; sourceTree = "<group>"; };
+		3C8277E91280C6F3000BC019 /* AdClickController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AdClickController.m; sourceTree = "<group>"; };
+		3C8277EA1280C6F3000BC019 /* AdClickController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = AdClickController.xib; sourceTree = "<group>"; };
+		3C8277EB1280C6F3000BC019 /* AdController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AdController.h; sourceTree = "<group>"; };
+		3C8277EC1280C6F3000BC019 /* AdController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AdController.m; sourceTree = "<group>"; };
+		3C8277ED1280C6F3000BC019 /* AdConversionTracker.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AdConversionTracker.h; sourceTree = "<group>"; };
+		3C8277EE1280C6F3000BC019 /* AdConversionTracker.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AdConversionTracker.m; sourceTree = "<group>"; };
+		3C8277EF1280C6F3000BC019 /* InterstitialAdController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = InterstitialAdController.h; sourceTree = "<group>"; };
+		3C8277F01280C6F3000BC019 /* InterstitialAdController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = InterstitialAdController.m; sourceTree = "<group>"; };
+		3C8277F11280C6F3000BC019 /* MoPubClassWrapper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MoPubClassWrapper.h; sourceTree = "<group>"; };
+		3C8277F21280C6F3000BC019 /* MoPubClassWrapper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MoPubClassWrapper.m; sourceTree = "<group>"; };
+		3C8277F31280C6F3000BC019 /* moPubCloseButtonNext.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = moPubCloseButtonNext.png; sourceTree = "<group>"; };
+		3C8277F41280C6F3000BC019 /* moPubCloseButtonX.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = moPubCloseButtonX.png; sourceTree = "<group>"; };
+		3C8277F51280C6F3000BC019 /* MoPubNativeSDKRegistry.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MoPubNativeSDKRegistry.h; sourceTree = "<group>"; };
+		3C8277F61280C6F3000BC019 /* MoPubNativeSDKRegistry.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MoPubNativeSDKRegistry.m; sourceTree = "<group>"; };
 		3C9DAEE31268C61F0069A397 /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
 		3C9DAEE71268C6340069A397 /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
 		3CB4A0F0113F5E75000DB158 /* MainWindow.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = MainWindow.xib; sourceTree = "<group>"; };
 		3CB4A0F1113F5E75000DB158 /* SimpleAdsViewController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = SimpleAdsViewController.xib; sourceTree = "<group>"; };
-		3CB4A0F5113F5E96000DB158 /* AdClickController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AdClickController.h; sourceTree = "<group>"; };
-		3CB4A0F6113F5E96000DB158 /* AdClickController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AdClickController.m; sourceTree = "<group>"; };
-		3CB4A0F7113F5E96000DB158 /* AdClickController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = AdClickController.xib; sourceTree = "<group>"; };
-		3CB4A0F8113F5E96000DB158 /* AdController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AdController.h; sourceTree = "<group>"; };
-		3CB4A0F9113F5E96000DB158 /* AdController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AdController.m; sourceTree = "<group>"; };
 		3CC4D7751264DC6700212F16 /* SecondViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SecondViewController.h; sourceTree = "<group>"; };
 		3CC4D7761264DC6800212F16 /* SecondViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SecondViewController.m; sourceTree = "<group>"; };
 		3CC4D7771264DC6800212F16 /* SecondViewController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = SecondViewController.xib; sourceTree = "<group>"; };
-		3CC4D77A1264DC7300212F16 /* AdConversionTracker.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AdConversionTracker.h; sourceTree = "<group>"; };
-		3CC4D77B1264DC7300212F16 /* AdConversionTracker.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AdConversionTracker.m; sourceTree = "<group>"; };
-		3CC4D77C1264DC7300212F16 /* InterstitialAdController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = InterstitialAdController.h; sourceTree = "<group>"; };
-		3CC4D77D1264DC7300212F16 /* InterstitialAdController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = InterstitialAdController.m; sourceTree = "<group>"; };
+		3CD8E7B61275F91C0017DBB7 /* GADAdSenseAudioParameters.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GADAdSenseAudioParameters.h; sourceTree = "<group>"; };
+		3CD8E7B71275F91C0017DBB7 /* GADAdSenseParameters.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GADAdSenseParameters.h; sourceTree = "<group>"; };
+		3CD8E7B81275F91C0017DBB7 /* GADAdViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GADAdViewController.h; sourceTree = "<group>"; };
+		3CD8E7B91275F91C0017DBB7 /* GADDoubleClickParameters.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GADDoubleClickParameters.h; sourceTree = "<group>"; };
+		3CD8E7BA1275F91C0017DBB7 /* GADRequestError.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GADRequestError.h; sourceTree = "<group>"; };
+		3CD8E7BB1275F91C0017DBB7 /* libGoogleAds.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libGoogleAds.a; sourceTree = "<group>"; };
 		8D1107310486CEB800E47090 /* SimpleAds-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "SimpleAds-Info.plist"; plistStructureDefinitionIdentifier = "com.apple.xcode.plist.structure-definition.iphone.info-plist"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -72,6 +97,7 @@
 				3C2A6E601267DE92002A108E /* iAd.framework in Frameworks */,
 				3C9DAEE41268C61F0069A397 /* AVFoundation.framework in Frameworks */,
 				3C9DAEE81268C6340069A397 /* SystemConfiguration.framework in Frameworks */,
+				3CD8E7BC1275F91C0017DBB7 /* libGoogleAds.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -105,7 +131,8 @@
 		29B97314FDCFA39411CA2CEA /* CustomTemplate */ = {
 			isa = PBXGroup;
 			children = (
-				3CB4A0F4113F5E96000DB158 /* SDK */,
+				3C8277DE1280C6F3000BC019 /* SDK */,
+				3CD8E7A01275F9130017DBB7 /* GoogleAdSense */,
 				080E96DDFE201D6D7F000001 /* Classes */,
 				29B97315FDCFA39411CA2CEA /* Other Sources */,
 				29B97317FDCFA39411CA2CEA /* Resources-iPhone */,
@@ -144,22 +171,56 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
-		3CB4A0F4113F5E96000DB158 /* SDK */ = {
+		3C8277DE1280C6F3000BC019 /* SDK */ = {
 			isa = PBXGroup;
 			children = (
-				3C85B12512650EBF0049D853 /* moPubCloseButtonNext.png */,
-				3C85B12612650EBF0049D853 /* moPubCloseButtonX.png */,
-				3CC4D77A1264DC7300212F16 /* AdConversionTracker.h */,
-				3CC4D77B1264DC7300212F16 /* AdConversionTracker.m */,
-				3CB4A0F5113F5E96000DB158 /* AdClickController.h */,
-				3CB4A0F6113F5E96000DB158 /* AdClickController.m */,
-				3CC4D77C1264DC7300212F16 /* InterstitialAdController.h */,
-				3CC4D77D1264DC7300212F16 /* InterstitialAdController.m */,
-				3CB4A0F7113F5E96000DB158 /* AdClickController.xib */,
-				3CB4A0F8113F5E96000DB158 /* AdController.h */,
-				3CB4A0F9113F5E96000DB158 /* AdController.m */,
+				3C8277DF1280C6F3000BC019 /* adapters */,
+				3C8277E81280C6F3000BC019 /* AdClickController.h */,
+				3C8277E91280C6F3000BC019 /* AdClickController.m */,
+				3C8277EA1280C6F3000BC019 /* AdClickController.xib */,
+				3C8277EB1280C6F3000BC019 /* AdController.h */,
+				3C8277EC1280C6F3000BC019 /* AdController.m */,
+				3C8277ED1280C6F3000BC019 /* AdConversionTracker.h */,
+				3C8277EE1280C6F3000BC019 /* AdConversionTracker.m */,
+				3C8277EF1280C6F3000BC019 /* InterstitialAdController.h */,
+				3C8277F01280C6F3000BC019 /* InterstitialAdController.m */,
+				3C8277F11280C6F3000BC019 /* MoPubClassWrapper.h */,
+				3C8277F21280C6F3000BC019 /* MoPubClassWrapper.m */,
+				3C8277F31280C6F3000BC019 /* moPubCloseButtonNext.png */,
+				3C8277F41280C6F3000BC019 /* moPubCloseButtonX.png */,
+				3C8277F51280C6F3000BC019 /* MoPubNativeSDKRegistry.h */,
+				3C8277F61280C6F3000BC019 /* MoPubNativeSDKRegistry.m */,
 			);
-			path = SDK;
+			name = SDK;
+			path = Classes/SDK;
+			sourceTree = "<group>";
+		};
+		3C8277DF1280C6F3000BC019 /* adapters */ = {
+			isa = PBXGroup;
+			children = (
+				3C8277E01280C6F3000BC019 /* MoPubCustomAdAdapter.h */,
+				3C8277E11280C6F3000BC019 /* MoPubCustomAdAdapter.m */,
+				3C8277E21280C6F3000BC019 /* MoPubGoogleAdSenseAdapter.h */,
+				3C8277E31280C6F3000BC019 /* MoPubGoogleAdSenseAdapter.m */,
+				3C8277E41280C6F3000BC019 /* MoPubIAdAdapter.h */,
+				3C8277E51280C6F3000BC019 /* MoPubIAdAdapter.m */,
+				3C8277E61280C6F3000BC019 /* MoPubNativeSDKAdapter.h */,
+				3C8277E71280C6F3000BC019 /* MoPubNativeSDKAdapter.m */,
+			);
+			path = adapters;
+			sourceTree = "<group>";
+		};
+		3CD8E7A01275F9130017DBB7 /* GoogleAdSense */ = {
+			isa = PBXGroup;
+			children = (
+				3CD8E7B61275F91C0017DBB7 /* GADAdSenseAudioParameters.h */,
+				3CD8E7B71275F91C0017DBB7 /* GADAdSenseParameters.h */,
+				3CD8E7B81275F91C0017DBB7 /* GADAdViewController.h */,
+				3CD8E7B91275F91C0017DBB7 /* GADDoubleClickParameters.h */,
+				3CD8E7BA1275F91C0017DBB7 /* GADRequestError.h */,
+				3CD8E7BB1275F91C0017DBB7 /* libGoogleAds.a */,
+			);
+			name = GoogleAdSense;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -212,10 +273,10 @@
 			files = (
 				3CB4A0F2113F5E75000DB158 /* MainWindow.xib in Resources */,
 				3CB4A0F3113F5E75000DB158 /* SimpleAdsViewController.xib in Resources */,
-				3CB4A0FC113F5E96000DB158 /* AdClickController.xib in Resources */,
 				3CC4D7791264DC6800212F16 /* SecondViewController.xib in Resources */,
-				3C85B12712650EBF0049D853 /* moPubCloseButtonNext.png in Resources */,
-				3C85B12812650EBF0049D853 /* moPubCloseButtonX.png in Resources */,
+				3C8277FC1280C6F3000BC019 /* AdClickController.xib in Resources */,
+				3C8278011280C6F3000BC019 /* moPubCloseButtonNext.png in Resources */,
+				3C8278021280C6F3000BC019 /* moPubCloseButtonX.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -229,11 +290,17 @@
 				1D60589B0D05DD56006BFB54 /* main.m in Sources */,
 				1D3623260D0F684500981E51 /* SimpleAdsAppDelegate.m in Sources */,
 				28D7ACF80DDB3853001CB0EB /* SimpleAdsViewController.m in Sources */,
-				3CB4A0FB113F5E96000DB158 /* AdClickController.m in Sources */,
-				3CB4A0FD113F5E96000DB158 /* AdController.m in Sources */,
 				3CC4D7781264DC6800212F16 /* SecondViewController.m in Sources */,
-				3CC4D77E1264DC7300212F16 /* AdConversionTracker.m in Sources */,
-				3CC4D77F1264DC7300212F16 /* InterstitialAdController.m in Sources */,
+				3C8277F71280C6F3000BC019 /* MoPubCustomAdAdapter.m in Sources */,
+				3C8277F81280C6F3000BC019 /* MoPubGoogleAdSenseAdapter.m in Sources */,
+				3C8277F91280C6F3000BC019 /* MoPubIAdAdapter.m in Sources */,
+				3C8277FA1280C6F3000BC019 /* MoPubNativeSDKAdapter.m in Sources */,
+				3C8277FB1280C6F3000BC019 /* AdClickController.m in Sources */,
+				3C8277FD1280C6F3000BC019 /* AdController.m in Sources */,
+				3C8277FE1280C6F3000BC019 /* AdConversionTracker.m in Sources */,
+				3C8277FF1280C6F3000BC019 /* InterstitialAdController.m in Sources */,
+				3C8278001280C6F3000BC019 /* MoPubClassWrapper.m in Sources */,
+				3C8278031280C6F3000BC019 /* MoPubNativeSDKRegistry.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -250,6 +317,10 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = SimpleAds_Prefix.pch;
 				INFOPLIST_FILE = "SimpleAds-Info.plist";
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"$(SRCROOT)\"",
+				);
 				PRODUCT_NAME = SimpleAds;
 			};
 			name = Debug;
@@ -265,6 +336,7 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)/Library\"",
+					"\"$(SRCROOT)\"",
 				);
 				PRODUCT_NAME = SimpleAds;
 				VALIDATE_PRODUCT = YES;
@@ -280,7 +352,7 @@
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 3.1;
-				OTHER_CFLAGS = "";
+				OTHER_CFLAGS = "-DGoogleAdSenseAvailable";
 				PREBINDING = NO;
 				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "";
 				SDKROOT = iphoneos4.0;
