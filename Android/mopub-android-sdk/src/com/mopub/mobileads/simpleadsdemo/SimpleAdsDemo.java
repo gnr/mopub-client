@@ -30,11 +30,12 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package com.mopub.simpleadsdemo;
+package com.mopub.mobileads.simpleadsdemo;
 
 import com.mopub.mobileads.MoPubConversionTracker;
 import com.mopub.mobileads.MoPubView;
 import com.mopub.mobileads.MoPubActivity;
+import com.mopub.mobileads.R;
 
 import android.app.Activity;
 import android.content.Context;
@@ -48,12 +49,12 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 public class SimpleAdsDemo extends Activity {
-	private MoPubView		mTopBanner = null;
-	private MoPubView		mMidBanner = null;
+	private MoPubView		mTopBanner;
+	private MoPubView		mMidBanner;
 
-	private EditText			mSearchText = null;
-	private Button				mSearchButton = null;
-	private Button				mShowButton = null;
+	private EditText			mSearchText;
+	private Button				mSearchButton;
+	private Button				mShowButton;
 
 	private final int			INTERSTITIAL_AD_REQUEST = 0;
 

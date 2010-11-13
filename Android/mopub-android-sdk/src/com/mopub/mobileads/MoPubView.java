@@ -39,7 +39,6 @@ import android.content.Context;
 import android.location.Location;
 import android.util.AttributeSet;
 import android.util.Log;
-import android.view.Gravity;
 import android.widget.FrameLayout;
 
 public class MoPubView extends FrameLayout {
@@ -55,31 +54,25 @@ public class MoPubView extends FrameLayout {
 	public interface OnAdClosedListener {
 		public void OnAdClosed(MoPubView m);
 	}
-	
+
 	public static String HOST = "ads.mopub.com";
 	public static String AD_HANDLER = "/m/ad";
 
-	private AdView	mAdView = null;
-	private Object	mAdSenseAdapter = null;
-	private OnAdLoadedListener  mOnAdLoadedListener = null;
-	private OnAdFailedListener  mOnAdFailedListener = null;
-	private OnAdClosedListener  mOnAdClosedListener = null;
+	private AdView	mAdView;
+	private Object	mAdSenseAdapter;
+	private OnAdLoadedListener  mOnAdLoadedListener;
+	private OnAdFailedListener  mOnAdFailedListener;
+	private OnAdClosedListener  mOnAdClosedListener;
 
 	public MoPubView(Context context) {
-		super(context);
-		init(context, null);
+		this(context, null);
 	}
 
 	public MoPubView(Context context, AttributeSet attrs) {
 		super(context, attrs);
-		init(context, attrs);
-	}
 
-	private void init(Context context, AttributeSet attrs) {
+		// The AdView doesn't need to be in the view hierarchy until an ad is loaded
 		mAdView = new AdView(context, this);
-		final FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(
-				320, FrameLayout.LayoutParams.WRAP_CONTENT, Gravity.CENTER);
-		addView(mAdView, layoutParams);
 	}
 
 	public void loadAd() {
@@ -87,35 +80,44 @@ public class MoPubView extends FrameLayout {
 	}
 
 	public void loadFailUrl() {
-		removeAllViews();
-		final FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(
-				320, FrameLayout.LayoutParams.WRAP_CONTENT, Gravity.CENTER);
-		addView(mAdView, layoutParams);
 		mAdView.loadFailUrl();
 	}
 
 	public void loadAdSense(String params) {
-		removeAllViews();
 		try {
-			Class<?> adapterClass = (Class<?>) Class.forName("com.mopub.mobileads.AdSenseAdapter");
-			Class<?>[] parameterTypes = new Class[1];
+			Class.forName("com.google.ads.GoogleAdView");
+		} catch (ClassNotFoundException e) {
+			Log.d("MoPub", "Couldn't find AdSense SDK. Trying next ad...");
+			loadFailUrl(); 		
+			return;
+		}
+
+		try {
+			Class<?> adapterClass;
+			adapterClass = (Class<?>) Class.forName("com.mopub.mobileads.AdSenseAdapter");
+
+			Class<?>[] parameterTypes = new Class[2];
 			parameterTypes[0] = MoPubView.class;
 			parameterTypes[1] = String.class;
 
 			Constructor<?> constructor = adapterClass.getConstructor(parameterTypes);
 
-			Object[] args = new Object[1];
+			Object[] args = new Object[2];
 			args[0] = this;
 			args[1] = params;
 
 			mAdSenseAdapter = constructor.newInstance(args);
-			
+
 			Method loadAdMethod = adapterClass.getMethod("loadAd", (Class[]) null);
 			loadAdMethod.invoke(mAdSenseAdapter, (Object[]) null);
-		} catch (Throwable e) {
-			Log.d("MoPub", "adsense failed, trying next"); 
-			// If the adapter didn't load, try the next ad in the auction 
+		} catch (ClassNotFoundException e) {
+			Log.d("MoPub", "Couldn't find AdSenseAdapter class.  Trying next ad..."); 
 			loadFailUrl(); 
+			return;
+		} catch (Exception e) {
+			Log.d("MoPub", "Couldn't create AdSenseAdapter class.  Trying next ad...");
+			loadFailUrl();
+			return;
 		}
 	}
 
@@ -147,7 +149,16 @@ public class MoPubView extends FrameLayout {
 		mAdView.setTimeout(milliseconds);
 	}
 
+	public int getAdWidth() {
+		return mAdView.getAdWidth();
+	}
+
+	public int getAdHeight() {
+		return mAdView.getAdHeight();
+	}
+
 	public void adLoaded() {
+		Log.d("MoPub","adLoaded");
 		if (mOnAdLoadedListener != null)
 			mOnAdLoadedListener.OnAdLoaded(this);
 	}

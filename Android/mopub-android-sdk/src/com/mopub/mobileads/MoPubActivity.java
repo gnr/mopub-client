@@ -39,15 +39,22 @@ import com.mopub.mobileads.MoPubView.OnAdLoadedListener;
 import android.app.Activity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.view.WindowManager;
+import android.view.View.OnClickListener;
+import android.widget.Button;
+import android.widget.RelativeLayout;
 
 public class MoPubActivity extends Activity {
-	private MoPubView				mMoPubLayout = null;
+	private MoPubView				mMoPubView;
+	private RelativeLayout			mLayout;
 
 	/** Called when the activity is first created. */
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
+		// Don't display the interstitial until we get an ad
 		setVisible(false);
 
 		String adUnitId = getIntent().getStringExtra("com.mopub.mobileads.AdUnitId");
@@ -58,36 +65,65 @@ public class MoPubActivity extends Activity {
 			throw new RuntimeException("AdUnitId isn't set in com.mopub.mobileads.InterstitialAdActivity");
 		}
 
-		mMoPubLayout = new MoPubView(this);
-		mMoPubLayout.setAdUnitId(adUnitId);
+		mMoPubView = new MoPubView(this);
+		mMoPubView.setAdUnitId(adUnitId);
 		if (keywords != null) {
-			mMoPubLayout.setKeywords(keywords);
+			mMoPubView.setKeywords(keywords);
 		}
 		if (timeout > 0) {
-			mMoPubLayout.setTimeout(timeout);
+			mMoPubView.setTimeout(timeout);
 		}
 
-		mMoPubLayout.loadAd();
-		mMoPubLayout.setOnAdClosedListener(new OnAdClosedListener() {
+		mMoPubView.setOnAdClosedListener(new OnAdClosedListener() {
 			public void OnAdClosed(MoPubView a) {
 				setResult(RESULT_OK);
 				finish();
 			}
 		});
-		mMoPubLayout.setOnAdLoadedListener(new OnAdLoadedListener() {
+		mMoPubView.setOnAdLoadedListener(new OnAdLoadedListener() {
 			public void OnAdLoaded(MoPubView a) {
 				Log.i("mopub","ad loaded");
+				/*
+				if (!a.isFullPage()) {
+					showButton();
+				}
+				*/
 				setVisible(true);
 			}
 		});
-		mMoPubLayout.setOnAdFailedListener(new OnAdFailedListener() {
+		mMoPubView.setOnAdFailedListener(new OnAdFailedListener() {
 			public void OnAdFailed(MoPubView a) {
 				Log.i("mopub","ad failed");
 				setResult(RESULT_CANCELED);
 				finish();
 			}
 		});
+		
+		mMoPubView.loadAd();
 
-		setContentView(mMoPubLayout);
+		this.getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
+		mLayout = new RelativeLayout(this);
+		
+		final RelativeLayout.LayoutParams adViewLayout = new RelativeLayout.LayoutParams(
+				RelativeLayout.LayoutParams.FILL_PARENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
+		adViewLayout.addRule(RelativeLayout.CENTER_IN_PARENT);
+		mLayout.addView(mMoPubView, adViewLayout);
+		
+		setContentView(mLayout);
+	}
+	
+	public void showButton() {
+		Button button = new Button(this);
+		button.setText("Continue");
+		button.setOnClickListener(new OnClickListener() {
+			public void onClick(View v) {
+				setResult(RESULT_OK);
+				finish();
+			}
+		});
+		final RelativeLayout.LayoutParams buttonLayout = new RelativeLayout.LayoutParams(
+				RelativeLayout.LayoutParams.FILL_PARENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
+		buttonLayout.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
+		mLayout.addView(button, buttonLayout);		
 	}
 }
