@@ -1,0 +1,68 @@
+TSimpleAds
+v7
+r1
+cCheck dependencies
+
+N/Users/njamal/programs/mopub/mopub-client/iPhone/Classes/MainWindow.xib
+c000000004CA3BBBA000000000000594A
+t1285798842
+s22858
+
+N/Users/njamal/programs/mopub/mopub-client/iPhone/Classes/SimpleAdsViewController.xib
+c000000004CA3EF71000000000000605A
+t1285812081
+s24666
+
+N/Users/njamal/programs/mopub/mopub-client/iPhone/SDK/AdClickController.xib
+c000000004CA3BBBA0000000000007B87
+t1285798842
+s31623
+
+N/Users/njamal/programs/mopub/mopub-client/iPhone/build/Debug/SimpleAds.app
+t2
+s0
+
+N/Users/njamal/programs/mopub/mopub-client/iPhone/build/Debug/SimpleAds.app/Contents/Info.plist
+t2
+s0
+
+N/Users/njamal/programs/mopub/mopub-client/iPhone/build/Debug/SimpleAds.app/Contents/PkgInfo
+t2
+s0
+
+N/Users/njamal/programs/mopub/mopub-client/iPhone/build/Debug/SimpleAds.app/Contents/Resources/AdClickController.nib
+t2
+s0
+
+N/Users/njamal/programs/mopub/mopub-client/iPhone/build/Debug/SimpleAds.app/Contents/Resources/MainWindow.nib
+t2
+s0
+
+N/Users/njamal/programs/mopub/mopub-client/iPhone/build/Debug/SimpleAds.app/Contents/Resources/SimpleAdsViewController.nib
+t2
+s0
+
+NSimpleAds-Info.plist
+c000000004CA3BBBA000000000000038D
+t1285798842
+s909
+
+CCheck dependencies
+r0
+lSLF07#2@18"Check dependencies307504938#307504938#0(66"[BEROR]error: There is no SDK with the name or path 'iphoneos4.1'1(4@58"error: There is no SDK with the name or path 'iphoneos4.1'307504938#18446744073709551615#0#0(1@0"0(0#1#0"8606027168#0"0#
+
+CCompileXIB /Users/njamal/programs/mopub/mopub-client/iPhone/Classes/MainWindow.xib
+r0
+
+CCompileXIB /Users/njamal/programs/mopub/mopub-client/iPhone/Classes/SimpleAdsViewController.xib
+r0
+
+CCompileXIB /Users/njamal/programs/mopub/mopub-client/iPhone/SDK/AdClickController.xib
+r0
+
+CProcessInfoPlistFile /Users/njamal/programs/mopub/mopub-client/iPhone/build/Debug/SimpleAds.app/Contents/Info.plist SimpleAds-Info.plist
+r0
+
+CTouch /Users/njamal/programs/mopub/mopub-client/iPhone/build/Debug/SimpleAds.app
+r0
+

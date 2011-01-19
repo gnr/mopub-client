@@ -1,0 +1,750 @@
+TSimpleAds
+v7
+r0
+t317021777.931002
+cCheck dependencies
+cProcessInfoPlistFile /Users/njamal/programs/mopub/mopub-client/iPhone/build/Debug-iphonesimulator/SimpleAds.app/Info.plist SimpleAds-Info.plist
+cCompileXIB /Users/njamal/programs/mopub/mopub-client/iPhone/Classes/MainWindow.xib
+cCompileXIB /Users/njamal/programs/mopub/mopub-client/iPhone/Classes/SimpleAdsViewController.xib
+cCompileXIB /Users/njamal/programs/mopub/mopub-client/iPhone/Classes/SecondViewController.xib
+cCompileXIB /Users/njamal/programs/mopub/mopub-client/iPhone/SDK/AdClickController.xib
+cCpResource build/Debug-iphonesimulator/SimpleAds.app/moPubCloseButtonNext.png SDK/moPubCloseButtonNext.png
+cCpResource build/Debug-iphonesimulator/SimpleAds.app/moPubCloseButtonX.png SDK/moPubCloseButtonX.png
+cProcessPCH /var/folders/Ny/NyTmLyDbEZqzR2JIsC-ybE+++TI/-Caches-/com.apple.Xcode.501/SharedPrecompiledHeaders/SimpleAds_Prefix-bbppapufbebnuvbpwzwawskaiovm/SimpleAds_Prefix.pch.gch SimpleAds_Prefix.pch normal i386 objective-c com.apple.compilers.gcc.4_2
+cCompileC build/SimpleAds.build/Debug-iphonesimulator/SimpleAds.build/Objects-normal/i386/main.o /Users/njamal/programs/mopub/mopub-client/iPhone/main.m normal i386 objective-c com.apple.compilers.gcc.4_2
+cCompileC build/SimpleAds.build/Debug-iphonesimulator/SimpleAds.build/Objects-normal/i386/SimpleAdsAppDelegate.o /Users/njamal/programs/mopub/mopub-client/iPhone/Classes/SimpleAdsAppDelegate.m normal i386 objective-c com.apple.compilers.gcc.4_2
+cCompileC build/SimpleAds.build/Debug-iphonesimulator/SimpleAds.build/Objects-normal/i386/SimpleAdsViewController.o /Users/njamal/programs/mopub/mopub-client/iPhone/Classes/SimpleAdsViewController.m normal i386 objective-c com.apple.compilers.gcc.4_2
+cCompileC build/SimpleAds.build/Debug-iphonesimulator/SimpleAds.build/Objects-normal/i386/SecondViewController.o /Users/njamal/programs/mopub/mopub-client/iPhone/Classes/SecondViewController.m normal i386 objective-c com.apple.compilers.gcc.4_2
+cCompileC build/SimpleAds.build/Debug-iphonesimulator/SimpleAds.build/Objects-normal/i386/MoPubAlertAdAdapter.o /Users/njamal/programs/mopub/mopub-client/iPhone/SDK/adapters/MoPubAlertAdAdapter.m normal i386 objective-c com.apple.compilers.gcc.4_2
+cCompileC build/SimpleAds.build/Debug-iphonesimulator/SimpleAds.build/Objects-normal/i386/MoPubCustomAdAdapter.o /Users/njamal/programs/mopub/mopub-client/iPhone/SDK/adapters/MoPubCustomAdAdapter.m normal i386 objective-c com.apple.compilers.gcc.4_2
+cCompileC build/SimpleAds.build/Debug-iphonesimulator/SimpleAds.build/Objects-normal/i386/MoPubIAdAdapter.o /Users/njamal/programs/mopub/mopub-client/iPhone/SDK/adapters/MoPubIAdAdapter.m normal i386 objective-c com.apple.compilers.gcc.4_2
+cCompileC build/SimpleAds.build/Debug-iphonesimulator/SimpleAds.build/Objects-normal/i386/MoPubNativeSDKAdapter.o /Users/njamal/programs/mopub/mopub-client/iPhone/SDK/adapters/MoPubNativeSDKAdapter.m normal i386 objective-c com.apple.compilers.gcc.4_2
+cCompileC build/SimpleAds.build/Debug-iphonesimulator/SimpleAds.build/Objects-normal/i386/AdClickController.o /Users/njamal/programs/mopub/mopub-client/iPhone/SDK/AdClickController.m normal i386 objective-c com.apple.compilers.gcc.4_2
+cCompileC build/SimpleAds.build/Debug-iphonesimulator/SimpleAds.build/Objects-normal/i386/AdController.o /Users/njamal/programs/mopub/mopub-client/iPhone/SDK/AdController.m normal i386 objective-c com.apple.compilers.gcc.4_2
+cCompileC build/SimpleAds.build/Debug-iphonesimulator/SimpleAds.build/Objects-normal/i386/AdConversionTracker.o /Users/njamal/programs/mopub/mopub-client/iPhone/SDK/AdConversionTracker.m normal i386 objective-c com.apple.compilers.gcc.4_2
+cCompileC build/SimpleAds.build/Debug-iphonesimulator/SimpleAds.build/Objects-normal/i386/InterstitialAdController.o /Users/njamal/programs/mopub/mopub-client/iPhone/SDK/InterstitialAdController.m normal i386 objective-c com.apple.compilers.gcc.4_2
+cCompileC build/SimpleAds.build/Debug-iphonesimulator/SimpleAds.build/Objects-normal/i386/MoPubClassWrapper.o /Users/njamal/programs/mopub/mopub-client/iPhone/SDK/MoPubClassWrapper.m normal i386 objective-c com.apple.compilers.gcc.4_2
+cCompileC build/SimpleAds.build/Debug-iphonesimulator/SimpleAds.build/Objects-normal/i386/MoPubNativeSDKRegistry.o /Users/njamal/programs/mopub/mopub-client/iPhone/SDK/MoPubNativeSDKRegistry.m normal i386 objective-c com.apple.compilers.gcc.4_2
+cCompileC build/SimpleAds.build/Debug-iphonesimulator/SimpleAds.build/Objects-normal/i386/untitled.o /Users/njamal/programs/mopub/mopub-client/iPhone/SDK/untitled.m normal i386 objective-c com.apple.compilers.gcc.4_2
+
+N/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator4.2.sdk
+c000000004D1370070000000000000110
+t1293119495
+s272
+
+N/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator4.2.sdk/System/Library/Frameworks/AVFoundation.framework/AVFoundation
+c000000004CC1288A00000000000F34A0
+t1287727242
+s996512
+
+N/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator4.2.sdk/System/Library/Frameworks/CoreGraphics.framework/CoreGraphics
+c000000004CC12246000000000029B310
+t1287725638
+s2732816
+
+N/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator4.2.sdk/System/Library/Frameworks/CoreLocation.framework/Headers/CoreLocation.h
+c000000004CC127DD00000000000001D0
+t1287727069
+s464
+
+N/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator4.2.sdk/System/Library/Frameworks/Foundation.framework/Foundation
+c000000004CC1226D000000000029D5D0
+t1287725677
+s2741712
+
+N/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator4.2.sdk/System/Library/Frameworks/Foundation.framework/Headers/Foundation.h
+c000000004CC1225F0000000000001466
+t1287725663
+s5222
+
+N/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator4.2.sdk/System/Library/Frameworks/SystemConfiguration.framework/SystemConfiguration
+c000000004CC121F60000000000068970
+t1287725558
+s428400
+
+N/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator4.2.sdk/System/Library/Frameworks/UIKit.framework/Headers/UIKit.h
+c000000004CC1281F0000000000000AA1
+t1287727135
+s2721
+
+N/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator4.2.sdk/System/Library/Frameworks/UIKit.framework/UIKit
+c000000004CC12883000000000074D7B0
+t1287727235
+s7657392
+
+N/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator4.2.sdk/System/Library/Frameworks/iAd.framework/Headers/iAd.h
+c000000004CC657750000000000000071
+t1288066933
+s113
+
+N/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator4.2.sdk/System/Library/Frameworks/iAd.framework/iAd
+c000000004CC65780000000000002F590
+t1288066944
+s193936
+
+N/Users/njamal/programs/mopub/mopub-client/iPhone/Classes/MainWindow.xib
+c000000004CA3BBBA000000000000594A
+t1285798842
+s22858
+
+N/Users/njamal/programs/mopub/mopub-client/iPhone/Classes/SecondViewController.h
+c000000004CB4E3F40000000000000146
+t1286923252
+s326
+i<UIKit/UIKit.h>
+i"InterstitialAdController.h"
+
+N/Users/njamal/programs/mopub/mopub-client/iPhone/Classes/SecondViewController.m
+c000000004CBC8500000000000000088B
+t1287423232
+s2187
+i"SecondViewController.h"
+i"SimpleAdsViewController.h"
+
+N/Users/njamal/programs/mopub/mopub-client/iPhone/Classes/SecondViewController.xib
+c000000004CB4E3F40000000000004F5F
+t1286923252
+s20319
+
+N/Users/njamal/programs/mopub/mopub-client/iPhone/Classes/SimpleAdsAppDelegate.h
+c000000004CB4E3F4000000000000023E
+t1286923252
+s574
+i<UIKit/UIKit.h>
+
+N/Users/njamal/programs/mopub/mopub-client/iPhone/Classes/SimpleAdsAppDelegate.m
+c000000004CF6B4CD0000000000000471
+t1291236557
+s1137
+i"SimpleAdsAppDelegate.h"
+i"SimpleAdsViewController.h"
+i"InterstitialAdController.h"
+i"AdConversionTracker.h"
+
+N/Users/njamal/programs/mopub/mopub-client/iPhone/Classes/SimpleAdsViewController.h
+c000000004D14E9EA0000000000000672
+t1293216234
+s1650
+i<UIKit/UIKit.h>
+i"AdController.h"
+i"InterstitialAdController.h"
+i"SecondViewController.h"
+
+N/Users/njamal/programs/mopub/mopub-client/iPhone/Classes/SimpleAdsViewController.m
+c000000004CF6B4F00000000000001B3C
+t1291236592
+s6972
+i"SimpleAdsViewController.h"
+i"AdController.h"
+i"InterstitialAdController.h"
+
+N/Users/njamal/programs/mopub/mopub-client/iPhone/Classes/SimpleAdsViewController.xib
+c000000004CF590A700000000000074CE
+t1291161767
+s29902
+
+N/Users/njamal/programs/mopub/mopub-client/iPhone/SDK/AdClickController.h
+c000000004CB4E3F400000000000006B9
+t1286923252
+s1721
+i<UIKit/UIKit.h>
+
+N/Users/njamal/programs/mopub/mopub-client/iPhone/SDK/AdClickController.m
+c000000004CF6A8EC00000000000018E2
+t1291233516
+s6370
+i"AdClickController.h"
+
+N/Users/njamal/programs/mopub/mopub-client/iPhone/SDK/AdClickController.xib
+c000000004CA3BBBA0000000000007B87
+t1285798842
+s31623
+
+N/Users/njamal/programs/mopub/mopub-client/iPhone/SDK/AdController.h
+c000000004D3520E00000000000001317
+t1295327456
+s4887
+i<UIKit/UIKit.h>
+i<CoreLocation/CoreLocation.h>
+i"AdClickController.h"
+
+N/Users/njamal/programs/mopub/mopub-client/iPhone/SDK/AdController.m
+c000000004D03FB470000000000005B56
+t1292106567
+s23382
+i"AdController.h"
+i"AdClickController.h"
+i<CoreLocation/CoreLocation.h>
+i"MoPubNativeSDKRegistry.h"
+i"MoPubNativeSDKAdapter.h"
+
+N/Users/njamal/programs/mopub/mopub-client/iPhone/SDK/AdConversionTracker.h
+c000000004CDF1BC5000000000000015A
+t1289690053
+s346
+i<Foundation/Foundation.h>
+
+N/Users/njamal/programs/mopub/mopub-client/iPhone/SDK/AdConversionTracker.m
+c000000004CDF1D6D000000000000085A
+t1289690477
+s2138
+i"AdConversionTracker.h"
+i<UIKit/UIKit.h>
+
+N/Users/njamal/programs/mopub/mopub-client/iPhone/SDK/InterstitialAdController.h
+c000000004CBDDBB700000000000009D0
+t1287510967
+s2512
+i<Foundation/Foundation.h>
+i"AdController.h"
+
+N/Users/njamal/programs/mopub/mopub-client/iPhone/SDK/InterstitialAdController.m
+c000000004CF6DAE6000000000000302B
+t1291246310
+s12331
+i"InterstitialAdController.h"
+
+N/Users/njamal/programs/mopub/mopub-client/iPhone/SDK/MoPubClassWrapper.h
+c000000004CC5C8870000000000000123
+t1288030343
+s291
+i<Foundation/Foundation.h>
+
+N/Users/njamal/programs/mopub/mopub-client/iPhone/SDK/MoPubClassWrapper.m
+c000000004CC5C978000000000000013E
+t1288030584
+s318
+i"MoPubClassWrapper.h"
+
+N/Users/njamal/programs/mopub/mopub-client/iPhone/SDK/MoPubNativeSDKRegistry.h
+c000000004CC5D3FA00000000000001BF
+t1288033274
+s447
+i<Foundation/Foundation.h>
+
+N/Users/njamal/programs/mopub/mopub-client/iPhone/SDK/MoPubNativeSDKRegistry.m
+c000000004CC5D3FE0000000000000528
+t1288033278
+s1320
+i"MoPubNativeSDKRegistry.h"
+i"MoPubNativeSDKAdapter.h"
+i"MoPubClassWrapper.h"
+
+N/Users/njamal/programs/mopub/mopub-client/iPhone/SDK/adapters/MoPubAlertAdAdapter.h
+c000000004D05888B0000000000000168
+t1292208267
+s360
+i<Foundation/Foundation.h>
+i"MoPubNativeSDKAdapter.h"
+
+N/Users/njamal/programs/mopub/mopub-client/iPhone/SDK/adapters/MoPubAlertAdAdapter.m
+c000000004D3525E40000000000000D4D
+t1295328740
+s3405
+i"MoPubAlertAdAdapter.h"
+i"MoPubNativeSDKAdapter.h"
+
+N/Users/njamal/programs/mopub/mopub-client/iPhone/SDK/adapters/MoPubCustomAdAdapter.h
+c000000004CC60C9D0000000000000132
+t1288047773
+s306
+i<Foundation/Foundation.h>
+i"MoPubNativeSDKAdapter.h"
+
+N/Users/njamal/programs/mopub/mopub-client/iPhone/SDK/adapters/MoPubCustomAdAdapter.m
+c000000004CC60ECE000000000000053A
+t1288048334
+s1338
+i"MoPubCustomAdAdapter.h"
+i"MoPubNativeSDKRegistry.h"
+i"AdController.h"
+
+N/Users/njamal/programs/mopub/mopub-client/iPhone/SDK/adapters/MoPubIAdAdapter.h
+c000000004CDC843600000000000001C7
+t1289520182
+s455
+i<Foundation/Foundation.h>
+i"MoPubNativeSDKAdapter.h"
+i"MoPubNativeSDKRegistry.h"
+i<iAd/iAd.h>
+
+N/Users/njamal/programs/mopub/mopub-client/iPhone/SDK/adapters/MoPubIAdAdapter.m
+c000000004CF5A2CB0000000000000A1B
+t1291166411
+s2587
+i<UIKit/UIKit.h>
+i"MoPubIAdAdapter.h"
+i"MoPubNativeSDKRegistry.h"
+i"AdController.h"
+
+N/Users/njamal/programs/mopub/mopub-client/iPhone/SDK/adapters/MoPubNativeSDKAdapter.h
+c000000004CDCA0EF00000000000007BE
+t1289527535
+s1982
+i<UIKit/UIKit.h>
+
+N/Users/njamal/programs/mopub/mopub-client/iPhone/SDK/adapters/MoPubNativeSDKAdapter.m
+c000000004CC5FC0D000000000000069D
+t1288043533
+s1693
+i"MoPubNativeSDKAdapter.h"
+
+N/Users/njamal/programs/mopub/mopub-client/iPhone/SDK/moPubCloseButtonNext.png
+c000000004CB4E3F40000000000001063
+t1286923252
+s4195
+
+N/Users/njamal/programs/mopub/mopub-client/iPhone/SDK/moPubCloseButtonX.png
+c000000004CB4E3F4000000000000103B
+t1286923252
+s4155
+
+N/Users/njamal/programs/mopub/mopub-client/iPhone/SDK/untitled.h
+c000000004CF1886D00000000000000CD
+t1290897517
+s205
+i<UIKit/UIKit.h>
+
+N/Users/njamal/programs/mopub/mopub-client/iPhone/SDK/untitled.m
+c000000004CF1886D00000000000005F5
+t1290897517
+s1525
+i"untitled.h"
+
+N/Users/njamal/programs/mopub/mopub-client/iPhone/SimpleAds_Prefix.pch
+c000000004CA3BBBA0000000000000000
+t1285798842
+s0
+
+N/Users/njamal/programs/mopub/mopub-client/iPhone/build/Debug-iphonesimulator/SimpleAds.app
+t1295328788
+s170
+
+N/Users/njamal/programs/mopub/mopub-client/iPhone/build/Debug-iphonesimulator/SimpleAds.app.dSYM
+t2
+s0
+
+N/Users/njamal/programs/mopub/mopub-client/iPhone/build/Debug-iphonesimulator/SimpleAds.app/AdClickController.nib
+t1295328973
+s2151
+
+N/Users/njamal/programs/mopub/mopub-client/iPhone/build/Debug-iphonesimulator/SimpleAds.app/Info.plist
+t1295328787
+s599
+
+N/Users/njamal/programs/mopub/mopub-client/iPhone/build/Debug-iphonesimulator/SimpleAds.app/MainWindow.nib
+t1295328788
+s962
+
+N/Users/njamal/programs/mopub/mopub-client/iPhone/build/Debug-iphonesimulator/SimpleAds.app/PkgInfo
+t1295328787
+s8
+
+N/Users/njamal/programs/mopub/mopub-client/iPhone/build/Debug-iphonesimulator/SimpleAds.app/SecondViewController.nib
+t1295328972
+s1914
+
+N/Users/njamal/programs/mopub/mopub-client/iPhone/build/Debug-iphonesimulator/SimpleAds.app/SimpleAds
+t2
+s0
+
+N/Users/njamal/programs/mopub/mopub-client/iPhone/build/Debug-iphonesimulator/SimpleAds.app/SimpleAdsViewController.nib
+t1295328971
+s2779
+
+N/Users/njamal/programs/mopub/mopub-client/iPhone/build/Debug-iphonesimulator/SimpleAds.app/moPubCloseButtonNext.png
+t1295328972
+s4195
+
+N/Users/njamal/programs/mopub/mopub-client/iPhone/build/Debug-iphonesimulator/SimpleAds.app/moPubCloseButtonX.png
+t1295328972
+s4155
+
+N/Users/njamal/programs/mopub/mopub-client/iPhone/build/SimpleAds.build/Debug-iphonesimulator/SimpleAds.build/Objects-normal/i386/AdClickController.o
+t1295328976
+s82744
+
+N/Users/njamal/programs/mopub/mopub-client/iPhone/build/SimpleAds.build/Debug-iphonesimulator/SimpleAds.build/Objects-normal/i386/AdController.o
+t1295328977
+s118496
+
+N/Users/njamal/programs/mopub/mopub-client/iPhone/build/SimpleAds.build/Debug-iphonesimulator/SimpleAds.build/Objects-normal/i386/AdConversionTracker.o
+t1295328977
+s14596
+
+N/Users/njamal/programs/mopub/mopub-client/iPhone/build/SimpleAds.build/Debug-iphonesimulator/SimpleAds.build/Objects-normal/i386/InterstitialAdController.o
+t1295328977
+s91152
+
+N/Users/njamal/programs/mopub/mopub-client/iPhone/build/SimpleAds.build/Debug-iphonesimulator/SimpleAds.build/Objects-normal/i386/MoPubAlertAdAdapter.o
+t2
+s0
+
+N/Users/njamal/programs/mopub/mopub-client/iPhone/build/SimpleAds.build/Debug-iphonesimulator/SimpleAds.build/Objects-normal/i386/MoPubClassWrapper.o
+t1295328977
+s7296
+
+N/Users/njamal/programs/mopub/mopub-client/iPhone/build/SimpleAds.build/Debug-iphonesimulator/SimpleAds.build/Objects-normal/i386/MoPubCustomAdAdapter.o
+t1295328976
+s42628
+
+N/Users/njamal/programs/mopub/mopub-client/iPhone/build/SimpleAds.build/Debug-iphonesimulator/SimpleAds.build/Objects-normal/i386/MoPubIAdAdapter.o
+t1295328976
+s50588
+
+N/Users/njamal/programs/mopub/mopub-client/iPhone/build/SimpleAds.build/Debug-iphonesimulator/SimpleAds.build/Objects-normal/i386/MoPubNativeSDKAdapter.o
+t1295328976
+s14636
+
+N/Users/njamal/programs/mopub/mopub-client/iPhone/build/SimpleAds.build/Debug-iphonesimulator/SimpleAds.build/Objects-normal/i386/MoPubNativeSDKRegistry.o
+t1295328977
+s11500
+
+N/Users/njamal/programs/mopub/mopub-client/iPhone/build/SimpleAds.build/Debug-iphonesimulator/SimpleAds.build/Objects-normal/i386/SecondViewController.o
+t1295328976
+s45072
+
+N/Users/njamal/programs/mopub/mopub-client/iPhone/build/SimpleAds.build/Debug-iphonesimulator/SimpleAds.build/Objects-normal/i386/SimpleAds.LinkFileList
+c000000004D35261300000000000008C1
+t1295328787
+s2241
+
+N/Users/njamal/programs/mopub/mopub-client/iPhone/build/SimpleAds.build/Debug-iphonesimulator/SimpleAds.build/Objects-normal/i386/SimpleAdsAppDelegate.o
+t1295328975
+s56116
+
+N/Users/njamal/programs/mopub/mopub-client/iPhone/build/SimpleAds.build/Debug-iphonesimulator/SimpleAds.build/Objects-normal/i386/SimpleAdsViewController.o
+t1295328975
+s68876
+
+N/Users/njamal/programs/mopub/mopub-client/iPhone/build/SimpleAds.build/Debug-iphonesimulator/SimpleAds.build/Objects-normal/i386/main.o
+t1295328975
+s6324
+
+N/Users/njamal/programs/mopub/mopub-client/iPhone/build/SimpleAds.build/Debug-iphonesimulator/SimpleAds.build/Objects-normal/i386/untitled.o
+t1295328977
+s37440
+
+N/Users/njamal/programs/mopub/mopub-client/iPhone/main.m
+c000000004CA3BBBA0000000000000160
+t1285798842
+s352
+i<UIKit/UIKit.h>
+
+N/var/folders/Ny/NyTmLyDbEZqzR2JIsC-ybE+++TI/-Caches-/com.apple.Xcode.501/SharedPrecompiledHeaders/SimpleAds_Prefix-bbppapufbebnuvbpwzwawskaiovm/SimpleAds_Prefix.pch.gch
+t1295328973
+s2253168
+
+NSimpleAds-Info.plist
+c000000004CF6C8E8000000000000037B
+t1291241704
+s891
+
+CCheck dependencies
+r0
+lSLF07#2@18"Check dependencies317021759#317021761#0(0"0(0#1#0"3343187568374212096#0"0#
+
+CCompileC build/SimpleAds.build/Debug-iphonesimulator/SimpleAds.build/Objects-normal/i386/AdClickController.o /Users/njamal/programs/mopub/mopub-client/iPhone/SDK/AdClickController.m normal i386 objective-c com.apple.compilers.gcc.4_2
+s317021776.552702
+e317021776.930584
+r1
+xCompileC
+xbuild/SimpleAds.build/Debug-iphonesimulator/SimpleAds.build/Objects-normal/i386/AdClickController.o
+x/Users/njamal/programs/mopub/mopub-client/iPhone/SDK/AdClickController.m
+xnormal
+xi386
+xobjective-c
+xcom.apple.compilers.gcc.4_2
+lSLF07#2@80"Compile /Users/njamal/programs/mopub/mopub-client/iPhone/SDK/AdClickController.m317021776#317021776#0(0"0(0#0#72"/Users/njamal/programs/mopub/mopub-client/iPhone/SDK/AdClickController.m8592765632#2119"    cd /Users/njamal/programs/mopub/mopub-client/iPhone    setenv LANG en_US.US-ASCII    setenv PATH "/Developer/Platforms/iPhoneSimulator.platform/Developer/usr/bin:/Developer/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin"    /Developer/Platforms/iPhoneSimulator.platform/Developer/usr/bin/gcc-4.2 -x objective-c -arch i386 -fmessage-length=0 -pipe -std=c99 -Wno-trigraphs -fpascal-strings -fasm-blocks -O0 -Wreturn-type -Wunused-variable -isysroot /Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator4.2.sdk -fexceptions -fvisibility=hidden -mmacosx-version-min=10.6 -gdwarf-2 -fobjc-abi-version=2 -fobjc-legacy-dispatch -D__IPHONE_OS_VERSION_MIN_REQUIRED=30100 -iquote /Users/njamal/programs/mopub/mopub-client/iPhone/build/SimpleAds.build/Debug-iphonesimulator/SimpleAds.build/SimpleAds-generated-files.hmap -I/Users/njamal/programs/mopub/mopub-client/iPhone/build/SimpleAds.build/Debug-iphonesimulator/SimpleAds.build/SimpleAds-own-target-headers.hmap -I/Users/njamal/programs/mopub/mopub-client/iPhone/build/SimpleAds.build/Debug-iphonesimulator/SimpleAds.build/SimpleAds-all-target-headers.hmap -iquote /Users/njamal/programs/mopub/mopub-client/iPhone/build/SimpleAds.build/Debug-iphonesimulator/SimpleAds.build/SimpleAds-project-headers.hmap -F/Users/njamal/programs/mopub/mopub-client/iPhone/build/Debug-iphonesimulator -I/Users/njamal/programs/mopub/mopub-client/iPhone/build/Debug-iphonesimulator/include -I/Users/njamal/programs/mopub/mopub-client/iPhone/build/SimpleAds.build/Debug-iphonesimulator/SimpleAds.build/DerivedSources/i386 -I/Users/njamal/programs/mopub/mopub-client/iPhone/build/SimpleAds.build/Debug-iphonesimulator/SimpleAds.build/DerivedSources -DGoogleAdSenseAvailable -include /var/folders/Ny/NyTmLyDbEZqzR2JIsC-ybE+++TI/-Caches-/com.apple.Xcode.501/SharedPrecompiledHeaders/SimpleAds_Prefix-bbppapufbebnuvbpwzwawskaiovm/SimpleAds_Prefix.pch -c /Users/njamal/programs/mopub/mopub-client/iPhone/SDK/AdClickController.m -o /Users/njamal/programs/mopub/mopub-client/iPhone/build/SimpleAds.build/Debug-iphonesimulator/SimpleAds.build/Objects-normal/i386/AdClickController.o0#
+
+CCompileC build/SimpleAds.build/Debug-iphonesimulator/SimpleAds.build/Objects-normal/i386/AdController.o /Users/njamal/programs/mopub/mopub-client/iPhone/SDK/AdController.m normal i386 objective-c com.apple.compilers.gcc.4_2
+s317021776.740114
+e317021777.227499
+r1
+xCompileC
+xbuild/SimpleAds.build/Debug-iphonesimulator/SimpleAds.build/Objects-normal/i386/AdController.o
+x/Users/njamal/programs/mopub/mopub-client/iPhone/SDK/AdController.m
+xnormal
+xi386
+xobjective-c
+xcom.apple.compilers.gcc.4_2
+o/Users/njamal/programs/mopub/mopub-client/iPhone/SDK/AdController.m: In function '-[AdController currentAdType]':
+o/Users/njamal/programs/mopub/mopub-client/iPhone/SDK/AdController.m:79: warning: no '+networkType' method found
+o/Users/njamal/programs/mopub/mopub-client/iPhone/SDK/AdController.m:79: warning: (Messages without a matching method signature
+o/Users/njamal/programs/mopub/mopub-client/iPhone/SDK/AdController.m:79: warning: will be assumed to return 'id' and accept
+o/Users/njamal/programs/mopub/mopub-client/iPhone/SDK/AdController.m:79: warning: '...' as arguments.)
+lSLF07#2@75"Compile /Users/njamal/programs/mopub/mopub-client/iPhone/SDK/AdController.m317021776#317021777#0(578"/Users/njamal/programs/mopub/mopub-client/iPhone/SDK/AdController.m: In function '-[AdController currentAdType]':/Users/njamal/programs/mopub/mopub-client/iPhone/SDK/AdController.m:79: warning: no '+networkType' method found/Users/njamal/programs/mopub/mopub-client/iPhone/SDK/AdController.m:79: warning: (Messages without a matching method signature/Users/njamal/programs/mopub/mopub-client/iPhone/SDK/AdController.m:79: warning: will be assumed to return 'id' and accept/Users/njamal/programs/mopub/mopub-client/iPhone/SDK/AdController.m:79: warning: '...' as arguments.)2(22@30"No '+networkType' method found317021777#114#112#0(6@67"/Users/njamal/programs/mopub/mopub-client/iPhone/SDK/AdController.m313799367#79#0#79#0#19"no '*' method found0(13@108"(Messages without a matching method signature will be assumed to return 'id' and accept '...' as arguments.)317021777#226#127#0(6@67"/Users/njamal/programs/mopub/mopub-client/iPhone/SDK/AdController.m313799367#79#0#79#0#0"0(0#0#67"/Users/njamal/programs/mopub/mopub-client/iPhone/SDK/AdController.m8605319520#2109"    cd /Users/njamal/programs/mopub/mopub-client/iPhone    setenv LANG en_US.US-ASCII    setenv PATH "/Developer/Platforms/iPhoneSimulator.platform/Developer/usr/bin:/Developer/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin"    /Developer/Platforms/iPhoneSimulator.platform/Developer/usr/bin/gcc-4.2 -x objective-c -arch i386 -fmessage-length=0 -pipe -std=c99 -Wno-trigraphs -fpascal-strings -fasm-blocks -O0 -Wreturn-type -Wunused-variable -isysroot /Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator4.2.sdk -fexceptions -fvisibility=hidden -mmacosx-version-min=10.6 -gdwarf-2 -fobjc-abi-version=2 -fobjc-legacy-dispatch -D__IPHONE_OS_VERSION_MIN_REQUIRED=30100 -iquote /Users/njamal/programs/mopub/mopub-client/iPhone/build/SimpleAds.build/Debug-iphonesimulator/SimpleAds.build/SimpleAds-generated-files.hmap -I/Users/njamal/programs/mopub/mopub-client/iPhone/build/SimpleAds.build/Debug-iphonesimulator/SimpleAds.build/SimpleAds-own-target-headers.hmap -I/Users/njamal/programs/mopub/mopub-client/iPhone/build/SimpleAds.build/Debug-iphonesimulator/SimpleAds.build/SimpleAds-all-target-headers.hmap -iquote /Users/njamal/programs/mopub/mopub-client/iPhone/build/SimpleAds.build/Debug-iphonesimulator/SimpleAds.build/SimpleAds-project-headers.hmap -F/Users/njamal/programs/mopub/mopub-client/iPhone/build/Debug-iphonesimulator -I/Users/njamal/programs/mopub/mopub-client/iPhone/build/Debug-iphonesimulator/include -I/Users/njamal/programs/mopub/mopub-client/iPhone/build/SimpleAds.build/Debug-iphonesimulator/SimpleAds.build/DerivedSources/i386 -I/Users/njamal/programs/mopub/mopub-client/iPhone/build/SimpleAds.build/Debug-iphonesimulator/SimpleAds.build/DerivedSources -DGoogleAdSenseAvailable -include /var/folders/Ny/NyTmLyDbEZqzR2JIsC-ybE+++TI/-Caches-/com.apple.Xcode.501/SharedPrecompiledHeaders/SimpleAds_Prefix-bbppapufbebnuvbpwzwawskaiovm/SimpleAds_Prefix.pch -c /Users/njamal/programs/mopub/mopub-client/iPhone/SDK/AdController.m -o /Users/njamal/programs/mopub/mopub-client/iPhone/build/SimpleAds.build/Debug-iphonesimulator/SimpleAds.build/Objects-normal/i386/AdController.o0#
+
+CCompileC build/SimpleAds.build/Debug-iphonesimulator/SimpleAds.build/Objects-normal/i386/AdConversionTracker.o /Users/njamal/programs/mopub/mopub-client/iPhone/SDK/AdConversionTracker.m normal i386 objective-c com.apple.compilers.gcc.4_2
+s317021776.930685
+e317021777.242496
+r1
+xCompileC
+xbuild/SimpleAds.build/Debug-iphonesimulator/SimpleAds.build/Objects-normal/i386/AdConversionTracker.o
+x/Users/njamal/programs/mopub/mopub-client/iPhone/SDK/AdConversionTracker.m
+xnormal
+xi386
+xobjective-c
+xcom.apple.compilers.gcc.4_2
+lSLF07#2@82"Compile /Users/njamal/programs/mopub/mopub-client/iPhone/SDK/AdConversionTracker.m317021776#317021777#0(0"0(0#0#74"/Users/njamal/programs/mopub/mopub-client/iPhone/SDK/AdConversionTracker.m8590453088#2123"    cd /Users/njamal/programs/mopub/mopub-client/iPhone    setenv LANG en_US.US-ASCII    setenv PATH "/Developer/Platforms/iPhoneSimulator.platform/Developer/usr/bin:/Developer/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin"    /Developer/Platforms/iPhoneSimulator.platform/Developer/usr/bin/gcc-4.2 -x objective-c -arch i386 -fmessage-length=0 -pipe -std=c99 -Wno-trigraphs -fpascal-strings -fasm-blocks -O0 -Wreturn-type -Wunused-variable -isysroot /Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator4.2.sdk -fexceptions -fvisibility=hidden -mmacosx-version-min=10.6 -gdwarf-2 -fobjc-abi-version=2 -fobjc-legacy-dispatch -D__IPHONE_OS_VERSION_MIN_REQUIRED=30100 -iquote /Users/njamal/programs/mopub/mopub-client/iPhone/build/SimpleAds.build/Debug-iphonesimulator/SimpleAds.build/SimpleAds-generated-files.hmap -I/Users/njamal/programs/mopub/mopub-client/iPhone/build/SimpleAds.build/Debug-iphonesimulator/SimpleAds.build/SimpleAds-own-target-headers.hmap -I/Users/njamal/programs/mopub/mopub-client/iPhone/build/SimpleAds.build/Debug-iphonesimulator/SimpleAds.build/SimpleAds-all-target-headers.hmap -iquote /Users/njamal/programs/mopub/mopub-client/iPhone/build/SimpleAds.build/Debug-iphonesimulator/SimpleAds.build/SimpleAds-project-headers.hmap -F/Users/njamal/programs/mopub/mopub-client/iPhone/build/Debug-iphonesimulator -I/Users/njamal/programs/mopub/mopub-client/iPhone/build/Debug-iphonesimulator/include -I/Users/njamal/programs/mopub/mopub-client/iPhone/build/SimpleAds.build/Debug-iphonesimulator/SimpleAds.build/DerivedSources/i386 -I/Users/njamal/programs/mopub/mopub-client/iPhone/build/SimpleAds.build/Debug-iphonesimulator/SimpleAds.build/DerivedSources -DGoogleAdSenseAvailable -include /var/folders/Ny/NyTmLyDbEZqzR2JIsC-ybE+++TI/-Caches-/com.apple.Xcode.501/SharedPrecompiledHeaders/SimpleAds_Prefix-bbppapufbebnuvbpwzwawskaiovm/SimpleAds_Prefix.pch -c /Users/njamal/programs/mopub/mopub-client/iPhone/SDK/AdConversionTracker.m -o /Users/njamal/programs/mopub/mopub-client/iPhone/build/SimpleAds.build/Debug-iphonesimulator/SimpleAds.build/Objects-normal/i386/AdConversionTracker.o0#
+
+CCompileC build/SimpleAds.build/Debug-iphonesimulator/SimpleAds.build/Objects-normal/i386/InterstitialAdController.o /Users/njamal/programs/mopub/mopub-client/iPhone/SDK/InterstitialAdController.m normal i386 objective-c com.apple.compilers.gcc.4_2
+s317021777.227668
+e317021777.666662
+r1
+xCompileC
+xbuild/SimpleAds.build/Debug-iphonesimulator/SimpleAds.build/Objects-normal/i386/InterstitialAdController.o
+x/Users/njamal/programs/mopub/mopub-client/iPhone/SDK/InterstitialAdController.m
+xnormal
+xi386
+xobjective-c
+xcom.apple.compilers.gcc.4_2
+lSLF07#2@87"Compile /Users/njamal/programs/mopub/mopub-client/iPhone/SDK/InterstitialAdController.m317021777#317021777#0(0"0(0#0#79"/Users/njamal/programs/mopub/mopub-client/iPhone/SDK/InterstitialAdController.m8605318880#2133"    cd /Users/njamal/programs/mopub/mopub-client/iPhone    setenv LANG en_US.US-ASCII    setenv PATH "/Developer/Platforms/iPhoneSimulator.platform/Developer/usr/bin:/Developer/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin"    /Developer/Platforms/iPhoneSimulator.platform/Developer/usr/bin/gcc-4.2 -x objective-c -arch i386 -fmessage-length=0 -pipe -std=c99 -Wno-trigraphs -fpascal-strings -fasm-blocks -O0 -Wreturn-type -Wunused-variable -isysroot /Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator4.2.sdk -fexceptions -fvisibility=hidden -mmacosx-version-min=10.6 -gdwarf-2 -fobjc-abi-version=2 -fobjc-legacy-dispatch -D__IPHONE_OS_VERSION_MIN_REQUIRED=30100 -iquote /Users/njamal/programs/mopub/mopub-client/iPhone/build/SimpleAds.build/Debug-iphonesimulator/SimpleAds.build/SimpleAds-generated-files.hmap -I/Users/njamal/programs/mopub/mopub-client/iPhone/build/SimpleAds.build/Debug-iphonesimulator/SimpleAds.build/SimpleAds-own-target-headers.hmap -I/Users/njamal/programs/mopub/mopub-client/iPhone/build/SimpleAds.build/Debug-iphonesimulator/SimpleAds.build/SimpleAds-all-target-headers.hmap -iquote /Users/njamal/programs/mopub/mopub-client/iPhone/build/SimpleAds.build/Debug-iphonesimulator/SimpleAds.build/SimpleAds-project-headers.hmap -F/Users/njamal/programs/mopub/mopub-client/iPhone/build/Debug-iphonesimulator -I/Users/njamal/programs/mopub/mopub-client/iPhone/build/Debug-iphonesimulator/include -I/Users/njamal/programs/mopub/mopub-client/iPhone/build/SimpleAds.build/Debug-iphonesimulator/SimpleAds.build/DerivedSources/i386 -I/Users/njamal/programs/mopub/mopub-client/iPhone/build/SimpleAds.build/Debug-iphonesimulator/SimpleAds.build/DerivedSources -DGoogleAdSenseAvailable -include /var/folders/Ny/NyTmLyDbEZqzR2JIsC-ybE+++TI/-Caches-/com.apple.Xcode.501/SharedPrecompiledHeaders/SimpleAds_Prefix-bbppapufbebnuvbpwzwawskaiovm/SimpleAds_Prefix.pch -c /Users/njamal/programs/mopub/mopub-client/iPhone/SDK/InterstitialAdController.m -o /Users/njamal/programs/mopub/mopub-client/iPhone/build/SimpleAds.build/Debug-iphonesimulator/SimpleAds.build/Objects-normal/i386/InterstitialAdController.o0#
+
+CCompileC build/SimpleAds.build/Debug-iphonesimulator/SimpleAds.build/Objects-normal/i386/MoPubAlertAdAdapter.o /Users/njamal/programs/mopub/mopub-client/iPhone/SDK/adapters/MoPubAlertAdAdapter.m normal i386 objective-c com.apple.compilers.gcc.4_2
+s317021775.933547
+e317021776.220702
+r0
+xCompileC
+xbuild/SimpleAds.build/Debug-iphonesimulator/SimpleAds.build/Objects-normal/i386/MoPubAlertAdAdapter.o
+x/Users/njamal/programs/mopub/mopub-client/iPhone/SDK/adapters/MoPubAlertAdAdapter.m
+xnormal
+xi386
+xobjective-c
+xcom.apple.compilers.gcc.4_2
+o/Users/njamal/programs/mopub/mopub-client/iPhone/SDK/adapters/MoPubAlertAdAdapter.m: In function '+[MoPubAlertAdAdapter load]':
+o/Users/njamal/programs/mopub/mopub-client/iPhone/SDK/adapters/MoPubAlertAdAdapter.m:24: error: 'MoPubNativeSDKRegistry' undeclared (first use in this function)
+o/Users/njamal/programs/mopub/mopub-client/iPhone/SDK/adapters/MoPubAlertAdAdapter.m:24: error: (Each undeclared identifier is reported only once
+o/Users/njamal/programs/mopub/mopub-client/iPhone/SDK/adapters/MoPubAlertAdAdapter.m:24: error: for each function it appears in.)
+o/Users/njamal/programs/mopub/mopub-client/iPhone/SDK/adapters/MoPubAlertAdAdapter.m: In function '-[MoPubAlertAdAdapter willPresentAlertView:]':
+o/Users/njamal/programs/mopub/mopub-client/iPhone/SDK/adapters/MoPubAlertAdAdapter.m:80: error: accessing unknown 'delegate' component of a property
+o/Users/njamal/programs/mopub/mopub-client/iPhone/SDK/adapters/MoPubAlertAdAdapter.m:81: error: accessing unknown 'delegate' component of a property
+o/Users/njamal/programs/mopub/mopub-client/iPhone/SDK/adapters/MoPubAlertAdAdapter.m: In function '-[MoPubAlertAdAdapter didPresentAlertView:]':
+o/Users/njamal/programs/mopub/mopub-client/iPhone/SDK/adapters/MoPubAlertAdAdapter.m:86: error: accessing unknown 'delegate' component of a property
+o/Users/njamal/programs/mopub/mopub-client/iPhone/SDK/adapters/MoPubAlertAdAdapter.m:87: error: accessing unknown 'delegate' component of a property
+o/Users/njamal/programs/mopub/mopub-client/iPhone/SDK/adapters/MoPubAlertAdAdapter.m: In function '-[MoPubAlertAdAdapter alertView:willDismissWithButtonIndex:]':
+o/Users/njamal/programs/mopub/mopub-client/iPhone/SDK/adapters/MoPubAlertAdAdapter.m:93: error: accessing unknown 'delegate' component of a property
+o/Users/njamal/programs/mopub/mopub-client/iPhone/SDK/adapters/MoPubAlertAdAdapter.m:94: error: accessing unknown 'delegate' component of a property
+o/Users/njamal/programs/mopub/mopub-client/iPhone/SDK/adapters/MoPubAlertAdAdapter.m: In function '-[MoPubAlertAdAdapter alertView:didDismissWithButtonIndex:]':
+o/Users/njamal/programs/mopub/mopub-client/iPhone/SDK/adapters/MoPubAlertAdAdapter.m:99: error: accessing unknown 'delegate' component of a property
+o/Users/njamal/programs/mopub/mopub-client/iPhone/SDK/adapters/MoPubAlertAdAdapter.m:100: error: accessing unknown 'delegate' component of a property
+o{standard input}:99:non-relocatable subtraction expression, "L_OBJC_SELECTOR_REFERENCES_1" minus "L00000000002$pb"
+o{standard input}:99:symbol: "L_OBJC_SELECTOR_REFERENCES_1" can't be undefined in a subtraction expression
+o{standard input}:95:non-relocatable subtraction expression, "L_OBJC_CLASSLIST_SUP_REFS_$_0" minus "L00000000002$pb"
+o{standard input}:95:symbol: "L_OBJC_CLASSLIST_SUP_REFS_$_0" can't be undefined in a subtraction expression
+o{standard input}:87:non-relocatable subtraction expression, "L_OBJC_SELECTOR_REFERENCES_0" minus "L00000000002$pb"
+o{standard input}:87:symbol: "L_OBJC_SELECTOR_REFERENCES_0" can't be undefined in a subtraction expression
+o{standard input}:81:non-relocatable subtraction expression, "L_OBJC_IVAR_$_MoPubAlertAdAdapter.alertParameters$non_lazy_ptr" minus "L00000000002$pb"
+o{standard input}:81:symbol: "L_OBJC_IVAR_$_MoPubAlertAdAdapter.alertParameters$non_lazy_ptr" can't be undefined in a subtraction expression
+o{standard input}:unknown:Undefined local symbol L_OBJC_IVAR_$_MoPubAlertAdAdapter.alertParameters$non_lazy_ptr
+o{standard input}:unknown:Undefined local symbol L_OBJC_SELECTOR_REFERENCES_0
+o{standard input}:unknown:Undefined local symbol L_OBJC_CLASSLIST_SUP_REFS_$_0
+o{standard input}:unknown:Undefined local symbol L_OBJC_SELECTOR_REFERENCES_1
+lSLF07#2@91"Compile /Users/njamal/programs/mopub/mopub-client/iPhone/SDK/adapters/MoPubAlertAdAdapter.m317021775#317021776#0(3654"/Users/njamal/programs/mopub/mopub-client/iPhone/SDK/adapters/MoPubAlertAdAdapter.m: In function '+[MoPubAlertAdAdapter load]':/Users/njamal/programs/mopub/mopub-client/iPhone/SDK/adapters/MoPubAlertAdAdapter.m:24: error: 'MoPubNativeSDKRegistry' undeclared (first use in this function)/Users/njamal/programs/mopub/mopub-client/iPhone/SDK/adapters/MoPubAlertAdAdapter.m:24: error: (Each undeclared identifier is reported only once/Users/njamal/programs/mopub/mopub-client/iPhone/SDK/adapters/MoPubAlertAdAdapter.m:24: error: for each function it appears in.)/Users/njamal/programs/mopub/mopub-client/iPhone/SDK/adapters/MoPubAlertAdAdapter.m: In function '-[MoPubAlertAdAdapter willPresentAlertView:]':/Users/njamal/programs/mopub/mopub-client/iPhone/SDK/adapters/MoPubAlertAdAdapter.m:80: error: accessing unknown 'delegate' component of a property/Users/njamal/programs/mopub/mopub-client/iPhone/SDK/adapters/MoPubAlertAdAdapter.m:81: error: accessing unknown 'delegate' component of a property/Users/njamal/programs/mopub/mopub-client/iPhone/SDK/adapters/MoPubAlertAdAdapter.m: In function '-[MoPubAlertAdAdapter didPresentAlertView:]':/Users/njamal/programs/mopub/mopub-client/iPhone/SDK/adapters/MoPubAlertAdAdapter.m:86: error: accessing unknown 'delegate' component of a property/Users/njamal/programs/mopub/mopub-client/iPhone/SDK/adapters/MoPubAlertAdAdapter.m:87: error: accessing unknown 'delegate' component of a property/Users/njamal/programs/mopub/mopub-client/iPhone/SDK/adapters/MoPubAlertAdAdapter.m: In function '-[MoPubAlertAdAdapter alertView:willDismissWithButtonIndex:]':/Users/njamal/programs/mopub/mopub-client/iPhone/SDK/adapters/MoPubAlertAdAdapter.m:93: error: accessing unknown 'delegate' component of a property/Users/njamal/programs/mopub/mopub-client/iPhone/SDK/adapters/MoPubAlertAdAdapter.m:94: error: accessing unknown 'delegate' component of a property/Users/njamal/programs/mopub/mopub-client/iPhone/SDK/adapters/MoPubAlertAdAdapter.m: In function '-[MoPubAlertAdAdapter alertView:didDismissWithButtonIndex:]':/Users/njamal/programs/mopub/mopub-client/iPhone/SDK/adapters/MoPubAlertAdAdapter.m:99: error: accessing unknown 'delegate' component of a property/Users/njamal/programs/mopub/mopub-client/iPhone/SDK/adapters/MoPubAlertAdAdapter.m:100: error: accessing unknown 'delegate' component of a property{standard input}:99:non-relocatable subtraction expression, "L_OBJC_SELECTOR_REFERENCES_1" minus "L00000000002$pb"{standard input}:99:symbol: "L_OBJC_SELECTOR_REFERENCES_1" can't be undefined in a subtraction expression{standard input}:95:non-relocatable subtraction expression, "L_OBJC_CLASSLIST_SUP_REFS_$_0" minus "L00000000002$pb"{standard input}:95:symbol: "L_OBJC_CLASSLIST_SUP_REFS_$_0" can't be undefined in a subtraction expression{standard input}:87:non-relocatable subtraction expression, "L_OBJC_SELECTOR_REFERENCES_0" minus "L00000000002$pb"{standard input}:87:symbol: "L_OBJC_SELECTOR_REFERENCES_0" can't be undefined in a subtraction expression{standard input}:81:non-relocatable subtraction expression, "L_OBJC_IVAR_$_MoPubAlertAdAdapter.alertParameters$non_lazy_ptr" minus "L00000000002$pb"{standard input}:81:symbol: "L_OBJC_IVAR_$_MoPubAlertAdAdapter.alertParameters$non_lazy_ptr" can't be undefined in a subtraction expression{standard input}:unknown:Undefined local symbol L_OBJC_IVAR_$_MoPubAlertAdAdapter.alertParameters$non_lazy_ptr{standard input}:unknown:Undefined local symbol L_OBJC_SELECTOR_REFERENCES_0{standard input}:unknown:Undefined local symbol L_OBJC_CLASSLIST_SUP_REFS_$_0{standard input}:unknown:Undefined local symbol L_OBJC_SELECTOR_REFERENCES_19(4@64"'MoPubNativeSDKRegistry' undeclared (first use in this function)317021776#128#160#0(6@83"/Users/njamal/programs/mopub/mopub-client/iPhone/SDK/adapters/MoPubAlertAdAdapter.m317021540#24#0#24#0#43"'*' undeclared (first use in this function)0(4@52"Accessing unknown 'delegate' component of a property317021776#707#148#0(6@83"/Users/njamal/programs/mopub/mopub-client/iPhone/SDK/adapters/MoPubAlertAdAdapter.m317021540#80#0#80#0#0"0(4@52"Accessing unknown 'delegate' component of a property317021776#855#148#0(6@83"/Users/njamal/programs/mopub/mopub-client/iPhone/SDK/adapters/MoPubAlertAdAdapter.m317021540#81#0#81#0#0"0(4@52"Accessing unknown 'delegate' component of a property317021776#1147#148#0(6@83"/Users/njamal/programs/mopub/mopub-client/iPhone/SDK/adapters/MoPubAlertAdAdapter.m317021540#86#0#86#0#0"0(4@52"Accessing unknown 'delegate' component of a property317021776#1295#148#0(6@83"/Users/njamal/programs/mopub/mopub-client/iPhone/SDK/adapters/MoPubAlertAdAdapter.m317021540#87#0#87#0#0"0(4@52"Accessing unknown 'delegate' component of a property317021776#1604#148#0(6@83"/Users/njamal/programs/mopub/mopub-client/iPhone/SDK/adapters/MoPubAlertAdAdapter.m317021540#93#0#93#0#0"0(4@52"Accessing unknown 'delegate' component of a property317021776#1752#148#0(6@83"/Users/njamal/programs/mopub/mopub-client/iPhone/SDK/adapters/MoPubAlertAdAdapter.m317021540#94#0#94#0#0"0(4@52"Accessing unknown 'delegate' component of a property317021776#2060#148#0(6@83"/Users/njamal/programs/mopub/mopub-client/iPhone/SDK/adapters/MoPubAlertAdAdapter.m317021540#99#0#99#0#0"0(4@52"Accessing unknown 'delegate' component of a property317021776#2208#149#0(6@83"/Users/njamal/programs/mopub/mopub-client/iPhone/SDK/adapters/MoPubAlertAdAdapter.m317021540#100#0#100#0#0"0(0#0#83"/Users/njamal/programs/mopub/mopub-client/iPhone/SDK/adapters/MoPubAlertAdAdapter.m8598908768#2132"    cd /Users/njamal/programs/mopub/mopub-client/iPhone    setenv LANG en_US.US-ASCII    setenv PATH "/Developer/Platforms/iPhoneSimulator.platform/Developer/usr/bin:/Developer/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin"    /Developer/Platforms/iPhoneSimulator.platform/Developer/usr/bin/gcc-4.2 -x objective-c -arch i386 -fmessage-length=0 -pipe -std=c99 -Wno-trigraphs -fpascal-strings -fasm-blocks -O0 -Wreturn-type -Wunused-variable -isysroot /Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator4.2.sdk -fexceptions -fvisibility=hidden -mmacosx-version-min=10.6 -gdwarf-2 -fobjc-abi-version=2 -fobjc-legacy-dispatch -D__IPHONE_OS_VERSION_MIN_REQUIRED=30100 -iquote /Users/njamal/programs/mopub/mopub-client/iPhone/build/SimpleAds.build/Debug-iphonesimulator/SimpleAds.build/SimpleAds-generated-files.hmap -I/Users/njamal/programs/mopub/mopub-client/iPhone/build/SimpleAds.build/Debug-iphonesimulator/SimpleAds.build/SimpleAds-own-target-headers.hmap -I/Users/njamal/programs/mopub/mopub-client/iPhone/build/SimpleAds.build/Debug-iphonesimulator/SimpleAds.build/SimpleAds-all-target-headers.hmap -iquote /Users/njamal/programs/mopub/mopub-client/iPhone/build/SimpleAds.build/Debug-iphonesimulator/SimpleAds.build/SimpleAds-project-headers.hmap -F/Users/njamal/programs/mopub/mopub-client/iPhone/build/Debug-iphonesimulator -I/Users/njamal/programs/mopub/mopub-client/iPhone/build/Debug-iphonesimulator/include -I/Users/njamal/programs/mopub/mopub-client/iPhone/build/SimpleAds.build/Debug-iphonesimulator/SimpleAds.build/DerivedSources/i386 -I/Users/njamal/programs/mopub/mopub-client/iPhone/build/SimpleAds.build/Debug-iphonesimulator/SimpleAds.build/DerivedSources -DGoogleAdSenseAvailable -include /var/folders/Ny/NyTmLyDbEZqzR2JIsC-ybE+++TI/-Caches-/com.apple.Xcode.501/SharedPrecompiledHeaders/SimpleAds_Prefix-bbppapufbebnuvbpwzwawskaiovm/SimpleAds_Prefix.pch -c /Users/njamal/programs/mopub/mopub-client/iPhone/SDK/adapters/MoPubAlertAdAdapter.m -o /Users/njamal/programs/mopub/mopub-client/iPhone/build/SimpleAds.build/Debug-iphonesimulator/SimpleAds.build/Objects-normal/i386/MoPubAlertAdAdapter.o1#
+
+CCompileC build/SimpleAds.build/Debug-iphonesimulator/SimpleAds.build/Objects-normal/i386/MoPubClassWrapper.o /Users/njamal/programs/mopub/mopub-client/iPhone/SDK/MoPubClassWrapper.m normal i386 objective-c com.apple.compilers.gcc.4_2
+s317021777.242605
+e317021777.453240
+r1
+xCompileC
+xbuild/SimpleAds.build/Debug-iphonesimulator/SimpleAds.build/Objects-normal/i386/MoPubClassWrapper.o
+x/Users/njamal/programs/mopub/mopub-client/iPhone/SDK/MoPubClassWrapper.m
+xnormal
+xi386
+xobjective-c
+xcom.apple.compilers.gcc.4_2
+lSLF07#2@80"Compile /Users/njamal/programs/mopub/mopub-client/iPhone/SDK/MoPubClassWrapper.m317021777#317021777#0(0"0(0#0#72"/Users/njamal/programs/mopub/mopub-client/iPhone/SDK/MoPubClassWrapper.m8599235392#2119"    cd /Users/njamal/programs/mopub/mopub-client/iPhone    setenv LANG en_US.US-ASCII    setenv PATH "/Developer/Platforms/iPhoneSimulator.platform/Developer/usr/bin:/Developer/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin"    /Developer/Platforms/iPhoneSimulator.platform/Developer/usr/bin/gcc-4.2 -x objective-c -arch i386 -fmessage-length=0 -pipe -std=c99 -Wno-trigraphs -fpascal-strings -fasm-blocks -O0 -Wreturn-type -Wunused-variable -isysroot /Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator4.2.sdk -fexceptions -fvisibility=hidden -mmacosx-version-min=10.6 -gdwarf-2 -fobjc-abi-version=2 -fobjc-legacy-dispatch -D__IPHONE_OS_VERSION_MIN_REQUIRED=30100 -iquote /Users/njamal/programs/mopub/mopub-client/iPhone/build/SimpleAds.build/Debug-iphonesimulator/SimpleAds.build/SimpleAds-generated-files.hmap -I/Users/njamal/programs/mopub/mopub-client/iPhone/build/SimpleAds.build/Debug-iphonesimulator/SimpleAds.build/SimpleAds-own-target-headers.hmap -I/Users/njamal/programs/mopub/mopub-client/iPhone/build/SimpleAds.build/Debug-iphonesimulator/SimpleAds.build/SimpleAds-all-target-headers.hmap -iquote /Users/njamal/programs/mopub/mopub-client/iPhone/build/SimpleAds.build/Debug-iphonesimulator/SimpleAds.build/SimpleAds-project-headers.hmap -F/Users/njamal/programs/mopub/mopub-client/iPhone/build/Debug-iphonesimulator -I/Users/njamal/programs/mopub/mopub-client/iPhone/build/Debug-iphonesimulator/include -I/Users/njamal/programs/mopub/mopub-client/iPhone/build/SimpleAds.build/Debug-iphonesimulator/SimpleAds.build/DerivedSources/i386 -I/Users/njamal/programs/mopub/mopub-client/iPhone/build/SimpleAds.build/Debug-iphonesimulator/SimpleAds.build/DerivedSources -DGoogleAdSenseAvailable -include /var/folders/Ny/NyTmLyDbEZqzR2JIsC-ybE+++TI/-Caches-/com.apple.Xcode.501/SharedPrecompiledHeaders/SimpleAds_Prefix-bbppapufbebnuvbpwzwawskaiovm/SimpleAds_Prefix.pch -c /Users/njamal/programs/mopub/mopub-client/iPhone/SDK/MoPubClassWrapper.m -o /Users/njamal/programs/mopub/mopub-client/iPhone/build/SimpleAds.build/Debug-iphonesimulator/SimpleAds.build/Objects-normal/i386/MoPubClassWrapper.o0#
+
+CCompileC build/SimpleAds.build/Debug-iphonesimulator/SimpleAds.build/Objects-normal/i386/MoPubCustomAdAdapter.o /Users/njamal/programs/mopub/mopub-client/iPhone/SDK/adapters/MoPubCustomAdAdapter.m normal i386 objective-c com.apple.compilers.gcc.4_2
+s317021776.121283
+e317021776.458964
+r1
+xCompileC
+xbuild/SimpleAds.build/Debug-iphonesimulator/SimpleAds.build/Objects-normal/i386/MoPubCustomAdAdapter.o
+x/Users/njamal/programs/mopub/mopub-client/iPhone/SDK/adapters/MoPubCustomAdAdapter.m
+xnormal
+xi386
+xobjective-c
+xcom.apple.compilers.gcc.4_2
+lSLF07#2@92"Compile /Users/njamal/programs/mopub/mopub-client/iPhone/SDK/adapters/MoPubCustomAdAdapter.m317021776#317021776#0(0"0(0#0#84"/Users/njamal/programs/mopub/mopub-client/iPhone/SDK/adapters/MoPubCustomAdAdapter.m8592827232#2134"    cd /Users/njamal/programs/mopub/mopub-client/iPhone    setenv LANG en_US.US-ASCII    setenv PATH "/Developer/Platforms/iPhoneSimulator.platform/Developer/usr/bin:/Developer/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin"    /Developer/Platforms/iPhoneSimulator.platform/Developer/usr/bin/gcc-4.2 -x objective-c -arch i386 -fmessage-length=0 -pipe -std=c99 -Wno-trigraphs -fpascal-strings -fasm-blocks -O0 -Wreturn-type -Wunused-variable -isysroot /Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator4.2.sdk -fexceptions -fvisibility=hidden -mmacosx-version-min=10.6 -gdwarf-2 -fobjc-abi-version=2 -fobjc-legacy-dispatch -D__IPHONE_OS_VERSION_MIN_REQUIRED=30100 -iquote /Users/njamal/programs/mopub/mopub-client/iPhone/build/SimpleAds.build/Debug-iphonesimulator/SimpleAds.build/SimpleAds-generated-files.hmap -I/Users/njamal/programs/mopub/mopub-client/iPhone/build/SimpleAds.build/Debug-iphonesimulator/SimpleAds.build/SimpleAds-own-target-headers.hmap -I/Users/njamal/programs/mopub/mopub-client/iPhone/build/SimpleAds.build/Debug-iphonesimulator/SimpleAds.build/SimpleAds-all-target-headers.hmap -iquote /Users/njamal/programs/mopub/mopub-client/iPhone/build/SimpleAds.build/Debug-iphonesimulator/SimpleAds.build/SimpleAds-project-headers.hmap -F/Users/njamal/programs/mopub/mopub-client/iPhone/build/Debug-iphonesimulator -I/Users/njamal/programs/mopub/mopub-client/iPhone/build/Debug-iphonesimulator/include -I/Users/njamal/programs/mopub/mopub-client/iPhone/build/SimpleAds.build/Debug-iphonesimulator/SimpleAds.build/DerivedSources/i386 -I/Users/njamal/programs/mopub/mopub-client/iPhone/build/SimpleAds.build/Debug-iphonesimulator/SimpleAds.build/DerivedSources -DGoogleAdSenseAvailable -include /var/folders/Ny/NyTmLyDbEZqzR2JIsC-ybE+++TI/-Caches-/com.apple.Xcode.501/SharedPrecompiledHeaders/SimpleAds_Prefix-bbppapufbebnuvbpwzwawskaiovm/SimpleAds_Prefix.pch -c /Users/njamal/programs/mopub/mopub-client/iPhone/SDK/adapters/MoPubCustomAdAdapter.m -o /Users/njamal/programs/mopub/mopub-client/iPhone/build/SimpleAds.build/Debug-iphonesimulator/SimpleAds.build/Objects-normal/i386/MoPubCustomAdAdapter.o0#
+
+CCompileC build/SimpleAds.build/Debug-iphonesimulator/SimpleAds.build/Objects-normal/i386/MoPubIAdAdapter.o /Users/njamal/programs/mopub/mopub-client/iPhone/SDK/adapters/MoPubIAdAdapter.m normal i386 objective-c com.apple.compilers.gcc.4_2
+s317021776.220801
+e317021776.552597
+r1
+xCompileC
+xbuild/SimpleAds.build/Debug-iphonesimulator/SimpleAds.build/Objects-normal/i386/MoPubIAdAdapter.o
+x/Users/njamal/programs/mopub/mopub-client/iPhone/SDK/adapters/MoPubIAdAdapter.m
+xnormal
+xi386
+xobjective-c
+xcom.apple.compilers.gcc.4_2
+lSLF07#2@87"Compile /Users/njamal/programs/mopub/mopub-client/iPhone/SDK/adapters/MoPubIAdAdapter.m317021776#317021776#0(0"0(0#0#79"/Users/njamal/programs/mopub/mopub-client/iPhone/SDK/adapters/MoPubIAdAdapter.m7083932847239164928#2124"    cd /Users/njamal/programs/mopub/mopub-client/iPhone    setenv LANG en_US.US-ASCII    setenv PATH "/Developer/Platforms/iPhoneSimulator.platform/Developer/usr/bin:/Developer/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin"    /Developer/Platforms/iPhoneSimulator.platform/Developer/usr/bin/gcc-4.2 -x objective-c -arch i386 -fmessage-length=0 -pipe -std=c99 -Wno-trigraphs -fpascal-strings -fasm-blocks -O0 -Wreturn-type -Wunused-variable -isysroot /Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator4.2.sdk -fexceptions -fvisibility=hidden -mmacosx-version-min=10.6 -gdwarf-2 -fobjc-abi-version=2 -fobjc-legacy-dispatch -D__IPHONE_OS_VERSION_MIN_REQUIRED=30100 -iquote /Users/njamal/programs/mopub/mopub-client/iPhone/build/SimpleAds.build/Debug-iphonesimulator/SimpleAds.build/SimpleAds-generated-files.hmap -I/Users/njamal/programs/mopub/mopub-client/iPhone/build/SimpleAds.build/Debug-iphonesimulator/SimpleAds.build/SimpleAds-own-target-headers.hmap -I/Users/njamal/programs/mopub/mopub-client/iPhone/build/SimpleAds.build/Debug-iphonesimulator/SimpleAds.build/SimpleAds-all-target-headers.hmap -iquote /Users/njamal/programs/mopub/mopub-client/iPhone/build/SimpleAds.build/Debug-iphonesimulator/SimpleAds.build/SimpleAds-project-headers.hmap -F/Users/njamal/programs/mopub/mopub-client/iPhone/build/Debug-iphonesimulator -I/Users/njamal/programs/mopub/mopub-client/iPhone/build/Debug-iphonesimulator/include -I/Users/njamal/programs/mopub/mopub-client/iPhone/build/SimpleAds.build/Debug-iphonesimulator/SimpleAds.build/DerivedSources/i386 -I/Users/njamal/programs/mopub/mopub-client/iPhone/build/SimpleAds.build/Debug-iphonesimulator/SimpleAds.build/DerivedSources -DGoogleAdSenseAvailable -include /var/folders/Ny/NyTmLyDbEZqzR2JIsC-ybE+++TI/-Caches-/com.apple.Xcode.501/SharedPrecompiledHeaders/SimpleAds_Prefix-bbppapufbebnuvbpwzwawskaiovm/SimpleAds_Prefix.pch -c /Users/njamal/programs/mopub/mopub-client/iPhone/SDK/adapters/MoPubIAdAdapter.m -o /Users/njamal/programs/mopub/mopub-client/iPhone/build/SimpleAds.build/Debug-iphonesimulator/SimpleAds.build/Objects-normal/i386/MoPubIAdAdapter.o0#
+
+CCompileC build/SimpleAds.build/Debug-iphonesimulator/SimpleAds.build/Objects-normal/i386/MoPubNativeSDKAdapter.o /Users/njamal/programs/mopub/mopub-client/iPhone/SDK/adapters/MoPubNativeSDKAdapter.m normal i386 objective-c com.apple.compilers.gcc.4_2
+s317021776.459097
+e317021776.740004
+r1
+xCompileC
+xbuild/SimpleAds.build/Debug-iphonesimulator/SimpleAds.build/Objects-normal/i386/MoPubNativeSDKAdapter.o
+x/Users/njamal/programs/mopub/mopub-client/iPhone/SDK/adapters/MoPubNativeSDKAdapter.m
+xnormal
+xi386
+xobjective-c
+xcom.apple.compilers.gcc.4_2
+lSLF07#2@93"Compile /Users/njamal/programs/mopub/mopub-client/iPhone/SDK/adapters/MoPubNativeSDKAdapter.m317021776#317021776#0(0"0(0#0#85"/Users/njamal/programs/mopub/mopub-client/iPhone/SDK/adapters/MoPubNativeSDKAdapter.m8596064032#2136"    cd /Users/njamal/programs/mopub/mopub-client/iPhone    setenv LANG en_US.US-ASCII    setenv PATH "/Developer/Platforms/iPhoneSimulator.platform/Developer/usr/bin:/Developer/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin"    /Developer/Platforms/iPhoneSimulator.platform/Developer/usr/bin/gcc-4.2 -x objective-c -arch i386 -fmessage-length=0 -pipe -std=c99 -Wno-trigraphs -fpascal-strings -fasm-blocks -O0 -Wreturn-type -Wunused-variable -isysroot /Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator4.2.sdk -fexceptions -fvisibility=hidden -mmacosx-version-min=10.6 -gdwarf-2 -fobjc-abi-version=2 -fobjc-legacy-dispatch -D__IPHONE_OS_VERSION_MIN_REQUIRED=30100 -iquote /Users/njamal/programs/mopub/mopub-client/iPhone/build/SimpleAds.build/Debug-iphonesimulator/SimpleAds.build/SimpleAds-generated-files.hmap -I/Users/njamal/programs/mopub/mopub-client/iPhone/build/SimpleAds.build/Debug-iphonesimulator/SimpleAds.build/SimpleAds-own-target-headers.hmap -I/Users/njamal/programs/mopub/mopub-client/iPhone/build/SimpleAds.build/Debug-iphonesimulator/SimpleAds.build/SimpleAds-all-target-headers.hmap -iquote /Users/njamal/programs/mopub/mopub-client/iPhone/build/SimpleAds.build/Debug-iphonesimulator/SimpleAds.build/SimpleAds-project-headers.hmap -F/Users/njamal/programs/mopub/mopub-client/iPhone/build/Debug-iphonesimulator -I/Users/njamal/programs/mopub/mopub-client/iPhone/build/Debug-iphonesimulator/include -I/Users/njamal/programs/mopub/mopub-client/iPhone/build/SimpleAds.build/Debug-iphonesimulator/SimpleAds.build/DerivedSources/i386 -I/Users/njamal/programs/mopub/mopub-client/iPhone/build/SimpleAds.build/Debug-iphonesimulator/SimpleAds.build/DerivedSources -DGoogleAdSenseAvailable -include /var/folders/Ny/NyTmLyDbEZqzR2JIsC-ybE+++TI/-Caches-/com.apple.Xcode.501/SharedPrecompiledHeaders/SimpleAds_Prefix-bbppapufbebnuvbpwzwawskaiovm/SimpleAds_Prefix.pch -c /Users/njamal/programs/mopub/mopub-client/iPhone/SDK/adapters/MoPubNativeSDKAdapter.m -o /Users/njamal/programs/mopub/mopub-client/iPhone/build/SimpleAds.build/Debug-iphonesimulator/SimpleAds.build/Objects-normal/i386/MoPubNativeSDKAdapter.o0#
+
+CCompileC build/SimpleAds.build/Debug-iphonesimulator/SimpleAds.build/Objects-normal/i386/MoPubNativeSDKRegistry.o /Users/njamal/programs/mopub/mopub-client/iPhone/SDK/MoPubNativeSDKRegistry.m normal i386 objective-c com.apple.compilers.gcc.4_2
+s317021777.453351
+e317021777.795164
+r1
+xCompileC
+xbuild/SimpleAds.build/Debug-iphonesimulator/SimpleAds.build/Objects-normal/i386/MoPubNativeSDKRegistry.o
+x/Users/njamal/programs/mopub/mopub-client/iPhone/SDK/MoPubNativeSDKRegistry.m
+xnormal
+xi386
+xobjective-c
+xcom.apple.compilers.gcc.4_2
+lSLF07#2@85"Compile /Users/njamal/programs/mopub/mopub-client/iPhone/SDK/MoPubNativeSDKRegistry.m317021777#317021777#0(0"0(0#0#77"/Users/njamal/programs/mopub/mopub-client/iPhone/SDK/MoPubNativeSDKRegistry.m8601110528#2129"    cd /Users/njamal/programs/mopub/mopub-client/iPhone    setenv LANG en_US.US-ASCII    setenv PATH "/Developer/Platforms/iPhoneSimulator.platform/Developer/usr/bin:/Developer/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin"    /Developer/Platforms/iPhoneSimulator.platform/Developer/usr/bin/gcc-4.2 -x objective-c -arch i386 -fmessage-length=0 -pipe -std=c99 -Wno-trigraphs -fpascal-strings -fasm-blocks -O0 -Wreturn-type -Wunused-variable -isysroot /Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator4.2.sdk -fexceptions -fvisibility=hidden -mmacosx-version-min=10.6 -gdwarf-2 -fobjc-abi-version=2 -fobjc-legacy-dispatch -D__IPHONE_OS_VERSION_MIN_REQUIRED=30100 -iquote /Users/njamal/programs/mopub/mopub-client/iPhone/build/SimpleAds.build/Debug-iphonesimulator/SimpleAds.build/SimpleAds-generated-files.hmap -I/Users/njamal/programs/mopub/mopub-client/iPhone/build/SimpleAds.build/Debug-iphonesimulator/SimpleAds.build/SimpleAds-own-target-headers.hmap -I/Users/njamal/programs/mopub/mopub-client/iPhone/build/SimpleAds.build/Debug-iphonesimulator/SimpleAds.build/SimpleAds-all-target-headers.hmap -iquote /Users/njamal/programs/mopub/mopub-client/iPhone/build/SimpleAds.build/Debug-iphonesimulator/SimpleAds.build/SimpleAds-project-headers.hmap -F/Users/njamal/programs/mopub/mopub-client/iPhone/build/Debug-iphonesimulator -I/Users/njamal/programs/mopub/mopub-client/iPhone/build/Debug-iphonesimulator/include -I/Users/njamal/programs/mopub/mopub-client/iPhone/build/SimpleAds.build/Debug-iphonesimulator/SimpleAds.build/DerivedSources/i386 -I/Users/njamal/programs/mopub/mopub-client/iPhone/build/SimpleAds.build/Debug-iphonesimulator/SimpleAds.build/DerivedSources -DGoogleAdSenseAvailable -include /var/folders/Ny/NyTmLyDbEZqzR2JIsC-ybE+++TI/-Caches-/com.apple.Xcode.501/SharedPrecompiledHeaders/SimpleAds_Prefix-bbppapufbebnuvbpwzwawskaiovm/SimpleAds_Prefix.pch -c /Users/njamal/programs/mopub/mopub-client/iPhone/SDK/MoPubNativeSDKRegistry.m -o /Users/njamal/programs/mopub/mopub-client/iPhone/build/SimpleAds.build/Debug-iphonesimulator/SimpleAds.build/Objects-normal/i386/MoPubNativeSDKRegistry.o0#
+
+CCompileC build/SimpleAds.build/Debug-iphonesimulator/SimpleAds.build/Objects-normal/i386/SecondViewController.o /Users/njamal/programs/mopub/mopub-client/iPhone/Classes/SecondViewController.m normal i386 objective-c com.apple.compilers.gcc.4_2
+s317021775.802089
+e317021776.121174
+r1
+xCompileC
+xbuild/SimpleAds.build/Debug-iphonesimulator/SimpleAds.build/Objects-normal/i386/SecondViewController.o
+x/Users/njamal/programs/mopub/mopub-client/iPhone/Classes/SecondViewController.m
+xnormal
+xi386
+xobjective-c
+xcom.apple.compilers.gcc.4_2
+lSLF07#2@87"Compile /Users/njamal/programs/mopub/mopub-client/iPhone/Classes/SecondViewController.m317021775#317021776#0(0"0(0#0#79"/Users/njamal/programs/mopub/mopub-client/iPhone/Classes/SecondViewController.m8603905856#2129"    cd /Users/njamal/programs/mopub/mopub-client/iPhone    setenv LANG en_US.US-ASCII    setenv PATH "/Developer/Platforms/iPhoneSimulator.platform/Developer/usr/bin:/Developer/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin"    /Developer/Platforms/iPhoneSimulator.platform/Developer/usr/bin/gcc-4.2 -x objective-c -arch i386 -fmessage-length=0 -pipe -std=c99 -Wno-trigraphs -fpascal-strings -fasm-blocks -O0 -Wreturn-type -Wunused-variable -isysroot /Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator4.2.sdk -fexceptions -fvisibility=hidden -mmacosx-version-min=10.6 -gdwarf-2 -fobjc-abi-version=2 -fobjc-legacy-dispatch -D__IPHONE_OS_VERSION_MIN_REQUIRED=30100 -iquote /Users/njamal/programs/mopub/mopub-client/iPhone/build/SimpleAds.build/Debug-iphonesimulator/SimpleAds.build/SimpleAds-generated-files.hmap -I/Users/njamal/programs/mopub/mopub-client/iPhone/build/SimpleAds.build/Debug-iphonesimulator/SimpleAds.build/SimpleAds-own-target-headers.hmap -I/Users/njamal/programs/mopub/mopub-client/iPhone/build/SimpleAds.build/Debug-iphonesimulator/SimpleAds.build/SimpleAds-all-target-headers.hmap -iquote /Users/njamal/programs/mopub/mopub-client/iPhone/build/SimpleAds.build/Debug-iphonesimulator/SimpleAds.build/SimpleAds-project-headers.hmap -F/Users/njamal/programs/mopub/mopub-client/iPhone/build/Debug-iphonesimulator -I/Users/njamal/programs/mopub/mopub-client/iPhone/build/Debug-iphonesimulator/include -I/Users/njamal/programs/mopub/mopub-client/iPhone/build/SimpleAds.build/Debug-iphonesimulator/SimpleAds.build/DerivedSources/i386 -I/Users/njamal/programs/mopub/mopub-client/iPhone/build/SimpleAds.build/Debug-iphonesimulator/SimpleAds.build/DerivedSources -DGoogleAdSenseAvailable -include /var/folders/Ny/NyTmLyDbEZqzR2JIsC-ybE+++TI/-Caches-/com.apple.Xcode.501/SharedPrecompiledHeaders/SimpleAds_Prefix-bbppapufbebnuvbpwzwawskaiovm/SimpleAds_Prefix.pch -c /Users/njamal/programs/mopub/mopub-client/iPhone/Classes/SecondViewController.m -o /Users/njamal/programs/mopub/mopub-client/iPhone/build/SimpleAds.build/Debug-iphonesimulator/SimpleAds.build/Objects-normal/i386/SecondViewController.o0#
+
+CCompileC build/SimpleAds.build/Debug-iphonesimulator/SimpleAds.build/Objects-normal/i386/SimpleAdsAppDelegate.o /Users/njamal/programs/mopub/mopub-client/iPhone/Classes/SimpleAdsAppDelegate.m normal i386 objective-c com.apple.compilers.gcc.4_2
+s317021773.527415
+e317021775.801974
+r1
+xCompileC
+xbuild/SimpleAds.build/Debug-iphonesimulator/SimpleAds.build/Objects-normal/i386/SimpleAdsAppDelegate.o
+x/Users/njamal/programs/mopub/mopub-client/iPhone/Classes/SimpleAdsAppDelegate.m
+xnormal
+xi386
+xobjective-c
+xcom.apple.compilers.gcc.4_2
+lSLF07#2@87"Compile /Users/njamal/programs/mopub/mopub-client/iPhone/Classes/SimpleAdsAppDelegate.m317021773#317021775#0(0"0(0#0#79"/Users/njamal/programs/mopub/mopub-client/iPhone/Classes/SimpleAdsAppDelegate.m8593676384#2129"    cd /Users/njamal/programs/mopub/mopub-client/iPhone    setenv LANG en_US.US-ASCII    setenv PATH "/Developer/Platforms/iPhoneSimulator.platform/Developer/usr/bin:/Developer/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin"    /Developer/Platforms/iPhoneSimulator.platform/Developer/usr/bin/gcc-4.2 -x objective-c -arch i386 -fmessage-length=0 -pipe -std=c99 -Wno-trigraphs -fpascal-strings -fasm-blocks -O0 -Wreturn-type -Wunused-variable -isysroot /Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator4.2.sdk -fexceptions -fvisibility=hidden -mmacosx-version-min=10.6 -gdwarf-2 -fobjc-abi-version=2 -fobjc-legacy-dispatch -D__IPHONE_OS_VERSION_MIN_REQUIRED=30100 -iquote /Users/njamal/programs/mopub/mopub-client/iPhone/build/SimpleAds.build/Debug-iphonesimulator/SimpleAds.build/SimpleAds-generated-files.hmap -I/Users/njamal/programs/mopub/mopub-client/iPhone/build/SimpleAds.build/Debug-iphonesimulator/SimpleAds.build/SimpleAds-own-target-headers.hmap -I/Users/njamal/programs/mopub/mopub-client/iPhone/build/SimpleAds.build/Debug-iphonesimulator/SimpleAds.build/SimpleAds-all-target-headers.hmap -iquote /Users/njamal/programs/mopub/mopub-client/iPhone/build/SimpleAds.build/Debug-iphonesimulator/SimpleAds.build/SimpleAds-project-headers.hmap -F/Users/njamal/programs/mopub/mopub-client/iPhone/build/Debug-iphonesimulator -I/Users/njamal/programs/mopub/mopub-client/iPhone/build/Debug-iphonesimulator/include -I/Users/njamal/programs/mopub/mopub-client/iPhone/build/SimpleAds.build/Debug-iphonesimulator/SimpleAds.build/DerivedSources/i386 -I/Users/njamal/programs/mopub/mopub-client/iPhone/build/SimpleAds.build/Debug-iphonesimulator/SimpleAds.build/DerivedSources -DGoogleAdSenseAvailable -include /var/folders/Ny/NyTmLyDbEZqzR2JIsC-ybE+++TI/-Caches-/com.apple.Xcode.501/SharedPrecompiledHeaders/SimpleAds_Prefix-bbppapufbebnuvbpwzwawskaiovm/SimpleAds_Prefix.pch -c /Users/njamal/programs/mopub/mopub-client/iPhone/Classes/SimpleAdsAppDelegate.m -o /Users/njamal/programs/mopub/mopub-client/iPhone/build/SimpleAds.build/Debug-iphonesimulator/SimpleAds.build/Objects-normal/i386/SimpleAdsAppDelegate.o0#
+
+CCompileC build/SimpleAds.build/Debug-iphonesimulator/SimpleAds.build/Objects-normal/i386/SimpleAdsViewController.o /Users/njamal/programs/mopub/mopub-client/iPhone/Classes/SimpleAdsViewController.m normal i386 objective-c com.apple.compilers.gcc.4_2
+s317021775.565701
+e317021775.931356
+r1
+xCompileC
+xbuild/SimpleAds.build/Debug-iphonesimulator/SimpleAds.build/Objects-normal/i386/SimpleAdsViewController.o
+x/Users/njamal/programs/mopub/mopub-client/iPhone/Classes/SimpleAdsViewController.m
+xnormal
+xi386
+xobjective-c
+xcom.apple.compilers.gcc.4_2
+lSLF07#2@90"Compile /Users/njamal/programs/mopub/mopub-client/iPhone/Classes/SimpleAdsViewController.m317021775#317021775#0(0"0(0#0#82"/Users/njamal/programs/mopub/mopub-client/iPhone/Classes/SimpleAdsViewController.m8595811616#2135"    cd /Users/njamal/programs/mopub/mopub-client/iPhone    setenv LANG en_US.US-ASCII    setenv PATH "/Developer/Platforms/iPhoneSimulator.platform/Developer/usr/bin:/Developer/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin"    /Developer/Platforms/iPhoneSimulator.platform/Developer/usr/bin/gcc-4.2 -x objective-c -arch i386 -fmessage-length=0 -pipe -std=c99 -Wno-trigraphs -fpascal-strings -fasm-blocks -O0 -Wreturn-type -Wunused-variable -isysroot /Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator4.2.sdk -fexceptions -fvisibility=hidden -mmacosx-version-min=10.6 -gdwarf-2 -fobjc-abi-version=2 -fobjc-legacy-dispatch -D__IPHONE_OS_VERSION_MIN_REQUIRED=30100 -iquote /Users/njamal/programs/mopub/mopub-client/iPhone/build/SimpleAds.build/Debug-iphonesimulator/SimpleAds.build/SimpleAds-generated-files.hmap -I/Users/njamal/programs/mopub/mopub-client/iPhone/build/SimpleAds.build/Debug-iphonesimulator/SimpleAds.build/SimpleAds-own-target-headers.hmap -I/Users/njamal/programs/mopub/mopub-client/iPhone/build/SimpleAds.build/Debug-iphonesimulator/SimpleAds.build/SimpleAds-all-target-headers.hmap -iquote /Users/njamal/programs/mopub/mopub-client/iPhone/build/SimpleAds.build/Debug-iphonesimulator/SimpleAds.build/SimpleAds-project-headers.hmap -F/Users/njamal/programs/mopub/mopub-client/iPhone/build/Debug-iphonesimulator -I/Users/njamal/programs/mopub/mopub-client/iPhone/build/Debug-iphonesimulator/include -I/Users/njamal/programs/mopub/mopub-client/iPhone/build/SimpleAds.build/Debug-iphonesimulator/SimpleAds.build/DerivedSources/i386 -I/Users/njamal/programs/mopub/mopub-client/iPhone/build/SimpleAds.build/Debug-iphonesimulator/SimpleAds.build/DerivedSources -DGoogleAdSenseAvailable -include /var/folders/Ny/NyTmLyDbEZqzR2JIsC-ybE+++TI/-Caches-/com.apple.Xcode.501/SharedPrecompiledHeaders/SimpleAds_Prefix-bbppapufbebnuvbpwzwawskaiovm/SimpleAds_Prefix.pch -c /Users/njamal/programs/mopub/mopub-client/iPhone/Classes/SimpleAdsViewController.m -o /Users/njamal/programs/mopub/mopub-client/iPhone/build/SimpleAds.build/Debug-iphonesimulator/SimpleAds.build/Objects-normal/i386/SimpleAdsViewController.o0#
+
+CCompileC build/SimpleAds.build/Debug-iphonesimulator/SimpleAds.build/Objects-normal/i386/main.o /Users/njamal/programs/mopub/mopub-client/iPhone/main.m normal i386 objective-c com.apple.compilers.gcc.4_2
+s317021773.526346
+e317021775.565475
+r1
+xCompileC
+xbuild/SimpleAds.build/Debug-iphonesimulator/SimpleAds.build/Objects-normal/i386/main.o
+x/Users/njamal/programs/mopub/mopub-client/iPhone/main.m
+xnormal
+xi386
+xobjective-c
+xcom.apple.compilers.gcc.4_2
+lSLF07#2@63"Compile /Users/njamal/programs/mopub/mopub-client/iPhone/main.m317021773#317021775#0(0"0(0#0#55"/Users/njamal/programs/mopub/mopub-client/iPhone/main.m8597180832#2089"    cd /Users/njamal/programs/mopub/mopub-client/iPhone    setenv LANG en_US.US-ASCII    setenv PATH "/Developer/Platforms/iPhoneSimulator.platform/Developer/usr/bin:/Developer/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin"    /Developer/Platforms/iPhoneSimulator.platform/Developer/usr/bin/gcc-4.2 -x objective-c -arch i386 -fmessage-length=0 -pipe -std=c99 -Wno-trigraphs -fpascal-strings -fasm-blocks -O0 -Wreturn-type -Wunused-variable -isysroot /Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator4.2.sdk -fexceptions -fvisibility=hidden -mmacosx-version-min=10.6 -gdwarf-2 -fobjc-abi-version=2 -fobjc-legacy-dispatch -D__IPHONE_OS_VERSION_MIN_REQUIRED=30100 -iquote /Users/njamal/programs/mopub/mopub-client/iPhone/build/SimpleAds.build/Debug-iphonesimulator/SimpleAds.build/SimpleAds-generated-files.hmap -I/Users/njamal/programs/mopub/mopub-client/iPhone/build/SimpleAds.build/Debug-iphonesimulator/SimpleAds.build/SimpleAds-own-target-headers.hmap -I/Users/njamal/programs/mopub/mopub-client/iPhone/build/SimpleAds.build/Debug-iphonesimulator/SimpleAds.build/SimpleAds-all-target-headers.hmap -iquote /Users/njamal/programs/mopub/mopub-client/iPhone/build/SimpleAds.build/Debug-iphonesimulator/SimpleAds.build/SimpleAds-project-headers.hmap -F/Users/njamal/programs/mopub/mopub-client/iPhone/build/Debug-iphonesimulator -I/Users/njamal/programs/mopub/mopub-client/iPhone/build/Debug-iphonesimulator/include -I/Users/njamal/programs/mopub/mopub-client/iPhone/build/SimpleAds.build/Debug-iphonesimulator/SimpleAds.build/DerivedSources/i386 -I/Users/njamal/programs/mopub/mopub-client/iPhone/build/SimpleAds.build/Debug-iphonesimulator/SimpleAds.build/DerivedSources -DGoogleAdSenseAvailable -include /var/folders/Ny/NyTmLyDbEZqzR2JIsC-ybE+++TI/-Caches-/com.apple.Xcode.501/SharedPrecompiledHeaders/SimpleAds_Prefix-bbppapufbebnuvbpwzwawskaiovm/SimpleAds_Prefix.pch -c /Users/njamal/programs/mopub/mopub-client/iPhone/main.m -o /Users/njamal/programs/mopub/mopub-client/iPhone/build/SimpleAds.build/Debug-iphonesimulator/SimpleAds.build/Objects-normal/i386/main.o0#
+
+CCompileC build/SimpleAds.build/Debug-iphonesimulator/SimpleAds.build/Objects-normal/i386/untitled.o /Users/njamal/programs/mopub/mopub-client/iPhone/SDK/untitled.m normal i386 objective-c com.apple.compilers.gcc.4_2
+s317021777.666766
+e317021777.930899
+r1
+xCompileC
+xbuild/SimpleAds.build/Debug-iphonesimulator/SimpleAds.build/Objects-normal/i386/untitled.o
+x/Users/njamal/programs/mopub/mopub-client/iPhone/SDK/untitled.m
+xnormal
+xi386
+xobjective-c
+xcom.apple.compilers.gcc.4_2
+lSLF07#2@71"Compile /Users/njamal/programs/mopub/mopub-client/iPhone/SDK/untitled.m317021777#317021777#0(0"0(0#0#63"/Users/njamal/programs/mopub/mopub-client/iPhone/SDK/untitled.m8601070176#2101"    cd /Users/njamal/programs/mopub/mopub-client/iPhone    setenv LANG en_US.US-ASCII    setenv PATH "/Developer/Platforms/iPhoneSimulator.platform/Developer/usr/bin:/Developer/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin"    /Developer/Platforms/iPhoneSimulator.platform/Developer/usr/bin/gcc-4.2 -x objective-c -arch i386 -fmessage-length=0 -pipe -std=c99 -Wno-trigraphs -fpascal-strings -fasm-blocks -O0 -Wreturn-type -Wunused-variable -isysroot /Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator4.2.sdk -fexceptions -fvisibility=hidden -mmacosx-version-min=10.6 -gdwarf-2 -fobjc-abi-version=2 -fobjc-legacy-dispatch -D__IPHONE_OS_VERSION_MIN_REQUIRED=30100 -iquote /Users/njamal/programs/mopub/mopub-client/iPhone/build/SimpleAds.build/Debug-iphonesimulator/SimpleAds.build/SimpleAds-generated-files.hmap -I/Users/njamal/programs/mopub/mopub-client/iPhone/build/SimpleAds.build/Debug-iphonesimulator/SimpleAds.build/SimpleAds-own-target-headers.hmap -I/Users/njamal/programs/mopub/mopub-client/iPhone/build/SimpleAds.build/Debug-iphonesimulator/SimpleAds.build/SimpleAds-all-target-headers.hmap -iquote /Users/njamal/programs/mopub/mopub-client/iPhone/build/SimpleAds.build/Debug-iphonesimulator/SimpleAds.build/SimpleAds-project-headers.hmap -F/Users/njamal/programs/mopub/mopub-client/iPhone/build/Debug-iphonesimulator -I/Users/njamal/programs/mopub/mopub-client/iPhone/build/Debug-iphonesimulator/include -I/Users/njamal/programs/mopub/mopub-client/iPhone/build/SimpleAds.build/Debug-iphonesimulator/SimpleAds.build/DerivedSources/i386 -I/Users/njamal/programs/mopub/mopub-client/iPhone/build/SimpleAds.build/Debug-iphonesimulator/SimpleAds.build/DerivedSources -DGoogleAdSenseAvailable -include /var/folders/Ny/NyTmLyDbEZqzR2JIsC-ybE+++TI/-Caches-/com.apple.Xcode.501/SharedPrecompiledHeaders/SimpleAds_Prefix-bbppapufbebnuvbpwzwawskaiovm/SimpleAds_Prefix.pch -c /Users/njamal/programs/mopub/mopub-client/iPhone/SDK/untitled.m -o /Users/njamal/programs/mopub/mopub-client/iPhone/build/SimpleAds.build/Debug-iphonesimulator/SimpleAds.build/Objects-normal/i386/untitled.o0#
+
+CCompileXIB /Users/njamal/programs/mopub/mopub-client/iPhone/Classes/MainWindow.xib
+r0
+
+CCompileXIB /Users/njamal/programs/mopub/mopub-client/iPhone/Classes/SecondViewController.xib
+s317021762.046594
+e317021772.638715
+r1
+xCompileXIB
+x/Users/njamal/programs/mopub/mopub-client/iPhone/Classes/SecondViewController.xib
+oCouldn't open shared capabilities memory GSCapabilities (No such file or directory)
+oCouldn't open shared capabilities memory GSCapabilities (No such file or directory)
+lSLF07#2@43"CompileXIB Classes/SecondViewController.xib317021762#317021772#0(168"Couldn't open shared capabilities memory GSCapabilities (No such file or directory)Couldn't open shared capabilities memory GSCapabilities (No such file or directory)0(0#0#81"/Users/njamal/programs/mopub/mopub-client/iPhone/Classes/SecondViewController.xib8605195072#630"    cd /Users/njamal/programs/mopub/mopub-client/iPhone    setenv IBC_MINIMUM_COMPATIBILITY_VERSION 3.1    setenv PATH "/Developer/Platforms/iPhoneSimulator.platform/Developer/usr/bin:/Developer/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin"    /Developer/usr/bin/ibtool --errors --warnings --notices --output-format human-readable-text --compile /Users/njamal/programs/mopub/mopub-client/iPhone/build/Debug-iphonesimulator/SimpleAds.app/SecondViewController.nib /Users/njamal/programs/mopub/mopub-client/iPhone/Classes/SecondViewController.xib --sdk /Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator4.2.sdk0#
+
+CCompileXIB /Users/njamal/programs/mopub/mopub-client/iPhone/Classes/SimpleAdsViewController.xib
+s317021761.993915
+e317021772.157757
+r1
+xCompileXIB
+x/Users/njamal/programs/mopub/mopub-client/iPhone/Classes/SimpleAdsViewController.xib
+oCouldn't open shared capabilities memory GSCapabilities (No such file or directory)
+lSLF07#2@46"CompileXIB Classes/SimpleAdsViewController.xib317021762#317021772#0(84"Couldn't open shared capabilities memory GSCapabilities (No such file or directory)0(0#0#84"/Users/njamal/programs/mopub/mopub-client/iPhone/Classes/SimpleAdsViewController.xib5794214572703705088#636"    cd /Users/njamal/programs/mopub/mopub-client/iPhone    setenv IBC_MINIMUM_COMPATIBILITY_VERSION 3.1    setenv PATH "/Developer/Platforms/iPhoneSimulator.platform/Developer/usr/bin:/Developer/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin"    /Developer/usr/bin/ibtool --errors --warnings --notices --output-format human-readable-text --compile /Users/njamal/programs/mopub/mopub-client/iPhone/build/Debug-iphonesimulator/SimpleAds.app/SimpleAdsViewController.nib /Users/njamal/programs/mopub/mopub-client/iPhone/Classes/SimpleAdsViewController.xib --sdk /Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator4.2.sdk0#
+
+CCompileXIB /Users/njamal/programs/mopub/mopub-client/iPhone/SDK/AdClickController.xib
+s317021772.157939
+e317021773.170550
+r1
+xCompileXIB
+x/Users/njamal/programs/mopub/mopub-client/iPhone/SDK/AdClickController.xib
+oCouldn't open shared capabilities memory GSCapabilities (No such file or directory)
+oCouldn't open shared capabilities memory GSCapabilities (No such file or directory)
+oCouldn't open shared capabilities memory GSCapabilities (No such file or directory)
+lSLF07#2@36"CompileXIB SDK/AdClickController.xib317021772#317021773#0(252"Couldn't open shared capabilities memory GSCapabilities (No such file or directory)Couldn't open shared capabilities memory GSCapabilities (No such file or directory)Couldn't open shared capabilities memory GSCapabilities (No such file or directory)0(0#0#74"/Users/njamal/programs/mopub/mopub-client/iPhone/SDK/AdClickController.xib8604678944#620"    cd /Users/njamal/programs/mopub/mopub-client/iPhone    setenv IBC_MINIMUM_COMPATIBILITY_VERSION 3.1    setenv PATH "/Developer/Platforms/iPhoneSimulator.platform/Developer/usr/bin:/Developer/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin"    /Developer/usr/bin/ibtool --errors --warnings --notices --output-format human-readable-text --compile /Users/njamal/programs/mopub/mopub-client/iPhone/build/Debug-iphonesimulator/SimpleAds.app/AdClickController.nib /Users/njamal/programs/mopub/mopub-client/iPhone/SDK/AdClickController.xib --sdk /Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator4.2.sdk0#
+
+CCpResource build/Debug-iphonesimulator/SimpleAds.app/moPubCloseButtonNext.png SDK/moPubCloseButtonNext.png
+s317021772.638810
+e317021772.661634
+r1
+xCpResource
+xbuild/Debug-iphonesimulator/SimpleAds.app/moPubCloseButtonNext.png
+xSDK/moPubCloseButtonNext.png
+lSLF07#2@33"Copy SDK/moPubCloseButtonNext.png317021772#317021772#0(0"0(0#0#77"/Users/njamal/programs/mopub/mopub-client/iPhone/SDK/moPubCloseButtonNext.png8603847648#518"    cd /Users/njamal/programs/mopub/mopub-client/iPhone    setenv PATH "/Developer/Platforms/iPhoneSimulator.platform/Developer/usr/bin:/Developer/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin"    /Developer/Library/PrivateFrameworks/DevToolsCore.framework/Resources/pbxcp -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -resolve-src-symlinks /Users/njamal/programs/mopub/mopub-client/iPhone/SDK/moPubCloseButtonNext.png /Users/njamal/programs/mopub/mopub-client/iPhone/build/Debug-iphonesimulator/SimpleAds.app0#
+
+CCpResource build/Debug-iphonesimulator/SimpleAds.app/moPubCloseButtonX.png SDK/moPubCloseButtonX.png
+s317021772.639606
+e317021772.661407
+r1
+xCpResource
+xbuild/Debug-iphonesimulator/SimpleAds.app/moPubCloseButtonX.png
+xSDK/moPubCloseButtonX.png
+lSLF07#2@30"Copy SDK/moPubCloseButtonX.png317021772#317021772#0(0"0(0#0#74"/Users/njamal/programs/mopub/mopub-client/iPhone/SDK/moPubCloseButtonX.png8600515040#515"    cd /Users/njamal/programs/mopub/mopub-client/iPhone    setenv PATH "/Developer/Platforms/iPhoneSimulator.platform/Developer/usr/bin:/Developer/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin"    /Developer/Library/PrivateFrameworks/DevToolsCore.framework/Resources/pbxcp -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -resolve-src-symlinks /Users/njamal/programs/mopub/mopub-client/iPhone/SDK/moPubCloseButtonX.png /Users/njamal/programs/mopub/mopub-client/iPhone/build/Debug-iphonesimulator/SimpleAds.app0#
+
+CGenerateDSYMFile /Users/njamal/programs/mopub/mopub-client/iPhone/build/Debug-iphonesimulator/SimpleAds.app.dSYM /Users/njamal/programs/mopub/mopub-client/iPhone/build/Debug-iphonesimulator/SimpleAds.app/SimpleAds
+r0
+
+CLd /Users/njamal/programs/mopub/mopub-client/iPhone/build/Debug-iphonesimulator/SimpleAds.app/SimpleAds normal i386
+r0
+
+CProcessInfoPlistFile /Users/njamal/programs/mopub/mopub-client/iPhone/build/Debug-iphonesimulator/SimpleAds.app/Info.plist SimpleAds-Info.plist
+r0
+
+CProcessPCH /var/folders/Ny/NyTmLyDbEZqzR2JIsC-ybE+++TI/-Caches-/com.apple.Xcode.501/SharedPrecompiledHeaders/SimpleAds_Prefix-bbppapufbebnuvbpwzwawskaiovm/SimpleAds_Prefix.pch.gch SimpleAds_Prefix.pch normal i386 objective-c com.apple.compilers.gcc.4_2
+s317021773.170721
+e317021773.526225
+r1
+xProcessPCH
+x/var/folders/Ny/NyTmLyDbEZqzR2JIsC-ybE+++TI/-Caches-/com.apple.Xcode.501/SharedPrecompiledHeaders/SimpleAds_Prefix-bbppapufbebnuvbpwzwawskaiovm/SimpleAds_Prefix.pch.gch
+xSimpleAds_Prefix.pch
+xnormal
+xi386
+xobjective-c
+xcom.apple.compilers.gcc.4_2
+lSLF07#2@31"Precompile SimpleAds_Prefix.pch317021773#317021773#0(0"0(0#0#69"/Users/njamal/programs/mopub/mopub-client/iPhone/SimpleAds_Prefix.pch8596100640#1969"    cd /Users/njamal/programs/mopub/mopub-client/iPhone    setenv LANG en_US.US-ASCII    setenv PATH "/Developer/Platforms/iPhoneSimulator.platform/Developer/usr/bin:/Developer/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin"    /Developer/Platforms/iPhoneSimulator.platform/Developer/usr/bin/gcc-4.2 -x objective-c-header -arch i386 -fmessage-length=0 -pipe -std=c99 -Wno-trigraphs -fpascal-strings -fasm-blocks -O0 -Wreturn-type -Wunused-variable -isysroot /Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator4.2.sdk -fexceptions -fvisibility=hidden -mmacosx-version-min=10.6 -gdwarf-2 -fobjc-abi-version=2 -fobjc-legacy-dispatch -D__IPHONE_OS_VERSION_MIN_REQUIRED=30100 -iquote /Users/njamal/programs/mopub/mopub-client/iPhone/build/SimpleAds.build/Debug-iphonesimulator/SimpleAds.build/SimpleAds-generated-files.hmap -I/Users/njamal/programs/mopub/mopub-client/iPhone/build/SimpleAds.build/Debug-iphonesimulator/SimpleAds.build/SimpleAds-own-target-headers.hmap -I/Users/njamal/programs/mopub/mopub-client/iPhone/build/SimpleAds.build/Debug-iphonesimulator/SimpleAds.build/SimpleAds-all-target-headers.hmap -iquote /Users/njamal/programs/mopub/mopub-client/iPhone/build/SimpleAds.build/Debug-iphonesimulator/SimpleAds.build/SimpleAds-project-headers.hmap -F/Users/njamal/programs/mopub/mopub-client/iPhone/build/Debug-iphonesimulator -I/Users/njamal/programs/mopub/mopub-client/iPhone/build/Debug-iphonesimulator/include -I/Users/njamal/programs/mopub/mopub-client/iPhone/build/SimpleAds.build/Debug-iphonesimulator/SimpleAds.build/DerivedSources/i386 -I/Users/njamal/programs/mopub/mopub-client/iPhone/build/SimpleAds.build/Debug-iphonesimulator/SimpleAds.build/DerivedSources -DGoogleAdSenseAvailable -c /Users/njamal/programs/mopub/mopub-client/iPhone/SimpleAds_Prefix.pch -o /var/folders/Ny/NyTmLyDbEZqzR2JIsC-ybE+++TI/-Caches-/com.apple.Xcode.501/SharedPrecompiledHeaders/SimpleAds_Prefix-bbppapufbebnuvbpwzwawskaiovm/SimpleAds_Prefix.pch.gch0#
+
+CTouch /Users/njamal/programs/mopub/mopub-client/iPhone/build/Debug-iphonesimulator/SimpleAds.app
+r0
+
