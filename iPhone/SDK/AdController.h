@@ -5,9 +5,7 @@
 
 #import <UIKit/UIKit.h>
 #import <CoreLocation/CoreLocation.h>
-#import <StoreKit/StoreKit.h>
 #import "AdClickController.h"
-
 
 #define HOSTNAME @"ads.mopub.com"
 
@@ -16,11 +14,7 @@
 
 @protocol AdControllerDelegate;
 
-@interface AdController : UIViewController <UIWebViewDelegate, 
-											AdClickControllerDelegate, 
-											SKPaymentTransactionObserver, 
-											SKProductsRequestDelegate,
-											SKRequestDelegate> {
+@interface AdController : UIViewController <UIWebViewDelegate, AdClickControllerDelegate> {
 	id<AdControllerDelegate> delegate; 
 	BOOL loaded;
 	BOOL adLoading;
@@ -59,12 +53,6 @@
 	
 	// store the click host for other ad networks c.admob.com, c.google.com, c.quattro.com, from teh header
 	NSString *newPageURLString;
-												
-	NSString *productIdentifier;
-	SKProduct *product;
-	NSMutableDictionary *productDictionary;
-												
-	BOOL autoPurchaseProduct;											
 	
 	// array of strings of parameters to include the the ad request ?exclude=iAd...
 	NSMutableArray *excludeParams;
@@ -105,10 +93,6 @@
 
 @property (nonatomic, assign) BOOL interceptLinks;
 @property (nonatomic, assign) BOOL scrollable;
-
-@property (nonatomic, copy) NSString *productIdentifier;
-@property (nonatomic, assign) SKProduct *product;
-@property (nonatomic, readonly) NSMutableDictionary *productDictionary;
 
 - (id)initWithSize:(CGSize)size adUnitId:(NSString*)publisherId parentViewController:(UIViewController*)parent;
 
@@ -201,6 +185,11 @@
  * Responds to notification UIApplicationWillResignActiveNotification
  */
 - (void)applicationWillResign:(id)sender;
+
+
+
+
+
 
 @end
 

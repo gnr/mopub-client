@@ -6,7 +6,6 @@
 #import "AdController.h"
 #import "AdClickController.h"
 #import <CoreLocation/CoreLocation.h>
-#import <StoreKit/StoreKit.h>
 
 #import "MoPubNativeSDKRegistry.h"
 #import "MoPubNativeSDKAdapter.h"
@@ -17,26 +16,8 @@
 - (void)backfillWithAdSenseWithParams:(NSDictionary *)params;
 
 - (NSString *)escapeURL:(NSURL *)urlIn;
-- (NSDictionary *)parseQuery:(NSString *)query;
 - (void)adClickHelper:(NSURL *)desiredURL;
 - (void)loadAdWithURL:(NSURL *)adUrl;
-
-// inapp purchases
-- (void)initiatePurchaseForProductIdentifier:(NSString *)productIndentifier quantity:(NSInteger)quantity;
-- (void)preloadProductForProductIdentifier:(NSString *)_productIdentifier;
-- (void)requestProductDataForProductIdentifier:(NSString *)_productIdentifier autoPurchase:(BOOL)autoPurchase;
-- (void)startPaymentForProductIdentifier:(NSString *)_productIdentifier;
-- (void)paymentQueue:(SKPaymentQueue *)queue updatedTransactions:(NSArray *)transactions;
-- (void)completeTransaction: (SKPaymentTransaction *)transaction;
-- (void)restoreTransaction: (SKPaymentTransaction *)transaction;
-- (void)failedTransaction: (SKPaymentTransaction *)transaction;
-- (void)recordTransaction:(SKPaymentTransaction *)transaction;
-- (void)provideContent:(NSString *)productId;
-- (void)performSelectorString:(NSString *)selectorString withStringData:(NSString *)stringData;
-
-
-	
-
 @end
 
 	
@@ -56,9 +37,7 @@
 @synthesize currentAdType;
 @synthesize interceptLinks;
 @synthesize scrollable;
-@synthesize productIdentifier;
-@synthesize product;
-@synthesize productDictionary;
+
 
 
 - (id)initWithSize:(CGSize)_size adUnitId:(NSString*)a parentViewController:(UIViewController*)pvc{
@@ -81,9 +60,6 @@
 		
 		// add self to receive notifications that the application will resign
 		[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(applicationWillResign:) name:UIApplicationWillResignActiveNotification object:nil];
-		
-		// register as an in-app purchase observer
-		[[SKPaymentQueue defaultQueue] addTransactionObserver:self];
 	}	
 	return self;
 }
@@ -168,12 +144,6 @@
 	}
 }
 
-- (NSMutableDictionary *)productDictionary{
-	if (!productDictionary)
-		productDictionary = [[NSMutableDictionary alloc] init];
-	return productDictionary;
-}
-
 /*
  * Override the view loading mechanism to create a WebView with overlaid activity indicator
  */
@@ -205,12 +175,11 @@
 		// create URL based on the parameters provided to us if a url was not passed in
 		//
 		if (!adUrl){
-			NSString *urlString = [NSString stringWithFormat:@"http://%@/m/ad?v=3&udid=%@&q=%@&id=%@&payment=%d", 
+			NSString *urlString = [NSString stringWithFormat:@"http://%@/m/ad?v=3&udid=%@&q=%@&id=%@", 
 								   HOSTNAME,
 								   [[UIDevice currentDevice] uniqueIdentifier],
 								   [keywords stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding],
-								   [adUnitId stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding],
-								   [SKPaymentQueue canMakePayments]
+								   [adUnitId stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]
 								   ];
 			
 			// append on location if it has been passed in
@@ -335,8 +304,6 @@
 		self.scrollable = [scrollableString boolValue];
 	}
 	
-	productIdentifier = [[(NSHTTPURLResponse*)response allHeaderFields] objectForKey:@"X-Productid"];
-	
 	
 	if (!adTypeKey || [adTypeKey isEqual:@"html"]) {
 		return;
@@ -408,11 +375,6 @@
 	
 	// release the connection
 //	[connection release];
-	
-	// if there is a productIdentifier, pre-fetch the info
-	if (self.productIdentifier){
-		[self preloadProductForProductIdentifier:self.productIdentifier];
-	}
 }
 
 - (void)viewWillAppear:(BOOL)animated{
@@ -480,67 +442,98 @@
 - (BOOL)webView:(UIWebView *)webView shouldStartLoadWithRequest:(NSURLRequest *)request navigationType:(UIWebViewNavigationType)navigationType {
 	NSLog(@"MOPUB: shouldStartLoadWithRequest URL:%@ navigationType:%d", [[request URL] absoluteString], navigationType);
 	NSURL *requestURL = [request URL];
-	
-	// intercept mopub specific urls mopub://close, mopub://finishLoad, mopub://failLoad
-	if ([[requestURL scheme] isEqual:@"mopub"]){
-		if ([[requestURL host] isEqual:@"close"]){
-			// lets the delegate (self) that the webview would like to close itself, only really matter for interstital
-			[self didSelectClose:nil];
-			return NO;
-		}
-		else if ([[requestURL host] isEqual:@"finishLoad"]){
-			//lets the delegate know that the the ad has succesfully loaded 
-			loaded = YES;
-			adLoading = NO;
-			if ([self.delegate respondsToSelector:@selector(adControllerDidLoadAd:)]) {
-				[self.delegate adControllerDidLoadAd:self];
-			}
-			self.webView.hidden = NO;
-			return NO;
-		}
-		else if ([[requestURL host] isEqual:@"failLoad"]){
-			//lets the delegate know that the the ad has failed to be loaded 
-			loaded = YES;
-			adLoading = NO;
-			if ([self.delegate respondsToSelector:@selector(adControllerFailedLoadAd:)]) {
-				[self.delegate adControllerFailedLoadAd:self];
-			}
-			self.webView.hidden = NO;
-			return NO;
-		}
-		else if ([[requestURL host] isEqual:@"open"]){
-			[self adClickHelper:[NSURL URLWithString:[requestURL query]]];
-			return NO;
-		}
-		else if ([[requestURL host] isEqual:@"inapp"]){
-			NSDictionary *queryDict = [self parseQuery:[requestURL query]];
-			[self initiatePurchaseForProductIdentifier:[queryDict objectForKey:@"id"] 
-											  quantity:[[queryDict objectForKey:@"num"] intValue]];
-			return NO;
-		}
-		else if ([[requestURL host] isEqual:@"method"]){
-			NSDictionary *queryDict = [self parseQuery:[requestURL query]];
-			[self performSelectorString:[queryDict objectForKey:@"sel"]
-						 withStringData:[queryDict objectForKey:@"data"]];
-			return NO;
-		 }
-	} 	
-	
-	if (interceptLinks){
-		if (navigationType == UIWebViewNavigationTypeOther){
-			NSLog(@"Navigation Type: Other %@",self.newPageURLString);
-			// interecepts special url that we want to intercept ex: c.admob.com
-			if (self.newPageURLString && [[requestURL absoluteString] hasPrefix:self.newPageURLString]){
-				[self adClickHelper:[request URL]];
+
+	if (navigationType == UIWebViewNavigationTypeOther){
+		
+		// intercept mopub specific urls mopub://close, mopub://finishLoad, mopub://failLoad
+		if ([[requestURL scheme] isEqual:@"mopub"]){
+			if ([[requestURL host] isEqual:@"close"]){
+				// lets the delegate (self) that the webview would like to close itself, only really matter for interstital
+				[self didSelectClose:nil];
 				return NO;
 			}
+			else if ([[requestURL host] isEqual:@"finishLoad"]){
+				//lets the delegate know that the the ad has succesfully loaded 
+				loaded = YES;
+				adLoading = NO;
+				if ([self.delegate respondsToSelector:@selector(adControllerDidLoadAd:)]) {
+					[self.delegate adControllerDidLoadAd:self];
+				}
+				self.webView.hidden = NO;
+				return NO;
+			}
+			else if ([[requestURL host] isEqual:@"failLoad"]){
+				//lets the delegate know that the the ad has failed to be loaded 
+				loaded = YES;
+				adLoading = NO;
+				if ([self.delegate respondsToSelector:@selector(adControllerFailedLoadAd:)]) {
+					[self.delegate adControllerFailedLoadAd:self];
+				}
+				self.webView.hidden = NO;
+				return NO;
+			}
+			else if ([[requestURL host] isEqual:@"open"]){
+				[self adClickHelper:[NSURL URLWithString:[requestURL query]]];
+				return NO;
+			}
+			else if ([[requestURL host] isEqual:@"inapp"]){
+//				[self adClickHelper:[NSURL URLWithString:[requestURL query]]];
+				return NO;
+			}			
 		}
-		// interecept user clicks to open appropriately
-		else if (navigationType == UIWebViewNavigationTypeLinkClicked){
-			NSLog(@"Navigation Type: Click");
+		// interecepts special url that we want to intercept ex: c.admob.com
+		if (self.newPageURLString){
+			if ([[requestURL absoluteString] hasPrefix:self.newPageURLString]){
+				if (interceptLinks){
+					[self adClickHelper:[request URL]];
+					return NO;
+				}
+			}
+		}
+	}
+	// interecept user clicks to open appropriately
+	else if (navigationType == UIWebViewNavigationTypeLinkClicked) {
+		// intercept mopub specific urls mopub://close, mopub://finishLoad, mopub://failLoad
+		if ([[requestURL scheme] isEqual:@"mopub"]){
+			if ([[requestURL host] isEqual:@"close"]){
+				// lets the delegate (self) that the webview would like to close itself, only really matter for interstital
+				[self didSelectClose:nil];
+				return NO;
+			}
+			else if ([[requestURL host] isEqual:@"finishLoad"]){
+				//lets the delegate know that the the ad has succesfully loaded 
+				loaded = YES;
+				adLoading = NO;
+				if ([self.delegate respondsToSelector:@selector(adControllerDidLoadAd:)]) {
+					[self.delegate adControllerDidLoadAd:self];
+				}
+				self.webView.hidden = NO;
+				return NO;
+			}
+			else if ([[requestURL host] isEqual:@"failLoad"]){
+				//lets the delegate know that the the ad has failed to be loaded 
+				loaded = YES;
+				adLoading = NO;
+				if ([self.delegate respondsToSelector:@selector(adControllerFailedLoadAd:)]) {
+					[self.delegate adControllerFailedLoadAd:self];
+				}
+				self.webView.hidden = NO;
+				return NO;
+			}
+			else if ([[requestURL host] isEqual:@"open"]){
+				[self adClickHelper:[NSURL URLWithString:[requestURL query]]];
+				return NO;
+			}
+		} 	
+		if (interceptLinks){
 			[self adClickHelper:[request URL]];
 			return NO;
 		}
+		else if ([[requestURL host] isEqual:@"open"]){
+			
+			return NO;
+		}
+		
 	}
 	// other javascript loads, etc. 
 	return YES;
@@ -658,129 +651,6 @@
 
 - (void)rollOver{
 	[self nativeAdLoadFailedwithError:nil];
-}
-
-# pragma
-# pragma Dynamic Method Call
-# pragma
- - (void)performSelectorString:(NSString *)selectorString withStringData:(NSString *)stringData{
-	SEL eventSelector = NSSelectorFromString(selectorString);
-
-	if ([self.delegate respondsToSelector:eventSelector]) {
-		[self.delegate performSelector:eventSelector withObject:stringData];
-	}
-	else {
-		NSLog(@"MOPUB: Delegate does not implement function %@", selectorString);
-	}
- }
-
-
-
-# pragma 
-# pragma In-App Purchases
-# pragma
-- (void)initiatePurchaseForProductIdentifier:(NSString *)_productIdentifier quantity:(NSInteger)quantity{
-	if (![self.productDictionary objectForKey:_productIdentifier])
-		[self requestProductDataForProductIdentifier:_productIdentifier autoPurchase:YES];
-	else
-		[self startPaymentForProductIdentifier:_productIdentifier];
-
-}
-
-- (void)preloadProductForProductIdentifier:(NSString *)_productIdentifier{
-	if (![self.productDictionary objectForKey:_productIdentifier])
-		[self requestProductDataForProductIdentifier:(NSString *)_productIdentifier autoPurchase:NO];
-}
-
-- (void)requestProductDataForProductIdentifier:(NSString *)_productIdentifier autoPurchase:(BOOL)autoPurchase
-{
-	SKProductsRequest *request= [[SKProductsRequest alloc] initWithProductIdentifiers: [NSSet setWithObject:_productIdentifier]];
-	request.delegate = self;
-	autoPurchaseProduct = autoPurchase;
-	[request start];
-}
-
-- (void)productsRequest:(SKProductsRequest *)request didReceiveResponse:(SKProductsResponse *)response
-{
-    // populate UI
-	SKProduct *_product = [response.products objectAtIndex:0];
-	for (SKProduct *p in response.products){
-		[self.productDictionary setObject:@"1" forKey:p.productIdentifier];
-	}
-	if (autoPurchaseProduct){
-		[self startPaymentForProductIdentifier:_product.productIdentifier];
-	}
-    [request autorelease];					  
-}
-
-- (void)startPaymentForProductIdentifier:(NSString *)_productIdentifier{
-	SKMutablePayment *payment = [SKMutablePayment paymentWithProductIdentifier:_productIdentifier];
-
-	[[SKPaymentQueue defaultQueue] addPayment:payment];
-}
-
-- (void)paymentQueue:(SKPaymentQueue *)queue updatedTransactions:(NSArray *)transactions
-{
-    for (SKPaymentTransaction *transaction in transactions)
-    {
-        switch (transaction.transactionState)
-        {
-            case SKPaymentTransactionStatePurchased:
-                [self completeTransaction:transaction];
-                break;
-            case SKPaymentTransactionStateFailed:
-                [self failedTransaction:transaction];
-                break;
-            case SKPaymentTransactionStateRestored:
-                [self restoreTransaction:transaction];
-            default:
-                break;
-        }
-    }
-}
-
-- (void) completeTransaction: (SKPaymentTransaction *)transaction
-{
-	// Your application should implement these two methods.
-    [self recordTransaction: transaction];	
-}
-
-- (void) restoreTransaction: (SKPaymentTransaction *)transaction
-{
-    [self recordTransaction: transaction];
-    [self provideContent: transaction.originalTransaction.payment.productIdentifier];
-    [[SKPaymentQueue defaultQueue] finishTransaction: transaction];
-}
-
-
-- (void) failedTransaction: (SKPaymentTransaction *)transaction
-{
-    if (transaction.error.code != SKErrorPaymentCancelled)
-    {
-        // Optionally, display an error here.
-    }
-    [[SKPaymentQueue defaultQueue] finishTransaction: transaction];
-}
-
-- (void)recordTransaction:(SKPaymentTransaction *)transaction{
-	NSLog(@"record transaction in adcontroller: %@",transaction);
-}
-
-- (void)provideContent:(NSString *)_productIdentifier{
-	NSLog(@"provide product in adcontroller:%@", _productIdentifier);
-}
-
-- (NSDictionary *)parseQuery:(NSString *)query{
-	NSMutableDictionary *queryDict = [[NSMutableDictionary alloc] initWithCapacity:1];
-	NSArray *queryElements = [query componentsSeparatedByString:@"&"];
-	for (NSString *element in queryElements) {
-		NSArray *keyVal = [element componentsSeparatedByString:@"="];
-		NSString *key = [keyVal objectAtIndex:0];
-		NSString *value = [keyVal lastObject];
-		[queryDict setObject:[value stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding] 
-					  forKey:key];
-	}
-	return [queryDict autorelease];
 }
 
 - (NSString *)escapeURL:(NSURL *)urlIn{

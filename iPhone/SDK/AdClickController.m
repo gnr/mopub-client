@@ -21,11 +21,6 @@ static NSArray *SAFARI_SCHEMES, *SAFARI_HOSTS;
 					   @"http",
 					   @"https",
 					   nil] retain];
-//	SAFARI_SCHEMES = [[NSArray arrayWithObjects:
-//					   @"tel",
-//					   @"sms",
-//					   @"itms",
-//					   nil] retain];	
 	SAFARI_HOSTS = [[NSArray arrayWithObjects:
 					 @"phobos.apple.com",
 					 @"maps.google.com",
@@ -92,7 +87,6 @@ static NSArray *SAFARI_SCHEMES, *SAFARI_HOSTS;
 	} 
 	else {
 		if ([[UIApplication sharedApplication] canOpenURL:request.URL]){
-			[[UIApplication sharedApplication] openURL:request.URL];
 			[self dismissModalViewControllerAnimated:NO];
 			return NO;
 		}

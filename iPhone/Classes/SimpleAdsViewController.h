@@ -10,8 +10,12 @@
 #import "SecondViewController.h"
 
 #define PUB_ID_320x50 @"agltb3B1Yi1pbmNyDAsSBFNpdGUYkaoMDA"
+//#define PUB_ID_320x50 @"agltb3B1Yi1pbmNyDAsSBFNpdGUYifcPDA"
 #define PUB_ID_300x250 @"agltb3B1Yi1pbmNyDAsSBFNpdGUYycEMDA"
 #define PUB_ID_INTERSTITIAL @"agltb3B1Yi1pbmNyDAsSBFNpdGUYsckMDA"
+#define PUB_ID_NAV_INTERSTITIAL @"agltb3B1Yi1pbmNyDAsSBFNpdGUYsbcSDA"
+
+
 @class InterstitialAdController;
 
 @interface SimpleAdsViewController : UIViewController <UITextFieldDelegate, InterstitialAdControllerDelegate> {
@@ -42,6 +46,8 @@
 -(IBAction) getModalInterstitial;
 -(IBAction) getAndShowModalInterstitial;
 -(IBAction) getNavigationInterstitial;
+
+- (void)adjustAdSize;
 
 @end
 

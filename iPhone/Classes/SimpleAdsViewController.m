@@ -6,6 +6,7 @@
 #import "SimpleAdsViewController.h"
 #import "AdController.h"
 #import "InterstitialAdController.h"
+//#import <iAd/iAd.h>
 
 @implementation SimpleAdsViewController
 
@@ -40,9 +41,47 @@
 	[self.mrectController loadAd];
 }
 
+// Override to allow orientations other than the default portrait orientation.
+- (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation {
+	return YES;
+}
+
+- (void)willRotateToInterfaceOrientation:(UIInterfaceOrientation)newOrientation
+								duration:(NSTimeInterval)duration {
+	[super willRotateToInterfaceOrientation:newOrientation
+								   duration:duration];
+	
+	// //  ONLY IF YOU WANT TO RESIZE iAD
+	// we only need to tell the top banner about the rotation
+	// since we only have banner iAds (not mRects)
+	//	[self.adController rotateToOrientation:newOrientation];
+	//	[self adjustAdSize];
+}
+
+- (void)adjustAdSize{
+//	if ([self.adController.currentAdType isEqual:@"iAd"]){
+//		CGRect newFrame = self.adController.nativeAdView.frame;
+//		if (UIDeviceOrientationIsLandscape([UIDevice currentDevice].orientation)){
+//			newFrame.origin.x = -80.0;
+//		}
+//		else {
+//			newFrame.origin.x = 0.0;
+//		}
+//		
+//		self.adController.nativeAdView.frame = newFrame;
+//		if (UIDeviceOrientationIsPortrait([[UIDevice currentDevice] orientation])){
+//			((ADBannerView *)self.adController.nativeAdView).currentContentSizeIdentifier = ADBannerContentSizeIdentifier320x50;
+//		}
+//		else {
+//			((ADBannerView *)self.adController.nativeAdView).currentContentSizeIdentifier = ADBannerContentSizeIdentifier480x32;
+//		}
+//		
+//	}	
+}
+
 - (IBAction) getNavigationInterstitial{
 	if (!shownNavigationInterstitialAlready){
-		self.navigationInterstitialAdController = [InterstitialAdController sharedInterstitialAdControllerForAdUnitId:PUB_ID_INTERSTITIAL];
+		self.navigationInterstitialAdController = [InterstitialAdController sharedInterstitialAdControllerForAdUnitId:PUB_ID_NAV_INTERSTITIAL];
 		self.navigationInterstitialAdController.delegate = self;
 		self.navigationInterstitialAdController.parent = self.navigationController;
 		[self.navigationInterstitialAdController loadAd];
@@ -103,6 +142,10 @@
 
 		[UIView commitAnimations];
 	}
+//  //  ONLY IF YOU WANT TO RESIZE iAD	
+//	else if (_adController == adController){
+//		[self adjustAdSize];
+//	}
 }
 
 - (void)adControllerFailedLoadAd:(AdController *)_adController{
@@ -121,9 +164,10 @@
 	}
 	else {
 		[_interstitialAdController dismissModalViewControllerAnimated:YES];
-		// release the object
-		[InterstitialAdController removeSharedInterstitialAdController:_interstitialAdController];
 	}
+	// release the object
+	[InterstitialAdController removeSharedInterstitialAdController:_interstitialAdController];
+
 }
 
 - (IBAction) refreshAd {

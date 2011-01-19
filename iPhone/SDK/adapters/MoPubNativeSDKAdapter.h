@@ -6,9 +6,8 @@
 //
 
 #import <UIKit/UIKit.h>
-#import "MoPubNativeSDKRegistry.h"
 
-#import "AdController.h"
+@class AdController;
 
 @interface MoPubNativeSDKAdapter : NSObject {
 	AdController *adController;
@@ -32,6 +31,10 @@
  * they need to perform additional initialization. In which case, this
  * method must be called via the super keyword.
  */
+//- (id)initWithAdWhirlDelegate:(id<AdWhirlDelegate>)delegate
+//                         view:(AdWhirlView *)view
+//                       config:(AdWhirlConfig *)config
+//                networkConfig:(AdWhirlAdNetworkConfig *)netConf;
 
 - (id)initWithAdController:(AdController *)adController;
 
@@ -57,5 +60,10 @@
  */
 //- (BOOL)isBannerAnimationOK:(AWBannerAnimationType)animType;
 
+//@property (nonatomic,assign) id<AdWhirlDelegate> adWhirlDelegate;
+//@property (nonatomic,assign) AdWhirlView *adWhirlView;
+//@property (nonatomic,retain) AdWhirlConfig *adWhirlConfig;
+//@property (nonatomic,retain) AdWhirlAdNetworkConfig *networkConfig;
+//@property (nonatomic,retain) UIView *adNetworkView;
 
 @end

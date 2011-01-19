@@ -23,7 +23,7 @@
 }
 
 - (void)getAdWithParams:(NSDictionary *)params {
-  NSLog(@"Calling getAd not allowed. Subclass of MoPubNativeSDKAdapter must implement -getAdWithParams.");
+  NSLog(@"Calling getAd not allowed. Subclass of AdWhirlAdNetworkAdapter must implement -getAdWithParams.");
   [self doesNotRecognizeSelector:_cmd];
 }
 
@@ -33,6 +33,9 @@
              orientation, NSStringFromClass([self class]));
 }
 
+//- (BOOL)isBannerAnimationOK:(AWBannerAnimationType)animType {
+//  return YES;
+//}
 
 - (NSDictionary *)simpleJsonStringToDictionary:(NSString *)jsonString{
 	// remove leading and trailing {","} respectively

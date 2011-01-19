@@ -17,7 +17,7 @@
 @synthesize navigationController;	
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {    
-    [[AdConversionTracker sharedConversionTracker] reportApplicationOpen];
+    [[AdConversionTracker sharedConversionTracker] reportApplicationOpenForApplicationID:@"agltb3B1Yi1pbmNyCwsSA0FwcBii-wsM"];
 	
     // Override point for customization after app launch    
 	viewController = [[SimpleAdsViewController alloc] initWithNibName:@"SimpleAdsViewController" bundle:nil];
