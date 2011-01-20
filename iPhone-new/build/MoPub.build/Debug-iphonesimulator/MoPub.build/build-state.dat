@@ -1,0 +1,518 @@
+TMoPub
+v7
+r0
+t317185392.051348
+cCheck dependencies
+cProcessInfoPlistFile /Users/njamal/Desktop/MoPub/build/Debug-iphonesimulator/MoPub.app/Info.plist MoPub-Info.plist
+cCompileXIB /Users/njamal/Desktop/MoPub/MainWindow.xib
+cCompileXIB /Users/njamal/Desktop/MoPub/MoPubViewController.xib
+cCompileXIB /Users/njamal/Desktop/MoPub/AdClickController.xib
+cProcessPCH /var/folders/Ny/NyTmLyDbEZqzR2JIsC-ybE+++TI/-Caches-/com.apple.Xcode.501/SharedPrecompiledHeaders/MoPub_Prefix-aubdckptnbsydmgocntnrshikogp/MoPub_Prefix.pch.gch MoPub_Prefix.pch normal i386 objective-c com.apple.compilers.gcc.4_2
+cCompileC build/MoPub.build/Debug-iphonesimulator/MoPub.build/Objects-normal/i386/main.o /Users/njamal/Desktop/MoPub/main.m normal i386 objective-c com.apple.compilers.gcc.4_2
+cCompileC build/MoPub.build/Debug-iphonesimulator/MoPub.build/Objects-normal/i386/MoPubAppDelegate.o /Users/njamal/Desktop/MoPub/Classes/MoPubAppDelegate.m normal i386 objective-c com.apple.compilers.gcc.4_2
+cCompileC build/MoPub.build/Debug-iphonesimulator/MoPub.build/Objects-normal/i386/MoPubViewController.o /Users/njamal/Desktop/MoPub/Classes/MoPubViewController.m normal i386 objective-c com.apple.compilers.gcc.4_2
+cCompileC build/MoPub.build/Debug-iphonesimulator/MoPub.build/Objects-normal/i386/MPAdView.o /Users/njamal/Desktop/MoPub/Classes/MPAdView.m normal i386 objective-c com.apple.compilers.gcc.4_2
+cCompileC build/MoPub.build/Debug-iphonesimulator/MoPub.build/Objects-normal/i386/MPAdBrowserController.o /Users/njamal/Desktop/MoPub/MPAdBrowserController.m normal i386 objective-c com.apple.compilers.gcc.4_2
+cCompileC build/MoPub.build/Debug-iphonesimulator/MoPub.build/Objects-normal/i386/AdClickController.o /Users/njamal/Desktop/MoPub/AdClickController.m normal i386 objective-c com.apple.compilers.gcc.4_2
+cCompileC build/MoPub.build/Debug-iphonesimulator/MoPub.build/Objects-normal/i386/MPIAdAdapter.o /Users/njamal/Desktop/MoPub/MPIAdAdapter.m normal i386 objective-c com.apple.compilers.gcc.4_2
+cCompileC build/MoPub.build/Debug-iphonesimulator/MoPub.build/Objects-normal/i386/MPBaseAdapter.o /Users/njamal/Desktop/MoPub/MPBaseAdapter.m normal i386 objective-c com.apple.compilers.gcc.4_2
+cLd /Users/njamal/Desktop/MoPub/build/Debug-iphonesimulator/MoPub.app/MoPub normal i386
+cGenerateDSYMFile /Users/njamal/Desktop/MoPub/build/Debug-iphonesimulator/MoPub.app.dSYM /Users/njamal/Desktop/MoPub/build/Debug-iphonesimulator/MoPub.app/MoPub
+cTouch /Users/njamal/Desktop/MoPub/build/Debug-iphonesimulator/MoPub.app
+
+N/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator4.2.sdk
+c000000004D1370070000000000000110
+t1293119495
+s272
+
+N/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator4.2.sdk/System/Library/Frameworks/CoreGraphics.framework/CoreGraphics
+c000000004CC12246000000000029B310
+t1287725638
+s2732816
+
+N/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator4.2.sdk/System/Library/Frameworks/Foundation.framework/Foundation
+c000000004CC1226D000000000029D5D0
+t1287725677
+s2741712
+
+N/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator4.2.sdk/System/Library/Frameworks/Foundation.framework/Headers/Foundation.h
+c000000004CC1225F0000000000001466
+t1287725663
+s5222
+
+N/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator4.2.sdk/System/Library/Frameworks/UIKit.framework/Headers/UIKit.h
+c000000004CC1281F0000000000000AA1
+t1287727135
+s2721
+
+N/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator4.2.sdk/System/Library/Frameworks/UIKit.framework/UIKit
+c000000004CC12883000000000074D7B0
+t1287727235
+s7657392
+
+N/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator4.2.sdk/System/Library/Frameworks/iAd.framework/Headers/iAd.h
+c000000004CC657750000000000000071
+t1288066933
+s113
+
+N/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator4.2.sdk/System/Library/Frameworks/iAd.framework/iAd
+c000000004CC65780000000000002F590
+t1288066944
+s193936
+
+N/Users/njamal/Desktop/MoPub/AdClickController.h
+c000000004CB4E3F400000000000006B9
+t1286923252
+s1721
+i<UIKit/UIKit.h>
+
+N/Users/njamal/Desktop/MoPub/AdClickController.m
+c000000004D35271C0000000000001862
+t1295329052
+s6242
+i"AdClickController.h"
+
+N/Users/njamal/Desktop/MoPub/AdClickController.xib
+c000000004CA3BBBA0000000000007B87
+t1285798842
+s31623
+
+N/Users/njamal/Desktop/MoPub/Classes/MPAdView.h
+c000000004D37A5740000000000000359
+t1295492468
+s857
+i<UIKit/UIKit.h>
+i"AdClickController.h"
+
+N/Users/njamal/Desktop/MoPub/Classes/MPAdView.m
+c000000004D37A6220000000000001E9E
+t1295492642
+s7838
+i"MPAdView.h"
+i"MPBaseAdapter.h"
+
+N/Users/njamal/Desktop/MoPub/Classes/MoPubAppDelegate.h
+c000000004D37793000000000000001C9
+t1295481136
+s457
+i<UIKit/UIKit.h>
+
+N/Users/njamal/Desktop/MoPub/Classes/MoPubAppDelegate.m
+c000000004D3779300000000000000A81
+t1295481136
+s2689
+i"MoPubAppDelegate.h"
+i"MoPubViewController.h"
+
+N/Users/njamal/Desktop/MoPub/Classes/MoPubViewController.h
+c000000004D37898700000000000000F2
+t1295485319
+s242
+i<UIKit/UIKit.h>
+i"MPAdView.h"
+
+N/Users/njamal/Desktop/MoPub/Classes/MoPubViewController.m
+c000000004D379A4E000000000000083F
+t1295489614
+s2111
+i"MoPubViewController.h"
+
+N/Users/njamal/Desktop/MoPub/MPAdBrowserController.h
+c000000004D37938400000000000000E3
+t1295487876
+s227
+i<UIKit/UIKit.h>
+
+N/Users/njamal/Desktop/MoPub/MPAdBrowserController.m
+c000000004D3792970000000000000621
+t1295487639
+s1569
+i"MPAdBrowserController.h"
+
+N/Users/njamal/Desktop/MoPub/MPBaseAdapter.h
+c000000004D37A3C60000000000000170
+t1295492038
+s368
+i<Foundation/Foundation.h>
+i"MPAdView.h"
+
+N/Users/njamal/Desktop/MoPub/MPBaseAdapter.m
+c000000004D37A20E000000000000016D
+t1295491598
+s365
+i"MPBaseAdapter.h"
+
+N/Users/njamal/Desktop/MoPub/MPIAdAdapter.h
+c000000004D37A3E40000000000000104
+t1295492068
+s260
+i<Foundation/Foundation.h>
+i"MPBaseAdapter.h"
+i<iAd/iAd.h>
+
+N/Users/njamal/Desktop/MoPub/MPIAdAdapter.m
+c000000004D37A43900000000000003F1
+t1295492153
+s1009
+i"MPIAdAdapter.h"
+
+N/Users/njamal/Desktop/MoPub/MainWindow.xib
+c000000004D3779300000000000004E11
+t1295481136
+s19985
+
+N/Users/njamal/Desktop/MoPub/MoPubViewController.xib
+c000000004D3779300000000000001A3D
+t1295481136
+s6717
+
+N/Users/njamal/Desktop/MoPub/MoPub_Prefix.pch
+c000000004D37793000000000000000B3
+t1295481136
+s179
+i<Foundation/Foundation.h>
+i<UIKit/UIKit.h>
+
+N/Users/njamal/Desktop/MoPub/build/Debug-iphonesimulator/MoPub.app
+t1295492586
+s272
+
+N/Users/njamal/Desktop/MoPub/build/Debug-iphonesimulator/MoPub.app.dSYM
+t1295492586
+s102
+
+N/Users/njamal/Desktop/MoPub/build/Debug-iphonesimulator/MoPub.app/AdClickController.nib
+t1295489493
+s2156
+
+N/Users/njamal/Desktop/MoPub/build/Debug-iphonesimulator/MoPub.app/Info.plist
+t1295483541
+s583
+
+N/Users/njamal/Desktop/MoPub/build/Debug-iphonesimulator/MoPub.app/MainWindow.nib
+t1295483541
+s1119
+
+N/Users/njamal/Desktop/MoPub/build/Debug-iphonesimulator/MoPub.app/MoPub
+t1295492586
+s57776
+
+N/Users/njamal/Desktop/MoPub/build/Debug-iphonesimulator/MoPub.app/MoPubViewController.nib
+t1295483541
+s795
+
+N/Users/njamal/Desktop/MoPub/build/Debug-iphonesimulator/MoPub.app/PkgInfo
+t1295483541
+s8
+
+N/Users/njamal/Desktop/MoPub/build/MoPub.build/Debug-iphonesimulator/MoPub.build/Objects-normal/i386/AdClickController.o
+t1295489493
+s82692
+
+N/Users/njamal/Desktop/MoPub/build/MoPub.build/Debug-iphonesimulator/MoPub.build/Objects-normal/i386/MPAdBrowserController.o
+t1295489493
+s37664
+
+N/Users/njamal/Desktop/MoPub/build/MoPub.build/Debug-iphonesimulator/MoPub.build/Objects-normal/i386/MPAdView.o
+t1295492585
+s68152
+
+N/Users/njamal/Desktop/MoPub/build/MoPub.build/Debug-iphonesimulator/MoPub.build/Objects-normal/i386/MPBaseAdapter.o
+t1295492472
+s38496
+
+N/Users/njamal/Desktop/MoPub/build/MoPub.build/Debug-iphonesimulator/MoPub.build/Objects-normal/i386/MPIAdAdapter.o
+t1295492472
+s39488
+
+N/Users/njamal/Desktop/MoPub/build/MoPub.build/Debug-iphonesimulator/MoPub.build/Objects-normal/i386/MoPub.LinkFileList
+c000000004D37A38700000000000003A6
+t1295491975
+s934
+
+N/Users/njamal/Desktop/MoPub/build/MoPub.build/Debug-iphonesimulator/MoPub.build/Objects-normal/i386/MoPubAppDelegate.o
+t1295492472
+s50756
+
+N/Users/njamal/Desktop/MoPub/build/MoPub.build/Debug-iphonesimulator/MoPub.build/Objects-normal/i386/MoPubViewController.o
+t1295492472
+s43592
+
+N/Users/njamal/Desktop/MoPub/build/MoPub.build/Debug-iphonesimulator/MoPub.build/Objects-normal/i386/main.o
+t1295483543
+s6280
+
+N/Users/njamal/Desktop/MoPub/build/MoPub.build/Debug-iphonesimulator/MoPub.build/StaticAnalyzer/normal/i386/MPAdView.plist
+t1295487210
+s6651
+
+N/Users/njamal/Desktop/MoPub/build/MoPub.build/Debug-iphonesimulator/MoPub.build/StaticAnalyzer/normal/i386/MoPubAppDelegate.plist
+t1295487210
+s276
+
+N/Users/njamal/Desktop/MoPub/build/MoPub.build/Debug-iphonesimulator/MoPub.build/StaticAnalyzer/normal/i386/MoPubViewController.plist
+t1295487210
+s276
+
+N/Users/njamal/Desktop/MoPub/build/MoPub.build/Debug-iphonesimulator/MoPub.build/StaticAnalyzer/normal/i386/main.plist
+t1295487210
+s276
+
+N/Users/njamal/Desktop/MoPub/main.m
+c000000004D377930000000000000015D
+t1295481136
+s349
+i<UIKit/UIKit.h>
+
+N/var/folders/Ny/NyTmLyDbEZqzR2JIsC-ybE+++TI/-Caches-/com.apple.Xcode.501/SharedPrecompiledHeaders/MoPub_Prefix-aubdckptnbsydmgocntnrshikogp/MoPub_Prefix.pch.gch
+t1295483543
+s15453392
+
+N/var/folders/Ny/NyTmLyDbEZqzR2JIsC-ybE+++TI/-Caches-/com.apple.Xcode.501/SharedPrecompiledHeaders/MoPub_Prefix-epcmtcbrpeijhzdnokmoduvgyikr/MoPub_Prefix.pch.pth
+t1295487210
+s2783956
+
+NMoPub-Info.plist
+c000000004D377930000000000000038D
+t1295481136
+s909
+
+CAnalyze /Users/njamal/Desktop/MoPub/Classes/MPAdView.m
+s317180010.561807
+e317180010.627523
+r1
+xAnalyze
+x/Users/njamal/Desktop/MoPub/Classes/MPAdView.m
+o/Users/njamal/Desktop/MoPub/Classes/MPAdView.m:80:33: warning: Potential leak of an object allocated on line 80 and stored into 'request'
+o         NSMutableURLRequest *request = [[NSMutableURLRequest alloc] initWithURL:_url 
+o                                        ^
+o1 warning generated.
+lSLF07#2@54"Analyze /Users/njamal/Desktop/MoPub/Classes/MPAdView.m317180010#317180010#0(288"/Users/njamal/Desktop/MoPub/Classes/MPAdView.m:80:33: warning: Potential leak of an object allocated on line 80 and stored into 'request'         NSMutableURLRequest *request = [[NSMutableURLRequest alloc] initWithURL:_url                                         ^1 warning generated.1(0@74"Potential leak of an object allocated on line 80 and stored into 'request'317180010#18446744073709551615#0#6(17@0"317180010#18446744073709551615#0#0(6@46"/Users/njamal/Desktop/MoPub/Classes/MPAdView.m317179975#0#0#0#0#0"0(6@46"/Users/njamal/Desktop/MoPub/Classes/MPAdView.m317179975#0#0#0#0#1(3@6@46"/Users/njamal/Desktop/MoPub/Classes/MPAdView.m317179975#72#2#72#2#6@46"/Users/njamal/Desktop/MoPub/Classes/MPAdView.m317179975#80#2#80#2#17@0"317180010#18446744073709551615#0#0(6@46"/Users/njamal/Desktop/MoPub/Classes/MPAdView.m317179975#0#0#0#0#0"0(6@46"/Users/njamal/Desktop/MoPub/Classes/MPAdView.m317179975#0#0#0#0#1(3@6@46"/Users/njamal/Desktop/MoPub/Classes/MPAdView.m317179975#80#2#80#2#6@46"/Users/njamal/Desktop/MoPub/Classes/MPAdView.m317179975#80#33#82#35#21@78"Method returns an Objective-C object with a +1 retain count (owning reference)317180010#18446744073709551615#0#0(6@46"/Users/njamal/Desktop/MoPub/Classes/MPAdView.m317179975#80#33#0#0#0"1(6@46"/Users/njamal/Desktop/MoPub/Classes/MPAdView.m317179975#80#33#82#35#78"Method returns an Objective-C object with a +1 retain count (owning reference)17@0"317180010#18446744073709551615#0#0(6@46"/Users/njamal/Desktop/MoPub/Classes/MPAdView.m317179975#0#0#0#0#0"0(6@46"/Users/njamal/Desktop/MoPub/Classes/MPAdView.m317179975#0#0#0#0#1(3@6@46"/Users/njamal/Desktop/MoPub/Classes/MPAdView.m317179975#80#33#82#35#6@46"/Users/njamal/Desktop/MoPub/Classes/MPAdView.m317179975#84#2#84#2#17@0"317180010#18446744073709551615#0#0(6@46"/Users/njamal/Desktop/MoPub/Classes/MPAdView.m317179975#0#0#0#0#0"0(6@46"/Users/njamal/Desktop/MoPub/Classes/MPAdView.m317179975#0#0#0#0#1(3@6@46"/Users/njamal/Desktop/MoPub/Classes/MPAdView.m317179975#84#2#84#2#6@46"/Users/njamal/Desktop/MoPub/Classes/MPAdView.m317179975#86#3#86#7#21@139"Object allocated on line 80 and stored into 'request' is no longer referenced after this point and has a retain count of +1 (object leaked)317180010#18446744073709551615#0#0(6@46"/Users/njamal/Desktop/MoPub/Classes/MPAdView.m317179975#86#3#0#0#0"1(6@46"/Users/njamal/Desktop/MoPub/Classes/MPAdView.m317179975#86#3#86#7#139"Object allocated on line 80 and stored into 'request' is no longer referenced after this point and has a retain count of +1 (object leaked)6@46"/Users/njamal/Desktop/MoPub/Classes/MPAdView.m317179975#86#3#0#0#36"Memory (Core Foundation/Objective-C)0(4"Leak0#0#46"/Users/njamal/Desktop/MoPub/Classes/MPAdView.m8632629056#1778"    cd /Users/njamal/Desktop/MoPub    setenv LANG en_US.US-ASCII    setenv PATH "/Developer/Platforms/iPhoneSimulator.platform/Developer/usr/bin:/Developer/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin"    /Developer/usr/bin/clang -x objective-c -arch i386 -fmessage-length=0 -pipe -fdiagnostics-print-source-range-info -std=c99 -Wno-trigraphs -fpascal-strings -O0 -Wreturn-type -Wunused-variable -isysroot /Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator4.2.sdk -fexceptions -fasm-blocks -mmacosx-version-min=10.6 -gdwarf-2 -fvisibility=hidden -fobjc-abi-version=2 -fobjc-legacy-dispatch -D__IPHONE_OS_VERSION_MIN_REQUIRED=40200 -iquote /Users/njamal/Desktop/MoPub/build/MoPub.build/Debug-iphonesimulator/MoPub.build/MoPub-generated-files.hmap -I/Users/njamal/Desktop/MoPub/build/MoPub.build/Debug-iphonesimulator/MoPub.build/MoPub-own-target-headers.hmap -I/Users/njamal/Desktop/MoPub/build/MoPub.build/Debug-iphonesimulator/MoPub.build/MoPub-all-target-headers.hmap -iquote /Users/njamal/Desktop/MoPub/build/MoPub.build/Debug-iphonesimulator/MoPub.build/MoPub-project-headers.hmap -F/Users/njamal/Desktop/MoPub/build/Debug-iphonesimulator -I/Users/njamal/Desktop/MoPub/build/Debug-iphonesimulator/include -I/Users/njamal/Desktop/MoPub/build/MoPub.build/Debug-iphonesimulator/MoPub.build/DerivedSources/i386 -I/Users/njamal/Desktop/MoPub/build/MoPub.build/Debug-iphonesimulator/MoPub.build/DerivedSources -include /var/folders/Ny/NyTmLyDbEZqzR2JIsC-ybE+++TI/-Caches-/com.apple.Xcode.501/SharedPrecompiledHeaders/MoPub_Prefix-epcmtcbrpeijhzdnokmoduvgyikr/MoPub_Prefix.pch --analyze /Users/njamal/Desktop/MoPub/Classes/MPAdView.m -o /Users/njamal/Desktop/MoPub/build/MoPub.build/Debug-iphonesimulator/MoPub.build/StaticAnalyzer/normal/i386/MPAdView.plist0#
+
+CAnalyze /Users/njamal/Desktop/MoPub/Classes/MoPubAppDelegate.m
+s317180010.388316
+e317180010.561383
+r1
+xAnalyze
+x/Users/njamal/Desktop/MoPub/Classes/MoPubAppDelegate.m
+lSLF07#2@62"Analyze /Users/njamal/Desktop/MoPub/Classes/MoPubAppDelegate.m317180010#317180010#0(0"0(0#0#54"/Users/njamal/Desktop/MoPub/Classes/MoPubAppDelegate.m8645861024#1794"    cd /Users/njamal/Desktop/MoPub    setenv LANG en_US.US-ASCII    setenv PATH "/Developer/Platforms/iPhoneSimulator.platform/Developer/usr/bin:/Developer/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin"    /Developer/usr/bin/clang -x objective-c -arch i386 -fmessage-length=0 -pipe -fdiagnostics-print-source-range-info -std=c99 -Wno-trigraphs -fpascal-strings -O0 -Wreturn-type -Wunused-variable -isysroot /Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator4.2.sdk -fexceptions -fasm-blocks -mmacosx-version-min=10.6 -gdwarf-2 -fvisibility=hidden -fobjc-abi-version=2 -fobjc-legacy-dispatch -D__IPHONE_OS_VERSION_MIN_REQUIRED=40200 -iquote /Users/njamal/Desktop/MoPub/build/MoPub.build/Debug-iphonesimulator/MoPub.build/MoPub-generated-files.hmap -I/Users/njamal/Desktop/MoPub/build/MoPub.build/Debug-iphonesimulator/MoPub.build/MoPub-own-target-headers.hmap -I/Users/njamal/Desktop/MoPub/build/MoPub.build/Debug-iphonesimulator/MoPub.build/MoPub-all-target-headers.hmap -iquote /Users/njamal/Desktop/MoPub/build/MoPub.build/Debug-iphonesimulator/MoPub.build/MoPub-project-headers.hmap -F/Users/njamal/Desktop/MoPub/build/Debug-iphonesimulator -I/Users/njamal/Desktop/MoPub/build/Debug-iphonesimulator/include -I/Users/njamal/Desktop/MoPub/build/MoPub.build/Debug-iphonesimulator/MoPub.build/DerivedSources/i386 -I/Users/njamal/Desktop/MoPub/build/MoPub.build/Debug-iphonesimulator/MoPub.build/DerivedSources -include /var/folders/Ny/NyTmLyDbEZqzR2JIsC-ybE+++TI/-Caches-/com.apple.Xcode.501/SharedPrecompiledHeaders/MoPub_Prefix-epcmtcbrpeijhzdnokmoduvgyikr/MoPub_Prefix.pch --analyze /Users/njamal/Desktop/MoPub/Classes/MoPubAppDelegate.m -o /Users/njamal/Desktop/MoPub/build/MoPub.build/Debug-iphonesimulator/MoPub.build/StaticAnalyzer/normal/i386/MoPubAppDelegate.plist0#
+
+CAnalyze /Users/njamal/Desktop/MoPub/Classes/MoPubViewController.m
+s317180010.555880
+e317180010.612845
+r1
+xAnalyze
+x/Users/njamal/Desktop/MoPub/Classes/MoPubViewController.m
+lSLF07#2@65"Analyze /Users/njamal/Desktop/MoPub/Classes/MoPubViewController.m317180010#317180010#0(0"0(0#0#57"/Users/njamal/Desktop/MoPub/Classes/MoPubViewController.m8636859360#1800"    cd /Users/njamal/Desktop/MoPub    setenv LANG en_US.US-ASCII    setenv PATH "/Developer/Platforms/iPhoneSimulator.platform/Developer/usr/bin:/Developer/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin"    /Developer/usr/bin/clang -x objective-c -arch i386 -fmessage-length=0 -pipe -fdiagnostics-print-source-range-info -std=c99 -Wno-trigraphs -fpascal-strings -O0 -Wreturn-type -Wunused-variable -isysroot /Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator4.2.sdk -fexceptions -fasm-blocks -mmacosx-version-min=10.6 -gdwarf-2 -fvisibility=hidden -fobjc-abi-version=2 -fobjc-legacy-dispatch -D__IPHONE_OS_VERSION_MIN_REQUIRED=40200 -iquote /Users/njamal/Desktop/MoPub/build/MoPub.build/Debug-iphonesimulator/MoPub.build/MoPub-generated-files.hmap -I/Users/njamal/Desktop/MoPub/build/MoPub.build/Debug-iphonesimulator/MoPub.build/MoPub-own-target-headers.hmap -I/Users/njamal/Desktop/MoPub/build/MoPub.build/Debug-iphonesimulator/MoPub.build/MoPub-all-target-headers.hmap -iquote /Users/njamal/Desktop/MoPub/build/MoPub.build/Debug-iphonesimulator/MoPub.build/MoPub-project-headers.hmap -F/Users/njamal/Desktop/MoPub/build/Debug-iphonesimulator -I/Users/njamal/Desktop/MoPub/build/Debug-iphonesimulator/include -I/Users/njamal/Desktop/MoPub/build/MoPub.build/Debug-iphonesimulator/MoPub.build/DerivedSources/i386 -I/Users/njamal/Desktop/MoPub/build/MoPub.build/Debug-iphonesimulator/MoPub.build/DerivedSources -include /var/folders/Ny/NyTmLyDbEZqzR2JIsC-ybE+++TI/-Caches-/com.apple.Xcode.501/SharedPrecompiledHeaders/MoPub_Prefix-epcmtcbrpeijhzdnokmoduvgyikr/MoPub_Prefix.pch --analyze /Users/njamal/Desktop/MoPub/Classes/MoPubViewController.m -o /Users/njamal/Desktop/MoPub/build/MoPub.build/Debug-iphonesimulator/MoPub.build/StaticAnalyzer/normal/i386/MoPubViewController.plist0#
+
+CAnalyze /Users/njamal/Desktop/MoPub/main.m
+s317180010.387067
+e317180010.555781
+r1
+xAnalyze
+x/Users/njamal/Desktop/MoPub/main.m
+lSLF07#2@42"Analyze /Users/njamal/Desktop/MoPub/main.m317180010#317180010#0(0"0(0#0#34"/Users/njamal/Desktop/MoPub/main.m8647850176#1762"    cd /Users/njamal/Desktop/MoPub    setenv LANG en_US.US-ASCII    setenv PATH "/Developer/Platforms/iPhoneSimulator.platform/Developer/usr/bin:/Developer/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin"    /Developer/usr/bin/clang -x objective-c -arch i386 -fmessage-length=0 -pipe -fdiagnostics-print-source-range-info -std=c99 -Wno-trigraphs -fpascal-strings -O0 -Wreturn-type -Wunused-variable -isysroot /Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator4.2.sdk -fexceptions -fasm-blocks -mmacosx-version-min=10.6 -gdwarf-2 -fvisibility=hidden -fobjc-abi-version=2 -fobjc-legacy-dispatch -D__IPHONE_OS_VERSION_MIN_REQUIRED=40200 -iquote /Users/njamal/Desktop/MoPub/build/MoPub.build/Debug-iphonesimulator/MoPub.build/MoPub-generated-files.hmap -I/Users/njamal/Desktop/MoPub/build/MoPub.build/Debug-iphonesimulator/MoPub.build/MoPub-own-target-headers.hmap -I/Users/njamal/Desktop/MoPub/build/MoPub.build/Debug-iphonesimulator/MoPub.build/MoPub-all-target-headers.hmap -iquote /Users/njamal/Desktop/MoPub/build/MoPub.build/Debug-iphonesimulator/MoPub.build/MoPub-project-headers.hmap -F/Users/njamal/Desktop/MoPub/build/Debug-iphonesimulator -I/Users/njamal/Desktop/MoPub/build/Debug-iphonesimulator/include -I/Users/njamal/Desktop/MoPub/build/MoPub.build/Debug-iphonesimulator/MoPub.build/DerivedSources/i386 -I/Users/njamal/Desktop/MoPub/build/MoPub.build/Debug-iphonesimulator/MoPub.build/DerivedSources -include /var/folders/Ny/NyTmLyDbEZqzR2JIsC-ybE+++TI/-Caches-/com.apple.Xcode.501/SharedPrecompiledHeaders/MoPub_Prefix-epcmtcbrpeijhzdnokmoduvgyikr/MoPub_Prefix.pch --analyze /Users/njamal/Desktop/MoPub/main.m -o /Users/njamal/Desktop/MoPub/build/MoPub.build/Debug-iphonesimulator/MoPub.build/StaticAnalyzer/normal/i386/main.plist0#
+
+CCheck dependencies
+r0
+lSLF07#2@18"Check dependencies317185392#317185392#0(0"0(0#1#0"8644972896#0"0#
+
+CCompileC build/MoPub.build/Debug-iphonesimulator/MoPub.build/Objects-normal/i386/AdClickController.o /Users/njamal/Desktop/MoPub/AdClickController.m normal i386 objective-c com.apple.compilers.gcc.4_2
+s317182293.560593
+e317182293.735865
+r1
+xCompileC
+xbuild/MoPub.build/Debug-iphonesimulator/MoPub.build/Objects-normal/i386/AdClickController.o
+x/Users/njamal/Desktop/MoPub/AdClickController.m
+xnormal
+xi386
+xobjective-c
+xcom.apple.compilers.gcc.4_2
+lSLF07#2@55"Compile /Users/njamal/Desktop/MoPub/AdClickController.m317182293#317182293#0(0"0(0#0#47"/Users/njamal/Desktop/MoPub/AdClickController.m8658325536#1779"    cd /Users/njamal/Desktop/MoPub    setenv LANG en_US.US-ASCII    setenv PATH "/Developer/Platforms/iPhoneSimulator.platform/Developer/usr/bin:/Developer/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin"    /Developer/Platforms/iPhoneSimulator.platform/Developer/usr/bin/gcc-4.2 -x objective-c -arch i386 -fmessage-length=0 -pipe -std=c99 -Wno-trigraphs -fpascal-strings -fasm-blocks -O0 -Wreturn-type -Wunused-variable -isysroot /Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator4.2.sdk -fexceptions -fvisibility=hidden -mmacosx-version-min=10.6 -gdwarf-2 -fobjc-abi-version=2 -fobjc-legacy-dispatch -D__IPHONE_OS_VERSION_MIN_REQUIRED=40200 -iquote /Users/njamal/Desktop/MoPub/build/MoPub.build/Debug-iphonesimulator/MoPub.build/MoPub-generated-files.hmap -I/Users/njamal/Desktop/MoPub/build/MoPub.build/Debug-iphonesimulator/MoPub.build/MoPub-own-target-headers.hmap -I/Users/njamal/Desktop/MoPub/build/MoPub.build/Debug-iphonesimulator/MoPub.build/MoPub-all-target-headers.hmap -iquote /Users/njamal/Desktop/MoPub/build/MoPub.build/Debug-iphonesimulator/MoPub.build/MoPub-project-headers.hmap -F/Users/njamal/Desktop/MoPub/build/Debug-iphonesimulator -I/Users/njamal/Desktop/MoPub/build/Debug-iphonesimulator/include -I/Users/njamal/Desktop/MoPub/build/MoPub.build/Debug-iphonesimulator/MoPub.build/DerivedSources/i386 -I/Users/njamal/Desktop/MoPub/build/MoPub.build/Debug-iphonesimulator/MoPub.build/DerivedSources -include /var/folders/Ny/NyTmLyDbEZqzR2JIsC-ybE+++TI/-Caches-/com.apple.Xcode.501/SharedPrecompiledHeaders/MoPub_Prefix-aubdckptnbsydmgocntnrshikogp/MoPub_Prefix.pch -c /Users/njamal/Desktop/MoPub/AdClickController.m -o /Users/njamal/Desktop/MoPub/build/MoPub.build/Debug-iphonesimulator/MoPub.build/Objects-normal/i386/AdClickController.o0#
+
+CCompileC build/MoPub.build/Debug-iphonesimulator/MoPub.build/Objects-normal/i386/MPAdBrowserController.o /Users/njamal/Desktop/MoPub/MPAdBrowserController.m normal i386 objective-c com.apple.compilers.gcc.4_2
+s317182293.477850
+e317182293.560473
+r1
+xCompileC
+xbuild/MoPub.build/Debug-iphonesimulator/MoPub.build/Objects-normal/i386/MPAdBrowserController.o
+x/Users/njamal/Desktop/MoPub/MPAdBrowserController.m
+xnormal
+xi386
+xobjective-c
+xcom.apple.compilers.gcc.4_2
+lSLF07#2@59"Compile /Users/njamal/Desktop/MoPub/MPAdBrowserController.m317182293#317182293#0(0"0(0#0#51"/Users/njamal/Desktop/MoPub/MPAdBrowserController.m8658488064#1787"    cd /Users/njamal/Desktop/MoPub    setenv LANG en_US.US-ASCII    setenv PATH "/Developer/Platforms/iPhoneSimulator.platform/Developer/usr/bin:/Developer/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin"    /Developer/Platforms/iPhoneSimulator.platform/Developer/usr/bin/gcc-4.2 -x objective-c -arch i386 -fmessage-length=0 -pipe -std=c99 -Wno-trigraphs -fpascal-strings -fasm-blocks -O0 -Wreturn-type -Wunused-variable -isysroot /Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator4.2.sdk -fexceptions -fvisibility=hidden -mmacosx-version-min=10.6 -gdwarf-2 -fobjc-abi-version=2 -fobjc-legacy-dispatch -D__IPHONE_OS_VERSION_MIN_REQUIRED=40200 -iquote /Users/njamal/Desktop/MoPub/build/MoPub.build/Debug-iphonesimulator/MoPub.build/MoPub-generated-files.hmap -I/Users/njamal/Desktop/MoPub/build/MoPub.build/Debug-iphonesimulator/MoPub.build/MoPub-own-target-headers.hmap -I/Users/njamal/Desktop/MoPub/build/MoPub.build/Debug-iphonesimulator/MoPub.build/MoPub-all-target-headers.hmap -iquote /Users/njamal/Desktop/MoPub/build/MoPub.build/Debug-iphonesimulator/MoPub.build/MoPub-project-headers.hmap -F/Users/njamal/Desktop/MoPub/build/Debug-iphonesimulator -I/Users/njamal/Desktop/MoPub/build/Debug-iphonesimulator/include -I/Users/njamal/Desktop/MoPub/build/MoPub.build/Debug-iphonesimulator/MoPub.build/DerivedSources/i386 -I/Users/njamal/Desktop/MoPub/build/MoPub.build/Debug-iphonesimulator/MoPub.build/DerivedSources -include /var/folders/Ny/NyTmLyDbEZqzR2JIsC-ybE+++TI/-Caches-/com.apple.Xcode.501/SharedPrecompiledHeaders/MoPub_Prefix-aubdckptnbsydmgocntnrshikogp/MoPub_Prefix.pch -c /Users/njamal/Desktop/MoPub/MPAdBrowserController.m -o /Users/njamal/Desktop/MoPub/build/MoPub.build/Debug-iphonesimulator/MoPub.build/Objects-normal/i386/MPAdBrowserController.o0#
+
+CCompileC build/MoPub.build/Debug-iphonesimulator/MoPub.build/Objects-normal/i386/MPAdView.o /Users/njamal/Desktop/MoPub/Classes/MPAdView.m normal i386 objective-c com.apple.compilers.gcc.4_2
+s317185385.765845
+e317185385.987925
+r1
+xCompileC
+xbuild/MoPub.build/Debug-iphonesimulator/MoPub.build/Objects-normal/i386/MPAdView.o
+x/Users/njamal/Desktop/MoPub/Classes/MPAdView.m
+xnormal
+xi386
+xobjective-c
+xcom.apple.compilers.gcc.4_2
+o/Users/njamal/Desktop/MoPub/Classes/MPAdView.m: In function '-[MPAdView connection:didReceiveResponse:]':
+o/Users/njamal/Desktop/MoPub/Classes/MPAdView.m:139: warning: unused variable 'typeHeader'
+lSLF07#2@54"Compile /Users/njamal/Desktop/MoPub/Classes/MPAdView.m317185385#317185385#0(196"/Users/njamal/Desktop/MoPub/Classes/MPAdView.m: In function '-[MPAdView connection:didReceiveResponse:]':/Users/njamal/Desktop/MoPub/Classes/MPAdView.m:139: warning: unused variable 'typeHeader'1(22@28"Unused variable 'typeHeader'317185385#106#90#0(6@46"/Users/njamal/Desktop/MoPub/Classes/MPAdView.m317185377#139#0#139#0#19"unused variable '*'0(0#0#46"/Users/njamal/Desktop/MoPub/Classes/MPAdView.m8651509568#1769"    cd /Users/njamal/Desktop/MoPub    setenv LANG en_US.US-ASCII    setenv PATH "/Developer/Platforms/iPhoneSimulator.platform/Developer/usr/bin:/Developer/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin"    /Developer/Platforms/iPhoneSimulator.platform/Developer/usr/bin/gcc-4.2 -x objective-c -arch i386 -fmessage-length=0 -pipe -std=c99 -Wno-trigraphs -fpascal-strings -fasm-blocks -O0 -Wreturn-type -Wunused-variable -isysroot /Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator4.2.sdk -fexceptions -fvisibility=hidden -mmacosx-version-min=10.6 -gdwarf-2 -fobjc-abi-version=2 -fobjc-legacy-dispatch -D__IPHONE_OS_VERSION_MIN_REQUIRED=40200 -iquote /Users/njamal/Desktop/MoPub/build/MoPub.build/Debug-iphonesimulator/MoPub.build/MoPub-generated-files.hmap -I/Users/njamal/Desktop/MoPub/build/MoPub.build/Debug-iphonesimulator/MoPub.build/MoPub-own-target-headers.hmap -I/Users/njamal/Desktop/MoPub/build/MoPub.build/Debug-iphonesimulator/MoPub.build/MoPub-all-target-headers.hmap -iquote /Users/njamal/Desktop/MoPub/build/MoPub.build/Debug-iphonesimulator/MoPub.build/MoPub-project-headers.hmap -F/Users/njamal/Desktop/MoPub/build/Debug-iphonesimulator -I/Users/njamal/Desktop/MoPub/build/Debug-iphonesimulator/include -I/Users/njamal/Desktop/MoPub/build/MoPub.build/Debug-iphonesimulator/MoPub.build/DerivedSources/i386 -I/Users/njamal/Desktop/MoPub/build/MoPub.build/Debug-iphonesimulator/MoPub.build/DerivedSources -include /var/folders/Ny/NyTmLyDbEZqzR2JIsC-ybE+++TI/-Caches-/com.apple.Xcode.501/SharedPrecompiledHeaders/MoPub_Prefix-aubdckptnbsydmgocntnrshikogp/MoPub_Prefix.pch -c /Users/njamal/Desktop/MoPub/Classes/MPAdView.m -o /Users/njamal/Desktop/MoPub/build/MoPub.build/Debug-iphonesimulator/MoPub.build/Objects-normal/i386/MPAdView.o0#
+
+CCompileC build/MoPub.build/Debug-iphonesimulator/MoPub.build/Objects-normal/i386/MPBaseAdapter.o /Users/njamal/Desktop/MoPub/MPBaseAdapter.m normal i386 objective-c com.apple.compilers.gcc.4_2
+s317185272.686550
+e317185272.771084
+r1
+xCompileC
+xbuild/MoPub.build/Debug-iphonesimulator/MoPub.build/Objects-normal/i386/MPBaseAdapter.o
+x/Users/njamal/Desktop/MoPub/MPBaseAdapter.m
+xnormal
+xi386
+xobjective-c
+xcom.apple.compilers.gcc.4_2
+lSLF07#2@51"Compile /Users/njamal/Desktop/MoPub/MPBaseAdapter.m317185272#317185272#0(0"0(0#0#43"/Users/njamal/Desktop/MoPub/MPBaseAdapter.m8658782656#1771"    cd /Users/njamal/Desktop/MoPub    setenv LANG en_US.US-ASCII    setenv PATH "/Developer/Platforms/iPhoneSimulator.platform/Developer/usr/bin:/Developer/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin"    /Developer/Platforms/iPhoneSimulator.platform/Developer/usr/bin/gcc-4.2 -x objective-c -arch i386 -fmessage-length=0 -pipe -std=c99 -Wno-trigraphs -fpascal-strings -fasm-blocks -O0 -Wreturn-type -Wunused-variable -isysroot /Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator4.2.sdk -fexceptions -fvisibility=hidden -mmacosx-version-min=10.6 -gdwarf-2 -fobjc-abi-version=2 -fobjc-legacy-dispatch -D__IPHONE_OS_VERSION_MIN_REQUIRED=40200 -iquote /Users/njamal/Desktop/MoPub/build/MoPub.build/Debug-iphonesimulator/MoPub.build/MoPub-generated-files.hmap -I/Users/njamal/Desktop/MoPub/build/MoPub.build/Debug-iphonesimulator/MoPub.build/MoPub-own-target-headers.hmap -I/Users/njamal/Desktop/MoPub/build/MoPub.build/Debug-iphonesimulator/MoPub.build/MoPub-all-target-headers.hmap -iquote /Users/njamal/Desktop/MoPub/build/MoPub.build/Debug-iphonesimulator/MoPub.build/MoPub-project-headers.hmap -F/Users/njamal/Desktop/MoPub/build/Debug-iphonesimulator -I/Users/njamal/Desktop/MoPub/build/Debug-iphonesimulator/include -I/Users/njamal/Desktop/MoPub/build/MoPub.build/Debug-iphonesimulator/MoPub.build/DerivedSources/i386 -I/Users/njamal/Desktop/MoPub/build/MoPub.build/Debug-iphonesimulator/MoPub.build/DerivedSources -include /var/folders/Ny/NyTmLyDbEZqzR2JIsC-ybE+++TI/-Caches-/com.apple.Xcode.501/SharedPrecompiledHeaders/MoPub_Prefix-aubdckptnbsydmgocntnrshikogp/MoPub_Prefix.pch -c /Users/njamal/Desktop/MoPub/MPBaseAdapter.m -o /Users/njamal/Desktop/MoPub/build/MoPub.build/Debug-iphonesimulator/MoPub.build/Objects-normal/i386/MPBaseAdapter.o0#
+
+CCompileC build/MoPub.build/Debug-iphonesimulator/MoPub.build/Objects-normal/i386/MPIAdAdapter.o /Users/njamal/Desktop/MoPub/MPIAdAdapter.m normal i386 objective-c com.apple.compilers.gcc.4_2
+s317185272.578713
+e317185272.686024
+r1
+xCompileC
+xbuild/MoPub.build/Debug-iphonesimulator/MoPub.build/Objects-normal/i386/MPIAdAdapter.o
+x/Users/njamal/Desktop/MoPub/MPIAdAdapter.m
+xnormal
+xi386
+xobjective-c
+xcom.apple.compilers.gcc.4_2
+o/Users/njamal/Desktop/MoPub/MPIAdAdapter.m: In function '-[MPIAdAdapter getAdWithParams:]':
+o/Users/njamal/Desktop/MoPub/MPIAdAdapter.m:21: warning: 'ADBannerContentSizeIdentifier320x50' is deprecated (declared at /Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator4.2.sdk/System/Library/Frameworks/iAd.framework/Headers/ADBannerView.h:110)
+o/Users/njamal/Desktop/MoPub/MPIAdAdapter.m:21: warning: 'ADBannerContentSizeIdentifier480x32' is deprecated (declared at /Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator4.2.sdk/System/Library/Frameworks/iAd.framework/Headers/ADBannerView.h:111)
+o/Users/njamal/Desktop/MoPub/MPIAdAdapter.m:22: warning: 'ADBannerContentSizeIdentifier320x50' is deprecated (declared at /Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator4.2.sdk/System/Library/Frameworks/iAd.framework/Headers/ADBannerView.h:110)
+o/Users/njamal/Desktop/MoPub/MPIAdAdapter.m:23: warning: class 'MPIAdAdapter' does not implement the 'ADBannerViewDelegate' protocol
+lSLF07#2@50"Compile /Users/njamal/Desktop/MoPub/MPIAdAdapter.m317185272#317185272#0(1043"/Users/njamal/Desktop/MoPub/MPIAdAdapter.m: In function '-[MPIAdAdapter getAdWithParams:]':/Users/njamal/Desktop/MoPub/MPIAdAdapter.m:21: warning: 'ADBannerContentSizeIdentifier320x50' is deprecated (declared at /Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator4.2.sdk/System/Library/Frameworks/iAd.framework/Headers/ADBannerView.h:110)/Users/njamal/Desktop/MoPub/MPIAdAdapter.m:21: warning: 'ADBannerContentSizeIdentifier480x32' is deprecated (declared at /Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator4.2.sdk/System/Library/Frameworks/iAd.framework/Headers/ADBannerView.h:111)/Users/njamal/Desktop/MoPub/MPIAdAdapter.m:22: warning: 'ADBannerContentSizeIdentifier320x50' is deprecated (declared at /Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator4.2.sdk/System/Library/Frameworks/iAd.framework/Headers/ADBannerView.h:110)/Users/njamal/Desktop/MoPub/MPIAdAdapter.m:23: warning: class 'MPIAdAdapter' does not implement the 'ADBannerViewDelegate' protocol4(22@216"'ADBannerContentSizeIdentifier320x50' is deprecated (declared at /Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator4.2.sdk/System/Library/Frameworks/iAd.framework/Headers/ADBannerView.h:110)317185272#92#273#0(6@42"/Users/njamal/Desktop/MoPub/MPIAdAdapter.m317184953#21#0#21#0#33"'*' is deprecated (declared at *)0(22@216"'ADBannerContentSizeIdentifier480x32' is deprecated (declared at /Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator4.2.sdk/System/Library/Frameworks/iAd.framework/Headers/ADBannerView.h:111)317185272#365#273#0(6@42"/Users/njamal/Desktop/MoPub/MPIAdAdapter.m317184953#21#0#21#0#33"'*' is deprecated (declared at *)0(22@216"'ADBannerContentSizeIdentifier320x50' is deprecated (declared at /Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator4.2.sdk/System/Library/Frameworks/iAd.framework/Headers/ADBannerView.h:110)317185272#638#273#0(6@42"/Users/njamal/Desktop/MoPub/MPIAdAdapter.m317184953#22#0#22#0#33"'*' is deprecated (declared at *)0(22@75"Class 'MPIAdAdapter' does not implement the 'ADBannerViewDelegate' protocol317185272#911#132#0(6@42"/Users/njamal/Desktop/MoPub/MPIAdAdapter.m317184953#23#0#23#0#45"class '*' does not implement the '*' protocol0(0#0#42"/Users/njamal/Desktop/MoPub/MPIAdAdapter.m8660564064#1769"    cd /Users/njamal/Desktop/MoPub    setenv LANG en_US.US-ASCII    setenv PATH "/Developer/Platforms/iPhoneSimulator.platform/Developer/usr/bin:/Developer/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin"    /Developer/Platforms/iPhoneSimulator.platform/Developer/usr/bin/gcc-4.2 -x objective-c -arch i386 -fmessage-length=0 -pipe -std=c99 -Wno-trigraphs -fpascal-strings -fasm-blocks -O0 -Wreturn-type -Wunused-variable -isysroot /Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator4.2.sdk -fexceptions -fvisibility=hidden -mmacosx-version-min=10.6 -gdwarf-2 -fobjc-abi-version=2 -fobjc-legacy-dispatch -D__IPHONE_OS_VERSION_MIN_REQUIRED=40200 -iquote /Users/njamal/Desktop/MoPub/build/MoPub.build/Debug-iphonesimulator/MoPub.build/MoPub-generated-files.hmap -I/Users/njamal/Desktop/MoPub/build/MoPub.build/Debug-iphonesimulator/MoPub.build/MoPub-own-target-headers.hmap -I/Users/njamal/Desktop/MoPub/build/MoPub.build/Debug-iphonesimulator/MoPub.build/MoPub-all-target-headers.hmap -iquote /Users/njamal/Desktop/MoPub/build/MoPub.build/Debug-iphonesimulator/MoPub.build/MoPub-project-headers.hmap -F/Users/njamal/Desktop/MoPub/build/Debug-iphonesimulator -I/Users/njamal/Desktop/MoPub/build/Debug-iphonesimulator/include -I/Users/njamal/Desktop/MoPub/build/MoPub.build/Debug-iphonesimulator/MoPub.build/DerivedSources/i386 -I/Users/njamal/Desktop/MoPub/build/MoPub.build/Debug-iphonesimulator/MoPub.build/DerivedSources -include /var/folders/Ny/NyTmLyDbEZqzR2JIsC-ybE+++TI/-Caches-/com.apple.Xcode.501/SharedPrecompiledHeaders/MoPub_Prefix-aubdckptnbsydmgocntnrshikogp/MoPub_Prefix.pch -c /Users/njamal/Desktop/MoPub/MPIAdAdapter.m -o /Users/njamal/Desktop/MoPub/build/MoPub.build/Debug-iphonesimulator/MoPub.build/Objects-normal/i386/MPIAdAdapter.o0#
+
+CCompileC build/MoPub.build/Debug-iphonesimulator/MoPub.build/Objects-normal/i386/MoPubAppDelegate.o /Users/njamal/Desktop/MoPub/Classes/MoPubAppDelegate.m normal i386 objective-c com.apple.compilers.gcc.4_2
+s317185272.314088
+e317185272.578410
+r1
+xCompileC
+xbuild/MoPub.build/Debug-iphonesimulator/MoPub.build/Objects-normal/i386/MoPubAppDelegate.o
+x/Users/njamal/Desktop/MoPub/Classes/MoPubAppDelegate.m
+xnormal
+xi386
+xobjective-c
+xcom.apple.compilers.gcc.4_2
+lSLF07#2@62"Compile /Users/njamal/Desktop/MoPub/Classes/MoPubAppDelegate.m317185272#317185272#0(0"0(0#0#54"/Users/njamal/Desktop/MoPub/Classes/MoPubAppDelegate.m8628253088#1785"    cd /Users/njamal/Desktop/MoPub    setenv LANG en_US.US-ASCII    setenv PATH "/Developer/Platforms/iPhoneSimulator.platform/Developer/usr/bin:/Developer/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin"    /Developer/Platforms/iPhoneSimulator.platform/Developer/usr/bin/gcc-4.2 -x objective-c -arch i386 -fmessage-length=0 -pipe -std=c99 -Wno-trigraphs -fpascal-strings -fasm-blocks -O0 -Wreturn-type -Wunused-variable -isysroot /Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator4.2.sdk -fexceptions -fvisibility=hidden -mmacosx-version-min=10.6 -gdwarf-2 -fobjc-abi-version=2 -fobjc-legacy-dispatch -D__IPHONE_OS_VERSION_MIN_REQUIRED=40200 -iquote /Users/njamal/Desktop/MoPub/build/MoPub.build/Debug-iphonesimulator/MoPub.build/MoPub-generated-files.hmap -I/Users/njamal/Desktop/MoPub/build/MoPub.build/Debug-iphonesimulator/MoPub.build/MoPub-own-target-headers.hmap -I/Users/njamal/Desktop/MoPub/build/MoPub.build/Debug-iphonesimulator/MoPub.build/MoPub-all-target-headers.hmap -iquote /Users/njamal/Desktop/MoPub/build/MoPub.build/Debug-iphonesimulator/MoPub.build/MoPub-project-headers.hmap -F/Users/njamal/Desktop/MoPub/build/Debug-iphonesimulator -I/Users/njamal/Desktop/MoPub/build/Debug-iphonesimulator/include -I/Users/njamal/Desktop/MoPub/build/MoPub.build/Debug-iphonesimulator/MoPub.build/DerivedSources/i386 -I/Users/njamal/Desktop/MoPub/build/MoPub.build/Debug-iphonesimulator/MoPub.build/DerivedSources -include /var/folders/Ny/NyTmLyDbEZqzR2JIsC-ybE+++TI/-Caches-/com.apple.Xcode.501/SharedPrecompiledHeaders/MoPub_Prefix-aubdckptnbsydmgocntnrshikogp/MoPub_Prefix.pch -c /Users/njamal/Desktop/MoPub/Classes/MoPubAppDelegate.m -o /Users/njamal/Desktop/MoPub/build/MoPub.build/Debug-iphonesimulator/MoPub.build/Objects-normal/i386/MoPubAppDelegate.o0#
+
+CCompileC build/MoPub.build/Debug-iphonesimulator/MoPub.build/Objects-normal/i386/MoPubViewController.o /Users/njamal/Desktop/MoPub/Classes/MoPubViewController.m normal i386 objective-c com.apple.compilers.gcc.4_2
+s317185272.315285
+e317185272.497382
+r1
+xCompileC
+xbuild/MoPub.build/Debug-iphonesimulator/MoPub.build/Objects-normal/i386/MoPubViewController.o
+x/Users/njamal/Desktop/MoPub/Classes/MoPubViewController.m
+xnormal
+xi386
+xobjective-c
+xcom.apple.compilers.gcc.4_2
+o/Users/njamal/Desktop/MoPub/Classes/MoPubViewController.m: In function '-[MoPubViewController loadView]':
+o/Users/njamal/Desktop/MoPub/Classes/MoPubViewController.m:31: warning: class 'MoPubViewController' does not implement the 'MPAdViewProtocol' protocol
+lSLF07#2@65"Compile /Users/njamal/Desktop/MoPub/Classes/MoPubViewController.m317185272#317185272#0(256"/Users/njamal/Desktop/MoPub/Classes/MoPubViewController.m: In function '-[MoPubViewController loadView]':/Users/njamal/Desktop/MoPub/Classes/MoPubViewController.m:31: warning: class 'MoPubViewController' does not implement the 'MPAdViewProtocol' protocol1(22@78"Class 'MoPubViewController' does not implement the 'MPAdViewProtocol' protocol317185272#106#150#0(6@57"/Users/njamal/Desktop/MoPub/Classes/MoPubViewController.m317182414#31#0#31#0#45"class '*' does not implement the '*' protocol0(0#0#57"/Users/njamal/Desktop/MoPub/Classes/MoPubViewController.m8628091776#1791"    cd /Users/njamal/Desktop/MoPub    setenv LANG en_US.US-ASCII    setenv PATH "/Developer/Platforms/iPhoneSimulator.platform/Developer/usr/bin:/Developer/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin"    /Developer/Platforms/iPhoneSimulator.platform/Developer/usr/bin/gcc-4.2 -x objective-c -arch i386 -fmessage-length=0 -pipe -std=c99 -Wno-trigraphs -fpascal-strings -fasm-blocks -O0 -Wreturn-type -Wunused-variable -isysroot /Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator4.2.sdk -fexceptions -fvisibility=hidden -mmacosx-version-min=10.6 -gdwarf-2 -fobjc-abi-version=2 -fobjc-legacy-dispatch -D__IPHONE_OS_VERSION_MIN_REQUIRED=40200 -iquote /Users/njamal/Desktop/MoPub/build/MoPub.build/Debug-iphonesimulator/MoPub.build/MoPub-generated-files.hmap -I/Users/njamal/Desktop/MoPub/build/MoPub.build/Debug-iphonesimulator/MoPub.build/MoPub-own-target-headers.hmap -I/Users/njamal/Desktop/MoPub/build/MoPub.build/Debug-iphonesimulator/MoPub.build/MoPub-all-target-headers.hmap -iquote /Users/njamal/Desktop/MoPub/build/MoPub.build/Debug-iphonesimulator/MoPub.build/MoPub-project-headers.hmap -F/Users/njamal/Desktop/MoPub/build/Debug-iphonesimulator -I/Users/njamal/Desktop/MoPub/build/Debug-iphonesimulator/include -I/Users/njamal/Desktop/MoPub/build/MoPub.build/Debug-iphonesimulator/MoPub.build/DerivedSources/i386 -I/Users/njamal/Desktop/MoPub/build/MoPub.build/Debug-iphonesimulator/MoPub.build/DerivedSources -include /var/folders/Ny/NyTmLyDbEZqzR2JIsC-ybE+++TI/-Caches-/com.apple.Xcode.501/SharedPrecompiledHeaders/MoPub_Prefix-aubdckptnbsydmgocntnrshikogp/MoPub_Prefix.pch -c /Users/njamal/Desktop/MoPub/Classes/MoPubViewController.m -o /Users/njamal/Desktop/MoPub/build/MoPub.build/Debug-iphonesimulator/MoPub.build/Objects-normal/i386/MoPubViewController.o0#
+
+CCompileC build/MoPub.build/Debug-iphonesimulator/MoPub.build/Objects-normal/i386/main.o /Users/njamal/Desktop/MoPub/main.m normal i386 objective-c com.apple.compilers.gcc.4_2
+s317176343.275098
+e317176343.352592
+r1
+xCompileC
+xbuild/MoPub.build/Debug-iphonesimulator/MoPub.build/Objects-normal/i386/main.o
+x/Users/njamal/Desktop/MoPub/main.m
+xnormal
+xi386
+xobjective-c
+xcom.apple.compilers.gcc.4_2
+lSLF07#2@42"Compile /Users/njamal/Desktop/MoPub/main.m317176343#317176343#0(0"0(0#0#34"/Users/njamal/Desktop/MoPub/main.m8636473856#1753"    cd /Users/njamal/Desktop/MoPub    setenv LANG en_US.US-ASCII    setenv PATH "/Developer/Platforms/iPhoneSimulator.platform/Developer/usr/bin:/Developer/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin"    /Developer/Platforms/iPhoneSimulator.platform/Developer/usr/bin/gcc-4.2 -x objective-c -arch i386 -fmessage-length=0 -pipe -std=c99 -Wno-trigraphs -fpascal-strings -fasm-blocks -O0 -Wreturn-type -Wunused-variable -isysroot /Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator4.2.sdk -fexceptions -fvisibility=hidden -mmacosx-version-min=10.6 -gdwarf-2 -fobjc-abi-version=2 -fobjc-legacy-dispatch -D__IPHONE_OS_VERSION_MIN_REQUIRED=40200 -iquote /Users/njamal/Desktop/MoPub/build/MoPub.build/Debug-iphonesimulator/MoPub.build/MoPub-generated-files.hmap -I/Users/njamal/Desktop/MoPub/build/MoPub.build/Debug-iphonesimulator/MoPub.build/MoPub-own-target-headers.hmap -I/Users/njamal/Desktop/MoPub/build/MoPub.build/Debug-iphonesimulator/MoPub.build/MoPub-all-target-headers.hmap -iquote /Users/njamal/Desktop/MoPub/build/MoPub.build/Debug-iphonesimulator/MoPub.build/MoPub-project-headers.hmap -F/Users/njamal/Desktop/MoPub/build/Debug-iphonesimulator -I/Users/njamal/Desktop/MoPub/build/Debug-iphonesimulator/include -I/Users/njamal/Desktop/MoPub/build/MoPub.build/Debug-iphonesimulator/MoPub.build/DerivedSources/i386 -I/Users/njamal/Desktop/MoPub/build/MoPub.build/Debug-iphonesimulator/MoPub.build/DerivedSources -include /var/folders/Ny/NyTmLyDbEZqzR2JIsC-ybE+++TI/-Caches-/com.apple.Xcode.501/SharedPrecompiledHeaders/MoPub_Prefix-aubdckptnbsydmgocntnrshikogp/MoPub_Prefix.pch -c /Users/njamal/Desktop/MoPub/main.m -o /Users/njamal/Desktop/MoPub/build/MoPub.build/Debug-iphonesimulator/MoPub.build/Objects-normal/i386/main.o0#
+
+CCompileXIB /Users/njamal/Desktop/MoPub/AdClickController.xib
+s317182292.791403
+e317182293.280593
+r1
+xCompileXIB
+x/Users/njamal/Desktop/MoPub/AdClickController.xib
+lSLF07#2@32"CompileXIB AdClickController.xib317182292#317182293#0(0"0(0#0#49"/Users/njamal/Desktop/MoPub/AdClickController.xib8654370816#549"    cd /Users/njamal/Desktop/MoPub    setenv IBC_MINIMUM_COMPATIBILITY_VERSION 4.2    setenv PATH "/Developer/Platforms/iPhoneSimulator.platform/Developer/usr/bin:/Developer/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin"    /Developer/usr/bin/ibtool --errors --warnings --notices --output-format human-readable-text --compile /Users/njamal/Desktop/MoPub/build/Debug-iphonesimulator/MoPub.app/AdClickController.nib /Users/njamal/Desktop/MoPub/AdClickController.xib --sdk /Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator4.2.sdk0#
+
+CCompileXIB /Users/njamal/Desktop/MoPub/MainWindow.xib
+s317176341.559063
+e317176342.217340
+r1
+xCompileXIB
+x/Users/njamal/Desktop/MoPub/MainWindow.xib
+lSLF07#2@25"CompileXIB MainWindow.xib317176341#317176342#0(0"0(0#0#42"/Users/njamal/Desktop/MoPub/MainWindow.xib8632704800#535"    cd /Users/njamal/Desktop/MoPub    setenv IBC_MINIMUM_COMPATIBILITY_VERSION 4.2    setenv PATH "/Developer/Platforms/iPhoneSimulator.platform/Developer/usr/bin:/Developer/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin"    /Developer/usr/bin/ibtool --errors --warnings --notices --output-format human-readable-text --compile /Users/njamal/Desktop/MoPub/build/Debug-iphonesimulator/MoPub.app/MainWindow.nib /Users/njamal/Desktop/MoPub/MainWindow.xib --sdk /Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator4.2.sdk0#
+
+CCompileXIB /Users/njamal/Desktop/MoPub/MoPubViewController.xib
+s317176341.560082
+e317176341.995874
+r1
+xCompileXIB
+x/Users/njamal/Desktop/MoPub/MoPubViewController.xib
+lSLF07#2@34"CompileXIB MoPubViewController.xib317176341#317176341#0(0"0(0#0#51"/Users/njamal/Desktop/MoPub/MoPubViewController.xib8632530528#553"    cd /Users/njamal/Desktop/MoPub    setenv IBC_MINIMUM_COMPATIBILITY_VERSION 4.2    setenv PATH "/Developer/Platforms/iPhoneSimulator.platform/Developer/usr/bin:/Developer/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin"    /Developer/usr/bin/ibtool --errors --warnings --notices --output-format human-readable-text --compile /Users/njamal/Desktop/MoPub/build/Debug-iphonesimulator/MoPub.app/MoPubViewController.nib /Users/njamal/Desktop/MoPub/MoPubViewController.xib --sdk /Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator4.2.sdk0#
+
+CGenerateDSYMFile /Users/njamal/Desktop/MoPub/build/Debug-iphonesimulator/MoPub.app.dSYM /Users/njamal/Desktop/MoPub/build/Debug-iphonesimulator/MoPub.app/MoPub
+s317185386.023790
+e317185386.058839
+r1
+xGenerateDSYMFile
+x/Users/njamal/Desktop/MoPub/build/Debug-iphonesimulator/MoPub.app.dSYM
+x/Users/njamal/Desktop/MoPub/build/Debug-iphonesimulator/MoPub.app/MoPub
+lSLF07#2@103"GenerateDSYMFile build/Debug-iphonesimulator/MoPub.app.dSYM build/Debug-iphonesimulator/MoPub.app/MoPub317185386#317185386#0(0"0(0#0#71"/Users/njamal/Desktop/MoPub/build/Debug-iphonesimulator/MoPub.app/MoPub8648037088#344"    cd /Users/njamal/Desktop/MoPub    setenv PATH "/Developer/Platforms/iPhoneSimulator.platform/Developer/usr/bin:/Developer/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin"    /Developer/usr/bin/dsymutil /Users/njamal/Desktop/MoPub/build/Debug-iphonesimulator/MoPub.app/MoPub -o /Users/njamal/Desktop/MoPub/build/Debug-iphonesimulator/MoPub.app.dSYM0#
+
+CLd /Users/njamal/Desktop/MoPub/build/Debug-iphonesimulator/MoPub.app/MoPub normal i386
+s317185385.988040
+e317185386.023691
+r1
+xLd
+x/Users/njamal/Desktop/MoPub/build/Debug-iphonesimulator/MoPub.app/MoPub
+xnormal
+xi386
+lSLF07#2@76"Link /Users/njamal/Desktop/MoPub/build/Debug-iphonesimulator/MoPub.app/MoPub317185385#317185386#0(0"0(0#0#0"8648389056#850"    cd /Users/njamal/Desktop/MoPub    setenv MACOSX_DEPLOYMENT_TARGET 10.6    setenv PATH "/Developer/Platforms/iPhoneSimulator.platform/Developer/usr/bin:/Developer/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin"    /Developer/Platforms/iPhoneSimulator.platform/Developer/usr/bin/gcc-4.2 -arch i386 -isysroot /Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator4.2.sdk -L/Users/njamal/Desktop/MoPub/build/Debug-iphonesimulator -F/Users/njamal/Desktop/MoPub/build/Debug-iphonesimulator -filelist /Users/njamal/Desktop/MoPub/build/MoPub.build/Debug-iphonesimulator/MoPub.build/Objects-normal/i386/MoPub.LinkFileList -mmacosx-version-min=10.6 -Xlinker -objc_abi_version -Xlinker 2 -framework Foundation -framework UIKit -framework CoreGraphics -framework iAd -o /Users/njamal/Desktop/MoPub/build/Debug-iphonesimulator/MoPub.app/MoPub0#
+
+CProcessInfoPlistFile /Users/njamal/Desktop/MoPub/build/Debug-iphonesimulator/MoPub.app/Info.plist MoPub-Info.plist
+s317176341.540894
+e317176341.558965
+r1
+xProcessInfoPlistFile
+x/Users/njamal/Desktop/MoPub/build/Debug-iphonesimulator/MoPub.app/Info.plist
+xMoPub-Info.plist
+lSLF07#2@24"Process MoPub-Info.plist317176341#317176341#0(0"0(0#0#44"/Users/njamal/Desktop/MoPub/MoPub-Info.plist32088624093986912#440"    cd /Users/njamal/Desktop/MoPub    setenv PATH "/Developer/Platforms/iPhoneSimulator.platform/Developer/usr/bin:/Developer/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin"    builtin-infoPlistUtility MoPub-Info.plist -genpkginfo /Users/njamal/Desktop/MoPub/build/Debug-iphonesimulator/MoPub.app/PkgInfo -expandbuildsettings -format binary -platform iphonesimulator -o /Users/njamal/Desktop/MoPub/build/Debug-iphonesimulator/MoPub.app/Info.plist0#
+
+CProcessPCH /var/folders/Ny/NyTmLyDbEZqzR2JIsC-ybE+++TI/-Caches-/com.apple.Xcode.501/SharedPrecompiledHeaders/MoPub_Prefix-aubdckptnbsydmgocntnrshikogp/MoPub_Prefix.pch.gch MoPub_Prefix.pch normal i386 objective-c com.apple.compilers.gcc.4_2
+s317176342.217615
+e317176343.274861
+r1
+xProcessPCH
+x/var/folders/Ny/NyTmLyDbEZqzR2JIsC-ybE+++TI/-Caches-/com.apple.Xcode.501/SharedPrecompiledHeaders/MoPub_Prefix-aubdckptnbsydmgocntnrshikogp/MoPub_Prefix.pch.gch
+xMoPub_Prefix.pch
+xnormal
+xi386
+xobjective-c
+xcom.apple.compilers.gcc.4_2
+lSLF07#2@27"Precompile MoPub_Prefix.pch317176342#317176343#0(0"0(0#0#44"/Users/njamal/Desktop/MoPub/MoPub_Prefix.pch8631759776#1658"    cd /Users/njamal/Desktop/MoPub    setenv LANG en_US.US-ASCII    setenv PATH "/Developer/Platforms/iPhoneSimulator.platform/Developer/usr/bin:/Developer/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin"    /Developer/Platforms/iPhoneSimulator.platform/Developer/usr/bin/gcc-4.2 -x objective-c-header -arch i386 -fmessage-length=0 -pipe -std=c99 -Wno-trigraphs -fpascal-strings -fasm-blocks -O0 -Wreturn-type -Wunused-variable -isysroot /Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator4.2.sdk -fexceptions -fvisibility=hidden -mmacosx-version-min=10.6 -gdwarf-2 -fobjc-abi-version=2 -fobjc-legacy-dispatch -D__IPHONE_OS_VERSION_MIN_REQUIRED=40200 -iquote /Users/njamal/Desktop/MoPub/build/MoPub.build/Debug-iphonesimulator/MoPub.build/MoPub-generated-files.hmap -I/Users/njamal/Desktop/MoPub/build/MoPub.build/Debug-iphonesimulator/MoPub.build/MoPub-own-target-headers.hmap -I/Users/njamal/Desktop/MoPub/build/MoPub.build/Debug-iphonesimulator/MoPub.build/MoPub-all-target-headers.hmap -iquote /Users/njamal/Desktop/MoPub/build/MoPub.build/Debug-iphonesimulator/MoPub.build/MoPub-project-headers.hmap -F/Users/njamal/Desktop/MoPub/build/Debug-iphonesimulator -I/Users/njamal/Desktop/MoPub/build/Debug-iphonesimulator/include -I/Users/njamal/Desktop/MoPub/build/MoPub.build/Debug-iphonesimulator/MoPub.build/DerivedSources/i386 -I/Users/njamal/Desktop/MoPub/build/MoPub.build/Debug-iphonesimulator/MoPub.build/DerivedSources -c /Users/njamal/Desktop/MoPub/MoPub_Prefix.pch -o /var/folders/Ny/NyTmLyDbEZqzR2JIsC-ybE+++TI/-Caches-/com.apple.Xcode.501/SharedPrecompiledHeaders/MoPub_Prefix-aubdckptnbsydmgocntnrshikogp/MoPub_Prefix.pch.gch0#
+
+CProcessPCH /var/folders/Ny/NyTmLyDbEZqzR2JIsC-ybE+++TI/-Caches-/com.apple.Xcode.501/SharedPrecompiledHeaders/MoPub_Prefix-epcmtcbrpeijhzdnokmoduvgyikr/MoPub_Prefix.pch.pth MoPub_Prefix.pch normal i386 objective-c com.apple.compilers.llvm.clang.1_0.analyzer
+s317180009.919557
+e317180010.386285
+r1
+xProcessPCH
+x/var/folders/Ny/NyTmLyDbEZqzR2JIsC-ybE+++TI/-Caches-/com.apple.Xcode.501/SharedPrecompiledHeaders/MoPub_Prefix-epcmtcbrpeijhzdnokmoduvgyikr/MoPub_Prefix.pch.pth
+xMoPub_Prefix.pch
+xnormal
+xi386
+xobjective-c
+xcom.apple.compilers.llvm.clang.1_0.analyzer
+lSLF07#2@27"Precompile MoPub_Prefix.pch317180009#317180010#0(0"0(0#0#44"/Users/njamal/Desktop/MoPub/MoPub_Prefix.pch8656830016#1649"    cd /Users/njamal/Desktop/MoPub    setenv LANG en_US.US-ASCII    setenv PATH "/Developer/Platforms/iPhoneSimulator.platform/Developer/usr/bin:/Developer/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin"    /Developer/usr/bin/clang -x objective-c-header -arch i386 -fmessage-length=0 -pipe -fdiagnostics-print-source-range-info -std=c99 -Wno-trigraphs -fpascal-strings -O0 -Wreturn-type -Wunused-variable -isysroot /Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator4.2.sdk -fexceptions -fasm-blocks -mmacosx-version-min=10.6 -gdwarf-2 -fvisibility=hidden -fobjc-abi-version=2 -fobjc-legacy-dispatch -D__IPHONE_OS_VERSION_MIN_REQUIRED=40200 -iquote /Users/njamal/Desktop/MoPub/build/MoPub.build/Debug-iphonesimulator/MoPub.build/MoPub-generated-files.hmap -I/Users/njamal/Desktop/MoPub/build/MoPub.build/Debug-iphonesimulator/MoPub.build/MoPub-own-target-headers.hmap -I/Users/njamal/Desktop/MoPub/build/MoPub.build/Debug-iphonesimulator/MoPub.build/MoPub-all-target-headers.hmap -iquote /Users/njamal/Desktop/MoPub/build/MoPub.build/Debug-iphonesimulator/MoPub.build/MoPub-project-headers.hmap -F/Users/njamal/Desktop/MoPub/build/Debug-iphonesimulator -I/Users/njamal/Desktop/MoPub/build/Debug-iphonesimulator/include -I/Users/njamal/Desktop/MoPub/build/MoPub.build/Debug-iphonesimulator/MoPub.build/DerivedSources/i386 -I/Users/njamal/Desktop/MoPub/build/MoPub.build/Debug-iphonesimulator/MoPub.build/DerivedSources -c /Users/njamal/Desktop/MoPub/MoPub_Prefix.pch -o /var/folders/Ny/NyTmLyDbEZqzR2JIsC-ybE+++TI/-Caches-/com.apple.Xcode.501/SharedPrecompiledHeaders/MoPub_Prefix-epcmtcbrpeijhzdnokmoduvgyikr/MoPub_Prefix.pch.pth0#
+
+CTouch /Users/njamal/Desktop/MoPub/build/Debug-iphonesimulator/MoPub.app
+s317185386.058940
+e317185386.062911
+r1
+xTouch
+x/Users/njamal/Desktop/MoPub/build/Debug-iphonesimulator/MoPub.app
+lSLF07#2@71"Touch /Users/njamal/Desktop/MoPub/build/Debug-iphonesimulator/MoPub.app317185386#317185386#0(0"0(0#0#0"8630399584#254"    cd /Users/njamal/Desktop/MoPub    setenv PATH "/Developer/Platforms/iPhoneSimulator.platform/Developer/usr/bin:/Developer/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin"    /usr/bin/touch -c /Users/njamal/Desktop/MoPub/build/Debug-iphonesimulator/MoPub.app0#
+

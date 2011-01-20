@@ -1,0 +1,2 @@
+/Users/njamal/Desktop/MoPub/Classes/MPAdView.m: In function '-[MPAdView connection:didReceiveResponse:]':
+/Users/njamal/Desktop/MoPub/Classes/MPAdView.m:139: warning: unused variable 'typeHeader'
