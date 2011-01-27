@@ -9,7 +9,7 @@
 #import <UIKit/UIKit.h>
 #import "MPAdView.h"
 
-@interface MoPubViewController : UIViewController {
+@interface MoPubViewController : UIViewController <MPAdViewDelegate> {
 }
 
 @end

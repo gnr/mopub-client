@@ -7,7 +7,7 @@
 //
 
 #import "MPBaseAdapter.h"
-
+#import "MPAdView.h"
 
 @implementation MPBaseAdapter
 

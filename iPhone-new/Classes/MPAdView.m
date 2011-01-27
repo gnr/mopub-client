@@ -8,16 +8,19 @@
 
 #import "MPAdView.h"
 #import "MPBaseAdapter.h"
+#import "MPAdapterMap.h"
 
 @interface MPAdView (Internal)
 - (void)_setUpWebViewWithFrame:(CGRect)frame;
 - (void)_adLinkClicked:(NSURL *)URL;
+- (void)_backFillWithNothing;
 - (NSString *)_escapeURL:(NSURL *)URL;
 @end
 
 @implementation MPAdView
 
-@synthesize delegate = _delegate, adUnitId = _adUnitId;
+@synthesize delegate = _delegate, adUnitId = _adUnitId, URL = _URL;
+@synthesize clickURL = _clickURL, failURL = _failURL;
 
 - (id)initWithFrame:(CGRect)frame {
     
@@ -26,7 +29,7 @@
 		[self _setUpWebViewWithFrame:frame];
 		self.adUnitId = PUB_ID_320x50;
 		_data = [[NSMutableData data] retain];
-		_url = nil;
+		self.URL = nil;
 		_isLoading = NO;
     }
     return self;
@@ -34,10 +37,11 @@
 
 - (void)dealloc {
 	[_adContentView release];
+	[_adapter release];
 	[_webView release];
 	[_adUnitId release];
 	[_data release];
-	[_url release];
+	[_URL release];
     [super dealloc];
 }
 
@@ -85,9 +89,25 @@
 						   @"",
 						   [self.adUnitId stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]
 						   ];
-	_url = [[NSURL URLWithString:urlString] copy];
+	NSURL *URL = [NSURL URLWithString:urlString];
+	[self loadAdWithURL:URL];
+}
+
+- (void)refreshAd
+{
+	[self loadAd];
+}
+
+- (void)loadAdWithURL:(NSURL *)URL
+{
+	if (!URL)
+	{
+		NSLog(@"MOPUB: URL was nil");
+		return;
+	}
 	
-	NSMutableURLRequest *request = [[[NSMutableURLRequest alloc] initWithURL:_url 
+	self.URL = URL;
+	NSMutableURLRequest *request = [[[NSMutableURLRequest alloc] initWithURL:self.URL 
 																 cachePolicy:NSURLRequestUseProtocolCachePolicy 
 															 timeoutInterval:3.0] autorelease];
 	
@@ -102,22 +122,14 @@
 	_isLoading = YES;
 }
 
-- (void)refreshAd
-{
-	[self loadAd];
-}
-
 - (void)connection:(NSURLConnection *)connection didReceiveResponse:(NSURLResponse *)response {
-	
-	//
-	// if the response is anything but a 200 (OK) or 300 (redirect) we call the response a failure and bail
-	//
+	// If the response is anything but a 200 (OK) or 300 (redirect) we call the response a failure and bail
 	if ([response respondsToSelector:@selector(statusCode)])
 	{
 		int statusCode = [((NSHTTPURLResponse *)response) statusCode];
 		if (statusCode >= 400)
 		{
-			[connection cancel];  // stop connecting; no more delegate messages
+			[connection cancel];
 			NSDictionary *errorInfo = [NSDictionary dictionaryWithObject:[NSString stringWithFormat:
 																		  NSLocalizedString(@"Server returned status code %d",@""),
 																		  statusCode]
@@ -133,22 +145,50 @@
 	// initialize the data
 	[_data setLength:0];
 	
-	_clickURL = [[[(NSHTTPURLResponse *)response allHeaderFields] objectForKey:@"X-Clickthrough"] copy];
-	
 	// TODO: parse headers
+	NSDictionary *headers = [(NSHTTPURLResponse *)response allHeaderFields];
+	self.clickURL = [NSURL URLWithString:[headers objectForKey:@"X-Clickthrough"]];
+	self.failURL = [NSURL URLWithString:[headers objectForKey:@"X-Failurl"]];
+	
+	// Determine ad type.
 	NSString *typeHeader = [[(NSHTTPURLResponse *)response allHeaderFields] objectForKey:@"X-Adtype"];
-	NSString *classString = [NSString stringWithFormat:@"MP%@Adapter", @"IAd"];
+	
+	if (!typeHeader || [typeHeader isEqualToString:@"html"])
+	{
+		return;
+	}
+	else if ([typeHeader isEqualToString:@"clear"])
+	{
+		[connection cancel];
+		_isLoading = NO;
+		[self _backFillWithNothing];
+		return;
+	}
+		
+	NSString *classString = [[MPAdapterMap sharedAdapterMap] classStringForAdapterType:typeHeader];
 	Class cls = NSClassFromString(classString);
 	if (cls != nil)
 	{
-		MPBaseAdapter *adapter = (MPBaseAdapter *)[[cls alloc] init];
-		adapter.delegate = self;
-		[adapter getAd];
+		_adapter.delegate = nil;
+		[_adapter release];
+		
+		_adapter = (MPBaseAdapter *)[[cls alloc] init];
+		_adapter.delegate = self;
+		NSDictionary *params = [(NSHTTPURLResponse *)response allHeaderFields];
+		[_adapter getAdWithParams:params];
+		
 		[connection cancel];
+		_isLoading = NO;
+	}
+	else 
+	{
+		[connection cancel];
+		_isLoading = NO;
+
+		[self loadAdWithURL:self.failURL];
 	}
 }
 
-// standard data appending
 - (void)connection:(NSURLConnection *)connection didReceiveData:(NSData *)d {
 	[_data appendData:d];
 }
@@ -156,17 +196,15 @@
 - (void)connection:(NSURLConnection *)connection didFailWithError:(NSError *)error {
 	NSLog(@"MOPUB: failed to load ad content... %@", error);
 	
-	//[self backfillWithNothing];
-	//	[connection release];
-	//adLoading = NO;
-	//[loadingIndicator stopAnimating];
+	// TODO: should we fill with nothing?
+	_isLoading = NO;
 }
 
 - (void)connectionDidFinishLoading:(NSURLConnection *)connection {
 	// set the content into the webview	
 	
 	_webView.delegate = self;
-	[_webView loadData:_data MIMEType:@"text/html" textEncodingName:@"utf-8" baseURL:_url];
+	[_webView loadData:_data MIMEType:@"text/html" textEncodingName:@"utf-8" baseURL:self.URL];
 	[self addSubview:_webView];
 	
 	// print out the response for debugging purposes
@@ -205,6 +243,17 @@
 	// TODO: signal delegate that ad browser did open
 }
 
+- (void)_backFillWithNothing
+{
+	self.backgroundColor = [UIColor clearColor];
+	self.hidden = YES;
+	
+	// Notify delegate that the ad has failed to load.
+	if ([self.delegate respondsToSelector:@selector(adViewDidFailToLoadAd:)]){
+		[self.delegate adViewDidFailToLoadAd:self];
+	}
+}
+
 - (void)dismissModalViewForAdClickController:(AdClickController *)adClickController
 {
 	[[self.delegate viewControllerForPresentingModalView] dismissModalViewControllerAnimated:YES];
@@ -232,6 +281,21 @@
 	[redirectUrl replaceOccurrencesOfString:@"\n" withString:@"%0A" options:NSCaseInsensitiveSearch range:wholeString];
 	
 	return redirectUrl;
+}
+
+#pragma mark -
+#pragma mark MPAdapterDelegate
+
+- (void)adapterDidFinishLoadingAd:(MPBaseAdapter *)adapter
+{
+	if ([self.delegate respondsToSelector:@selector(adViewDidLoadAd:)])
+		[self.delegate adViewDidLoadAd:self];
+}
+
+- (void)adapter:(MPBaseAdapter *)adapter didFailToLoadAdWithError:(NSError *)error
+{
+	[self loadAdWithURL:self.failURL];
+	// TODO: handle error
 }
 
 @end

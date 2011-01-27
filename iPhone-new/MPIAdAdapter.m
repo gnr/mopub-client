@@ -7,7 +7,7 @@
 //
 
 #import "MPIAdAdapter.h"
-
+#import "MPAdView.h"
 
 @implementation MPIAdAdapter
 
@@ -30,6 +30,34 @@
 		// iOS versions before 4 
 		//[self bannerView:nil didFailToReceiveAdWithError:nil];
 	}
+}
+
+#pragma mark -
+#pragma	mark ADBannerViewDelegate
+
+- (void)bannerView:(ADBannerView *)banner didFailToReceiveAdWithError:(NSError *)error
+{
+	NSLog(@"MOPUB: iAd Failed To Receive Ad");
+	[self.delegate adapter:self didFailToLoadAdWithError:error];
+}
+
+- (void)bannerViewActionDidFinish:(ADBannerView *)banner
+{
+	NSLog(@"MOPUB: iAd Finished Executing Banner Action");
+	// TODO: bannerview action finish
+}
+
+- (BOOL)bannerViewActionShouldBegin:(ADBannerView *)banner willLeaveApplication:(BOOL)willLeave
+{
+	NSLog(@"MOPUB: iAd Should Begin Banner Action");
+	// TODO: bannerview action begin
+	return NO;
+}
+
+- (void)bannerViewDidLoadAd:(ADBannerView *)banner
+{
+	NSLog(@"MOPUB: iAd Load Succeeded");
+	[self.delegate adapterDidFinishLoadingAd:self];
 }
 
 @end

@@ -10,7 +10,7 @@
 #import "MPBaseAdapter.h"
 #import <iAd/iAd.h>
 
-@interface MPIAdAdapter : MPBaseAdapter {
+@interface MPIAdAdapter : MPBaseAdapter <ADBannerViewDelegate> {
 
 }
 

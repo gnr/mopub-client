@@ -22,6 +22,20 @@
 		3C6ED2B412E7D4BB00C5E818 /* MPIAdAdapter.m in Sources */ = {isa = PBXBuildFile; fileRef = 3C6ED2B312E7D4BB00C5E818 /* MPIAdAdapter.m */; };
 		3C6ED2B912E7D4EB00C5E818 /* MPBaseAdapter.m in Sources */ = {isa = PBXBuildFile; fileRef = 3C6ED2B812E7D4EB00C5E818 /* MPBaseAdapter.m */; };
 		3C6ED2C212E7DB3F00C5E818 /* iAd.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3C6ED2C112E7DB3F00C5E818 /* iAd.framework */; };
+		A884455512F0FD7B0091613A /* CDataScanner.m in Sources */ = {isa = PBXBuildFile; fileRef = A884454012F0FD7B0091613A /* CDataScanner.m */; };
+		A884455612F0FD7B0091613A /* CFilteringJSONSerializer.m in Sources */ = {isa = PBXBuildFile; fileRef = A884454312F0FD7B0091613A /* CFilteringJSONSerializer.m */; };
+		A884455712F0FD7B0091613A /* CJSONDeserializer_BlocksExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = A884454512F0FD7B0091613A /* CJSONDeserializer_BlocksExtensions.m */; };
+		A884455812F0FD7B0091613A /* CJSONSerializedData.m in Sources */ = {isa = PBXBuildFile; fileRef = A884454712F0FD7B0091613A /* CJSONSerializedData.m */; };
+		A884455912F0FD7B0091613A /* CDataScanner_Extensions.m in Sources */ = {isa = PBXBuildFile; fileRef = A884454A12F0FD7B0091613A /* CDataScanner_Extensions.m */; };
+		A884455A12F0FD7B0091613A /* NSDictionary_JSONExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = A884454C12F0FD7B0091613A /* NSDictionary_JSONExtensions.m */; };
+		A884455B12F0FD7B0091613A /* CJSONDeserializer.m in Sources */ = {isa = PBXBuildFile; fileRef = A884454F12F0FD7B0091613A /* CJSONDeserializer.m */; };
+		A884455C12F0FD7B0091613A /* CJSONScanner.m in Sources */ = {isa = PBXBuildFile; fileRef = A884455112F0FD7B0091613A /* CJSONScanner.m */; };
+		A884455D12F0FD7B0091613A /* CJSONSerializer.m in Sources */ = {isa = PBXBuildFile; fileRef = A884455312F0FD7B0091613A /* CJSONSerializer.m */; };
+		A8E43FED12F0DED80096079D /* MPAdapterMap.m in Sources */ = {isa = PBXBuildFile; fileRef = A8E43FEC12F0DED80096079D /* MPAdapterMap.m */; };
+		A8E4406412F0E5E30096079D /* MPGoogleAdSenseAdapter.m in Sources */ = {isa = PBXBuildFile; fileRef = A8E4406312F0E5E30096079D /* MPGoogleAdSenseAdapter.m */; };
+		A8E4407412F0E6230096079D /* libGoogleAds.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A8E4407312F0E6230096079D /* libGoogleAds.a */; };
+		A8E4407612F0E64A0096079D /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A8E4407512F0E64A0096079D /* SystemConfiguration.framework */; };
+		A8E4407812F0E6530096079D /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A8E4407712F0E6530096079D /* AVFoundation.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -50,6 +64,37 @@
 		3C6ED2B812E7D4EB00C5E818 /* MPBaseAdapter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPBaseAdapter.m; sourceTree = "<group>"; };
 		3C6ED2C112E7DB3F00C5E818 /* iAd.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = iAd.framework; path = System/Library/Frameworks/iAd.framework; sourceTree = SDKROOT; };
 		8D1107310486CEB800E47090 /* MoPub-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "MoPub-Info.plist"; plistStructureDefinitionIdentifier = "com.apple.xcode.plist.structure-definition.iphone.info-plist"; sourceTree = "<group>"; };
+		A884453F12F0FD7B0091613A /* CDataScanner.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CDataScanner.h; sourceTree = "<group>"; };
+		A884454012F0FD7B0091613A /* CDataScanner.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CDataScanner.m; sourceTree = "<group>"; };
+		A884454212F0FD7B0091613A /* CFilteringJSONSerializer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CFilteringJSONSerializer.h; sourceTree = "<group>"; };
+		A884454312F0FD7B0091613A /* CFilteringJSONSerializer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CFilteringJSONSerializer.m; sourceTree = "<group>"; };
+		A884454412F0FD7B0091613A /* CJSONDeserializer_BlocksExtensions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CJSONDeserializer_BlocksExtensions.h; sourceTree = "<group>"; };
+		A884454512F0FD7B0091613A /* CJSONDeserializer_BlocksExtensions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CJSONDeserializer_BlocksExtensions.m; sourceTree = "<group>"; };
+		A884454612F0FD7B0091613A /* CJSONSerializedData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CJSONSerializedData.h; sourceTree = "<group>"; };
+		A884454712F0FD7B0091613A /* CJSONSerializedData.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CJSONSerializedData.m; sourceTree = "<group>"; };
+		A884454912F0FD7B0091613A /* CDataScanner_Extensions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CDataScanner_Extensions.h; sourceTree = "<group>"; };
+		A884454A12F0FD7B0091613A /* CDataScanner_Extensions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CDataScanner_Extensions.m; sourceTree = "<group>"; };
+		A884454B12F0FD7B0091613A /* NSDictionary_JSONExtensions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NSDictionary_JSONExtensions.h; sourceTree = "<group>"; };
+		A884454C12F0FD7B0091613A /* NSDictionary_JSONExtensions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSDictionary_JSONExtensions.m; sourceTree = "<group>"; };
+		A884454E12F0FD7B0091613A /* CJSONDeserializer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CJSONDeserializer.h; sourceTree = "<group>"; };
+		A884454F12F0FD7B0091613A /* CJSONDeserializer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CJSONDeserializer.m; sourceTree = "<group>"; };
+		A884455012F0FD7B0091613A /* CJSONScanner.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CJSONScanner.h; sourceTree = "<group>"; };
+		A884455112F0FD7B0091613A /* CJSONScanner.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CJSONScanner.m; sourceTree = "<group>"; };
+		A884455212F0FD7B0091613A /* CJSONSerializer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CJSONSerializer.h; sourceTree = "<group>"; };
+		A884455312F0FD7B0091613A /* CJSONSerializer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CJSONSerializer.m; sourceTree = "<group>"; };
+		A884455412F0FD7B0091613A /* JSONRepresentation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JSONRepresentation.h; sourceTree = "<group>"; };
+		A8E43FCE12F0D8000096079D /* MPAdapterMap.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPAdapterMap.h; sourceTree = "<group>"; };
+		A8E43FEC12F0DED80096079D /* MPAdapterMap.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPAdapterMap.m; sourceTree = "<group>"; };
+		A8E4406212F0E5E30096079D /* MPGoogleAdSenseAdapter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPGoogleAdSenseAdapter.h; sourceTree = "<group>"; };
+		A8E4406312F0E5E30096079D /* MPGoogleAdSenseAdapter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPGoogleAdSenseAdapter.m; sourceTree = "<group>"; };
+		A8E4406E12F0E6220096079D /* GADAdSenseAudioParameters.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GADAdSenseAudioParameters.h; sourceTree = "<group>"; };
+		A8E4406F12F0E6220096079D /* GADAdSenseParameters.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GADAdSenseParameters.h; sourceTree = "<group>"; };
+		A8E4407012F0E6230096079D /* GADAdViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GADAdViewController.h; sourceTree = "<group>"; };
+		A8E4407112F0E6230096079D /* GADDoubleClickParameters.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GADDoubleClickParameters.h; sourceTree = "<group>"; };
+		A8E4407212F0E6230096079D /* GADRequestError.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GADRequestError.h; sourceTree = "<group>"; };
+		A8E4407312F0E6230096079D /* libGoogleAds.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libGoogleAds.a; sourceTree = "<group>"; };
+		A8E4407512F0E64A0096079D /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
+		A8E4407712F0E6530096079D /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -61,6 +106,9 @@
 				1DF5F4E00D08C38300B7A737 /* UIKit.framework in Frameworks */,
 				288765A50DF7441C002DB57D /* CoreGraphics.framework in Frameworks */,
 				3C6ED2C212E7DB3F00C5E818 /* iAd.framework in Frameworks */,
+				A8E4407412F0E6230096079D /* libGoogleAds.a in Frameworks */,
+				A8E4407612F0E64A0096079D /* SystemConfiguration.framework in Frameworks */,
+				A8E4407812F0E6530096079D /* AVFoundation.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -89,6 +137,7 @@
 		29B97314FDCFA39411CA2CEA /* CustomTemplate */ = {
 			isa = PBXGroup;
 			children = (
+				A8E4408B12F0EBD50096079D /* Libraries */,
 				3C6ED1A212E7B0E900C5E818 /* SDK */,
 				080E96DDFE201D6D7F000001 /* Classes */,
 				29B97315FDCFA39411CA2CEA /* Other Sources */,
@@ -125,6 +174,8 @@
 				1D30AB110D05D00D00671497 /* Foundation.framework */,
 				288765A40DF7441C002DB57D /* CoreGraphics.framework */,
 				3C6ED2C112E7DB3F00C5E818 /* iAd.framework */,
+				A8E4407512F0E64A0096079D /* SystemConfiguration.framework */,
+				A8E4407712F0E6530096079D /* AVFoundation.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -132,19 +183,103 @@
 		3C6ED1A212E7B0E900C5E818 /* SDK */ = {
 			isa = PBXGroup;
 			children = (
+				A8E4406C12F0E6100096079D /* GoogleAdSense */,
+				A8E4402D12F0E30E0096079D /* Adapters */,
+				A8E43FCE12F0D8000096079D /* MPAdapterMap.h */,
+				A8E43FEC12F0DED80096079D /* MPAdapterMap.m */,
 				3C6ED19E12E7B0D800C5E818 /* MPAdView.h */,
 				3C6ED19F12E7B0D800C5E818 /* MPAdView.m */,
 				3C6ED25712E7CA1700C5E818 /* MPAdBrowserController.h */,
 				3C6ED25812E7CA1700C5E818 /* MPAdBrowserController.m */,
-				3C6ED2B212E7D4BB00C5E818 /* MPIAdAdapter.h */,
-				3C6ED2B312E7D4BB00C5E818 /* MPIAdAdapter.m */,
-				3C6ED2B712E7D4EB00C5E818 /* MPBaseAdapter.h */,
-				3C6ED2B812E7D4EB00C5E818 /* MPBaseAdapter.m */,
 				3C6ED26912E7CB1900C5E818 /* AdClickController.h */,
 				3C6ED26A12E7CB1900C5E818 /* AdClickController.m */,
 				3C6ED26B12E7CB1900C5E818 /* AdClickController.xib */,
 			);
 			name = SDK;
+			sourceTree = "<group>";
+		};
+		A884453E12F0FD7B0091613A /* TouchJSON */ = {
+			isa = PBXGroup;
+			children = (
+				A884453F12F0FD7B0091613A /* CDataScanner.h */,
+				A884454012F0FD7B0091613A /* CDataScanner.m */,
+				A884454112F0FD7B0091613A /* Experimental */,
+				A884454812F0FD7B0091613A /* Extensions */,
+				A884454D12F0FD7B0091613A /* JSON */,
+			);
+			path = TouchJSON;
+			sourceTree = "<group>";
+		};
+		A884454112F0FD7B0091613A /* Experimental */ = {
+			isa = PBXGroup;
+			children = (
+				A884454212F0FD7B0091613A /* CFilteringJSONSerializer.h */,
+				A884454312F0FD7B0091613A /* CFilteringJSONSerializer.m */,
+				A884454412F0FD7B0091613A /* CJSONDeserializer_BlocksExtensions.h */,
+				A884454512F0FD7B0091613A /* CJSONDeserializer_BlocksExtensions.m */,
+				A884454612F0FD7B0091613A /* CJSONSerializedData.h */,
+				A884454712F0FD7B0091613A /* CJSONSerializedData.m */,
+			);
+			path = Experimental;
+			sourceTree = "<group>";
+		};
+		A884454812F0FD7B0091613A /* Extensions */ = {
+			isa = PBXGroup;
+			children = (
+				A884454912F0FD7B0091613A /* CDataScanner_Extensions.h */,
+				A884454A12F0FD7B0091613A /* CDataScanner_Extensions.m */,
+				A884454B12F0FD7B0091613A /* NSDictionary_JSONExtensions.h */,
+				A884454C12F0FD7B0091613A /* NSDictionary_JSONExtensions.m */,
+			);
+			path = Extensions;
+			sourceTree = "<group>";
+		};
+		A884454D12F0FD7B0091613A /* JSON */ = {
+			isa = PBXGroup;
+			children = (
+				A884454E12F0FD7B0091613A /* CJSONDeserializer.h */,
+				A884454F12F0FD7B0091613A /* CJSONDeserializer.m */,
+				A884455012F0FD7B0091613A /* CJSONScanner.h */,
+				A884455112F0FD7B0091613A /* CJSONScanner.m */,
+				A884455212F0FD7B0091613A /* CJSONSerializer.h */,
+				A884455312F0FD7B0091613A /* CJSONSerializer.m */,
+				A884455412F0FD7B0091613A /* JSONRepresentation.h */,
+			);
+			path = JSON;
+			sourceTree = "<group>";
+		};
+		A8E4402D12F0E30E0096079D /* Adapters */ = {
+			isa = PBXGroup;
+			children = (
+				3C6ED2B212E7D4BB00C5E818 /* MPIAdAdapter.h */,
+				3C6ED2B312E7D4BB00C5E818 /* MPIAdAdapter.m */,
+				A8E4406212F0E5E30096079D /* MPGoogleAdSenseAdapter.h */,
+				A8E4406312F0E5E30096079D /* MPGoogleAdSenseAdapter.m */,
+				3C6ED2B712E7D4EB00C5E818 /* MPBaseAdapter.h */,
+				3C6ED2B812E7D4EB00C5E818 /* MPBaseAdapter.m */,
+			);
+			name = Adapters;
+			sourceTree = "<group>";
+		};
+		A8E4406C12F0E6100096079D /* GoogleAdSense */ = {
+			isa = PBXGroup;
+			children = (
+				A8E4406E12F0E6220096079D /* GADAdSenseAudioParameters.h */,
+				A8E4406F12F0E6220096079D /* GADAdSenseParameters.h */,
+				A8E4407012F0E6230096079D /* GADAdViewController.h */,
+				A8E4407112F0E6230096079D /* GADDoubleClickParameters.h */,
+				A8E4407212F0E6230096079D /* GADRequestError.h */,
+				A8E4407312F0E6230096079D /* libGoogleAds.a */,
+			);
+			name = GoogleAdSense;
+			sourceTree = "<group>";
+		};
+		A8E4408B12F0EBD50096079D /* Libraries */ = {
+			isa = PBXGroup;
+			children = (
+				A884453E12F0FD7B0091613A /* TouchJSON */,
+			);
+			name = Libraries;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -217,6 +352,17 @@
 				3C6ED26C12E7CB1900C5E818 /* AdClickController.m in Sources */,
 				3C6ED2B412E7D4BB00C5E818 /* MPIAdAdapter.m in Sources */,
 				3C6ED2B912E7D4EB00C5E818 /* MPBaseAdapter.m in Sources */,
+				A8E43FED12F0DED80096079D /* MPAdapterMap.m in Sources */,
+				A8E4406412F0E5E30096079D /* MPGoogleAdSenseAdapter.m in Sources */,
+				A884455512F0FD7B0091613A /* CDataScanner.m in Sources */,
+				A884455612F0FD7B0091613A /* CFilteringJSONSerializer.m in Sources */,
+				A884455712F0FD7B0091613A /* CJSONDeserializer_BlocksExtensions.m in Sources */,
+				A884455812F0FD7B0091613A /* CJSONSerializedData.m in Sources */,
+				A884455912F0FD7B0091613A /* CDataScanner_Extensions.m in Sources */,
+				A884455A12F0FD7B0091613A /* NSDictionary_JSONExtensions.m in Sources */,
+				A884455B12F0FD7B0091613A /* CJSONDeserializer.m in Sources */,
+				A884455C12F0FD7B0091613A /* CJSONScanner.m in Sources */,
+				A884455D12F0FD7B0091613A /* CJSONSerializer.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -233,6 +379,10 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = MoPub_Prefix.pch;
 				INFOPLIST_FILE = "MoPub-Info.plist";
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"$(SRCROOT)\"",
+				);
 				PRODUCT_NAME = MoPub;
 			};
 			name = Debug;
@@ -245,6 +395,10 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = MoPub_Prefix.pch;
 				INFOPLIST_FILE = "MoPub-Info.plist";
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"$(SRCROOT)\"",
+				);
 				PRODUCT_NAME = MoPub;
 				VALIDATE_PRODUCT = YES;
 			};

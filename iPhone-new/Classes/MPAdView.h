@@ -8,35 +8,50 @@
 
 #import <UIKit/UIKit.h>
 #import "AdClickController.h"
+#import "MPBaseAdapter.h"
+
+@protocol MPAdViewDelegate;
 
 #define HOSTNAME @"ads.mopub.com"
 #define PUB_ID_320x50 @"agltb3B1Yi1pbmNyDAsSBFNpdGUYkaoMDA"
 
-@protocol MPAdViewProtocol
-@required
-- (UIViewController *)viewControllerForPresentingModalView;
-@end
-
-@interface MPAdView : UIView <UIWebViewDelegate, AdClickControllerDelegate> {
-	id<MPAdViewProtocol> _delegate;
+@interface MPAdView : UIView <UIWebViewDelegate, AdClickControllerDelegate, MPAdapterDelegate> {
+	NSObject<MPAdViewDelegate> *_delegate;
 	
 	UIView *_adContentView;
 	UIWebView *_webView;
 	NSString *_adUnitId;
 	NSMutableData *_data;
-	NSURL *_url;
+	NSURL *_URL;
 	NSURLConnection *_conn;
+	MPBaseAdapter *_adapter;
 	
 	NSURL *_clickURL;
+	NSURL *_failURL;
 	
 	BOOL _isLoading;
 }
 
-@property (nonatomic, assign) id<MPAdViewProtocol> delegate;
+@property (nonatomic, assign) NSObject<MPAdViewDelegate> *delegate;
 @property (nonatomic, copy) NSString *adUnitId;
+@property (nonatomic, copy) NSURL *URL;
+@property (nonatomic, copy) NSURL *clickURL;
+@property (nonatomic, copy) NSURL *failURL;
 
 - (void)loadAd;
+- (void)loadAdWithURL:(NSURL *)URL;
 - (void)refreshAd;
 - (void)setAdContentView:(UIView *)view;
+
+@end
+
+@protocol MPAdViewDelegate
+
+@required
+- (UIViewController *)viewControllerForPresentingModalView;
+
+@optional
+- (void)adViewDidFailToLoadAd:(MPAdView *)view;
+- (void)adViewDidLoadAd:(MPAdView *)view;
 
 @end

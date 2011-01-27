@@ -7,7 +7,8 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "MPAdView.h"
+
+@class MPAdView;
 
 @interface MPBaseAdapter : NSObject {
 	MPAdView *_delegate;
@@ -18,4 +19,10 @@
 - (void)getAd;
 - (void)getAdWithParams:(NSDictionary *)params;
 
+@end
+
+@protocol MPAdapterDelegate
+@required
+- (void)adapterDidFinishLoadingAd:(MPBaseAdapter *)adapter;
+- (void)adapter:(MPBaseAdapter *)adapter didFailToLoadAdWithError:(NSError *)error;
 @end
