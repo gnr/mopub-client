@@ -1,0 +1,458 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 45;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		1D3623260D0F684500981E51 /* MoPubAppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 1D3623250D0F684500981E51 /* MoPubAppDelegate.m */; };
+		1D60589B0D05DD56006BFB54 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 29B97316FDCFA39411CA2CEA /* main.m */; };
+		1D60589F0D05DD5A006BFB54 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1D30AB110D05D00D00671497 /* Foundation.framework */; };
+		1DF5F4E00D08C38300B7A737 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1DF5F4DF0D08C38300B7A737 /* UIKit.framework */; };
+		288765A50DF7441C002DB57D /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 288765A40DF7441C002DB57D /* CoreGraphics.framework */; };
+		2899E5220DE3E06400AC0155 /* MoPubViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2899E5210DE3E06400AC0155 /* MoPubViewController.xib */; };
+		28AD733F0D9D9553002E5188 /* MainWindow.xib in Resources */ = {isa = PBXBuildFile; fileRef = 28AD733E0D9D9553002E5188 /* MainWindow.xib */; };
+		28D7ACF80DDB3853001CB0EB /* MoPubViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 28D7ACF70DDB3853001CB0EB /* MoPubViewController.m */; };
+		3C6ED1A012E7B0D800C5E818 /* MPAdView.m in Sources */ = {isa = PBXBuildFile; fileRef = 3C6ED19F12E7B0D800C5E818 /* MPAdView.m */; };
+		3C6ED25912E7CA1700C5E818 /* MPAdBrowserController.m in Sources */ = {isa = PBXBuildFile; fileRef = 3C6ED25812E7CA1700C5E818 /* MPAdBrowserController.m */; };
+		3C6ED26C12E7CB1900C5E818 /* AdClickController.m in Sources */ = {isa = PBXBuildFile; fileRef = 3C6ED26A12E7CB1900C5E818 /* AdClickController.m */; };
+		3C6ED26D12E7CB1900C5E818 /* AdClickController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 3C6ED26B12E7CB1900C5E818 /* AdClickController.xib */; };
+		3C6ED2B412E7D4BB00C5E818 /* MPIAdAdapter.m in Sources */ = {isa = PBXBuildFile; fileRef = 3C6ED2B312E7D4BB00C5E818 /* MPIAdAdapter.m */; };
+		3C6ED2B912E7D4EB00C5E818 /* MPBaseAdapter.m in Sources */ = {isa = PBXBuildFile; fileRef = 3C6ED2B812E7D4EB00C5E818 /* MPBaseAdapter.m */; };
+		3C6ED2C212E7DB3F00C5E818 /* iAd.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3C6ED2C112E7DB3F00C5E818 /* iAd.framework */; };
+		A884455512F0FD7B0091613A /* CDataScanner.m in Sources */ = {isa = PBXBuildFile; fileRef = A884454012F0FD7B0091613A /* CDataScanner.m */; };
+		A884455612F0FD7B0091613A /* CFilteringJSONSerializer.m in Sources */ = {isa = PBXBuildFile; fileRef = A884454312F0FD7B0091613A /* CFilteringJSONSerializer.m */; };
+		A884455712F0FD7B0091613A /* CJSONDeserializer_BlocksExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = A884454512F0FD7B0091613A /* CJSONDeserializer_BlocksExtensions.m */; };
+		A884455812F0FD7B0091613A /* CJSONSerializedData.m in Sources */ = {isa = PBXBuildFile; fileRef = A884454712F0FD7B0091613A /* CJSONSerializedData.m */; };
+		A884455912F0FD7B0091613A /* CDataScanner_Extensions.m in Sources */ = {isa = PBXBuildFile; fileRef = A884454A12F0FD7B0091613A /* CDataScanner_Extensions.m */; };
+		A884455A12F0FD7B0091613A /* NSDictionary_JSONExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = A884454C12F0FD7B0091613A /* NSDictionary_JSONExtensions.m */; };
+		A884455B12F0FD7B0091613A /* CJSONDeserializer.m in Sources */ = {isa = PBXBuildFile; fileRef = A884454F12F0FD7B0091613A /* CJSONDeserializer.m */; };
+		A884455C12F0FD7B0091613A /* CJSONScanner.m in Sources */ = {isa = PBXBuildFile; fileRef = A884455112F0FD7B0091613A /* CJSONScanner.m */; };
+		A884455D12F0FD7B0091613A /* CJSONSerializer.m in Sources */ = {isa = PBXBuildFile; fileRef = A884455312F0FD7B0091613A /* CJSONSerializer.m */; };
+		A8E43FED12F0DED80096079D /* MPAdapterMap.m in Sources */ = {isa = PBXBuildFile; fileRef = A8E43FEC12F0DED80096079D /* MPAdapterMap.m */; };
+		A8E4406412F0E5E30096079D /* MPGoogleAdSenseAdapter.m in Sources */ = {isa = PBXBuildFile; fileRef = A8E4406312F0E5E30096079D /* MPGoogleAdSenseAdapter.m */; };
+		A8E4407412F0E6230096079D /* libGoogleAds.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A8E4407312F0E6230096079D /* libGoogleAds.a */; };
+		A8E4407612F0E64A0096079D /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A8E4407512F0E64A0096079D /* SystemConfiguration.framework */; };
+		A8E4407812F0E6530096079D /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A8E4407712F0E6530096079D /* AVFoundation.framework */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		1D30AB110D05D00D00671497 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
+		1D3623240D0F684500981E51 /* MoPubAppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MoPubAppDelegate.h; sourceTree = "<group>"; };
+		1D3623250D0F684500981E51 /* MoPubAppDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MoPubAppDelegate.m; sourceTree = "<group>"; };
+		1D6058910D05DD3D006BFB54 /* MoPub.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MoPub.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		1DF5F4DF0D08C38300B7A737 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
+		288765A40DF7441C002DB57D /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
+		2899E5210DE3E06400AC0155 /* MoPubViewController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = MoPubViewController.xib; sourceTree = "<group>"; };
+		28AD733E0D9D9553002E5188 /* MainWindow.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = MainWindow.xib; sourceTree = "<group>"; };
+		28D7ACF60DDB3853001CB0EB /* MoPubViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MoPubViewController.h; sourceTree = "<group>"; };
+		28D7ACF70DDB3853001CB0EB /* MoPubViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MoPubViewController.m; sourceTree = "<group>"; };
+		29B97316FDCFA39411CA2CEA /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		32CA4F630368D1EE00C91783 /* MoPub_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MoPub_Prefix.pch; sourceTree = "<group>"; };
+		3C6ED19E12E7B0D800C5E818 /* MPAdView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MPAdView.h; path = Classes/MPAdView.h; sourceTree = "<group>"; };
+		3C6ED19F12E7B0D800C5E818 /* MPAdView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = MPAdView.m; path = Classes/MPAdView.m; sourceTree = "<group>"; };
+		3C6ED25712E7CA1700C5E818 /* MPAdBrowserController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPAdBrowserController.h; sourceTree = "<group>"; };
+		3C6ED25812E7CA1700C5E818 /* MPAdBrowserController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPAdBrowserController.m; sourceTree = "<group>"; };
+		3C6ED26912E7CB1900C5E818 /* AdClickController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AdClickController.h; sourceTree = "<group>"; };
+		3C6ED26A12E7CB1900C5E818 /* AdClickController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AdClickController.m; sourceTree = "<group>"; };
+		3C6ED26B12E7CB1900C5E818 /* AdClickController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = AdClickController.xib; sourceTree = "<group>"; };
+		3C6ED2B212E7D4BB00C5E818 /* MPIAdAdapter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPIAdAdapter.h; sourceTree = "<group>"; };
+		3C6ED2B312E7D4BB00C5E818 /* MPIAdAdapter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPIAdAdapter.m; sourceTree = "<group>"; };
+		3C6ED2B712E7D4EB00C5E818 /* MPBaseAdapter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPBaseAdapter.h; sourceTree = "<group>"; };
+		3C6ED2B812E7D4EB00C5E818 /* MPBaseAdapter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPBaseAdapter.m; sourceTree = "<group>"; };
+		3C6ED2C112E7DB3F00C5E818 /* iAd.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = iAd.framework; path = System/Library/Frameworks/iAd.framework; sourceTree = SDKROOT; };
+		8D1107310486CEB800E47090 /* MoPub-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "MoPub-Info.plist"; plistStructureDefinitionIdentifier = "com.apple.xcode.plist.structure-definition.iphone.info-plist"; sourceTree = "<group>"; };
+		A884453F12F0FD7B0091613A /* CDataScanner.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CDataScanner.h; sourceTree = "<group>"; };
+		A884454012F0FD7B0091613A /* CDataScanner.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CDataScanner.m; sourceTree = "<group>"; };
+		A884454212F0FD7B0091613A /* CFilteringJSONSerializer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CFilteringJSONSerializer.h; sourceTree = "<group>"; };
+		A884454312F0FD7B0091613A /* CFilteringJSONSerializer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CFilteringJSONSerializer.m; sourceTree = "<group>"; };
+		A884454412F0FD7B0091613A /* CJSONDeserializer_BlocksExtensions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CJSONDeserializer_BlocksExtensions.h; sourceTree = "<group>"; };
+		A884454512F0FD7B0091613A /* CJSONDeserializer_BlocksExtensions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CJSONDeserializer_BlocksExtensions.m; sourceTree = "<group>"; };
+		A884454612F0FD7B0091613A /* CJSONSerializedData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CJSONSerializedData.h; sourceTree = "<group>"; };
+		A884454712F0FD7B0091613A /* CJSONSerializedData.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CJSONSerializedData.m; sourceTree = "<group>"; };
+		A884454912F0FD7B0091613A /* CDataScanner_Extensions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CDataScanner_Extensions.h; sourceTree = "<group>"; };
+		A884454A12F0FD7B0091613A /* CDataScanner_Extensions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CDataScanner_Extensions.m; sourceTree = "<group>"; };
+		A884454B12F0FD7B0091613A /* NSDictionary_JSONExtensions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NSDictionary_JSONExtensions.h; sourceTree = "<group>"; };
+		A884454C12F0FD7B0091613A /* NSDictionary_JSONExtensions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSDictionary_JSONExtensions.m; sourceTree = "<group>"; };
+		A884454E12F0FD7B0091613A /* CJSONDeserializer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CJSONDeserializer.h; sourceTree = "<group>"; };
+		A884454F12F0FD7B0091613A /* CJSONDeserializer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CJSONDeserializer.m; sourceTree = "<group>"; };
+		A884455012F0FD7B0091613A /* CJSONScanner.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CJSONScanner.h; sourceTree = "<group>"; };
+		A884455112F0FD7B0091613A /* CJSONScanner.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CJSONScanner.m; sourceTree = "<group>"; };
+		A884455212F0FD7B0091613A /* CJSONSerializer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CJSONSerializer.h; sourceTree = "<group>"; };
+		A884455312F0FD7B0091613A /* CJSONSerializer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CJSONSerializer.m; sourceTree = "<group>"; };
+		A884455412F0FD7B0091613A /* JSONRepresentation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JSONRepresentation.h; sourceTree = "<group>"; };
+		A8E43FCE12F0D8000096079D /* MPAdapterMap.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPAdapterMap.h; sourceTree = "<group>"; };
+		A8E43FEC12F0DED80096079D /* MPAdapterMap.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPAdapterMap.m; sourceTree = "<group>"; };
+		A8E4406212F0E5E30096079D /* MPGoogleAdSenseAdapter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPGoogleAdSenseAdapter.h; sourceTree = "<group>"; };
+		A8E4406312F0E5E30096079D /* MPGoogleAdSenseAdapter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPGoogleAdSenseAdapter.m; sourceTree = "<group>"; };
+		A8E4406E12F0E6220096079D /* GADAdSenseAudioParameters.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GADAdSenseAudioParameters.h; sourceTree = "<group>"; };
+		A8E4406F12F0E6220096079D /* GADAdSenseParameters.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GADAdSenseParameters.h; sourceTree = "<group>"; };
+		A8E4407012F0E6230096079D /* GADAdViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GADAdViewController.h; sourceTree = "<group>"; };
+		A8E4407112F0E6230096079D /* GADDoubleClickParameters.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GADDoubleClickParameters.h; sourceTree = "<group>"; };
+		A8E4407212F0E6230096079D /* GADRequestError.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GADRequestError.h; sourceTree = "<group>"; };
+		A8E4407312F0E6230096079D /* libGoogleAds.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libGoogleAds.a; sourceTree = "<group>"; };
+		A8E4407512F0E64A0096079D /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
+		A8E4407712F0E6530096079D /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		1D60588F0D05DD3D006BFB54 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				1D60589F0D05DD5A006BFB54 /* Foundation.framework in Frameworks */,
+				1DF5F4E00D08C38300B7A737 /* UIKit.framework in Frameworks */,
+				288765A50DF7441C002DB57D /* CoreGraphics.framework in Frameworks */,
+				3C6ED2C212E7DB3F00C5E818 /* iAd.framework in Frameworks */,
+				A8E4407412F0E6230096079D /* libGoogleAds.a in Frameworks */,
+				A8E4407612F0E64A0096079D /* SystemConfiguration.framework in Frameworks */,
+				A8E4407812F0E6530096079D /* AVFoundation.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		080E96DDFE201D6D7F000001 /* Classes */ = {
+			isa = PBXGroup;
+			children = (
+				1D3623240D0F684500981E51 /* MoPubAppDelegate.h */,
+				1D3623250D0F684500981E51 /* MoPubAppDelegate.m */,
+				28D7ACF60DDB3853001CB0EB /* MoPubViewController.h */,
+				28D7ACF70DDB3853001CB0EB /* MoPubViewController.m */,
+			);
+			path = Classes;
+			sourceTree = "<group>";
+		};
+		19C28FACFE9D520D11CA2CBB /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				1D6058910D05DD3D006BFB54 /* MoPub.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		29B97314FDCFA39411CA2CEA /* CustomTemplate */ = {
+			isa = PBXGroup;
+			children = (
+				A8E4408B12F0EBD50096079D /* Libraries */,
+				3C6ED1A212E7B0E900C5E818 /* SDK */,
+				080E96DDFE201D6D7F000001 /* Classes */,
+				29B97315FDCFA39411CA2CEA /* Other Sources */,
+				29B97317FDCFA39411CA2CEA /* Resources */,
+				29B97323FDCFA39411CA2CEA /* Frameworks */,
+				19C28FACFE9D520D11CA2CBB /* Products */,
+			);
+			name = CustomTemplate;
+			sourceTree = "<group>";
+		};
+		29B97315FDCFA39411CA2CEA /* Other Sources */ = {
+			isa = PBXGroup;
+			children = (
+				32CA4F630368D1EE00C91783 /* MoPub_Prefix.pch */,
+				29B97316FDCFA39411CA2CEA /* main.m */,
+			);
+			name = "Other Sources";
+			sourceTree = "<group>";
+		};
+		29B97317FDCFA39411CA2CEA /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				2899E5210DE3E06400AC0155 /* MoPubViewController.xib */,
+				28AD733E0D9D9553002E5188 /* MainWindow.xib */,
+				8D1107310486CEB800E47090 /* MoPub-Info.plist */,
+			);
+			name = Resources;
+			sourceTree = "<group>";
+		};
+		29B97323FDCFA39411CA2CEA /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				1DF5F4DF0D08C38300B7A737 /* UIKit.framework */,
+				1D30AB110D05D00D00671497 /* Foundation.framework */,
+				288765A40DF7441C002DB57D /* CoreGraphics.framework */,
+				3C6ED2C112E7DB3F00C5E818 /* iAd.framework */,
+				A8E4407512F0E64A0096079D /* SystemConfiguration.framework */,
+				A8E4407712F0E6530096079D /* AVFoundation.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		3C6ED1A212E7B0E900C5E818 /* SDK */ = {
+			isa = PBXGroup;
+			children = (
+				A8E4406C12F0E6100096079D /* GoogleAdSense */,
+				A8E4402D12F0E30E0096079D /* Adapters */,
+				A8E43FCE12F0D8000096079D /* MPAdapterMap.h */,
+				A8E43FEC12F0DED80096079D /* MPAdapterMap.m */,
+				3C6ED19E12E7B0D800C5E818 /* MPAdView.h */,
+				3C6ED19F12E7B0D800C5E818 /* MPAdView.m */,
+				3C6ED25712E7CA1700C5E818 /* MPAdBrowserController.h */,
+				3C6ED25812E7CA1700C5E818 /* MPAdBrowserController.m */,
+				3C6ED26912E7CB1900C5E818 /* AdClickController.h */,
+				3C6ED26A12E7CB1900C5E818 /* AdClickController.m */,
+				3C6ED26B12E7CB1900C5E818 /* AdClickController.xib */,
+			);
+			name = SDK;
+			sourceTree = "<group>";
+		};
+		A884453E12F0FD7B0091613A /* TouchJSON */ = {
+			isa = PBXGroup;
+			children = (
+				A884453F12F0FD7B0091613A /* CDataScanner.h */,
+				A884454012F0FD7B0091613A /* CDataScanner.m */,
+				A884454112F0FD7B0091613A /* Experimental */,
+				A884454812F0FD7B0091613A /* Extensions */,
+				A884454D12F0FD7B0091613A /* JSON */,
+			);
+			path = TouchJSON;
+			sourceTree = "<group>";
+		};
+		A884454112F0FD7B0091613A /* Experimental */ = {
+			isa = PBXGroup;
+			children = (
+				A884454212F0FD7B0091613A /* CFilteringJSONSerializer.h */,
+				A884454312F0FD7B0091613A /* CFilteringJSONSerializer.m */,
+				A884454412F0FD7B0091613A /* CJSONDeserializer_BlocksExtensions.h */,
+				A884454512F0FD7B0091613A /* CJSONDeserializer_BlocksExtensions.m */,
+				A884454612F0FD7B0091613A /* CJSONSerializedData.h */,
+				A884454712F0FD7B0091613A /* CJSONSerializedData.m */,
+			);
+			path = Experimental;
+			sourceTree = "<group>";
+		};
+		A884454812F0FD7B0091613A /* Extensions */ = {
+			isa = PBXGroup;
+			children = (
+				A884454912F0FD7B0091613A /* CDataScanner_Extensions.h */,
+				A884454A12F0FD7B0091613A /* CDataScanner_Extensions.m */,
+				A884454B12F0FD7B0091613A /* NSDictionary_JSONExtensions.h */,
+				A884454C12F0FD7B0091613A /* NSDictionary_JSONExtensions.m */,
+			);
+			path = Extensions;
+			sourceTree = "<group>";
+		};
+		A884454D12F0FD7B0091613A /* JSON */ = {
+			isa = PBXGroup;
+			children = (
+				A884454E12F0FD7B0091613A /* CJSONDeserializer.h */,
+				A884454F12F0FD7B0091613A /* CJSONDeserializer.m */,
+				A884455012F0FD7B0091613A /* CJSONScanner.h */,
+				A884455112F0FD7B0091613A /* CJSONScanner.m */,
+				A884455212F0FD7B0091613A /* CJSONSerializer.h */,
+				A884455312F0FD7B0091613A /* CJSONSerializer.m */,
+				A884455412F0FD7B0091613A /* JSONRepresentation.h */,
+			);
+			path = JSON;
+			sourceTree = "<group>";
+		};
+		A8E4402D12F0E30E0096079D /* Adapters */ = {
+			isa = PBXGroup;
+			children = (
+				3C6ED2B212E7D4BB00C5E818 /* MPIAdAdapter.h */,
+				3C6ED2B312E7D4BB00C5E818 /* MPIAdAdapter.m */,
+				A8E4406212F0E5E30096079D /* MPGoogleAdSenseAdapter.h */,
+				A8E4406312F0E5E30096079D /* MPGoogleAdSenseAdapter.m */,
+				3C6ED2B712E7D4EB00C5E818 /* MPBaseAdapter.h */,
+				3C6ED2B812E7D4EB00C5E818 /* MPBaseAdapter.m */,
+			);
+			name = Adapters;
+			sourceTree = "<group>";
+		};
+		A8E4406C12F0E6100096079D /* GoogleAdSense */ = {
+			isa = PBXGroup;
+			children = (
+				A8E4406E12F0E6220096079D /* GADAdSenseAudioParameters.h */,
+				A8E4406F12F0E6220096079D /* GADAdSenseParameters.h */,
+				A8E4407012F0E6230096079D /* GADAdViewController.h */,
+				A8E4407112F0E6230096079D /* GADDoubleClickParameters.h */,
+				A8E4407212F0E6230096079D /* GADRequestError.h */,
+				A8E4407312F0E6230096079D /* libGoogleAds.a */,
+			);
+			name = GoogleAdSense;
+			sourceTree = "<group>";
+		};
+		A8E4408B12F0EBD50096079D /* Libraries */ = {
+			isa = PBXGroup;
+			children = (
+				A884453E12F0FD7B0091613A /* TouchJSON */,
+			);
+			name = Libraries;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		1D6058900D05DD3D006BFB54 /* MoPub */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 1D6058960D05DD3E006BFB54 /* Build configuration list for PBXNativeTarget "MoPub" */;
+			buildPhases = (
+				1D60588D0D05DD3D006BFB54 /* Resources */,
+				1D60588E0D05DD3D006BFB54 /* Sources */,
+				1D60588F0D05DD3D006BFB54 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = MoPub;
+			productName = MoPub;
+			productReference = 1D6058910D05DD3D006BFB54 /* MoPub.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		29B97313FDCFA39411CA2CEA /* Project object */ = {
+			isa = PBXProject;
+			buildConfigurationList = C01FCF4E08A954540054247B /* Build configuration list for PBXProject "MoPub" */;
+			compatibilityVersion = "Xcode 3.1";
+			developmentRegion = English;
+			hasScannedForEncodings = 1;
+			knownRegions = (
+				English,
+				Japanese,
+				French,
+				German,
+			);
+			mainGroup = 29B97314FDCFA39411CA2CEA /* CustomTemplate */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				1D6058900D05DD3D006BFB54 /* MoPub */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		1D60588D0D05DD3D006BFB54 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				28AD733F0D9D9553002E5188 /* MainWindow.xib in Resources */,
+				2899E5220DE3E06400AC0155 /* MoPubViewController.xib in Resources */,
+				3C6ED26D12E7CB1900C5E818 /* AdClickController.xib in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		1D60588E0D05DD3D006BFB54 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				1D60589B0D05DD56006BFB54 /* main.m in Sources */,
+				1D3623260D0F684500981E51 /* MoPubAppDelegate.m in Sources */,
+				28D7ACF80DDB3853001CB0EB /* MoPubViewController.m in Sources */,
+				3C6ED1A012E7B0D800C5E818 /* MPAdView.m in Sources */,
+				3C6ED25912E7CA1700C5E818 /* MPAdBrowserController.m in Sources */,
+				3C6ED26C12E7CB1900C5E818 /* AdClickController.m in Sources */,
+				3C6ED2B412E7D4BB00C5E818 /* MPIAdAdapter.m in Sources */,
+				3C6ED2B912E7D4EB00C5E818 /* MPBaseAdapter.m in Sources */,
+				A8E43FED12F0DED80096079D /* MPAdapterMap.m in Sources */,
+				A8E4406412F0E5E30096079D /* MPGoogleAdSenseAdapter.m in Sources */,
+				A884455512F0FD7B0091613A /* CDataScanner.m in Sources */,
+				A884455612F0FD7B0091613A /* CFilteringJSONSerializer.m in Sources */,
+				A884455712F0FD7B0091613A /* CJSONDeserializer_BlocksExtensions.m in Sources */,
+				A884455812F0FD7B0091613A /* CJSONSerializedData.m in Sources */,
+				A884455912F0FD7B0091613A /* CDataScanner_Extensions.m in Sources */,
+				A884455A12F0FD7B0091613A /* NSDictionary_JSONExtensions.m in Sources */,
+				A884455B12F0FD7B0091613A /* CJSONDeserializer.m in Sources */,
+				A884455C12F0FD7B0091613A /* CJSONScanner.m in Sources */,
+				A884455D12F0FD7B0091613A /* CJSONSerializer.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		1D6058940D05DD3E006BFB54 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				COPY_PHASE_STRIP = NO;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = MoPub_Prefix.pch;
+				INFOPLIST_FILE = "MoPub-Info.plist";
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"$(SRCROOT)\"",
+				);
+				PRODUCT_NAME = MoPub;
+			};
+			name = Debug;
+		};
+		1D6058950D05DD3E006BFB54 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				COPY_PHASE_STRIP = YES;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = MoPub_Prefix.pch;
+				INFOPLIST_FILE = "MoPub-Info.plist";
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"$(SRCROOT)\"",
+				);
+				PRODUCT_NAME = MoPub;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		C01FCF4F08A954540054247B /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				GCC_C_LANGUAGE_STANDARD = c99;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				PREBINDING = NO;
+				SDKROOT = iphoneos;
+			};
+			name = Debug;
+		};
+		C01FCF5008A954540054247B /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				GCC_C_LANGUAGE_STANDARD = c99;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				OTHER_CFLAGS = "-DNS_BLOCK_ASSERTIONS=1";
+				PREBINDING = NO;
+				SDKROOT = iphoneos;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		1D6058960D05DD3E006BFB54 /* Build configuration list for PBXNativeTarget "MoPub" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				1D6058940D05DD3E006BFB54 /* Debug */,
+				1D6058950D05DD3E006BFB54 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		C01FCF4E08A954540054247B /* Build configuration list for PBXProject "MoPub" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				C01FCF4F08A954540054247B /* Debug */,
+				C01FCF5008A954540054247B /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 29B97313FDCFA39411CA2CEA /* Project object */;
+}

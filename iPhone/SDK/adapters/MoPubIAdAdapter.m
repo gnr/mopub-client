@@ -27,7 +27,7 @@
 - (void)getAdWithParams:(NSDictionary *)params{	
 	Class cls = NSClassFromString(@"ADBannerView");
 	if (cls != nil) {
-		adBannerView = [[ADBannerView alloc] initWithFrame:self.adController.view.frame];
+		adBannerView = [[cls alloc] initWithFrame:self.adController.view.frame];
 		adBannerView.requiredContentSizeIdentifiers = [NSSet setWithObjects:ADBannerContentSizeIdentifier320x50, ADBannerContentSizeIdentifier480x32, nil];
 		adBannerView.currentContentSizeIdentifier = ADBannerContentSizeIdentifier320x50;
 		adBannerView.delegate = self;
