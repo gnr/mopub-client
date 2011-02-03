@@ -10,7 +10,8 @@
 
 @class MPAdView;
 
-@interface MPBaseAdapter : NSObject {
+@interface MPBaseAdapter : NSObject 
+{
 	MPAdView *_delegate;
 }
 
@@ -18,6 +19,7 @@
 
 - (void)getAd;
 - (void)getAdWithParams:(NSDictionary *)params;
+- (void)rotateToOrientation:(UIInterfaceOrientation)newOrientation;
 
 @end
 
@@ -25,4 +27,6 @@
 @required
 - (void)adapterDidFinishLoadingAd:(MPBaseAdapter *)adapter;
 - (void)adapter:(MPBaseAdapter *)adapter didFailToLoadAdWithError:(NSError *)error;
+- (void)adClickedForAdapter:(MPBaseAdapter *)adapter;
+
 @end

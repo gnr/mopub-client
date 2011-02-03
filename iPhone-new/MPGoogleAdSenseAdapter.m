@@ -51,6 +51,7 @@ static NSDictionary *GADHeaderAttrMap = nil;
 
 - (void)dealloc
 {
+	_adViewController.delegate = nil;
 	[_adViewController release];
 	[super dealloc];
 }
@@ -113,11 +114,43 @@ static NSDictionary *GADHeaderAttrMap = nil;
 		_adViewController.adSize = kGADAdSize728x90;
 	}
 	
+	_adViewController.view.frame = CGRectMake(0, 0, width, height);
 	[_adViewController loadGoogleAd:attributes];
 	[attributes release];
-	
-	_adViewController.view.frame = CGRectMake(0, 0, width, height);
-	[self.delegate setAdContentView:_adViewController.view];
+}
+
+#pragma mark -
+#pragma mark GADAdViewControllerDelegate
+
+- (UIViewController *)viewControllerForModalPresentation:
+(GADAdViewController *)adController
+{
+	return [self.delegate.delegate viewControllerForPresentingModalView];
+}
+
+- (void)loadSucceeded:(GADAdViewController *)adController
+          withResults:(NSDictionary *) results
+{
+	[self.delegate setAdContentView:adController.view];
+	[self.delegate adapterDidFinishLoadingAd:self];
+}
+
+- (void)loadFailed:(GADAdViewController *)adController
+         withError:(NSError *) error
+{
+	[self.delegate adapter:self didFailToLoadAdWithError:nil];
+}
+
+- (GADAdClickAction)adControllerActionModelForAdClick:
+(GADAdViewController *)adController
+{
+	[self.delegate adClickedForAdapter:self];
+	return GAD_ACTION_DISPLAY_INTERNAL_WEBSITE_VIEW;
+}
+
+// Invoked when the website view has been closed.
+- (void)adControllerDidCloseWebsiteView:(GADAdViewController *)adController
+{
 }
 
 @end

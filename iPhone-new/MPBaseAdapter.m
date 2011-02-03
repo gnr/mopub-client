@@ -21,6 +21,14 @@
 - (void)getAdWithParams:(NSDictionary *)params
 {
 	// To be implemented by subclasses.
+	[self doesNotRecognizeSelector:_cmd];
+}
+
+- (void)rotateToOrientation:(UIInterfaceOrientation)newOrientation
+{
+	// Do nothing by default. Subclasses can override.
+	NSLog(@"MOPUB: rotateToOrientation %d called for adapter %@",
+		  newOrientation, NSStringFromClass([self class]));
 }
 
 @end

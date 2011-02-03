@@ -7,6 +7,7 @@
 //
 
 #import <UIKit/UIKit.h>
+#import <CoreLocation/CoreLocation.h>
 #import "AdClickController.h"
 #import "MPBaseAdapter.h"
 
@@ -18,6 +19,9 @@
 @interface MPAdView : UIView <UIWebViewDelegate, AdClickControllerDelegate, MPAdapterDelegate> {
 	NSObject<MPAdViewDelegate> *_delegate;
 	
+	NSString *_keywords;
+	CLLocation *_location;
+	
 	UIView *_adContentView;
 	UIWebView *_webView;
 	NSString *_adUnitId;
@@ -27,8 +31,13 @@
 	MPBaseAdapter *_adapter;
 	
 	NSURL *_clickURL;
+	NSURL *_interceptURL;
 	NSURL *_failURL;
 	
+	BOOL _shouldInterceptLinks;
+	BOOL _scrollable;
+	
+	BOOL _webViewIsLoading;
 	BOOL _isLoading;
 }
 
@@ -36,12 +45,24 @@
 @property (nonatomic, copy) NSString *adUnitId;
 @property (nonatomic, copy) NSURL *URL;
 @property (nonatomic, copy) NSURL *clickURL;
+@property (nonatomic, copy) NSURL *interceptURL;
 @property (nonatomic, copy) NSURL *failURL;
+
+@property (nonatomic, assign) BOOL shouldInterceptLinks;
+@property (nonatomic, assign) BOOL scrollable;
+
+@property (nonatomic, copy) NSString *keywords;
+@property (nonatomic, retain) CLLocation *location;
 
 - (void)loadAd;
 - (void)loadAdWithURL:(NSURL *)URL;
 - (void)refreshAd;
 - (void)setAdContentView:(UIView *)view;
+
+// Informs the ad unit that the device orientation has changed.
+- (void)rotateToOrientation:(UIInterfaceOrientation)newOrientation;
+
+- (void)didCloseAd:(id)sender;
 
 @end
 
@@ -51,7 +72,11 @@
 - (UIViewController *)viewControllerForPresentingModalView;
 
 @optional
+- (void)adViewWillLoadAd:(MPAdView *)view;
 - (void)adViewDidFailToLoadAd:(MPAdView *)view;
 - (void)adViewDidLoadAd:(MPAdView *)view;
+- (void)nativeAdClicked:(MPAdView *)view;
+- (void)willPresentModalViewForAd:(MPAdView *)view;
+- (void)didPresentModalViewForAd:(MPAdView *)view;
 
 @end

@@ -8,6 +8,8 @@
 
 #import "MoPubViewController.h"
 
+#define PUB_ID_INTERSTITIAL @"agltb3B1Yi1pbmNyDAsSBFNpdGUYsckMDA"
+
 @implementation MoPubViewController
 
 
@@ -23,19 +25,35 @@
 }
 */
 
+- (void)presentInterstitial
+{
+	MPInterstitialAdController *interstitialController = 
+		[MPInterstitialAdController sharedInterstitialAdControllerForAdUnitId:PUB_ID_INTERSTITIAL];
+	interstitialController.parent = self;
+	[interstitialController loadAd];
+	[self presentModalViewController:interstitialController animated:YES];
+}
+
 // Implement loadView to create a view hierarchy programmatically, without using a nib.
 - (void)loadView 
 {
 	self.view = [[[UIView alloc] initWithFrame:[[UIScreen mainScreen] applicationFrame]] autorelease];
+	self.view.backgroundColor = [UIColor blackColor];
 	MPAdView *adView = [[MPAdView alloc] initWithFrame:CGRectMake(0, 200, 320, 50)];
 	adView.delegate = self;
 	[self.view addSubview:adView];
 	
 	UIButton *refresh = [UIButton buttonWithType:UIButtonTypeRoundedRect];
 	refresh.frame = CGRectMake(110, 280, 100, 40);
-	refresh.titleLabel.text	= @"Refresh that shit";
+	[refresh setTitle:@"Refresh it." forState:UIControlStateNormal];
 	[refresh addTarget:adView action:@selector(refreshAd) forControlEvents:UIControlEventTouchUpInside];
 	[self.view addSubview:refresh];
+	
+	UIButton *interstitial = [UIButton buttonWithType:UIButtonTypeRoundedRect];
+	interstitial.frame = CGRectMake(110, 350, 100, 40);
+	[interstitial setTitle:@"Interstitial" forState:UIControlStateNormal];
+	[interstitial addTarget:self action:@selector(presentInterstitial) forControlEvents:UIControlEventTouchUpInside];
+	[self.view addSubview:interstitial];
 	
 	[adView loadAd];
 	[adView release];
@@ -57,9 +75,42 @@
 }
 */
 
+#pragma mark -
+#pragma mark MPAdViewDelegate
+
 - (UIViewController *)viewControllerForPresentingModalView
 {
 	return self;
+}
+
+- (void)adViewWillLoadAd:(MPAdView *)view
+{
+	NSLog(@"Ad View DELEGATE: %@", NSStringFromSelector(_cmd));
+}
+
+- (void)adViewDidFailToLoadAd:(MPAdView *)view
+{
+	NSLog(@"Ad View DELEGATE: %@", NSStringFromSelector(_cmd));
+}
+
+- (void)adViewDidLoadAd:(MPAdView *)view
+{
+	NSLog(@"Ad View DELEGATE: %@", NSStringFromSelector(_cmd));
+}
+
+- (void)nativeAdClicked:(MPAdView *)view
+{
+	NSLog(@"Ad View DELEGATE: %@", NSStringFromSelector(_cmd));
+}
+
+- (void)willPresentModalViewForAd:(MPAdView *)view
+{
+	NSLog(@"Ad View DELEGATE: %@", NSStringFromSelector(_cmd));
+}
+
+- (void)didPresentModalViewForAd:(MPAdView *)view
+{
+	NSLog(@"Ad View DELEGATE: %@", NSStringFromSelector(_cmd));
 }
 
 - (void)didReceiveMemoryWarning {
