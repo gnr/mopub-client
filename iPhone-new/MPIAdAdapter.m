@@ -33,17 +33,17 @@
 		_adBannerView = [[cls alloc] initWithFrame:(CGRect){{0, 0}, size}];
 		
 		// Prior to iOS 4.2:
-		if (!ADBannerContentSizeIdentifierPortrait)
-		{
+		//if (!&ADBannerContentSizeIdentifierPortrait)
+		//{
 			_adBannerView.requiredContentSizeIdentifiers = [NSSet setWithObjects:ADBannerContentSizeIdentifier320x50, ADBannerContentSizeIdentifier480x32, nil];
 			_adBannerView.currentContentSizeIdentifier = ADBannerContentSizeIdentifier320x50;
-		}
+		//}
 		// iOS 4.2:
-		else
+		/*else
 		{
 			_adBannerView.requiredContentSizeIdentifiers = [NSSet setWithObjects:ADBannerContentSizeIdentifierPortrait, ADBannerContentSizeIdentifierLandscape, nil];
 			_adBannerView.currentContentSizeIdentifier = ADBannerContentSizeIdentifierPortrait;
-		}
+		}*/
 			
 		_adBannerView.delegate = self;
 	} 
@@ -60,9 +60,9 @@
 		return;
 	
 	if (UIInterfaceOrientationIsLandscape(newOrientation))
-		_adBannerView.currentContentSizeIdentifier = ADBannerContentSizeIdentifierLandscape;
+		_adBannerView.currentContentSizeIdentifier = ADBannerContentSizeIdentifier480x32;//ADBannerContentSizeIdentifierLandscape;
 	else 
-		_adBannerView.currentContentSizeIdentifier = ADBannerContentSizeIdentifierPortrait;
+		_adBannerView.currentContentSizeIdentifier = ADBannerContentSizeIdentifier320x50;//ADBannerContentSizeIdentifierPortrait;
 	
 	// ADBannerView positions itself in the center of its superview, which
 	// we don't want, since we rely on publishers to resize the container view.

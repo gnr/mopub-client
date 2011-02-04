@@ -58,6 +58,7 @@
 - (void)loadAdWithURL:(NSURL *)URL;
 - (void)refreshAd;
 - (void)setAdContentView:(UIView *)view;
+- (void)viewDidAppear;
 
 // Informs the ad unit that the device orientation has changed.
 - (void)rotateToOrientation:(UIInterfaceOrientation)newOrientation;
@@ -78,5 +79,6 @@
 - (void)nativeAdClicked:(MPAdView *)view;
 - (void)willPresentModalViewForAd:(MPAdView *)view;
 - (void)didPresentModalViewForAd:(MPAdView *)view;
+- (void)adViewDidReceiveResponseParams:(NSDictionary *)params;
 
 @end

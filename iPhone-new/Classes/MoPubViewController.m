@@ -113,6 +113,14 @@
 	NSLog(@"Ad View DELEGATE: %@", NSStringFromSelector(_cmd));
 }
 
+#pragma mark -
+#pragma mark MPInterstitialAdControllerDelegate
+
+- (void)dismissInterstitial:(MPInterstitialAdController *)interstitial
+{
+	[self dismissModalViewControllerAnimated:YES];
+}
+
 - (void)didReceiveMemoryWarning {
 	// Releases the view if it doesn't have a superview.
     [super didReceiveMemoryWarning];

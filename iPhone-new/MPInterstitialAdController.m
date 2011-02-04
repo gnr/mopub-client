@@ -12,8 +12,6 @@
 
 @synthesize parent = _parent;
 @synthesize adUnitId = _adUnitId;
-@synthesize adSize = _adSize;
-@synthesize closeButtonType = _closeButtonType;
 
 + (NSMutableArray *)sharedInterstitialAdControllers
 {
@@ -67,10 +65,21 @@
 	{
 		self.parent = parent;
 		self.adUnitId = ID;
-		self.adSize = [[UIScreen mainScreen] bounds].size;
-		self.closeButtonType = InterstitialCloseButtonTypeDefault;
+		_adSize = [[UIScreen mainScreen] bounds].size;
+		_closeButtonType = InterstitialCloseButtonTypeDefault;
+		_orientationType = InterstitialOrientationTypeBoth;
 	}
 	return self;
+}
+
+- (void)setKeywords:(NSString *)keywords
+{
+	_adView.keywords = keywords;
+}
+
+- (NSString *)keywords
+{
+	return _adView.keywords;
 }
 
 - (void)dealloc 
@@ -84,25 +93,30 @@
 
 - (void)closeButtonPressed
 {
-	[self.parent shouldDismissInterstitial];
+	[self.parent dismissInterstitial:self];
 }
 
 - (void)_setUpCloseButton
 {
-	if (self.closeButtonType == InterstitialCloseButtonTypeDefault)
+	if (_closeButtonType == InterstitialCloseButtonTypeDefault)
 	{
-		UIButton *closeButton = [UIButton buttonWithType:UIButtonTypeCustom];
+		[_closeButton removeFromSuperview];
+		_closeButton = [UIButton buttonWithType:UIButtonTypeCustom];
 		UIImage *closeButtonImage = [UIImage imageNamed:@"moPubCloseButtonX.png"];
-		[closeButton setImage:closeButtonImage forState:UIControlStateNormal];
-		[closeButton sizeToFit];
-		closeButton.frame = CGRectMake([UIScreen mainScreen].bounds.size.width - 20.0 - closeButton.frame.size.width,
-									   20.0,
-									   closeButton.frame.size.width,
-									   closeButton.frame.size.height);
-		// TODO: autoresizing mask
-		[closeButton addTarget:self action:@selector(closeButtonPressed) forControlEvents:UIControlEventTouchUpInside];
-		[self.view addSubview:closeButton];
-		[self.view bringSubviewToFront:closeButton];
+		[_closeButton setImage:closeButtonImage forState:UIControlStateNormal];
+		[_closeButton sizeToFit];
+		_closeButton.frame = CGRectMake(self.view.frame.size.width - 20.0 - _closeButton.frame.size.width,
+										20.0,
+										_closeButton.frame.size.width,
+										_closeButton.frame.size.height);
+		_closeButton.autoresizingMask = UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleBottomMargin;
+		[_closeButton addTarget:self action:@selector(closeButtonPressed) forControlEvents:UIControlEventTouchUpInside];
+		[self.view addSubview:_closeButton];
+		[self.view bringSubviewToFront:_closeButton];
+	}
+	else
+	{
+		[_closeButton removeFromSuperview];
 	}
 }
 
@@ -110,21 +124,50 @@
 {
 	UIView *container = [[[UIView alloc] initWithFrame:CGRectZero] autorelease];
 	container.backgroundColor = [UIColor greenColor];
-	container.frame = (CGRect){{0, 0}, [UIScreen mainScreen].bounds.size};
+	container.frame = (CGRect){{0, 0}, [[UIScreen mainScreen] applicationFrame].size};
+	container.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
 	self.view = container;
 	
-	_adView = [[MPAdView alloc] initWithFrame:(CGRect){{0, 0}, self.adSize}];
+	_adView = [[MPAdView alloc] initWithFrame:(CGRect){{0, 0}, _adSize}];
 	_adView.adUnitId = self.adUnitId;
 	_adView.delegate = self;
 	[self.view addSubview:_adView];
+	
+	// Track the previous state of the status bar, so that we can restore it.
+	_statusBarWasHidden = [UIApplication sharedApplication].statusBarHidden;
+	[[UIApplication sharedApplication] setStatusBarHidden:YES withAnimation:UIStatusBarAnimationNone];
+	
+	// Likewise, track the previous state of the navigation bar.
+	_navigationBarWasHidden = self.navigationController.navigationBarHidden;
+	[self.navigationController setNavigationBarHidden:YES animated:NO];
 	
 	[self _setUpCloseButton];
 }
 
 - (void)loadAd
 {
+	// TODO: figure out better place to do this load
 	self.view;
 	[_adView loadAd];
+}
+
+- (void)viewWillAppear:(BOOL)animated
+{
+	self.view;
+	[super viewWillAppear:animated];
+	
+	if ([self.parent respondsToSelector:@selector(interstitialWillAppear:)])
+		[self.parent interstitialWillAppear:self];
+}
+
+- (void)viewDidAppear:(BOOL)animated
+{
+	self.view;
+	[_adView viewDidAppear];
+	[super viewDidAppear:animated];
+	
+	if ([self.parent respondsToSelector:@selector(interstitialDidAppear:)])
+		[self.parent interstitialDidAppear:self];
 }
 
 #pragma mark -
@@ -170,15 +213,45 @@
 		[self.parent didPresentModalViewForAd:view];
 }
 
+- (void)adViewDidReceiveResponseParams:(NSDictionary *)params
+{
+	NSString *closeButtonChoice = [params objectForKey:@"X-Closebutton"];
+	
+	if ([closeButtonChoice isEqualToString:@"None"])
+		_closeButtonType = InterstitialCloseButtonTypeNone;
+	else
+		_closeButtonType = InterstitialCloseButtonTypeDefault;
+	
+	NSString *orientationChoice = [params objectForKey:@"X-Orientation"];
+	// TODO: turn these into constants
+	if ([orientationChoice isEqualToString:@"p"])
+		_orientationType = InterstitialOrientationTypePortrait;
+	else if ([orientationChoice isEqualToString:@"l"])
+		_orientationType = InterstitialOrientationTypeLandscape;
+	else 
+		_orientationType = InterstitialOrientationTypeBoth;
+}
+
 #pragma mark -
 
-/*
-// Override to allow orientations other than the default portrait orientation.
-- (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation {
-    // Return YES for supported orientations.
-    return (interfaceOrientation == UIInterfaceOrientationPortrait);
+- (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation 
+{
+	if (_orientationType == InterstitialOrientationTypePortrait)
+		return (interfaceOrientation == UIInterfaceOrientationPortrait || 
+				interfaceOrientation == UIInterfaceOrientationPortraitUpsideDown);
+	else if (_orientationType == InterstitialOrientationTypeLandscape)
+		return (interfaceOrientation == UIInterfaceOrientationLandscapeLeft || 
+				interfaceOrientation == UIInterfaceOrientationLandscapeRight);
+	else
+		return YES;
 }
-*/
+
+- (void)willAnimateRotationToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation 
+										 duration:(NSTimeInterval)duration
+{
+	[super willAnimateRotationToInterfaceOrientation:toInterfaceOrientation duration:duration];
+	//[[UIApplication sharedApplication] setStatusBarHidden:YES withAnimation:UIStatusBarAnimationNone];	
+}
 
 - (void)didReceiveMemoryWarning {
     // Releases the view if it doesn't have a superview.

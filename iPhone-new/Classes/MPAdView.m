@@ -206,6 +206,9 @@
 	// Initialize data.
 	[_data setLength:0];
 	
+	if ([self.delegate respondsToSelector:@selector(adControllerDidReceiveResponseParams:)])
+		[self.delegate adControllerDidReceiveResponseParams:[(NSHTTPURLResponse*)response allHeaderFields]];
+	
 	// Parse response headers.
 	NSDictionary *headers = [(NSHTTPURLResponse *)response allHeaderFields];
 	self.clickURL = [NSURL URLWithString:[headers objectForKey:@"X-Clickthrough"]];
@@ -415,6 +418,12 @@
 	NSURLRequest *clickURLRequest = [NSURLRequest requestWithURL:clickURL];
 	NSURLConnection *conn = [NSURLConnection connectionWithRequest:clickURLRequest delegate:nil];
 	NSLog(@"MOPUB: tracking click %@", clickURL);
+}
+
+// TODO: change the name of this
+- (void)viewDidAppear
+{
+	[_webView stringByEvaluatingJavaScriptFromString:@"webviewDidAppear();"]; 
 }
 
 #pragma mark -
