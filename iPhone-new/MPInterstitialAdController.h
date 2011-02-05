@@ -31,6 +31,8 @@ typedef NSUInteger InterstitialOrientationType;
 	BOOL _statusBarWasHidden;
 	BOOL _navigationBarWasHidden;
 	
+	BOOL _ready;
+	
 	MPAdView *_adView;
 	UIViewController<MPInterstitialAdControllerDelegate> *_parent;
 	NSString *_adUnitId;
@@ -40,6 +42,7 @@ typedef NSUInteger InterstitialOrientationType;
 	UIButton *_closeButton;
 }
 
+@property (nonatomic, readonly, assign) BOOL ready;
 @property (nonatomic, assign) UIViewController<MPInterstitialAdControllerDelegate> *parent;
 @property (nonatomic, copy) NSString *adUnitId;
 
@@ -48,6 +51,7 @@ typedef NSUInteger InterstitialOrientationType;
 + (void)removeSharedInterstitialAdController:(MPInterstitialAdController *)controller;
 - (id)initWithAdUnitId:(NSString *)ID parentViewController:(UIViewController *)parent;
 - (void)loadAd;
+- (void)show;
 
 @end
 
@@ -56,6 +60,8 @@ typedef NSUInteger InterstitialOrientationType;
 - (void)dismissInterstitial:(MPInterstitialAdController *)interstitial;
 
 @optional
+- (void)interstitialDidLoadAd:(MPInterstitialAdController *)interstitial;
+- (void)interstitialDidFailToLoadAd:(MPInterstitialAdController *)interstitial;
 - (void)interstitialWillAppear:(MPInterstitialAdController *)interstitial;
 - (void)interstitialDidAppear:(MPInterstitialAdController *)interstitial;
 @end

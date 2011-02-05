@@ -10,8 +10,12 @@
 
 @implementation MPInterstitialAdController
 
+@synthesize ready = _ready;
 @synthesize parent = _parent;
 @synthesize adUnitId = _adUnitId;
+
+#pragma mark -
+#pragma mark Class methods
 
 + (NSMutableArray *)sharedInterstitialAdControllers
 {
@@ -59,10 +63,14 @@
 	[sharedInterstitialAdControllers removeObject:controller];
 }
 
+#pragma mark -
+#pragma mark Lifecycle
+
 - (id)initWithAdUnitId:(NSString *)ID parentViewController:(UIViewController *)parent
 {
 	if (self = [super init])
 	{
+		_ready = NO;
 		self.parent = parent;
 		self.adUnitId = ID;
 		_adSize = [[UIScreen mainScreen] bounds].size;
@@ -70,16 +78,6 @@
 		_orientationType = InterstitialOrientationTypeBoth;
 	}
 	return self;
-}
-
-- (void)setKeywords:(NSString *)keywords
-{
-	_adView.keywords = keywords;
-}
-
-- (NSString *)keywords
-{
-	return _adView.keywords;
 }
 
 - (void)dealloc 
@@ -91,8 +89,24 @@
     [super dealloc];
 }
 
+#pragma mark -
+
+- (void)setKeywords:(NSString *)keywords
+{
+	_adView.keywords = keywords;
+}
+
+- (NSString *)keywords
+{
+	return _adView.keywords;
+}
+
 - (void)closeButtonPressed
 {
+	// Restore previous status/navigation bar state.
+	[[UIApplication sharedApplication] setStatusBarHidden:_statusBarWasHidden withAnimation:UIStatusBarAnimationNone];
+	[self.navigationController setNavigationBarHidden:_navigationBarWasHidden animated:NO];
+	
 	[self.parent dismissInterstitial:self];
 }
 
@@ -129,10 +143,23 @@
 	self.view = container;
 	
 	_adView = [[MPAdView alloc] initWithFrame:(CGRect){{0, 0}, _adSize}];
+	_adView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
 	_adView.adUnitId = self.adUnitId;
 	_adView.delegate = self;
 	[self.view addSubview:_adView];
 	
+	[self _setUpCloseButton];
+}
+
+- (void)loadAd
+{
+	// TODO: figure out better place to do this load view
+	self.view;
+	[_adView loadAd];
+}
+
+- (void)show
+{
 	// Track the previous state of the status bar, so that we can restore it.
 	_statusBarWasHidden = [UIApplication sharedApplication].statusBarHidden;
 	[[UIApplication sharedApplication] setStatusBarHidden:YES withAnimation:UIStatusBarAnimationNone];
@@ -141,14 +168,7 @@
 	_navigationBarWasHidden = self.navigationController.navigationBarHidden;
 	[self.navigationController setNavigationBarHidden:YES animated:NO];
 	
-	[self _setUpCloseButton];
-}
-
-- (void)loadAd
-{
-	// TODO: figure out better place to do this load
-	self.view;
-	[_adView loadAd];
+	[self.parent presentModalViewController:self animated:YES];
 }
 
 - (void)viewWillAppear:(BOOL)animated
@@ -186,14 +206,18 @@
 
 - (void)adViewDidFailToLoadAd:(MPAdView *)view
 {
-	if ([self.parent respondsToSelector:@selector(adViewDidFailToLoadAd:)])
-		[self.parent adViewDidFailToLoadAd:view];
+	_ready = NO;
+	
+	if ([self.parent respondsToSelector:@selector(interstitialDidFailToLoadAd:)])
+		[self.parent interstitialDidFailToLoadAd:self];
 }
 
 - (void)adViewDidLoadAd:(MPAdView *)view
 {
-	if ([self.parent respondsToSelector:@selector(adViewDidLoadAd:)])
-		[self.parent adViewDidLoadAd:view];
+	_ready = YES;
+	
+	if ([self.parent respondsToSelector:@selector(interstitialDidLoadAd:)])
+		[self.parent interstitialDidLoadAd:self];
 }
 
 - (void)nativeAdClicked:(MPAdView *)view

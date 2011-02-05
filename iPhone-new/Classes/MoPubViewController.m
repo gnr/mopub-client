@@ -8,7 +8,7 @@
 
 #import "MoPubViewController.h"
 
-#define PUB_ID_INTERSTITIAL @"agltb3B1Yi1pbmNyDAsSBFNpdGUYsckMDA"
+#define PUB_ID_INTERSTITIAL @"agltb3B1Yi1pbmNyCgsSBFNpdGUYJww"//@"agltb3B1Yi1pbmNyDAsSBFNpdGUYsckMDA"
 
 @implementation MoPubViewController
 
@@ -31,15 +31,15 @@
 		[MPInterstitialAdController sharedInterstitialAdControllerForAdUnitId:PUB_ID_INTERSTITIAL];
 	interstitialController.parent = self;
 	[interstitialController loadAd];
-	[self presentModalViewController:interstitialController animated:YES];
 }
 
-// Implement loadView to create a view hierarchy programmatically, without using a nib.
 - (void)loadView 
 {
 	self.view = [[[UIView alloc] initWithFrame:[[UIScreen mainScreen] applicationFrame]] autorelease];
 	self.view.backgroundColor = [UIColor blackColor];
 	MPAdView *adView = [[MPAdView alloc] initWithFrame:CGRectMake(0, 200, 320, 50)];
+	adView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleTopMargin |
+		UIViewAutoresizingFlexibleBottomMargin;
 	adView.delegate = self;
 	[self.view addSubview:adView];
 	
@@ -67,13 +67,11 @@
 */
 
 
-/*
 // Override to allow orientations other than the default portrait orientation.
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation {
     // Return YES for supported orientations
-    return (interfaceOrientation == UIInterfaceOrientationPortrait);
+    return YES;
 }
-*/
 
 #pragma mark -
 #pragma mark MPAdViewDelegate
@@ -119,7 +117,27 @@
 - (void)dismissInterstitial:(MPInterstitialAdController *)interstitial
 {
 	[self dismissModalViewControllerAnimated:YES];
+	[MPInterstitialAdController removeSharedInterstitialAdController:interstitial];
 }
+
+- (void)interstitialDidLoadAd:(MPInterstitialAdController *)interstitial
+{
+	[interstitial show];
+}
+
+- (void)interstitialDidFailToLoadAd:(MPInterstitialAdController *)interstitial
+{
+}
+
+- (void)interstitialWillAppear:(MPInterstitialAdController *)interstitial
+{
+}
+
+- (void)interstitialDidAppear:(MPInterstitialAdController *)interstitial
+{
+}
+
+#pragma mark -
 
 - (void)didReceiveMemoryWarning {
 	// Releases the view if it doesn't have a superview.

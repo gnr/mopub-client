@@ -32,18 +32,18 @@
 		
 		_adBannerView = [[cls alloc] initWithFrame:(CGRect){{0, 0}, size}];
 		
-		// Prior to iOS 4.2:
-		//if (!&ADBannerContentSizeIdentifierPortrait)
-		//{
-			_adBannerView.requiredContentSizeIdentifiers = [NSSet setWithObjects:ADBannerContentSizeIdentifier320x50, ADBannerContentSizeIdentifier480x32, nil];
-			_adBannerView.currentContentSizeIdentifier = ADBannerContentSizeIdentifier320x50;
-		//}
 		// iOS 4.2:
-		/*else
+		if (&ADBannerContentSizeIdentifierPortrait != nil)
 		{
 			_adBannerView.requiredContentSizeIdentifiers = [NSSet setWithObjects:ADBannerContentSizeIdentifierPortrait, ADBannerContentSizeIdentifierLandscape, nil];
 			_adBannerView.currentContentSizeIdentifier = ADBannerContentSizeIdentifierPortrait;
-		}*/
+		}
+		// Prior to iOS 4.2:
+		else
+		{
+			_adBannerView.requiredContentSizeIdentifiers = [NSSet setWithObjects:ADBannerContentSizeIdentifier320x50, ADBannerContentSizeIdentifier480x32, nil];
+			_adBannerView.currentContentSizeIdentifier = ADBannerContentSizeIdentifier320x50;
+		}
 			
 		_adBannerView.delegate = self;
 	} 

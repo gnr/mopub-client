@@ -82,6 +82,7 @@
 - (void)_setUpWebViewWithFrame:(CGRect)frame
 {
 	_webView = [[UIWebView alloc] initWithFrame:CGRectMake(0, 0, frame.size.width, frame.size.height)];
+	_webView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
 	_webView.backgroundColor = [UIColor clearColor];
 	_webView.opaque = NO;
 	_webView.delegate = self;

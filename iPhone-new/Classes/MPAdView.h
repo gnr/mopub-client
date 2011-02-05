@@ -13,7 +13,7 @@
 
 @protocol MPAdViewDelegate;
 
-#define HOSTNAME @"ads.mopub.com"
+#define HOSTNAME @"192.168.1.120:8080"//@"ads.mopub.com"
 #define PUB_ID_320x50 @"agltb3B1Yi1pbmNyDAsSBFNpdGUYkaoMDA"
 
 @interface MPAdView : UIView <UIWebViewDelegate, AdClickControllerDelegate, MPAdapterDelegate> {
