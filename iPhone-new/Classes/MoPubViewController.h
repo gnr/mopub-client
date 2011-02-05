@@ -8,8 +8,9 @@
 
 #import <UIKit/UIKit.h>
 #import "MPAdView.h"
+#import "MPInterstitialAdController.h"
 
-@interface MoPubViewController : UIViewController <MPAdViewDelegate> {
+@interface MoPubViewController : UIViewController <MPInterstitialAdControllerDelegate> {
 }
 
 @end

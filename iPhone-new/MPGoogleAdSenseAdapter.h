@@ -11,7 +11,8 @@
 #import "GADAdViewController.h"
 #import "GADAdSenseParameters.h"
 
-@interface MPGoogleAdSenseAdapter : MPBaseAdapter <GADAdViewControllerDelegate> {
+@interface MPGoogleAdSenseAdapter : MPBaseAdapter <GADAdViewControllerDelegate> 
+{
 	GADAdViewController *_adViewController;
 }
 
