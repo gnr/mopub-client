@@ -7,7 +7,7 @@
 //
 
 #import "SecondViewController.h"
-#import "SimpleAdsViewController.h"
+#import "InterstitialViewController.h"
 
 
 @implementation SecondViewController

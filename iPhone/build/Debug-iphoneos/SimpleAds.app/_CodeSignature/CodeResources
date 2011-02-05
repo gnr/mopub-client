@@ -4,13 +4,25 @@
 <dict>
 	<key>files</key>
 	<dict>
+		<key>300x250spacer.png</key>
+		<data>
+		qudqnxzFIFhNYCEiweJBTmxXO9o=
+		</data>
 		<key>AdClickController.nib</key>
 		<data>
 		f45kqnlTRAdxqm29YxpSDsj9uus=
 		</data>
+		<key>InterstitialViewController.nib</key>
+		<data>
+		QVcdJI0tcsXJpycXjujM0KFwQLM=
+		</data>
 		<key>MainWindow.nib</key>
 		<data>
-		nGkKlg7jnbauCwtRSNNPmMmNdUs=
+		+taEXWiLn7InSgBAmi3LeYW76bg=
+		</data>
+		<key>PerformanceViewController.nib</key>
+		<data>
+		rQyu++uHIMPx5iEdjsGED/R55xo=
 		</data>
 		<key>PkgInfo</key>
 		<data>
@@ -22,7 +34,11 @@
 		</data>
 		<key>SimpleAdsViewController.nib</key>
 		<data>
-		PJ5yiVX0pD5RdoFiCYCt6Vj2OXc=
+		iQDWltfEYdgwsKDpvZpri8mnvhs=
+		</data>
+		<key>WelcomeViewController.nib</key>
+		<data>
+		yq2hEhEw/dimlu+6nI5x7rb2kn4=
 		</data>
 		<key>embedded.mobileprovision</key>
 		<data>
@@ -35,6 +51,18 @@
 		<key>moPubCloseButtonX.png</key>
 		<data>
 		zK1dFcYMRr5opi7JvDHamGkBfqk=
+		</data>
+		<key>mopub-portrait.png</key>
+		<data>
+		KRpyZXZUQM5zfzHAAOPsJX0gvLs=
+		</data>
+		<key>mopub-portrait@2x.png</key>
+		<data>
+		BRibnT5cMhntXvIlSJ79A++KW5M=
+		</data>
+		<key>square-mopub.png</key>
+		<data>
+		Jg0G0Y83GGDyHnsjHnghqp++jlw=
 		</data>
 	</dict>
 	<key>rules</key>

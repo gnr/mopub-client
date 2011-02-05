@@ -15,12 +15,7 @@ enum {
 };
 typedef NSUInteger AdCloseButtonType;
 
-
-
-
 @protocol InterstitialAdControllerDelegate;
-
-
 
 @interface InterstitialAdController : UIViewController <AdControllerDelegate> {
 	BOOL wasStatusBarHidden;
