@@ -340,9 +340,9 @@
 	};
 	3C0644F112E55D2E004F5593 /* AdController.m */ = {
 		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {1167, 9373}}";
+			sepNavIntBoundsRect = "{{0, 0}, {1167, 9412}}";
 			sepNavSelRange = "{5739, 0}";
-			sepNavVisRange = "{5271, 1805}";
+			sepNavVisRange = "{0, 960}";
 		};
 	};
 	3C0644F212E55D2E004F5593 /* AdConversionTracker.h */ = {
@@ -1184,7 +1184,7 @@
 		fRef = 3C0644F012E55D2E004F5593 /* AdController.h */;
 		name = "AdController.h: 188";
 		rLen = 0;
-		rLoc = 4919;
+		rLoc = 4875;
 		rType = 0;
 		vrLen = 1222;
 		vrLoc = 2837;
@@ -1214,7 +1214,7 @@
 		fRef = 3C0644F012E55D2E004F5593 /* AdController.h */;
 		name = "AdController.h: 188";
 		rLen = 0;
-		rLoc = 4919;
+		rLoc = 4875;
 		rType = 0;
 		vrLen = 1603;
 		vrLoc = 1366;
@@ -1294,9 +1294,9 @@
 		fRef = 3C0644F012E55D2E004F5593 /* AdController.h */;
 		name = "AdController.h: 188";
 		rLen = 0;
-		rLoc = 4919;
+		rLoc = 4875;
 		rType = 0;
-		vrLen = 1256;
+		vrLen = 1240;
 		vrLoc = 3691;
 	};
 	3CA859A412FCB29A00967C3F /* PBXTextBookmark */ = {
@@ -1384,9 +1384,9 @@
 		fRef = 3C0644F012E55D2E004F5593 /* AdController.h */;
 		name = "AdController.h: 188";
 		rLen = 0;
-		rLoc = 4919;
+		rLoc = 4875;
 		rType = 0;
-		vrLen = 1187;
+		vrLen = 1172;
 		vrLoc = 3759;
 	};
 	3CA859B312FCB41200967C3F /* PBXTextBookmark */ = {
@@ -1394,7 +1394,7 @@
 		fRef = 3C0644F012E55D2E004F5593 /* AdController.h */;
 		name = "AdController.h: 10";
 		rLen = 0;
-		rLoc = 214;
+		rLoc = 170;
 		rType = 0;
 		vrLen = 1054;
 		vrLoc = 3;
@@ -1404,7 +1404,7 @@
 		fRef = 3C0644F012E55D2E004F5593 /* AdController.h */;
 		name = "AdController.h: 10";
 		rLen = 0;
-		rLoc = 214;
+		rLoc = 170;
 		rType = 0;
 		vrLen = 1054;
 		vrLoc = 3;
@@ -1434,7 +1434,7 @@
 		fRef = 3C0644F012E55D2E004F5593 /* AdController.h */;
 		name = "AdController.h: 10";
 		rLen = 0;
-		rLoc = 214;
+		rLoc = 170;
 		rType = 0;
 		vrLen = 1054;
 		vrLoc = 3;
@@ -1444,7 +1444,7 @@
 		fRef = 3C0644F012E55D2E004F5593 /* AdController.h */;
 		name = "AdController.h: 10";
 		rLen = 0;
-		rLoc = 213;
+		rLoc = 170;
 		rType = 0;
 		vrLen = 1100;
 		vrLoc = 22;
@@ -1454,7 +1454,7 @@
 		fRef = 3C0644F012E55D2E004F5593 /* AdController.h */;
 		name = "AdController.h: 10";
 		rLen = 0;
-		rLoc = 213;
+		rLoc = 170;
 		rType = 0;
 		vrLen = 1100;
 		vrLoc = 22;
@@ -2122,6 +2122,11 @@
 			sepNavSelRange = "{1230, 0}";
 			sepNavVisRange = "{974, 671}";
 			sepNavWindowFrame = "{{38, 474}, {750, 558}}";
+		};
+	};
+	8D1107310486CEB800E47090 /* SimpleAds-Info.plist */ = {
+		uiCtxt = {
+			sepNavWindowFrame = "{{15, 495}, {750, 558}}";
 		};
 	};
 }

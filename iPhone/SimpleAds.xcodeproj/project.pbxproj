@@ -61,8 +61,6 @@
 		3C0644E412E55D2E004F5593 /* MoPubAlertAdAdapter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MoPubAlertAdAdapter.m; sourceTree = "<group>"; };
 		3C0644E512E55D2E004F5593 /* MoPubCustomAdAdapter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MoPubCustomAdAdapter.h; sourceTree = "<group>"; };
 		3C0644E612E55D2E004F5593 /* MoPubCustomAdAdapter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MoPubCustomAdAdapter.m; sourceTree = "<group>"; };
-		3C0644E712E55D2E004F5593 /* MoPubGoogleAdSenseAdapter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MoPubGoogleAdSenseAdapter.h; sourceTree = "<group>"; };
-		3C0644E812E55D2E004F5593 /* MoPubGoogleAdSenseAdapter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MoPubGoogleAdSenseAdapter.m; sourceTree = "<group>"; };
 		3C0644E912E55D2E004F5593 /* MoPubIAdAdapter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MoPubIAdAdapter.h; sourceTree = "<group>"; };
 		3C0644EA12E55D2E004F5593 /* MoPubIAdAdapter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MoPubIAdAdapter.m; sourceTree = "<group>"; };
 		3C0644EB12E55D2E004F5593 /* MoPubNativeSDKAdapter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MoPubNativeSDKAdapter.h; sourceTree = "<group>"; };
@@ -236,8 +234,6 @@
 				3C0644E412E55D2E004F5593 /* MoPubAlertAdAdapter.m */,
 				3C0644E512E55D2E004F5593 /* MoPubCustomAdAdapter.h */,
 				3C0644E612E55D2E004F5593 /* MoPubCustomAdAdapter.m */,
-				3C0644E712E55D2E004F5593 /* MoPubGoogleAdSenseAdapter.h */,
-				3C0644E812E55D2E004F5593 /* MoPubGoogleAdSenseAdapter.m */,
 				3C0644E912E55D2E004F5593 /* MoPubIAdAdapter.h */,
 				3C0644EA12E55D2E004F5593 /* MoPubIAdAdapter.m */,
 				3C0644EB12E55D2E004F5593 /* MoPubNativeSDKAdapter.h */,
