@@ -38,8 +38,8 @@
 		3CA8591A12FB93C300967C3F /* InterstitialViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 3CA8591812FB93C300967C3F /* InterstitialViewController.xib */; };
 		3CA8595612FC833600967C3F /* PerformanceViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 3CA8595412FC833600967C3F /* PerformanceViewController.m */; };
 		3CA8595712FC833600967C3F /* PerformanceViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 3CA8595512FC833600967C3F /* PerformanceViewController.xib */; };
-		3CABE6C31300AFFB00887B75 /* icon.png in Resources */ = {isa = PBXBuildFile; fileRef = 3CABE6C11300AFFB00887B75 /* icon.png */; };
-		3CABE6C41300AFFB00887B75 /* icon@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 3CABE6C21300AFFB00887B75 /* icon@2x.png */; };
+		3CABE6C31300AFFB00887B75 /* Icon.png in Resources */ = {isa = PBXBuildFile; fileRef = 3CABE6C11300AFFB00887B75 /* Icon.png */; };
+		3CABE6C41300AFFB00887B75 /* Icon@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 3CABE6C21300AFFB00887B75 /* Icon@2x.png */; };
 		3CABE6DB1300B82A00887B75 /* 300x250spacer.png in Resources */ = {isa = PBXBuildFile; fileRef = 3CABE6DA1300B82A00887B75 /* 300x250spacer.png */; };
 		3CB4A0F2113F5E75000DB158 /* MainWindow.xib in Resources */ = {isa = PBXBuildFile; fileRef = 3CB4A0F0113F5E75000DB158 /* MainWindow.xib */; };
 		3CB4A0F3113F5E75000DB158 /* SimpleAdsViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 3CB4A0F1113F5E75000DB158 /* SimpleAdsViewController.xib */; };
@@ -97,8 +97,8 @@
 		3CA8595312FC833600967C3F /* PerformanceViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PerformanceViewController.h; sourceTree = "<group>"; };
 		3CA8595412FC833600967C3F /* PerformanceViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PerformanceViewController.m; sourceTree = "<group>"; };
 		3CA8595512FC833600967C3F /* PerformanceViewController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = PerformanceViewController.xib; path = Classes/PerformanceViewController.xib; sourceTree = "<group>"; };
-		3CABE6C11300AFFB00887B75 /* icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = icon.png; sourceTree = "<group>"; };
-		3CABE6C21300AFFB00887B75 /* icon@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "icon@2x.png"; sourceTree = "<group>"; };
+		3CABE6C11300AFFB00887B75 /* Icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Icon.png; sourceTree = "<group>"; };
+		3CABE6C21300AFFB00887B75 /* Icon@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Icon@2x.png"; sourceTree = "<group>"; };
 		3CABE6DA1300B82A00887B75 /* 300x250spacer.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = 300x250spacer.png; sourceTree = "<group>"; };
 		3CB4A0F0113F5E75000DB158 /* MainWindow.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = MainWindow.xib; path = Classes/MainWindow.xib; sourceTree = "<group>"; };
 		3CB4A0F1113F5E75000DB158 /* SimpleAdsViewController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = SimpleAdsViewController.xib; path = Classes/SimpleAdsViewController.xib; sourceTree = "<group>"; };
@@ -177,8 +177,8 @@
 			isa = PBXGroup;
 			children = (
 				3CABE6DA1300B82A00887B75 /* 300x250spacer.png */,
-				3CABE6C11300AFFB00887B75 /* icon.png */,
-				3CABE6C21300AFFB00887B75 /* icon@2x.png */,
+				3CABE6C11300AFFB00887B75 /* Icon.png */,
+				3CABE6C21300AFFB00887B75 /* Icon@2x.png */,
 				3CA8591812FB93C300967C3F /* InterstitialViewController.xib */,
 				3CA8595512FC833600967C3F /* PerformanceViewController.xib */,
 				3CA858FB12FB8E7900967C3F /* Default.png */,
@@ -307,8 +307,8 @@
 				3CA858FE12FB8E7900967C3F /* Default@2x.png in Resources */,
 				3CA8591A12FB93C300967C3F /* InterstitialViewController.xib in Resources */,
 				3CA8595712FC833600967C3F /* PerformanceViewController.xib in Resources */,
-				3CABE6C31300AFFB00887B75 /* icon.png in Resources */,
-				3CABE6C41300AFFB00887B75 /* icon@2x.png in Resources */,
+				3CABE6C31300AFFB00887B75 /* Icon.png in Resources */,
+				3CABE6C41300AFFB00887B75 /* Icon@2x.png in Resources */,
 				3CABE6DB1300B82A00887B75 /* 300x250spacer.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

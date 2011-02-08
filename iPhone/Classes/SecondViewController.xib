@@ -54,7 +54,7 @@
 						<bool key="IBUIClipsSubviews">YES</bool>
 						<bool key="IBUIMultipleTouchEnabled">YES</bool>
 						<string key="targetRuntimeIdentifier">IBCocoaTouchFramework</string>
-						<string key="IBUIText">This is the second page. If you hit back, you'll go back to the page before the interstitial. If you try to hit "Next Page again" you won't have to see the ad again.</string>
+						<string key="IBUIText">This is the second page. If you hit back, you'll go back to the page before the interstitial.</string>
 						<int key="IBUITextAlignment">1</int>
 						<object class="IBUITextInputTraits" key="IBUITextInputTraits">
 							<int key="IBUIAutocapitalizationType">2</int>

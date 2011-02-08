@@ -70,7 +70,7 @@
 						</object>
 						<int key="IBUIButtonType">1</int>
 						<string key="IBUINormalTitle">www.mopub.com</string>
-						<object class="NSColor" key="IBUIHighlightedTitleColor" id="590322591">
+						<object class="NSColor" key="IBUIHighlightedTitleColor" id="951178636">
 							<int key="NSColorSpace">3</int>
 							<bytes key="NSWhite">MQA</bytes>
 						</object>
@@ -83,10 +83,10 @@
 							<bytes key="NSWhite">MC41AA</bytes>
 						</object>
 					</object>
-					<object class="IBUILabel" id="661689006">
+					<object class="IBUILabel" id="315764211">
 						<reference key="NSNextResponder" ref="191373211"/>
 						<int key="NSvFlags">292</int>
-						<string key="NSFrame">{{20, 274}, {280, 72}}</string>
+						<string key="NSFrame">{{20, 256}, {280, 72}}</string>
 						<reference key="NSSuperview" ref="191373211"/>
 						<bool key="IBUIOpaque">NO</bool>
 						<bool key="IBUIClipsSubviews">YES</bool>
@@ -101,7 +101,7 @@
 								<int key="NSID">1</int>
 							</object>
 						</object>
-						<reference key="IBUIHighlightedColor" ref="590322591"/>
+						<reference key="IBUIHighlightedColor" ref="951178636"/>
 						<int key="IBUIBaselineAdjustment">1</int>
 						<float key="IBUIMinimumFontSize">10</float>
 						<int key="IBUINumberOfLines">4</int>
@@ -156,7 +156,7 @@
 							<bool key="EncodedWithXMLCoder">YES</bool>
 							<reference ref="361609664"/>
 							<reference ref="781335709"/>
-							<reference ref="661689006"/>
+							<reference ref="315764211"/>
 						</object>
 						<reference key="parent" ref="0"/>
 					</object>
@@ -183,7 +183,7 @@
 					</object>
 					<object class="IBObjectRecord">
 						<int key="objectID">7</int>
-						<reference key="object" ref="661689006"/>
+						<reference key="object" ref="315764211"/>
 						<reference key="parent" ref="191373211"/>
 					</object>
 				</object>
@@ -219,7 +219,7 @@
 					</object>
 					<string>com.apple.InterfaceBuilder.IBCocoaTouchPlugin</string>
 					<object class="NSAffineTransform">
-						<bytes key="NSTransformStruct">P4AAAL+AAABDhAAAw6wAAA</bytes>
+						<bytes key="NSTransformStruct">P4AAAL+AAABBoAAAw6wAAA</bytes>
 					</object>
 				</object>
 			</object>
