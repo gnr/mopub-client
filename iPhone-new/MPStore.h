@@ -21,7 +21,7 @@
 	id<MPStoreObserver> _delegate;
 }
 
-+ (MPStore *)sharedStoreKitObserver;
++ (MPStore *)sharedStore;
 - (void)initiatePurchaseForProductIdentifier:(NSString *)identifier quantity:(NSInteger)quantity;
 - (void)requestProductDataForProductIdentifier:(NSString *)identifier;
 - (void)startPaymentForProductIdentifier:(NSString *)identifier;

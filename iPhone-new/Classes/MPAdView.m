@@ -16,6 +16,7 @@
 - (void)_backFillWithNothing;
 - (NSString *)_escapeURL:(NSURL *)URL;
 - (void)_trackClickWithURL:(NSURL *)clickURL;
+- (NSDictionary *)queryToDictionary:(NSString *)query;
 @end
 
 @implementation MPAdView
@@ -41,6 +42,7 @@
 		_shouldInterceptLinks = YES;
 		_scrollable = NO;
 		_isLoading = NO;
+		_store = [MPStore sharedStore];
     }
     return self;
 }
@@ -137,6 +139,20 @@
 	NSURLRequest *clickURLRequest = [NSURLRequest requestWithURL:clickURL];
 	[NSURLConnection connectionWithRequest:clickURLRequest delegate:nil];
 	NSLog(@"MOPUB: tracking click %@", clickURL);
+}
+
+- (NSDictionary *)queryToDictionary:(NSString *)query
+{
+	NSMutableDictionary *queryDict = [[NSMutableDictionary alloc] initWithCapacity:1];
+	NSArray *queryElements = [query componentsSeparatedByString:@"&"];
+	for (NSString *element in queryElements) {
+		NSArray *keyVal = [element componentsSeparatedByString:@"="];
+		NSString *key = [keyVal objectAtIndex:0];
+		NSString *value = [keyVal lastObject];
+		[queryDict setObject:[value stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding] 
+					  forKey:key];
+	}
+	return [queryDict autorelease];
 }
 
 #pragma mark -
@@ -412,9 +428,9 @@
 		}
 		else if ([host isEqualToString:@"inapp"])
 		{
-			NSDictionary *queryDict = [self parseQuery:[URL query]];
-			[_skObserver initiatePurchaseForProductIdentifier:[queryDict objectForKey:@"id"] 
-													 quantity:[[queryDict objectForKey:@"num"] intValue]];
+			NSDictionary *queryDict = [self queryToDictionary:[URL query]];
+			[_store initiatePurchaseForProductIdentifier:[queryDict objectForKey:@"id"] 
+												quantity:[[queryDict objectForKey:@"num"] intValue]];
 		}
 		
 		return NO;

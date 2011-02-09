@@ -9,10 +9,11 @@
 #import "MPStore.h"
 
 @implementation MPStore
+@synthesize delegate = _delegate;
 
 + (MPStore *)sharedStore
 {
-	static MPStore *sharedStoreKitObserver = nil;
+	static MPStore *sharedStore = nil;
 	@synchronized(self)
 	{
 		if (sharedStore == nil)
@@ -37,7 +38,7 @@
 	[self requestProductDataForProductIdentifier:identifier];
 }
 
-- (void)requestProductDataForProductIdentifier:(NSString *)identifer
+- (void)requestProductDataForProductIdentifier:(NSString *)identifier
 {
 	SKProductsRequest *request = [[[SKProductsRequest alloc] initWithProductIdentifiers:
 								  [NSSet setWithObject:identifier]] autorelease];

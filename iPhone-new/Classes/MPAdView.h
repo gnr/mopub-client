@@ -10,6 +10,7 @@
 #import <CoreLocation/CoreLocation.h>
 #import "AdClickController.h"
 #import "MPBaseAdapter.h"
+#import "MPStore.h"
 
 @protocol MPAdViewDelegate;
 
@@ -37,6 +38,8 @@
 	NSURL *_interceptURL;
 	NSURL *_failURL;
 	NSMutableArray *_excludeParams;
+	
+	MPStore *_store;
 	
 	BOOL _shouldInterceptLinks;
 	BOOL _scrollable;

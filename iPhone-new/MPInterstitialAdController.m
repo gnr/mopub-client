@@ -207,7 +207,7 @@
 - (void)adViewWillLoadAd:(MPAdView *)view
 {
 	if ([self.parent respondsToSelector:@selector(interstitialWillLoadAd:)])
-		[self.parent interstitialWillLoadAd:view];
+		[self.parent interstitialWillLoadAd:self];
 }
 
 - (void)adViewDidLoadAd:(MPAdView *)view
