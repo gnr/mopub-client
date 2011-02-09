@@ -28,7 +28,8 @@
 	}
 }
 
-- (void)reportApplicationOpenForApplicationID:(NSString *)appID{
+- (void)reportApplicationOpenForApplicationID:(NSString *)appID
+{
 	[self performSelectorInBackground:@selector(_reportApplicationOpenSynchronous:) withObject:appID];
 }
 

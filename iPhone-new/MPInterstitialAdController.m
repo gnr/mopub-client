@@ -8,6 +8,10 @@
 
 #import "MPInterstitialAdController.h"
 
+@interface MPInterstitialAdController (Internal)
+- (void)_setUpCloseButton;
+@end
+
 @implementation MPInterstitialAdController
 
 @synthesize ready = _ready;
@@ -71,8 +75,8 @@
 	if (self = [super init])
 	{
 		_ready = NO;
-		self.parent = parent;
-		self.adUnitId = ID;
+		_parent = parent;
+		_adUnitId = ID;
 		_adSize = [[UIScreen mainScreen] bounds].size;
 		_closeButtonType = InterstitialCloseButtonTypeDefault;
 		_orientationType = InterstitialOrientationTypeBoth;
@@ -89,26 +93,25 @@
     [super dealloc];
 }
 
-#pragma mark -
-
-- (void)setKeywords:(NSString *)keywords
+- (void)loadView 
 {
-	_adView.keywords = keywords;
-}
-
-- (NSString *)keywords
-{
-	return _adView.keywords;
-}
-
-- (void)closeButtonPressed
-{
-	// Restore previous status/navigation bar state.
-	[[UIApplication sharedApplication] setStatusBarHidden:_statusBarWasHidden withAnimation:UIStatusBarAnimationNone];
-	[self.navigationController setNavigationBarHidden:_navigationBarWasHidden animated:NO];
+	UIView *container = [[[UIView alloc] initWithFrame:CGRectZero] autorelease];
+	container.backgroundColor = [UIColor greenColor];
+	container.frame = (CGRect){{0, 0}, [UIScreen mainScreen].bounds.size};
+	container.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+	self.view = container;
 	
-	[self.parent dismissInterstitial:self];
+	_adView = [[MPAdView alloc] initWithFrame:(CGRect){{0, 0}, _adSize}];
+	_adView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+	_adView.adUnitId = self.adUnitId;
+	_adView.delegate = self;
+	[self.view addSubview:_adView];
+	
+	[self _setUpCloseButton];
 }
+
+#pragma mark -
+#pragma mark Internal
 
 - (void)_setUpCloseButton
 {
@@ -134,39 +137,42 @@
 	}
 }
 
-- (void)loadView 
+#pragma mark -
+
+- (void)setKeywords:(NSString *)keywords
 {
-	UIView *container = [[[UIView alloc] initWithFrame:CGRectZero] autorelease];
-	container.backgroundColor = [UIColor greenColor];
-	container.frame = (CGRect){{0, 0}, [[UIScreen mainScreen] applicationFrame].size};
-	container.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
-	self.view = container;
+	_adView.keywords = keywords;
+}
+
+- (NSString *)keywords
+{
+	return _adView.keywords;
+}
+
+- (void)closeButtonPressed
+{
+	// Restore previous status/navigation bar state.
+	[[UIApplication sharedApplication] setStatusBarHidden:_statusBarWasHidden withAnimation:UIStatusBarAnimationFade];
+	[self.navigationController setNavigationBarHidden:_navigationBarWasHidden animated:NO];
 	
-	_adView = [[MPAdView alloc] initWithFrame:(CGRect){{0, 0}, _adSize}];
-	_adView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
-	_adView.adUnitId = self.adUnitId;
-	_adView.delegate = self;
-	[self.view addSubview:_adView];
-	
-	[self _setUpCloseButton];
+	[self.parent dismissInterstitial:self];
 }
 
 - (void)loadAd
 {
-	// TODO: figure out better place to do this load view
 	self.view;
 	[_adView loadAd];
 }
 
 - (void)show
-{
+{	
 	// Track the previous state of the status bar, so that we can restore it.
 	_statusBarWasHidden = [UIApplication sharedApplication].statusBarHidden;
-	[[UIApplication sharedApplication] setStatusBarHidden:YES withAnimation:UIStatusBarAnimationNone];
+	[[UIApplication sharedApplication] setStatusBarHidden:YES withAnimation:UIStatusBarAnimationFade];
 	
 	// Likewise, track the previous state of the navigation bar.
 	_navigationBarWasHidden = self.navigationController.navigationBarHidden;
-	[self.navigationController setNavigationBarHidden:YES animated:NO];
+	[self.navigationController setNavigationBarHidden:YES animated:YES];
 	
 	[self.parent presentModalViewController:self animated:YES];
 }
@@ -200,16 +206,8 @@
 
 - (void)adViewWillLoadAd:(MPAdView *)view
 {
-	if ([self.parent respondsToSelector:@selector(adViewWillLoadAd:)])
-		[self.parent adViewWillLoadAd:view];
-}
-
-- (void)adViewDidFailToLoadAd:(MPAdView *)view
-{
-	_ready = NO;
-	
-	if ([self.parent respondsToSelector:@selector(interstitialDidFailToLoadAd:)])
-		[self.parent interstitialDidFailToLoadAd:self];
+	if ([self.parent respondsToSelector:@selector(interstitialWillLoadAd:)])
+		[self.parent interstitialWillLoadAd:view];
 }
 
 - (void)adViewDidLoadAd:(MPAdView *)view
@@ -218,6 +216,14 @@
 	
 	if ([self.parent respondsToSelector:@selector(interstitialDidLoadAd:)])
 		[self.parent interstitialDidLoadAd:self];
+}
+
+- (void)adViewDidFailToLoadAd:(MPAdView *)view
+{
+	_ready = NO;
+	
+	if ([self.parent respondsToSelector:@selector(interstitialDidFailToLoadAd:)])
+		[self.parent interstitialDidFailToLoadAd:self];
 }
 
 - (void)nativeAdClicked:(MPAdView *)view

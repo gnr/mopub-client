@@ -35,6 +35,8 @@
 		A884455C12F0FD7B0091613A /* CJSONScanner.m in Sources */ = {isa = PBXBuildFile; fileRef = A884455112F0FD7B0091613A /* CJSONScanner.m */; };
 		A884455D12F0FD7B0091613A /* CJSONSerializer.m in Sources */ = {isa = PBXBuildFile; fileRef = A884455312F0FD7B0091613A /* CJSONSerializer.m */; };
 		A8CE226F12FCACE60090D01B /* MPAdConversionTracker.m in Sources */ = {isa = PBXBuildFile; fileRef = A8CE226E12FCACE60090D01B /* MPAdConversionTracker.m */; };
+		A8DADEF912FF64DD000C62C1 /* MPStore.m in Sources */ = {isa = PBXBuildFile; fileRef = A8DADEF812FF64DD000C62C1 /* MPStore.m */; };
+		A8DADF0A12FF6506000C62C1 /* StoreKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A8DADF0912FF6506000C62C1 /* StoreKit.framework */; };
 		A8E43FED12F0DED80096079D /* MPAdapterMap.m in Sources */ = {isa = PBXBuildFile; fileRef = A8E43FEC12F0DED80096079D /* MPAdapterMap.m */; };
 		A8E4406412F0E5E30096079D /* MPGoogleAdSenseAdapter.m in Sources */ = {isa = PBXBuildFile; fileRef = A8E4406312F0E5E30096079D /* MPGoogleAdSenseAdapter.m */; };
 		A8E4407412F0E6230096079D /* libGoogleAds.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A8E4407312F0E6230096079D /* libGoogleAds.a */; };
@@ -93,6 +95,9 @@
 		A884455412F0FD7B0091613A /* JSONRepresentation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JSONRepresentation.h; sourceTree = "<group>"; };
 		A8CE226D12FCACE60090D01B /* MPAdConversionTracker.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPAdConversionTracker.h; sourceTree = "<group>"; };
 		A8CE226E12FCACE60090D01B /* MPAdConversionTracker.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPAdConversionTracker.m; sourceTree = "<group>"; };
+		A8DADEF712FF64DD000C62C1 /* MPStore.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPStore.h; sourceTree = "<group>"; };
+		A8DADEF812FF64DD000C62C1 /* MPStore.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPStore.m; sourceTree = "<group>"; };
+		A8DADF0912FF6506000C62C1 /* StoreKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = StoreKit.framework; path = System/Library/Frameworks/StoreKit.framework; sourceTree = SDKROOT; };
 		A8E43FCE12F0D8000096079D /* MPAdapterMap.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPAdapterMap.h; sourceTree = "<group>"; };
 		A8E43FEC12F0DED80096079D /* MPAdapterMap.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPAdapterMap.m; sourceTree = "<group>"; };
 		A8E4406212F0E5E30096079D /* MPGoogleAdSenseAdapter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPGoogleAdSenseAdapter.h; sourceTree = "<group>"; };
@@ -120,6 +125,7 @@
 				A8E4407612F0E64A0096079D /* SystemConfiguration.framework in Frameworks */,
 				A8E4407812F0E6530096079D /* AVFoundation.framework in Frameworks */,
 				A86C4B2F12FA1845006A8DE7 /* CoreLocation.framework in Frameworks */,
+				A8DADF0A12FF6506000C62C1 /* StoreKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -188,6 +194,7 @@
 				A8E4407512F0E64A0096079D /* SystemConfiguration.framework */,
 				A8E4407712F0E6530096079D /* AVFoundation.framework */,
 				A86C4B2E12FA1845006A8DE7 /* CoreLocation.framework */,
+				A8DADF0912FF6506000C62C1 /* StoreKit.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -205,6 +212,8 @@
 				A86C4BC112FA4830006A8DE7 /* MPInterstitialAdController.m */,
 				3C6ED25712E7CA1700C5E818 /* MPAdBrowserController.h */,
 				3C6ED25812E7CA1700C5E818 /* MPAdBrowserController.m */,
+				A8DADEF712FF64DD000C62C1 /* MPStore.h */,
+				A8DADEF812FF64DD000C62C1 /* MPStore.m */,
 				3C6ED26912E7CB1900C5E818 /* AdClickController.h */,
 				3C6ED26A12E7CB1900C5E818 /* AdClickController.m */,
 				3C6ED26B12E7CB1900C5E818 /* AdClickController.xib */,
@@ -383,6 +392,7 @@
 				A884455D12F0FD7B0091613A /* CJSONSerializer.m in Sources */,
 				A86C4BC212FA4830006A8DE7 /* MPInterstitialAdController.m in Sources */,
 				A8CE226F12FCACE60090D01B /* MPAdConversionTracker.m in Sources */,
+				A8DADEF912FF64DD000C62C1 /* MPStore.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -432,7 +442,7 @@
 				GCC_C_LANGUAGE_STANDARD = c99;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 3.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 3.1;
 				PREBINDING = NO;
 				SDKROOT = iphoneos;
 			};
@@ -446,9 +456,10 @@
 				GCC_C_LANGUAGE_STANDARD = c99;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 3.1;
 				OTHER_CFLAGS = "-DNS_BLOCK_ASSERTIONS=1";
 				PREBINDING = NO;
-				SDKROOT = iphonesimulator4.0;
+				SDKROOT = iphoneos;
 			};
 			name = Release;
 		};

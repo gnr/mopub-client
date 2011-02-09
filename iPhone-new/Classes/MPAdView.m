@@ -15,6 +15,7 @@
 - (void)_adLinkClicked:(NSURL *)URL;
 - (void)_backFillWithNothing;
 - (NSString *)_escapeURL:(NSURL *)URL;
+- (void)_trackClickWithURL:(NSURL *)clickURL;
 @end
 
 @implementation MPAdView
@@ -24,24 +25,28 @@
 @synthesize keywords = _keywords, location = _location;
 @synthesize shouldInterceptLinks = _shouldInterceptLinks, scrollable = _scrollable;
 
-- (id)initWithFrame:(CGRect)frame {
-    
+#pragma mark -
+#pragma mark Lifecycle
+
+- (id)initWithFrame:(CGRect)frame 
+{    
     self = [super initWithFrame:frame];
     if (self) 
 	{
 		self.backgroundColor = [UIColor clearColor];
 		[self _setUpWebViewWithFrame:frame];
-		self.adUnitId = PUB_ID_320x50;
+		_adUnitId = PUB_ID_320x50;
 		_data = [[NSMutableData data] retain];
-		self.URL = nil;
-		self.shouldInterceptLinks = YES;
-		self.scrollable = NO;
+		_excludeParams = [[NSMutableArray array] retain];
+		_shouldInterceptLinks = YES;
+		_scrollable = NO;
 		_isLoading = NO;
     }
     return self;
 }
 
-- (void)dealloc {
+- (void)dealloc 
+{
 	[_adContentView release];
 	[_adapter release];
 	[_webView release];
@@ -51,10 +56,90 @@
 	[_clickURL release];
 	[_interceptURL release];
 	[_failURL release];
+	[_excludeParams release];
 	[_keywords release];
 	[_location release];
     [super dealloc];
 }
+
+#pragma mark -
+#pragma mark Internal
+
+- (void)_setUpWebViewWithFrame:(CGRect)frame
+{
+	_webView = [[UIWebView alloc] initWithFrame:CGRectMake(0, 0, frame.size.width, frame.size.height)];
+	_webView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+	_webView.backgroundColor = [UIColor clearColor];
+	_webView.opaque = NO;
+	_webView.delegate = self;
+	
+	// Disable webview scrolling.
+	self.scrollable = NO;
+}
+
+- (void)_adLinkClicked:(NSURL *)URL
+{
+	NSString *redirectURLString = [self _escapeURL:URL];	
+	NSURL *desiredURL = [NSURL URLWithString:[NSString stringWithFormat:@"%@&r=%@",
+											  _clickURL,
+											  redirectURLString]];
+	
+	// Notify delegate that the ad browser is about to open.
+	if ([self.delegate respondsToSelector:@selector(willPresentModalViewForAd:)])
+		[self.delegate willPresentModalViewForAd:self];
+	
+	// Present ad browser.
+	AdClickController *adClickController = [[[AdClickController alloc] initWithURL:desiredURL delegate:self] autorelease];
+	[[self.delegate viewControllerForPresentingModalView] presentModalViewController:adClickController animated:YES];
+	
+	// Notify delegate that the ad browser has been presented.
+	if ([self.delegate respondsToSelector:@selector(didPresentModalViewForAd:)])
+		[self.delegate didPresentModalViewForAd:self];
+}
+
+- (void)_backFillWithNothing
+{
+	self.backgroundColor = [UIColor clearColor];
+	self.hidden = YES;
+	
+	// Notify delegate that the ad has failed to load.
+	if ([self.delegate respondsToSelector:@selector(adViewDidFailToLoadAd:)]){
+		[self.delegate adViewDidFailToLoadAd:self];
+	}
+}
+
+- (NSString *)_escapeURL:(NSURL *)URL
+{
+	NSMutableString *redirectUrl = [NSMutableString stringWithString:[URL absoluteString]];
+	NSRange wholeString = NSMakeRange(0, [redirectUrl length]);
+	[redirectUrl replaceOccurrencesOfString:@"&" withString:@"%26" options:NSCaseInsensitiveSearch range:wholeString];
+	[redirectUrl replaceOccurrencesOfString:@"+" withString:@"%2B" options:NSCaseInsensitiveSearch range:wholeString];
+	[redirectUrl replaceOccurrencesOfString:@"," withString:@"%2C" options:NSCaseInsensitiveSearch range:wholeString];
+	[redirectUrl replaceOccurrencesOfString:@"/" withString:@"%2F" options:NSCaseInsensitiveSearch range:wholeString];
+	[redirectUrl replaceOccurrencesOfString:@":" withString:@"%3A" options:NSCaseInsensitiveSearch range:wholeString];
+	[redirectUrl replaceOccurrencesOfString:@";" withString:@"%3B" options:NSCaseInsensitiveSearch range:wholeString];
+	[redirectUrl replaceOccurrencesOfString:@"=" withString:@"%3D" options:NSCaseInsensitiveSearch range:wholeString];
+	[redirectUrl replaceOccurrencesOfString:@"?" withString:@"%3F" options:NSCaseInsensitiveSearch range:wholeString];
+	[redirectUrl replaceOccurrencesOfString:@"@" withString:@"%40" options:NSCaseInsensitiveSearch range:wholeString];
+	[redirectUrl replaceOccurrencesOfString:@" " withString:@"%20" options:NSCaseInsensitiveSearch range:wholeString];
+	[redirectUrl replaceOccurrencesOfString:@"\t" withString:@"%09" options:NSCaseInsensitiveSearch range:wholeString];
+	[redirectUrl replaceOccurrencesOfString:@"#" withString:@"%23" options:NSCaseInsensitiveSearch range:wholeString];
+	[redirectUrl replaceOccurrencesOfString:@"<" withString:@"%3C" options:NSCaseInsensitiveSearch range:wholeString];
+	[redirectUrl replaceOccurrencesOfString:@">" withString:@"%3E" options:NSCaseInsensitiveSearch range:wholeString];
+	[redirectUrl replaceOccurrencesOfString:@"\"" withString:@"%22" options:NSCaseInsensitiveSearch range:wholeString];
+	[redirectUrl replaceOccurrencesOfString:@"\n" withString:@"%0A" options:NSCaseInsensitiveSearch range:wholeString];
+	
+	return redirectUrl;
+}
+
+- (void)_trackClickWithURL:(NSURL *)clickURL
+{
+	NSURLRequest *clickURLRequest = [NSURLRequest requestWithURL:clickURL];
+	[NSURLConnection connectionWithRequest:clickURLRequest delegate:nil];
+	NSLog(@"MOPUB: tracking click %@", clickURL);
+}
+
+#pragma mark -
 
 - (void)setScrollable:(BOOL)scrollable
 {
@@ -79,18 +164,6 @@
 	}
 }
 
-- (void)_setUpWebViewWithFrame:(CGRect)frame
-{
-	_webView = [[UIWebView alloc] initWithFrame:CGRectMake(0, 0, frame.size.width, frame.size.height)];
-	_webView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
-	_webView.backgroundColor = [UIColor clearColor];
-	_webView.opaque = NO;
-	_webView.delegate = self;
-	
-	// Disable webview scrolling.
-	self.scrollable = NO;
-}
-
 - (void)setAdContentView:(UIView *)view
 {
 	if (view != _adContentView)
@@ -100,6 +173,7 @@
 	}
 	_adContentView = [view retain];
 	[self addSubview:_adContentView];
+	self.hidden = NO;
 }
 
 - (void)rotateToOrientation:(UIInterfaceOrientation)newOrientation
@@ -114,6 +188,7 @@
 
 - (void)refreshAd
 {
+	[_excludeParams removeAllObjects];
 	[self loadAdWithURL:nil];
 }
 
@@ -137,13 +212,17 @@
 						 self.location.coordinate.longitude];
 		}
 		
-		// TODO: exclude parameters
+		// Append exclude parameters.
+		for (NSString *exclude in _excludeParams)
+		{
+			urlString = [urlString stringByAppendingFormat:@"&exclude=%@", exclude];
+		}
 		
 		URL = [NSURL URLWithString:urlString];
 	}
 	
 	self.URL = URL;
-	NSLog(@"URL: %@", URL);
+	NSLog(@"loadAdWithURL: %@", URL);
 	
 	// Inform delegate that we are about to start loading an ad.
 	if ([self.delegate respondsToSelector:@selector(adViewWillLoadAd:)])
@@ -162,8 +241,8 @@
 		NSString *bundleName = [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleName"];
 		NSString *appVersion = [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleVersion"];			
 		NSString *userAgentString = [NSString stringWithFormat:@"%@/%@ (%@; U; CPU %@ %@ like Mac OS X; %@)",
-									 bundleName,appVersion,model,
-									 systemName,systemVersion,[[NSLocale currentLocale] localeIdentifier]];
+									 bundleName, appVersion, model,
+									 systemName, systemVersion, [[NSLocale currentLocale] localeIdentifier]];
 		[request setValue:userAgentString forHTTPHeaderField:@"User-Agent"];
 	}		
 	
@@ -207,8 +286,8 @@
 	// Initialize data.
 	[_data setLength:0];
 	
-	if ([self.delegate respondsToSelector:@selector(adControllerDidReceiveResponseParams:)])
-		[self.delegate adControllerDidReceiveResponseParams:[(NSHTTPURLResponse*)response allHeaderFields]];
+	if ([self.delegate respondsToSelector:@selector(adViewDidReceiveResponseParams:)])
+		[self.delegate adViewDidReceiveResponseParams:[(NSHTTPURLResponse*)response allHeaderFields]];
 	
 	// Parse response headers.
 	NSDictionary *headers = [(NSHTTPURLResponse *)response allHeaderFields];
@@ -331,6 +410,12 @@
 		{
 			[self _adLinkClicked:URL];
 		}
+		else if ([host isEqualToString:@"inapp"])
+		{
+			NSDictionary *queryDict = [self parseQuery:[URL query]];
+			[_skObserver initiatePurchaseForProductIdentifier:[queryDict objectForKey:@"id"] 
+													 quantity:[[queryDict objectForKey:@"num"] intValue]];
+		}
 		
 		return NO;
 	}
@@ -354,71 +439,9 @@
 	return YES;
 }
 
-- (void)_adLinkClicked:(NSURL *)URL
-{
-	NSString *redirectURLString = [self _escapeURL:URL];	
-	NSURL *desiredURL = [NSURL URLWithString:[NSString stringWithFormat:@"%@&r=%@",
-											  _clickURL,
-											  redirectURLString]];
-	
-	// Notify delegate that the ad browser is about to open.
-	if ([self.delegate respondsToSelector:@selector(willPresentModalViewForAd:)])
-		[self.delegate willPresentModalViewForAd:self];
-
-	// Present ad browser.
-	AdClickController *adClickController = [[[AdClickController alloc] initWithURL:desiredURL delegate:self] autorelease];
-	[[self.delegate viewControllerForPresentingModalView] presentModalViewController:adClickController animated:YES];
-	
-	// Notify delegate that the ad browser has been presented.
-	if ([self.delegate respondsToSelector:@selector(didPresentModalViewForAd:)])
-		[self.delegate didPresentModalViewForAd:self];
-}
-
-- (void)_backFillWithNothing
-{
-	self.backgroundColor = [UIColor clearColor];
-	self.hidden = YES;
-	
-	// Notify delegate that the ad has failed to load.
-	if ([self.delegate respondsToSelector:@selector(adViewDidFailToLoadAd:)]){
-		[self.delegate adViewDidFailToLoadAd:self];
-	}
-}
-
 - (void)dismissModalViewForAdClickController:(AdClickController *)adClickController
 {
 	[[self.delegate viewControllerForPresentingModalView] dismissModalViewControllerAnimated:YES];
-}
-
-- (NSString *)_escapeURL:(NSURL *)URL
-{
-	NSMutableString *redirectUrl = [NSMutableString stringWithString:[URL absoluteString]];
-	NSRange wholeString = NSMakeRange(0, [redirectUrl length]);
-	[redirectUrl replaceOccurrencesOfString:@"&" withString:@"%26" options:NSCaseInsensitiveSearch range:wholeString];
-	[redirectUrl replaceOccurrencesOfString:@"+" withString:@"%2B" options:NSCaseInsensitiveSearch range:wholeString];
-	[redirectUrl replaceOccurrencesOfString:@"," withString:@"%2C" options:NSCaseInsensitiveSearch range:wholeString];
-	[redirectUrl replaceOccurrencesOfString:@"/" withString:@"%2F" options:NSCaseInsensitiveSearch range:wholeString];
-	[redirectUrl replaceOccurrencesOfString:@":" withString:@"%3A" options:NSCaseInsensitiveSearch range:wholeString];
-	[redirectUrl replaceOccurrencesOfString:@";" withString:@"%3B" options:NSCaseInsensitiveSearch range:wholeString];
-	[redirectUrl replaceOccurrencesOfString:@"=" withString:@"%3D" options:NSCaseInsensitiveSearch range:wholeString];
-	[redirectUrl replaceOccurrencesOfString:@"?" withString:@"%3F" options:NSCaseInsensitiveSearch range:wholeString];
-	[redirectUrl replaceOccurrencesOfString:@"@" withString:@"%40" options:NSCaseInsensitiveSearch range:wholeString];
-	[redirectUrl replaceOccurrencesOfString:@" " withString:@"%20" options:NSCaseInsensitiveSearch range:wholeString];
-	[redirectUrl replaceOccurrencesOfString:@"\t" withString:@"%09" options:NSCaseInsensitiveSearch range:wholeString];
-	[redirectUrl replaceOccurrencesOfString:@"#" withString:@"%23" options:NSCaseInsensitiveSearch range:wholeString];
-	[redirectUrl replaceOccurrencesOfString:@"<" withString:@"%3C" options:NSCaseInsensitiveSearch range:wholeString];
-	[redirectUrl replaceOccurrencesOfString:@">" withString:@"%3E" options:NSCaseInsensitiveSearch range:wholeString];
-	[redirectUrl replaceOccurrencesOfString:@"\"" withString:@"%22" options:NSCaseInsensitiveSearch range:wholeString];
-	[redirectUrl replaceOccurrencesOfString:@"\n" withString:@"%0A" options:NSCaseInsensitiveSearch range:wholeString];
-	
-	return redirectUrl;
-}
-
-- (void)_trackClickWithURL:(NSURL *)clickURL
-{
-	NSURLRequest *clickURLRequest = [NSURLRequest requestWithURL:clickURL];
-	NSURLConnection *conn = [NSURLConnection connectionWithRequest:clickURLRequest delegate:nil];
-	NSLog(@"MOPUB: tracking click %@", clickURL);
 }
 
 // TODO: change the name of this

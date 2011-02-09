@@ -8,7 +8,7 @@
 
 #import "MoPubViewController.h"
 
-#define PUB_ID_INTERSTITIAL @"agltb3B1Yi1pbmNyCgsSBFNpdGUYJww"//@"agltb3B1Yi1pbmNyDAsSBFNpdGUYsckMDA"
+#define PUB_ID_INTERSTITIAL @"agltb3B1Yi1pbmNyDAsSBFNpdGUYsckMDA"
 
 @implementation MoPubViewController
 

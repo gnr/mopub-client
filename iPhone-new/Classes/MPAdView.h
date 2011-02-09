@@ -13,7 +13,10 @@
 
 @protocol MPAdViewDelegate;
 
-#define HOSTNAME @"192.168.1.120:8080"//@"ads.mopub.com"
+//#define HOSTNAME @"192.168.1.120:8080"
+//#define PUB_ID_320x50 @"agltb3B1Yi1pbmNyDAsSBFNpdGUYkaoMDA"
+//#define HOSTNAME @"ads.mopub.com"
+#define HOSTNAME @"36-newui.latest.mopub-inc.appspot.com"
 #define PUB_ID_320x50 @"agltb3B1Yi1pbmNyDAsSBFNpdGUYkaoMDA"
 
 @interface MPAdView : UIView <UIWebViewDelegate, AdClickControllerDelegate, MPAdapterDelegate> {
@@ -33,6 +36,7 @@
 	NSURL *_clickURL;
 	NSURL *_interceptURL;
 	NSURL *_failURL;
+	NSMutableArray *_excludeParams;
 	
 	BOOL _shouldInterceptLinks;
 	BOOL _scrollable;

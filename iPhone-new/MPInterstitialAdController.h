@@ -60,6 +60,7 @@ typedef NSUInteger InterstitialOrientationType;
 - (void)dismissInterstitial:(MPInterstitialAdController *)interstitial;
 
 @optional
+- (void)interstitialWillLoadAd:(MPInterstitialAdController *)interstitial;
 - (void)interstitialDidLoadAd:(MPInterstitialAdController *)interstitial;
 - (void)interstitialDidFailToLoadAd:(MPInterstitialAdController *)interstitial;
 - (void)interstitialWillAppear:(MPInterstitialAdController *)interstitial;
