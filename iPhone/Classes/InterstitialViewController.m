@@ -25,7 +25,7 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
 	self.title = @"Interstitials";
-	self.showInterstitialButton.enabled = NO;
+	self.showInterstitialButton.hidden = YES;
 }
 
 #pragma mark Orientations
@@ -85,7 +85,7 @@
 			[self presentModalViewController:_interstitialAdController animated:YES];
 		} else {
 			// otherwise, we enable the button so the user can show it manually
-			self.showInterstitialButton.enabled = YES;
+			self.showInterstitialButton.hidden = NO;
 		}
 	}	
 }

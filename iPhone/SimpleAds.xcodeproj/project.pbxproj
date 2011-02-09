@@ -32,13 +32,15 @@
 		3CA8587312FB85AC00967C3F /* square-mopub.png in Resources */ = {isa = PBXBuildFile; fileRef = 3CA8587212FB85AC00967C3F /* square-mopub.png */; };
 		3CA858E912FB8C1A00967C3F /* WelcomeViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 3CA858E712FB8C1A00967C3F /* WelcomeViewController.m */; };
 		3CA858EA12FB8C1A00967C3F /* WelcomeViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 3CA858E812FB8C1A00967C3F /* WelcomeViewController.xib */; };
-		3CA858FD12FB8E7900967C3F /* mopub-portrait.png in Resources */ = {isa = PBXBuildFile; fileRef = 3CA858FB12FB8E7900967C3F /* mopub-portrait.png */; };
-		3CA858FE12FB8E7900967C3F /* mopub-portrait@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 3CA858FC12FB8E7900967C3F /* mopub-portrait@2x.png */; };
-		3CA8591312FB92DF00967C3F /* 300x250spacer.png in Resources */ = {isa = PBXBuildFile; fileRef = 3CA8591212FB92DF00967C3F /* 300x250spacer.png */; };
+		3CA858FD12FB8E7900967C3F /* Default.png in Resources */ = {isa = PBXBuildFile; fileRef = 3CA858FB12FB8E7900967C3F /* Default.png */; };
+		3CA858FE12FB8E7900967C3F /* Default@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 3CA858FC12FB8E7900967C3F /* Default@2x.png */; };
 		3CA8591912FB93C300967C3F /* InterstitialViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 3CA8591712FB93C300967C3F /* InterstitialViewController.m */; };
 		3CA8591A12FB93C300967C3F /* InterstitialViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 3CA8591812FB93C300967C3F /* InterstitialViewController.xib */; };
 		3CA8595612FC833600967C3F /* PerformanceViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 3CA8595412FC833600967C3F /* PerformanceViewController.m */; };
 		3CA8595712FC833600967C3F /* PerformanceViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 3CA8595512FC833600967C3F /* PerformanceViewController.xib */; };
+		3CABE6C31300AFFB00887B75 /* Icon.png in Resources */ = {isa = PBXBuildFile; fileRef = 3CABE6C11300AFFB00887B75 /* Icon.png */; };
+		3CABE6C41300AFFB00887B75 /* Icon@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 3CABE6C21300AFFB00887B75 /* Icon@2x.png */; };
+		3CABE6DB1300B82A00887B75 /* 300x250spacer.png in Resources */ = {isa = PBXBuildFile; fileRef = 3CABE6DA1300B82A00887B75 /* 300x250spacer.png */; };
 		3CB4A0F2113F5E75000DB158 /* MainWindow.xib in Resources */ = {isa = PBXBuildFile; fileRef = 3CB4A0F0113F5E75000DB158 /* MainWindow.xib */; };
 		3CB4A0F3113F5E75000DB158 /* SimpleAdsViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 3CB4A0F1113F5E75000DB158 /* SimpleAdsViewController.xib */; };
 		3CC4D7781264DC6800212F16 /* SecondViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 3CC4D7761264DC6800212F16 /* SecondViewController.m */; };
@@ -49,7 +51,7 @@
 		1D30AB110D05D00D00671497 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		1D3623240D0F684500981E51 /* SimpleAdsAppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SimpleAdsAppDelegate.h; sourceTree = "<group>"; };
 		1D3623250D0F684500981E51 /* SimpleAdsAppDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SimpleAdsAppDelegate.m; sourceTree = "<group>"; };
-		1D6058910D05DD3D006BFB54 /* SimpleAds.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SimpleAds.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		1D6058910D05DD3D006BFB54 /* MoPubDemo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MoPubDemo.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		1DF5F4DF0D08C38300B7A737 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		288765A40DF7441C002DB57D /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
 		28D7ACF60DDB3853001CB0EB /* SimpleAdsViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SimpleAdsViewController.h; sourceTree = "<group>"; };
@@ -59,8 +61,6 @@
 		3C0644E412E55D2E004F5593 /* MoPubAlertAdAdapter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MoPubAlertAdAdapter.m; sourceTree = "<group>"; };
 		3C0644E512E55D2E004F5593 /* MoPubCustomAdAdapter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MoPubCustomAdAdapter.h; sourceTree = "<group>"; };
 		3C0644E612E55D2E004F5593 /* MoPubCustomAdAdapter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MoPubCustomAdAdapter.m; sourceTree = "<group>"; };
-		3C0644E712E55D2E004F5593 /* MoPubGoogleAdSenseAdapter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MoPubGoogleAdSenseAdapter.h; sourceTree = "<group>"; };
-		3C0644E812E55D2E004F5593 /* MoPubGoogleAdSenseAdapter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MoPubGoogleAdSenseAdapter.m; sourceTree = "<group>"; };
 		3C0644E912E55D2E004F5593 /* MoPubIAdAdapter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MoPubIAdAdapter.h; sourceTree = "<group>"; };
 		3C0644EA12E55D2E004F5593 /* MoPubIAdAdapter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MoPubIAdAdapter.m; sourceTree = "<group>"; };
 		3C0644EB12E55D2E004F5593 /* MoPubNativeSDKAdapter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MoPubNativeSDKAdapter.h; sourceTree = "<group>"; };
@@ -87,15 +87,17 @@
 		3CA858E612FB8C1A00967C3F /* WelcomeViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WelcomeViewController.h; sourceTree = "<group>"; };
 		3CA858E712FB8C1A00967C3F /* WelcomeViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WelcomeViewController.m; sourceTree = "<group>"; };
 		3CA858E812FB8C1A00967C3F /* WelcomeViewController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = WelcomeViewController.xib; path = Classes/WelcomeViewController.xib; sourceTree = "<group>"; };
-		3CA858FB12FB8E7900967C3F /* mopub-portrait.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "mopub-portrait.png"; sourceTree = "<group>"; };
-		3CA858FC12FB8E7900967C3F /* mopub-portrait@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "mopub-portrait@2x.png"; sourceTree = "<group>"; };
-		3CA8591212FB92DF00967C3F /* 300x250spacer.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = 300x250spacer.png; sourceTree = "<group>"; };
+		3CA858FB12FB8E7900967C3F /* Default.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Default.png; sourceTree = "<group>"; };
+		3CA858FC12FB8E7900967C3F /* Default@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default@2x.png"; sourceTree = "<group>"; };
 		3CA8591612FB93C300967C3F /* InterstitialViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = InterstitialViewController.h; sourceTree = "<group>"; };
 		3CA8591712FB93C300967C3F /* InterstitialViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = InterstitialViewController.m; sourceTree = "<group>"; };
-		3CA8591812FB93C300967C3F /* InterstitialViewController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = InterstitialViewController.xib; sourceTree = "<group>"; };
+		3CA8591812FB93C300967C3F /* InterstitialViewController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = InterstitialViewController.xib; path = Classes/InterstitialViewController.xib; sourceTree = "<group>"; };
 		3CA8595312FC833600967C3F /* PerformanceViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PerformanceViewController.h; sourceTree = "<group>"; };
 		3CA8595412FC833600967C3F /* PerformanceViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PerformanceViewController.m; sourceTree = "<group>"; };
-		3CA8595512FC833600967C3F /* PerformanceViewController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = PerformanceViewController.xib; sourceTree = "<group>"; };
+		3CA8595512FC833600967C3F /* PerformanceViewController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = PerformanceViewController.xib; path = Classes/PerformanceViewController.xib; sourceTree = "<group>"; };
+		3CABE6C11300AFFB00887B75 /* Icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Icon.png; sourceTree = "<group>"; };
+		3CABE6C21300AFFB00887B75 /* Icon@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Icon@2x.png"; sourceTree = "<group>"; };
+		3CABE6DA1300B82A00887B75 /* 300x250spacer.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = 300x250spacer.png; sourceTree = "<group>"; };
 		3CB4A0F0113F5E75000DB158 /* MainWindow.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = MainWindow.xib; path = Classes/MainWindow.xib; sourceTree = "<group>"; };
 		3CB4A0F1113F5E75000DB158 /* SimpleAdsViewController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = SimpleAdsViewController.xib; path = Classes/SimpleAdsViewController.xib; sourceTree = "<group>"; };
 		3CC4D7751264DC6700212F16 /* SecondViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SecondViewController.h; sourceTree = "<group>"; };
@@ -134,10 +136,8 @@
 				3CA858E712FB8C1A00967C3F /* WelcomeViewController.m */,
 				3CA8591612FB93C300967C3F /* InterstitialViewController.h */,
 				3CA8591712FB93C300967C3F /* InterstitialViewController.m */,
-				3CA8591812FB93C300967C3F /* InterstitialViewController.xib */,
 				3CA8595312FC833600967C3F /* PerformanceViewController.h */,
 				3CA8595412FC833600967C3F /* PerformanceViewController.m */,
-				3CA8595512FC833600967C3F /* PerformanceViewController.xib */,
 			);
 			path = Classes;
 			sourceTree = "<group>";
@@ -145,7 +145,7 @@
 		19C28FACFE9D520D11CA2CBB /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				1D6058910D05DD3D006BFB54 /* SimpleAds.app */,
+				1D6058910D05DD3D006BFB54 /* MoPubDemo.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -174,9 +174,13 @@
 		29B97317FDCFA39411CA2CEA /* Resources-iPhone */ = {
 			isa = PBXGroup;
 			children = (
-				3CA8591212FB92DF00967C3F /* 300x250spacer.png */,
-				3CA858FB12FB8E7900967C3F /* mopub-portrait.png */,
-				3CA858FC12FB8E7900967C3F /* mopub-portrait@2x.png */,
+				3CABE6DA1300B82A00887B75 /* 300x250spacer.png */,
+				3CABE6C11300AFFB00887B75 /* Icon.png */,
+				3CABE6C21300AFFB00887B75 /* Icon@2x.png */,
+				3CA8591812FB93C300967C3F /* InterstitialViewController.xib */,
+				3CA8595512FC833600967C3F /* PerformanceViewController.xib */,
+				3CA858FB12FB8E7900967C3F /* Default.png */,
+				3CA858FC12FB8E7900967C3F /* Default@2x.png */,
 				3CC4D7771264DC6800212F16 /* SecondViewController.xib */,
 				3CB4A0F0113F5E75000DB158 /* MainWindow.xib */,
 				3CB4A0F1113F5E75000DB158 /* SimpleAdsViewController.xib */,
@@ -230,8 +234,6 @@
 				3C0644E412E55D2E004F5593 /* MoPubAlertAdAdapter.m */,
 				3C0644E512E55D2E004F5593 /* MoPubCustomAdAdapter.h */,
 				3C0644E612E55D2E004F5593 /* MoPubCustomAdAdapter.m */,
-				3C0644E712E55D2E004F5593 /* MoPubGoogleAdSenseAdapter.h */,
-				3C0644E812E55D2E004F5593 /* MoPubGoogleAdSenseAdapter.m */,
 				3C0644E912E55D2E004F5593 /* MoPubIAdAdapter.h */,
 				3C0644EA12E55D2E004F5593 /* MoPubIAdAdapter.m */,
 				3C0644EB12E55D2E004F5593 /* MoPubNativeSDKAdapter.h */,
@@ -257,7 +259,7 @@
 			);
 			name = SimpleAds;
 			productName = SimpleAds;
-			productReference = 1D6058910D05DD3D006BFB54 /* SimpleAds.app */;
+			productReference = 1D6058910D05DD3D006BFB54 /* MoPubDemo.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -297,11 +299,13 @@
 				3C06450A12E55D2E004F5593 /* moPubCloseButtonX.png in Resources */,
 				3CA8587312FB85AC00967C3F /* square-mopub.png in Resources */,
 				3CA858EA12FB8C1A00967C3F /* WelcomeViewController.xib in Resources */,
-				3CA858FD12FB8E7900967C3F /* mopub-portrait.png in Resources */,
-				3CA858FE12FB8E7900967C3F /* mopub-portrait@2x.png in Resources */,
-				3CA8591312FB92DF00967C3F /* 300x250spacer.png in Resources */,
+				3CA858FD12FB8E7900967C3F /* Default.png in Resources */,
+				3CA858FE12FB8E7900967C3F /* Default@2x.png in Resources */,
 				3CA8591A12FB93C300967C3F /* InterstitialViewController.xib in Resources */,
 				3CA8595712FC833600967C3F /* PerformanceViewController.xib in Resources */,
+				3CABE6C31300AFFB00887B75 /* Icon.png in Resources */,
+				3CABE6C41300AFFB00887B75 /* Icon@2x.png in Resources */,
+				3CABE6DB1300B82A00887B75 /* 300x250spacer.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -349,7 +353,7 @@
 					"$(inherited)",
 					"\"$(SRCROOT)\"",
 				);
-				PRODUCT_NAME = SimpleAds;
+				PRODUCT_NAME = MoPubDemo;
 			};
 			name = Debug;
 		};

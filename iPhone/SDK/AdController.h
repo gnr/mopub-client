@@ -7,7 +7,7 @@
 #import <CoreLocation/CoreLocation.h>
 #import "AdClickController.h"
 
-#define HOSTNAME @"36-newui.latest.mopub-inc.appspot.com" // @"ads.mopub.com"
+#define HOSTNAME @"ads.mopub.com"
 
 @class AdClickController;
 @class MoPubNativeSDKAdapter;
