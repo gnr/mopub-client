@@ -125,26 +125,26 @@ static NSDictionary *GADHeaderAttrMap = nil;
 - (UIViewController *)viewControllerForModalPresentation:
 (GADAdViewController *)adController
 {
-	return [self.delegate.delegate viewControllerForPresentingModalView];
+	return [self.adView.delegate viewControllerForPresentingModalView];
 }
 
 - (void)loadSucceeded:(GADAdViewController *)adController
           withResults:(NSDictionary *) results
 {
-	[self.delegate setAdContentView:adController.view];
-	[self.delegate adapterDidFinishLoadingAd:self];
+	[self.adView setAdContentView:adController.view];
+	[self.adView adapterDidFinishLoadingAd:self];
 }
 
 - (void)loadFailed:(GADAdViewController *)adController
          withError:(NSError *) error
 {
-	[self.delegate adapter:self didFailToLoadAdWithError:nil];
+	[self.adView adapter:self didFailToLoadAdWithError:nil];
 }
 
 - (GADAdClickAction)adControllerActionModelForAdClick:
 (GADAdViewController *)adController
 {
-	[self.delegate adClickedForAdapter:self];
+	[self.adView adClickedForAdapter:self];
 	return GAD_ACTION_DISPLAY_INTERNAL_WEBSITE_VIEW;
 }
 

@@ -14,11 +14,11 @@
 
 @protocol MPAdViewDelegate;
 
-//#define HOSTNAME @"192.168.1.120:8080"
-//#define PUB_ID_320x50 @"agltb3B1Yi1pbmNyDAsSBFNpdGUYkaoMDA"
-//#define HOSTNAME @"ads.mopub.com"
-#define HOSTNAME @"36-newui.latest.mopub-inc.appspot.com"
+#define HOSTNAME @"192.168.1.120:8080"
 #define PUB_ID_320x50 @"agltb3B1Yi1pbmNyDAsSBFNpdGUYkaoMDA"
+//#define HOSTNAME @"ads.mopub.com"
+//#define HOSTNAME @"36-newui.latest.mopub-inc.appspot.com"
+//#define PUB_ID_320x50 @"agltb3B1Yi1pbmNyDAsSBFNpdGUYkaoMDA"
 
 @interface MPAdView : UIView <UIWebViewDelegate, AdClickControllerDelegate, MPAdapterDelegate> {
 	NSObject<MPAdViewDelegate> *_delegate;
@@ -26,17 +26,31 @@
 	NSString *_keywords;
 	CLLocation *_location;
 	
+	// Subview that represents the actual ad content. Set via -setAdContentView.
 	UIView *_adContentView;
+	
+	// Default view for HTML ads.
 	UIWebView *_webView;
+	
 	NSString *_adUnitId;
+	
+	// Connection data object for ad request.
 	NSMutableData *_data;
+	
+	// URL used to request ad parameters.
 	NSURL *_URL;
+	
+	// Connection object for ad request.
 	NSURLConnection *_conn;
+	
+	// 
 	MPBaseAdapter *_adapter;
+	
 	
 	NSURL *_clickURL;
 	NSURL *_interceptURL;
 	NSURL *_failURL;
+	NSURL *_impTrackerURL;
 	NSMutableArray *_excludeParams;
 	
 	MPStore *_store;
@@ -54,6 +68,7 @@
 @property (nonatomic, copy) NSURL *clickURL;
 @property (nonatomic, copy) NSURL *interceptURL;
 @property (nonatomic, copy) NSURL *failURL;
+@property (nonatomic, copy) NSURL *impTrackerURL;
 
 @property (nonatomic, assign) BOOL shouldInterceptLinks;
 @property (nonatomic, assign) BOOL scrollable;
@@ -65,12 +80,15 @@
 - (void)loadAdWithURL:(NSURL *)URL;
 - (void)refreshAd;
 - (void)setAdContentView:(UIView *)view;
-- (void)viewDidAppear;
+- (void)adViewDidAppear;
 
 // Informs the ad unit that the device orientation has changed.
 - (void)rotateToOrientation:(UIInterfaceOrientation)newOrientation;
 
 - (void)didCloseAd:(id)sender;
+
+- (void)customEventDidLoadAd;
+- (void)customEventDidFailToLoadAd;
 
 @end
 

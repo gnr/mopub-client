@@ -22,7 +22,7 @@
 {
 	Class cls = NSClassFromString(@"ADBannerView");
 	if (cls != nil) {
-		CGSize size = self.delegate.frame.size;
+		CGSize size = self.adView.frame.size;
 		
 		if (_adBannerView)
 		{
@@ -78,7 +78,7 @@
 - (void)bannerView:(ADBannerView *)banner didFailToReceiveAdWithError:(NSError *)error
 {
 	NSLog(@"MOPUB: iAd Failed To Receive Ad");
-	[self.delegate adapter:self didFailToLoadAdWithError:error];
+	[self.adView adapter:self didFailToLoadAdWithError:error];
 }
 
 - (void)bannerViewActionDidFinish:(ADBannerView *)banner
@@ -90,15 +90,15 @@
 - (BOOL)bannerViewActionShouldBegin:(ADBannerView *)banner willLeaveApplication:(BOOL)willLeave
 {
 	NSLog(@"MOPUB: iAd Should Begin Banner Action");
-	[self.delegate adClickedForAdapter:self];
+	[self.adView adClickedForAdapter:self];
 	return YES;
 }
 
 - (void)bannerViewDidLoadAd:(ADBannerView *)banner
 {
 	NSLog(@"MOPUB: iAd Load Succeeded");
-	[self.delegate setAdContentView:_adBannerView];
-	[self.delegate adapterDidFinishLoadingAd:self];
+	[self.adView setAdContentView:_adBannerView];
+	[self.adView adapterDidFinishLoadingAd:self];
 }
 
 @end

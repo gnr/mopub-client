@@ -11,7 +11,7 @@
 
 @implementation MPBaseAdapter
 
-@synthesize delegate = _delegate;
+@synthesize adView = _adView;
 
 - (void)getAd
 {

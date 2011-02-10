@@ -9,7 +9,7 @@
 #import "MPInterstitialAdController.h"
 
 @interface MPInterstitialAdController (Internal)
-- (void)_setUpCloseButton;
+- (void)setUpCloseButton;
 @end
 
 @implementation MPInterstitialAdController
@@ -107,7 +107,7 @@
 	_adView.delegate = self;
 	[self.view addSubview:_adView];
 	
-	[self _setUpCloseButton];
+	[self setUpCloseButton];
 }
 
 #pragma mark -
@@ -189,7 +189,7 @@
 - (void)viewDidAppear:(BOOL)animated
 {
 	self.view;
-	[_adView viewDidAppear];
+	[_adView adViewDidAppear];
 	[super viewDidAppear:animated];
 	
 	if ([self.parent respondsToSelector:@selector(interstitialDidAppear:)])

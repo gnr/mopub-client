@@ -11,20 +11,28 @@
 #import "MPAdapterMap.h"
 
 @interface MPAdView (Internal)
-- (void)_setUpWebViewWithFrame:(CGRect)frame;
-- (void)_adLinkClicked:(NSURL *)URL;
-- (void)_backFillWithNothing;
+- (void)setUpWebViewWithFrame:(CGRect)frame;
+- (void)adLinkClicked:(NSURL *)URL;
+- (void)backFillWithNothing;
 - (NSString *)_escapeURL:(NSURL *)URL;
-- (void)_trackClickWithURL:(NSURL *)clickURL;
+- (void)trackClickWithURL:(NSURL *)clickURL;
+- (void)trackImpressionWithURL:(NSURL *)impTrackerURL;
 - (NSDictionary *)queryToDictionary:(NSString *)query;
 @end
 
 @implementation MPAdView
 
-@synthesize delegate = _delegate, adUnitId = _adUnitId, URL = _URL;
-@synthesize clickURL = _clickURL, interceptURL = _interceptURL, failURL = _failURL;
-@synthesize keywords = _keywords, location = _location;
-@synthesize shouldInterceptLinks = _shouldInterceptLinks, scrollable = _scrollable;
+@synthesize delegate = _delegate;
+@synthesize adUnitId = _adUnitId;
+@synthesize URL = _URL;
+@synthesize clickURL = _clickURL;
+@synthesize interceptURL = _interceptURL;
+@synthesize failURL = _failURL;
+@synthesize impTrackerURL = _impTrackerURL;
+@synthesize keywords = _keywords;
+@synthesize location = _location;
+@synthesize shouldInterceptLinks = _shouldInterceptLinks;
+@synthesize scrollable = _scrollable;
 
 #pragma mark -
 #pragma mark Lifecycle
@@ -35,7 +43,7 @@
     if (self) 
 	{
 		self.backgroundColor = [UIColor clearColor];
-		[self _setUpWebViewWithFrame:frame];
+		[self setUpWebViewWithFrame:frame];
 		_adUnitId = PUB_ID_320x50;
 		_data = [[NSMutableData data] retain];
 		_excludeParams = [[NSMutableArray array] retain];
@@ -58,6 +66,7 @@
 	[_clickURL release];
 	[_interceptURL release];
 	[_failURL release];
+	[_impTrackerURL release];
 	[_excludeParams release];
 	[_keywords release];
 	[_location release];
@@ -67,7 +76,7 @@
 #pragma mark -
 #pragma mark Internal
 
-- (void)_setUpWebViewWithFrame:(CGRect)frame
+- (void)setUpWebViewWithFrame:(CGRect)frame
 {
 	_webView = [[UIWebView alloc] initWithFrame:CGRectMake(0, 0, frame.size.width, frame.size.height)];
 	_webView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
@@ -79,7 +88,7 @@
 	self.scrollable = NO;
 }
 
-- (void)_adLinkClicked:(NSURL *)URL
+- (void)adLinkClicked:(NSURL *)URL
 {
 	NSString *redirectURLString = [self _escapeURL:URL];	
 	NSURL *desiredURL = [NSURL URLWithString:[NSString stringWithFormat:@"%@&r=%@",
@@ -99,7 +108,7 @@
 		[self.delegate didPresentModalViewForAd:self];
 }
 
-- (void)_backFillWithNothing
+- (void)backFillWithNothing
 {
 	self.backgroundColor = [UIColor clearColor];
 	self.hidden = YES;
@@ -110,7 +119,7 @@
 	}
 }
 
-- (NSString *)_escapeURL:(NSURL *)URL
+- (NSString *)escapeURL:(NSURL *)URL
 {
 	NSMutableString *redirectUrl = [NSMutableString stringWithString:[URL absoluteString]];
 	NSRange wholeString = NSMakeRange(0, [redirectUrl length]);
@@ -134,11 +143,18 @@
 	return redirectUrl;
 }
 
-- (void)_trackClickWithURL:(NSURL *)clickURL
+- (void)trackClickWithURL:(NSURL *)clickURL
 {
 	NSURLRequest *clickURLRequest = [NSURLRequest requestWithURL:clickURL];
 	[NSURLConnection connectionWithRequest:clickURLRequest delegate:nil];
 	NSLog(@"MOPUB: tracking click %@", clickURL);
+}
+
+- (void)trackImpressionWithURL:(NSURL *)impTrackerURL
+{
+	NSURLRequest *impTrackerURLRequest = [NSURLRequest requestWithURL:impTrackerURL];
+	[NSURLConnection connectionWithRequest:impTrackerURLRequest delegate:nil];
+	NSLog(@"MOPUB: tracking impression %@", impTrackerURL);
 }
 
 - (NSDictionary *)queryToDictionary:(NSString *)query
@@ -310,6 +326,7 @@
 	self.clickURL = [NSURL URLWithString:[headers objectForKey:@"X-Clickthrough"]];
 	self.interceptURL = [NSURL URLWithString:[headers objectForKey:@"X-Launchpage"]];
 	self.failURL = [NSURL URLWithString:[headers objectForKey:@"X-Failurl"]];
+	self.impTrackerURL = [NSURL URLWithString:[headers objectForKey:@"X-Imptrackerurl"]];
 	
 	NSString *shouldInterceptLinksString = [headers objectForKey:@"X-Interceptlinks"];
 	if (shouldInterceptLinksString)
@@ -324,13 +341,15 @@
 	
 	if (!typeHeader || [typeHeader isEqualToString:@"html"])
 	{
+		// HTML ad, so just return. connectionDidFinishLoading: will take care of the rest.
 		return;
 	}
 	else if ([typeHeader isEqualToString:@"clear"])
 	{
+		// Show a blank.
 		[connection cancel];
 		_isLoading = NO;
-		[self _backFillWithNothing];
+		[self backFillWithNothing];
 		return;
 	}
 	
@@ -339,20 +358,20 @@
 	Class cls = NSClassFromString(classString);
 	if (cls != nil)
 	{
-		_adapter.delegate = nil;
+		_adapter.adView = nil;
 		[_adapter release];
 		
 		_adapter = (MPBaseAdapter *)[[cls alloc] init];
-		_adapter.delegate = self;
+		_adapter.adView = self;
+		
+		[connection cancel];
+		_isLoading = NO;
 		
 		// Tell adapter to fire off ad request.
 		NSDictionary *params = [(NSHTTPURLResponse *)response allHeaderFields];
 		[_adapter getAdWithParams:params];
-		
-		[connection cancel];
-		_isLoading = NO;
 	}
-	// If there's no adapter for the specified ad type, just fail over.
+	// There's no adapter for the specified ad type, so just fail over.
 	else 
 	{
 		[connection cancel];
@@ -369,7 +388,7 @@
 	NSLog(@"MOPUB: ad view failed to load any content. %@", error);
 
 	_isLoading = NO;
-	[self _backFillWithNothing];
+	[self backFillWithNothing];
 }
 
 - (void)connectionDidFinishLoading:(NSURLConnection *)connection {
@@ -424,7 +443,7 @@
 		}
 		else if ([host isEqualToString:@"open"])
 		{
-			[self _adLinkClicked:URL];
+			[self adLinkClicked:URL];
 		}
 		else if ([host isEqualToString:@"inapp"])
 		{
@@ -441,13 +460,13 @@
 		self.interceptURL &&
 		[[URL absoluteString] hasPrefix:[self.interceptURL absoluteString]])
 	{
-		[self _adLinkClicked:URL];
+		[self adLinkClicked:URL];
 		return NO;
 	}
 
 	if (navigationType == UIWebViewNavigationTypeLinkClicked && self.shouldInterceptLinks)
 	{
-		[self _adLinkClicked:URL];
+		[self adLinkClicked:URL];
 		return NO;
 	}
 	
@@ -460,10 +479,19 @@
 	[[self.delegate viewControllerForPresentingModalView] dismissModalViewControllerAnimated:YES];
 }
 
-// TODO: change the name of this
-- (void)viewDidAppear
+- (void)adViewDidAppear
 {
 	[_webView stringByEvaluatingJavaScriptFromString:@"webviewDidAppear();"]; 
+}
+
+- (void)customEventDidLoadAd
+{
+	[self trackImpressionWithURL:self.impTrackerURL];
+}
+
+- (void)customEventDidFailToLoadAd
+{
+	[self loadAdWithURL:self.failURL];
 }
 
 #pragma mark -
@@ -477,13 +505,13 @@
 
 - (void)adapter:(MPBaseAdapter *)adapter didFailToLoadAdWithError:(NSError *)error
 {
+	NSLog(@"MOPUB: Adapter failed to load ad. Error: %@", error);
 	[self loadAdWithURL:self.failURL];
-	// TODO: handle error
 }
 
 - (void)adClickedForAdapter:(MPBaseAdapter *)adapter
 {
-	[self _trackClickWithURL:self.clickURL];
+	[self trackClickWithURL:self.clickURL];
 	
 	// Notify delegate that an ad was clicked.
 	if ([self.delegate respondsToSelector:@selector(nativeAdClicked:)])

@@ -11,7 +11,7 @@
 #define HOSTNAME @"ads.mopub.com"
 
 @interface MPAdConversionTracker (Internal)
-- (void)_reportApplicationOpenSynchronous:(NSString *)appID;
+- (void)reportApplicationOpenSynchronous:(NSString *)appID;
 @end
 
 @implementation MPAdConversionTracker
@@ -30,10 +30,13 @@
 
 - (void)reportApplicationOpenForApplicationID:(NSString *)appID
 {
-	[self performSelectorInBackground:@selector(_reportApplicationOpenSynchronous:) withObject:appID];
+	[self performSelectorInBackground:@selector(reportApplicationOpenSynchronous:) withObject:appID];
 }
 
-- (void)_reportApplicationOpenSynchronous:(NSString *)appID{
+#pragma mark -
+#pragma mark Internal
+
+- (void)reportApplicationOpenSynchronous:(NSString *)appID{
 	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init]; 
 	
 	// Have we already reported an app open?

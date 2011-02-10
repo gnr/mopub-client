@@ -34,6 +34,7 @@
 		A884455B12F0FD7B0091613A /* CJSONDeserializer.m in Sources */ = {isa = PBXBuildFile; fileRef = A884454F12F0FD7B0091613A /* CJSONDeserializer.m */; };
 		A884455C12F0FD7B0091613A /* CJSONScanner.m in Sources */ = {isa = PBXBuildFile; fileRef = A884455112F0FD7B0091613A /* CJSONScanner.m */; };
 		A884455D12F0FD7B0091613A /* CJSONSerializer.m in Sources */ = {isa = PBXBuildFile; fileRef = A884455312F0FD7B0091613A /* CJSONSerializer.m */; };
+		A88AC0831303668900056A3C /* MPCustomEventAdapter.m in Sources */ = {isa = PBXBuildFile; fileRef = A88AC0821303668900056A3C /* MPCustomEventAdapter.m */; };
 		A8CE226F12FCACE60090D01B /* MPAdConversionTracker.m in Sources */ = {isa = PBXBuildFile; fileRef = A8CE226E12FCACE60090D01B /* MPAdConversionTracker.m */; };
 		A8DADEF912FF64DD000C62C1 /* MPStore.m in Sources */ = {isa = PBXBuildFile; fileRef = A8DADEF812FF64DD000C62C1 /* MPStore.m */; };
 		A8DADF0A12FF6506000C62C1 /* StoreKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A8DADF0912FF6506000C62C1 /* StoreKit.framework */; };
@@ -93,6 +94,8 @@
 		A884455212F0FD7B0091613A /* CJSONSerializer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CJSONSerializer.h; sourceTree = "<group>"; };
 		A884455312F0FD7B0091613A /* CJSONSerializer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CJSONSerializer.m; sourceTree = "<group>"; };
 		A884455412F0FD7B0091613A /* JSONRepresentation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JSONRepresentation.h; sourceTree = "<group>"; };
+		A88AC0811303668900056A3C /* MPCustomEventAdapter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPCustomEventAdapter.h; sourceTree = "<group>"; };
+		A88AC0821303668900056A3C /* MPCustomEventAdapter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPCustomEventAdapter.m; sourceTree = "<group>"; };
 		A8CE226D12FCACE60090D01B /* MPAdConversionTracker.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPAdConversionTracker.h; sourceTree = "<group>"; };
 		A8CE226E12FCACE60090D01B /* MPAdConversionTracker.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPAdConversionTracker.m; sourceTree = "<group>"; };
 		A8DADEF712FF64DD000C62C1 /* MPStore.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPStore.h; sourceTree = "<group>"; };
@@ -281,6 +284,8 @@
 				3C6ED2B312E7D4BB00C5E818 /* MPIAdAdapter.m */,
 				A8E4406212F0E5E30096079D /* MPGoogleAdSenseAdapter.h */,
 				A8E4406312F0E5E30096079D /* MPGoogleAdSenseAdapter.m */,
+				A88AC0811303668900056A3C /* MPCustomEventAdapter.h */,
+				A88AC0821303668900056A3C /* MPCustomEventAdapter.m */,
 				3C6ED2B712E7D4EB00C5E818 /* MPBaseAdapter.h */,
 				3C6ED2B812E7D4EB00C5E818 /* MPBaseAdapter.m */,
 			);
@@ -393,6 +398,7 @@
 				A86C4BC212FA4830006A8DE7 /* MPInterstitialAdController.m in Sources */,
 				A8CE226F12FCACE60090D01B /* MPAdConversionTracker.m in Sources */,
 				A8DADEF912FF64DD000C62C1 /* MPStore.m in Sources */,
+				A88AC0831303668900056A3C /* MPCustomEventAdapter.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

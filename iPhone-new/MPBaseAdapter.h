@@ -12,10 +12,10 @@
 
 @interface MPBaseAdapter : NSObject 
 {
-	MPAdView *_delegate;
+	MPAdView *_adView;
 }
 
-@property (nonatomic, assign) MPAdView *delegate;
+@property (nonatomic, assign) MPAdView *adView;
 
 - (void)getAd;
 - (void)getAdWithParams:(NSDictionary *)params;

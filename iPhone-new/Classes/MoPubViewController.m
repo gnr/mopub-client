@@ -37,7 +37,7 @@
 {
 	self.view = [[[UIView alloc] initWithFrame:[[UIScreen mainScreen] applicationFrame]] autorelease];
 	self.view.backgroundColor = [UIColor blackColor];
-	MPAdView *adView = [[MPAdView alloc] initWithFrame:CGRectMake(0, 200, 320, 50)];
+	adView = [[MPAdView alloc] initWithFrame:CGRectMake(0, 200, 320, 50)];
 	adView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleTopMargin |
 		UIViewAutoresizingFlexibleBottomMargin;
 	adView.delegate = self;
@@ -136,6 +136,25 @@
 - (void)interstitialDidAppear:(MPInterstitialAdController *)interstitial
 {
 }
+
+#pragma mark -
+#pragma mark Custom Event
+
+/*- (void)customEventTest
+{
+	UIView *redView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 320, 100)];
+	redView.backgroundColor = [UIColor redColor];
+	[adView setAdContentView:redView];
+	[redView release];
+}*/
+
+/*- (void)customEventTest:(MPAdView *)theAdView
+{
+	UIView *blueView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 320, 100)];
+	blueView.backgroundColor = [UIColor blueColor];
+	[theAdView setAdContentView:blueView];
+	[blueView release];
+}*/
 
 #pragma mark -
 
