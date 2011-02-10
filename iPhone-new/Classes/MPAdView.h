@@ -8,7 +8,7 @@
 
 #import <UIKit/UIKit.h>
 #import <CoreLocation/CoreLocation.h>
-#import "AdClickController.h"
+#import "MPAdBrowserController.h"
 #import "MPBaseAdapter.h"
 #import "MPStore.h"
 #import "MPConstants.h"
@@ -25,7 +25,7 @@
 
 
 
-@interface MPAdView : UIView <UIWebViewDelegate, AdClickControllerDelegate, MPAdapterDelegate> {
+@interface MPAdView : UIView <UIWebViewDelegate, MPAdBrowserControllerDelegate, MPAdapterDelegate> {
 	NSObject<MPAdViewDelegate> *_delegate;
 	
 	NSString *_keywords;

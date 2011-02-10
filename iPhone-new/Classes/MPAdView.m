@@ -100,8 +100,9 @@
 		[self.delegate willPresentModalViewForAd:self];
 	
 	// Present ad browser.
-	AdClickController *adClickController = [[[AdClickController alloc] initWithURL:desiredURL delegate:self] autorelease];
-	[[self.delegate viewControllerForPresentingModalView] presentModalViewController:adClickController animated:YES];
+	MPAdBrowserController *browserController = [[[MPAdBrowserController alloc] initWithURL:desiredURL 
+																				  delegate:self] autorelease];
+	[[self.delegate viewControllerForPresentingModalView] presentModalViewController:browserController animated:YES];
 	
 	// Notify delegate that the ad browser has been presented.
 	if ([self.delegate respondsToSelector:@selector(didPresentModalViewForAd:)])
@@ -455,7 +456,7 @@
 	return YES;
 }
 
-- (void)dismissModalViewForAdClickController:(AdClickController *)adClickController
+- (void)dismissModalViewForBrowserController:(MPAdBrowserController *)browserController
 {
 	[[self.delegate viewControllerForPresentingModalView] dismissModalViewControllerAnimated:YES];
 }

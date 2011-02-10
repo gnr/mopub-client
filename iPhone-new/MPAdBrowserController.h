@@ -8,9 +8,42 @@
 
 #import <UIKit/UIKit.h>
 
+@protocol MPAdBrowserControllerDelegate;
 
-@interface MPAdBrowserController : UIViewController {
-	
+@interface MPAdBrowserController : UIViewController <UIWebViewDelegate, UIActionSheetDelegate>
+{
+	id<MPAdBrowserControllerDelegate> _delegate;
+	UIWebView *_webView;
+	UIBarButtonItem *_backButton;
+	UIBarButtonItem *_forwardButton;
+	UIBarButtonItem *_refreshButton;
+	UIBarButtonItem *_safariButton;
+	UIBarButtonItem *_doneButton;
+	UIActivityIndicatorView *_spinner;
+	UIBarButtonItem *_spinnerItem;
+	NSURL *_URL;
 }
 
+- (id)initWithURL:(NSURL *)URL delegate:(id<MPAdBrowserControllerDelegate>)delegate;
+
+// Navigation methods.
+- (void)back;
+- (void)forward;
+- (void)refresh;
+- (void)safari;
+- (void)done;
+
+// Drawing methods.
+- (CGContextRef)createContext;
+- (UIImage *)backArrowImage;
+- (UIImage *)forwardArrowImage;
+
+@property (nonatomic, assign) id<MPAdBrowserControllerDelegate> delegate;
+@property (nonatomic, copy) NSURL *URL;
+
+@end
+
+@protocol MPAdBrowserControllerDelegate <NSObject>
+@optional
+- (void)dismissModalViewForBrowserController:(MPAdBrowserController *)browserController;
 @end
