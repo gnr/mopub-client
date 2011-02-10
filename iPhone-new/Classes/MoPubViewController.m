@@ -7,8 +7,7 @@
 //
 
 #import "MoPubViewController.h"
-
-#define PUB_ID_INTERSTITIAL @"agltb3B1Yi1pbmNyDAsSBFNpdGUYsckMDA"
+#import "MPAdView.h"
 
 @implementation MoPubViewController
 

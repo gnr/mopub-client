@@ -9,12 +9,12 @@
 #import "MPAdView.h"
 #import "MPBaseAdapter.h"
 #import "MPAdapterMap.h"
+#import <CommonCrypto/CommonDigest.h>
 
 @interface MPAdView (Internal)
 - (void)setUpWebViewWithFrame:(CGRect)frame;
 - (void)adLinkClicked:(NSURL *)URL;
 - (void)backFillWithNothing;
-- (NSString *)_escapeURL:(NSURL *)URL;
 - (void)trackClickWithURL:(NSURL *)clickURL;
 - (void)trackImpressionWithURL:(NSURL *)impTrackerURL;
 - (NSDictionary *)queryToDictionary:(NSString *)query;
@@ -90,7 +90,7 @@
 
 - (void)adLinkClicked:(NSURL *)URL
 {
-	NSString *redirectURLString = [self _escapeURL:URL];	
+	NSString *redirectURLString = [[URL absoluteString] URLescapedString];	
 	NSURL *desiredURL = [NSURL URLWithString:[NSString stringWithFormat:@"%@&r=%@",
 											  _clickURL,
 											  redirectURLString]];
@@ -117,30 +117,6 @@
 	if ([self.delegate respondsToSelector:@selector(adViewDidFailToLoadAd:)]){
 		[self.delegate adViewDidFailToLoadAd:self];
 	}
-}
-
-- (NSString *)escapeURL:(NSURL *)URL
-{
-	NSMutableString *redirectUrl = [NSMutableString stringWithString:[URL absoluteString]];
-	NSRange wholeString = NSMakeRange(0, [redirectUrl length]);
-	[redirectUrl replaceOccurrencesOfString:@"&" withString:@"%26" options:NSCaseInsensitiveSearch range:wholeString];
-	[redirectUrl replaceOccurrencesOfString:@"+" withString:@"%2B" options:NSCaseInsensitiveSearch range:wholeString];
-	[redirectUrl replaceOccurrencesOfString:@"," withString:@"%2C" options:NSCaseInsensitiveSearch range:wholeString];
-	[redirectUrl replaceOccurrencesOfString:@"/" withString:@"%2F" options:NSCaseInsensitiveSearch range:wholeString];
-	[redirectUrl replaceOccurrencesOfString:@":" withString:@"%3A" options:NSCaseInsensitiveSearch range:wholeString];
-	[redirectUrl replaceOccurrencesOfString:@";" withString:@"%3B" options:NSCaseInsensitiveSearch range:wholeString];
-	[redirectUrl replaceOccurrencesOfString:@"=" withString:@"%3D" options:NSCaseInsensitiveSearch range:wholeString];
-	[redirectUrl replaceOccurrencesOfString:@"?" withString:@"%3F" options:NSCaseInsensitiveSearch range:wholeString];
-	[redirectUrl replaceOccurrencesOfString:@"@" withString:@"%40" options:NSCaseInsensitiveSearch range:wholeString];
-	[redirectUrl replaceOccurrencesOfString:@" " withString:@"%20" options:NSCaseInsensitiveSearch range:wholeString];
-	[redirectUrl replaceOccurrencesOfString:@"\t" withString:@"%09" options:NSCaseInsensitiveSearch range:wholeString];
-	[redirectUrl replaceOccurrencesOfString:@"#" withString:@"%23" options:NSCaseInsensitiveSearch range:wholeString];
-	[redirectUrl replaceOccurrencesOfString:@"<" withString:@"%3C" options:NSCaseInsensitiveSearch range:wholeString];
-	[redirectUrl replaceOccurrencesOfString:@">" withString:@"%3E" options:NSCaseInsensitiveSearch range:wholeString];
-	[redirectUrl replaceOccurrencesOfString:@"\"" withString:@"%22" options:NSCaseInsensitiveSearch range:wholeString];
-	[redirectUrl replaceOccurrencesOfString:@"\n" withString:@"%0A" options:NSCaseInsensitiveSearch range:wholeString];
-	
-	return redirectUrl;
 }
 
 - (void)trackClickWithURL:(NSURL *)clickURL
@@ -231,7 +207,7 @@
 	{
 		NSString *urlString = [NSString stringWithFormat:@"http://%@/m/ad?v=3&udid=%@&q=%@&id=%@", 
 							   HOSTNAME,
-							   [[UIDevice currentDevice] uniqueIdentifier],
+							   [[UIDevice currentDevice] hashedMopubUDID],
 							   [self.keywords stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding],
 							   [self.adUnitId stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]
 							   ];
@@ -365,7 +341,7 @@
 		_adapter.adView = self;
 		
 		[connection cancel];
-		_isLoading = NO;
+		//_isLoading = NO;
 		
 		// Tell adapter to fire off ad request.
 		NSDictionary *params = [(NSHTTPURLResponse *)response allHeaderFields];
@@ -376,6 +352,7 @@
 	{
 		[connection cancel];
 		_isLoading = NO;
+		
 		[self loadAdWithURL:self.failURL];
 	}
 }
@@ -402,7 +379,7 @@
 	NSLog(@"MOPUB: response %@",response);
 	[response release];
 	
-	_isLoading = NO;
+	//_isLoading = NO;
 }
 
 # pragma mark -
@@ -428,6 +405,8 @@
 			_webViewIsLoading = NO;
 			_webView.hidden = NO;
 			
+			_isLoading = NO;
+			
 			// Notify delegate that an ad has been loaded.
 			if ([self.delegate respondsToSelector:@selector(adViewDidLoadAd:)]) 
 				[self.delegate adViewDidLoadAd:self];
@@ -436,6 +415,8 @@
 		{
 			_webViewIsLoading = NO;
 			_webView.hidden = NO;
+			
+			_isLoading = NO;
 			
 			// Notify delegate that an ad failed to load.
 			if ([self.delegate respondsToSelector:@selector(adViewDidFailToLoadAd:)]) 
@@ -486,11 +467,13 @@
 
 - (void)customEventDidLoadAd
 {
+	_isLoading = NO;
 	[self trackImpressionWithURL:self.impTrackerURL];
 }
 
 - (void)customEventDidFailToLoadAd
 {
+	_isLoading = NO;
 	[self loadAdWithURL:self.failURL];
 }
 
@@ -499,12 +482,14 @@
 
 - (void)adapterDidFinishLoadingAd:(MPBaseAdapter *)adapter
 {
+	_isLoading = NO;
 	if ([self.delegate respondsToSelector:@selector(adViewDidLoadAd:)])
 		[self.delegate adViewDidLoadAd:self];
 }
 
 - (void)adapter:(MPBaseAdapter *)adapter didFailToLoadAdWithError:(NSError *)error
 {
+	_isLoading = NO;
 	NSLog(@"MOPUB: Adapter failed to load ad. Error: %@", error);
 	[self loadAdWithURL:self.failURL];
 }
@@ -519,3 +504,50 @@
 }
 
 @end
+
+#pragma mark -
+#pragma mark Categories
+
+@implementation UIDevice (MPAdditions)
+
+- (NSString *)hashedMopubUDID 
+{
+	NSString *result = nil;
+	NSString *udid = [NSString stringWithFormat:@"mopub-%@", [UIDevice currentDevice].uniqueIdentifier];
+	
+	if (udid) 
+	{
+		unsigned char digest[16];
+		NSData *data = [udid dataUsingEncoding:NSASCIIStringEncoding];
+		CC_MD5([data bytes], [data length], digest);
+		
+		result = [NSString stringWithFormat:@"%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x",
+				  digest[0], digest[1], 
+				  digest[2], digest[3],
+				  digest[4], digest[5],
+				  digest[6], digest[7],
+				  digest[8], digest[9],
+				  digest[10], digest[11],
+				  digest[12], digest[13],
+				  digest[14], digest[15]];
+		result = [result uppercaseString];
+	}
+	return [NSString stringWithFormat:@"md5:%@", result];
+}
+
+@end
+
+@implementation NSString (MPAdditions)
+
+- (NSString *)URLescapedString
+{
+	NSString *result = (NSString *)CFURLCreateStringByAddingPercentEscapes(NULL,
+																		   (CFStringRef)self,
+																		   NULL,
+																		   (CFStringRef)@"!*'();:@&=+$,/?%#[]<>",
+																		   kCFStringEncodingUTF8);
+	return result;
+}
+
+@end
+

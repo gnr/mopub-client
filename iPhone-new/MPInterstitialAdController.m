@@ -96,7 +96,7 @@
 - (void)loadView 
 {
 	UIView *container = [[[UIView alloc] initWithFrame:CGRectZero] autorelease];
-	container.backgroundColor = [UIColor greenColor];
+	container.backgroundColor = [UIColor blackColor];
 	container.frame = (CGRect){{0, 0}, [UIScreen mainScreen].bounds.size};
 	container.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
 	self.view = container;
@@ -113,7 +113,7 @@
 #pragma mark -
 #pragma mark Internal
 
-- (void)_setUpCloseButton
+- (void)setUpCloseButton
 {
 	if (_closeButtonType == InterstitialCloseButtonTypeDefault)
 	{

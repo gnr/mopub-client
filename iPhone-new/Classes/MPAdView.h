@@ -11,14 +11,19 @@
 #import "AdClickController.h"
 #import "MPBaseAdapter.h"
 #import "MPStore.h"
+#import "MPConstants.h"
 
 @protocol MPAdViewDelegate;
 
-#define HOSTNAME @"192.168.1.120:8080"
-#define PUB_ID_320x50 @"agltb3B1Yi1pbmNyDAsSBFNpdGUYkaoMDA"
-//#define HOSTNAME @"ads.mopub.com"
-//#define HOSTNAME @"36-newui.latest.mopub-inc.appspot.com"
-//#define PUB_ID_320x50 @"agltb3B1Yi1pbmNyDAsSBFNpdGUYkaoMDA"
+@interface NSString (MPAdditions)
+- (NSString *)URLescapedString;
+@end
+
+@interface UIDevice (MPAdditions)
+- (NSString *)hashedMopubUDID;
+@end
+
+
 
 @interface MPAdView : UIView <UIWebViewDelegate, AdClickControllerDelegate, MPAdapterDelegate> {
 	NSObject<MPAdViewDelegate> *_delegate;

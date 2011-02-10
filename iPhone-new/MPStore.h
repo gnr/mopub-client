@@ -9,16 +9,10 @@
 #import <Foundation/Foundation.h>
 #import <StoreKit/StoreKit.h>
 
-@protocol MPStoreObserver <NSObject>
-@optional
-- (void)storeTransactionDidComplete:(SKPaymentTransaction *)transaction;
-- (void)storeTransactionDidFail:(SKPaymentTransaction *)transaction;
-- (void)storeTransactionDidRestore:(SKPaymentTransaction *)transaction;
-@end
-
 @interface MPStore : NSObject <SKProductsRequestDelegate, SKPaymentTransactionObserver>
 {
-	id<MPStoreObserver> _delegate;
+	BOOL _isProcessing;
+	NSInteger _quantity;
 }
 
 + (MPStore *)sharedStore;
@@ -26,8 +20,6 @@
 - (void)requestProductDataForProductIdentifier:(NSString *)identifier;
 - (void)startPaymentForProductIdentifier:(NSString *)identifier;
 - (void)recordTransaction:(SKPaymentTransaction *)transaction;
-
-@property (nonatomic, assign) id<MPStoreObserver> delegate;
 
 @end
 

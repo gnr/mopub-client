@@ -7,9 +7,10 @@
 //
 
 #import "MPStore.h"
+#import "MPAdView.h"
+#import "MPConstants.h"
 
 @implementation MPStore
-@synthesize delegate = _delegate;
 
 + (MPStore *)sharedStore
 {
@@ -25,9 +26,18 @@
 	}
 }
 
+- (id)init
+{
+	if (self = [super init])
+	{
+		_isProcessing = NO;
+		_quantity = 1;
+	}
+	return self;
+}
+
 - (void)dealloc
 {
-	_delegate = nil;
 	[super dealloc];
 }
 
@@ -35,21 +45,31 @@
 
 - (void)initiatePurchaseForProductIdentifier:(NSString *)identifier quantity:(NSInteger)quantity
 {
+	if (_isProcessing)
+	{
+		NSLog(@"MOPUB: Warning - can only initiate one store request at a time.");
+		return;
+	}
+	
+	_isProcessing = YES;
+	_quantity = quantity;
 	[self requestProductDataForProductIdentifier:identifier];
 }
 
 - (void)requestProductDataForProductIdentifier:(NSString *)identifier
 {
-	SKProductsRequest *request = [[[SKProductsRequest alloc] initWithProductIdentifiers:
-								  [NSSet setWithObject:identifier]] autorelease];
+	SKProductsRequest *request = [[SKProductsRequest alloc] initWithProductIdentifiers:
+								  [NSSet setWithObject:identifier]];
 	request.delegate = self;
 	[request start];
 }
 
-- (void)startPaymentForProductIdentifier:(NSString *)identifer
+- (void)startPaymentForProductIdentifier:(NSString *)identifier
 {
-	SKMutablePayment *payment = [SKMutablePayment paymentWithProductIdentifier:identifer];
+	SKMutablePayment *payment = [SKMutablePayment paymentWithProductIdentifier:identifier];
+	payment.quantity = _quantity;
 	[[SKPaymentQueue defaultQueue] addPayment:payment];
+	_isProcessing = NO;
 }
 
 #pragma mark -
@@ -57,9 +77,16 @@
 
 - (void)productsRequest:(SKProductsRequest *)request didReceiveResponse:(SKProductsResponse *)response
 {
-    // TODO: populate UI
+	[request autorelease];
 	SKProduct *product = [response.products objectAtIndex:0];
-	[self startPaymentForProductIdentifier:product.productIdentifier];		  
+	[self startPaymentForProductIdentifier:product.productIdentifier];
+}
+
+- (void)request:(SKRequest *)request didFailWithError:(NSError *)error
+{
+	[request autorelease];
+	NSLog(@"SKProductsRequest failed with error %@.", error);
+	_isProcessing = NO;
 }
 
 #pragma mark -
@@ -67,39 +94,30 @@
 
 - (void)paymentQueue:(SKPaymentQueue *)queue updatedTransactions:(NSArray *)transactions
 {
+	// We only care about recording completed transactions.
     for (SKPaymentTransaction *transaction in transactions)
     {
-        switch (transaction.transactionState)
+        if (transaction.transactionState == SKPaymentTransactionStatePurchased)
         {
-			case SKPaymentTransactionStatePurchasing:
-				// TODO: show some sort of message for purchasing?
-				break;
-            case SKPaymentTransactionStatePurchased:
-				if ([self.delegate respondsToSelector:@selector(storeTransactionDidComplete:)])
-					[self.delegate storeTransactionDidComplete:transaction];
-				[[SKPaymentQueue defaultQueue] finishTransaction:transaction];
-				[self recordTransaction:transaction];
-                break;
-            case SKPaymentTransactionStateFailed:
-				if ([self.delegate respondsToSelector:@selector(storeTransactionDidFail:)])
-					[self.delegate storeTransactionDidFail:transaction];
-				[[SKPaymentQueue defaultQueue] finishTransaction:transaction];
-                break;
-            case SKPaymentTransactionStateRestored:
-                if ([self.delegate respondsToSelector:@selector(storeTransactionDidRestore:)])
-					[self.delegate storeTransactionDidRestore:transaction];
-				[[SKPaymentQueue defaultQueue] finishTransaction:transaction];
-				[self recordTransaction:transaction];
-            default:
-                break;
+			[self recordTransaction:transaction];
         }
     }
 }
 
 - (void)recordTransaction:(SKPaymentTransaction *)transaction 
 {
-	NSLog(@"MOPUB: record transaction in adcontroller: %@",transaction);
-	// TODO: POST some JSON somewhere
+	NSURL *url = [NSURL URLWithString:[NSString stringWithFormat:@"http://%@%@", HOSTNAME, STORE_RECEIPT_SUFFIX]];
+	NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:url];
+	NSString *receiptString = [[[NSString alloc] initWithData:transaction.transactionReceipt 
+													encoding:NSUTF8StringEncoding] autorelease];
+	NSString *postBody = [NSString stringWithFormat:@"udid=%@&receipt=%@", 
+						  [[UIDevice currentDevice] hashedMopubUDID],
+						  [receiptString URLescapedString]];
+	NSString *msgLength = [NSString stringWithFormat:@"%d", [postBody length]];
+	[request addValue:msgLength forHTTPHeaderField:@"Content-Length"];
+	[request setHTTPMethod:@"POST"];
+	[request setHTTPBody:[postBody dataUsingEncoding:NSUTF8StringEncoding]];
+	[NSURLConnection connectionWithRequest:request delegate:self];
 }
 
 @end

@@ -22,6 +22,7 @@
 		3C6ED2B412E7D4BB00C5E818 /* MPIAdAdapter.m in Sources */ = {isa = PBXBuildFile; fileRef = 3C6ED2B312E7D4BB00C5E818 /* MPIAdAdapter.m */; };
 		3C6ED2B912E7D4EB00C5E818 /* MPBaseAdapter.m in Sources */ = {isa = PBXBuildFile; fileRef = 3C6ED2B812E7D4EB00C5E818 /* MPBaseAdapter.m */; };
 		3C6ED2C212E7DB3F00C5E818 /* iAd.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3C6ED2C112E7DB3F00C5E818 /* iAd.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
+		3CFDBC721303A0DA001CDB61 /* MPStore.m in Sources */ = {isa = PBXBuildFile; fileRef = A8DADEF812FF64DD000C62C1 /* MPStore.m */; };
 		A86C4B2F12FA1845006A8DE7 /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A86C4B2E12FA1845006A8DE7 /* CoreLocation.framework */; };
 		A86C4BC212FA4830006A8DE7 /* MPInterstitialAdController.m in Sources */ = {isa = PBXBuildFile; fileRef = A86C4BC112FA4830006A8DE7 /* MPInterstitialAdController.m */; };
 		A86C4C4812FA620E006A8DE7 /* moPubCloseButtonX.png in Resources */ = {isa = PBXBuildFile; fileRef = A86C4C4712FA620E006A8DE7 /* moPubCloseButtonX.png */; };
@@ -36,7 +37,6 @@
 		A884455D12F0FD7B0091613A /* CJSONSerializer.m in Sources */ = {isa = PBXBuildFile; fileRef = A884455312F0FD7B0091613A /* CJSONSerializer.m */; };
 		A88AC0831303668900056A3C /* MPCustomEventAdapter.m in Sources */ = {isa = PBXBuildFile; fileRef = A88AC0821303668900056A3C /* MPCustomEventAdapter.m */; };
 		A8CE226F12FCACE60090D01B /* MPAdConversionTracker.m in Sources */ = {isa = PBXBuildFile; fileRef = A8CE226E12FCACE60090D01B /* MPAdConversionTracker.m */; };
-		A8DADEF912FF64DD000C62C1 /* MPStore.m in Sources */ = {isa = PBXBuildFile; fileRef = A8DADEF812FF64DD000C62C1 /* MPStore.m */; };
 		A8DADF0A12FF6506000C62C1 /* StoreKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A8DADF0912FF6506000C62C1 /* StoreKit.framework */; };
 		A8E43FED12F0DED80096079D /* MPAdapterMap.m in Sources */ = {isa = PBXBuildFile; fileRef = A8E43FEC12F0DED80096079D /* MPAdapterMap.m */; };
 		A8E4406412F0E5E30096079D /* MPGoogleAdSenseAdapter.m in Sources */ = {isa = PBXBuildFile; fileRef = A8E4406312F0E5E30096079D /* MPGoogleAdSenseAdapter.m */; };
@@ -70,6 +70,7 @@
 		3C6ED2B712E7D4EB00C5E818 /* MPBaseAdapter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPBaseAdapter.h; sourceTree = "<group>"; };
 		3C6ED2B812E7D4EB00C5E818 /* MPBaseAdapter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPBaseAdapter.m; sourceTree = "<group>"; };
 		3C6ED2C112E7DB3F00C5E818 /* iAd.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = iAd.framework; path = System/Library/Frameworks/iAd.framework; sourceTree = SDKROOT; };
+		3CFDBCD01303AF2E001CDB61 /* MPConstants.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPConstants.h; sourceTree = "<group>"; };
 		8D1107310486CEB800E47090 /* MoPub-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "MoPub-Info.plist"; plistStructureDefinitionIdentifier = "com.apple.xcode.plist.structure-definition.iphone.info-plist"; sourceTree = "<group>"; };
 		A86C4B2E12FA1845006A8DE7 /* CoreLocation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreLocation.framework; path = System/Library/Frameworks/CoreLocation.framework; sourceTree = SDKROOT; };
 		A86C4BC012FA4830006A8DE7 /* MPInterstitialAdController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPInterstitialAdController.h; sourceTree = "<group>"; };
@@ -211,6 +212,7 @@
 				A8E43FEC12F0DED80096079D /* MPAdapterMap.m */,
 				3C6ED19E12E7B0D800C5E818 /* MPAdView.h */,
 				3C6ED19F12E7B0D800C5E818 /* MPAdView.m */,
+				3CFDBCD01303AF2E001CDB61 /* MPConstants.h */,
 				A86C4BC012FA4830006A8DE7 /* MPInterstitialAdController.h */,
 				A86C4BC112FA4830006A8DE7 /* MPInterstitialAdController.m */,
 				3C6ED25712E7CA1700C5E818 /* MPAdBrowserController.h */,
@@ -397,8 +399,8 @@
 				A884455D12F0FD7B0091613A /* CJSONSerializer.m in Sources */,
 				A86C4BC212FA4830006A8DE7 /* MPInterstitialAdController.m in Sources */,
 				A8CE226F12FCACE60090D01B /* MPAdConversionTracker.m in Sources */,
-				A8DADEF912FF64DD000C62C1 /* MPStore.m in Sources */,
 				A88AC0831303668900056A3C /* MPCustomEventAdapter.m in Sources */,
+				3CFDBC721303A0DA001CDB61 /* MPStore.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
