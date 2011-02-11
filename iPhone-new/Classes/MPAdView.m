@@ -15,8 +15,8 @@
 - (void)setUpWebViewWithFrame:(CGRect)frame;
 - (void)adLinkClicked:(NSURL *)URL;
 - (void)backFillWithNothing;
-- (void)trackClickWithURL:(NSURL *)clickURL;
-- (void)trackImpressionWithURL:(NSURL *)impTrackerURL;
+- (void)trackClick;
+- (void)trackImpression;
 - (NSDictionary *)queryToDictionary:(NSString *)query;
 @end
 
@@ -37,14 +37,14 @@
 #pragma mark -
 #pragma mark Lifecycle
 
-- (id)initWithFrame:(CGRect)frame 
+- (id)initWithAdUnitId:(NSString *)adUnitId frame:(CGRect)frame 
 {    
-    self = [super initWithFrame:frame];
-    if (self) 
+    if (self = [super initWithFrame:frame]) 
 	{
 		self.backgroundColor = [UIColor clearColor];
+		self.clipsToBounds = YES;
 		[self setUpWebViewWithFrame:frame];
-		_adUnitId = PUB_ID_320x50;
+		_adUnitId = (adUnitId) ? [adUnitId copy] : DEFAULT_PUB_ID;
 		_data = [[NSMutableData data] retain];
 		_excludeParams = [[NSMutableArray array] retain];
 		_shouldInterceptLinks = YES;
@@ -71,81 +71,6 @@
 	[_keywords release];
 	[_location release];
     [super dealloc];
-}
-
-#pragma mark -
-#pragma mark Internal
-
-- (void)setUpWebViewWithFrame:(CGRect)frame
-{
-	_webView = [[UIWebView alloc] initWithFrame:CGRectMake(0, 0, frame.size.width, frame.size.height)];
-	_webView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
-	_webView.backgroundColor = [UIColor clearColor];
-	_webView.opaque = NO;
-	_webView.delegate = self;
-	
-	// Disable webview scrolling.
-	self.scrollable = NO;
-}
-
-- (void)adLinkClicked:(NSURL *)URL
-{
-	NSString *redirectURLString = [[URL absoluteString] URLescapedString];	
-	NSURL *desiredURL = [NSURL URLWithString:[NSString stringWithFormat:@"%@&r=%@",
-											  _clickURL,
-											  redirectURLString]];
-	
-	// Notify delegate that the ad browser is about to open.
-	if ([self.delegate respondsToSelector:@selector(willPresentModalViewForAd:)])
-		[self.delegate willPresentModalViewForAd:self];
-	
-	// Present ad browser.
-	MPAdBrowserController *browserController = [[[MPAdBrowserController alloc] initWithURL:desiredURL 
-																				  delegate:self] autorelease];
-	[[self.delegate viewControllerForPresentingModalView] presentModalViewController:browserController animated:YES];
-	
-	// Notify delegate that the ad browser has been presented.
-	if ([self.delegate respondsToSelector:@selector(didPresentModalViewForAd:)])
-		[self.delegate didPresentModalViewForAd:self];
-}
-
-- (void)backFillWithNothing
-{
-	self.backgroundColor = [UIColor clearColor];
-	self.hidden = YES;
-	
-	// Notify delegate that the ad has failed to load.
-	if ([self.delegate respondsToSelector:@selector(adViewDidFailToLoadAd:)]){
-		[self.delegate adViewDidFailToLoadAd:self];
-	}
-}
-
-- (void)trackClickWithURL:(NSURL *)clickURL
-{
-	NSURLRequest *clickURLRequest = [NSURLRequest requestWithURL:clickURL];
-	[NSURLConnection connectionWithRequest:clickURLRequest delegate:nil];
-	NSLog(@"MOPUB: tracking click %@", clickURL);
-}
-
-- (void)trackImpressionWithURL:(NSURL *)impTrackerURL
-{
-	NSURLRequest *impTrackerURLRequest = [NSURLRequest requestWithURL:impTrackerURL];
-	[NSURLConnection connectionWithRequest:impTrackerURLRequest delegate:nil];
-	NSLog(@"MOPUB: tracking impression %@", impTrackerURL);
-}
-
-- (NSDictionary *)queryToDictionary:(NSString *)query
-{
-	NSMutableDictionary *queryDict = [[NSMutableDictionary alloc] initWithCapacity:1];
-	NSArray *queryElements = [query componentsSeparatedByString:@"&"];
-	for (NSString *element in queryElements) {
-		NSArray *keyVal = [element componentsSeparatedByString:@"="];
-		NSString *key = [keyVal objectAtIndex:0];
-		NSString *value = [keyVal lastObject];
-		[queryDict setObject:[value stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding] 
-					  forKey:key];
-	}
-	return [queryDict autorelease];
 }
 
 #pragma mark -
@@ -183,6 +108,11 @@
 	_adContentView = [view retain];
 	[self addSubview:_adContentView];
 	self.hidden = NO;
+}
+
+- (CGSize)adContentViewSize
+{
+	return (!_adContentView) ? MOPUB_BANNER_SIZE : _adContentView.bounds.size;
 }
 
 - (void)rotateToOrientation:(UIInterfaceOrientation)newOrientation
@@ -231,11 +161,7 @@
 	}
 	
 	self.URL = URL;
-	NSLog(@"loadAdWithURL: %@", URL);
-	
-	// Inform delegate that we are about to start loading an ad.
-	if ([self.delegate respondsToSelector:@selector(adViewWillLoadAd:)])
-		[self.delegate adViewWillLoadAd:self];
+	MPLog(@"loadAdWithURL: %@", URL);
 	
 	NSMutableURLRequest *request = [[[NSMutableURLRequest alloc] initWithURL:self.URL 
 																 cachePolicy:NSURLRequestUseProtocolCachePolicy 
@@ -243,7 +169,8 @@
 	
 	// Set the user agent so that we know where the request is coming from. 
 	// !important for targeting!
-	if ([request respondsToSelector:@selector(setValue:forHTTPHeaderField:)]) {
+	if ([request respondsToSelector:@selector(setValue:forHTTPHeaderField:)]) 
+	{
 		NSString *systemVersion = [[UIDevice currentDevice] systemVersion];
 		NSString *systemName = [[UIDevice currentDevice] systemName];
 		NSString *model = [[UIDevice currentDevice] model];
@@ -259,20 +186,45 @@
 	// for the previous load to finish.
 	if (_isLoading) 
 	{
-		NSLog(@"MOPUB: ad view already loading an ad, wait to finish.");
+		MPLog(@"MOPUB: ad view already loading an ad, wait to finish.");
 		return;
 	}
 	
 	[_conn release];
 	_conn = [[NSURLConnection connectionWithRequest:request delegate:self] retain];
-	NSLog(@"request fired");
+	MPLog(@"request fired");
 	_isLoading = YES;
+}
+
+- (void)didCloseAd:(id)sender
+{
+	[_webView stringByEvaluatingJavaScriptFromString:@"webviewDidClose();"];
+	if ([self.delegate respondsToSelector:@selector(adViewShouldClose:)])
+		[self.delegate adViewShouldClose:self];
+}
+
+- (void)adViewDidAppear
+{
+	[_webView stringByEvaluatingJavaScriptFromString:@"webviewDidAppear();"];
+}
+
+- (void)customEventDidLoadAd
+{
+	_isLoading = NO;
+	[self trackImpression];
+}
+
+- (void)customEventDidFailToLoadAd
+{
+	_isLoading = NO;
+	[self loadAdWithURL:self.failURL];
 }
 
 # pragma mark -
 # pragma mark NSURLConnection delegate
 
-- (void)connection:(NSURLConnection *)connection didReceiveResponse:(NSURLResponse *)response {
+- (void)connection:(NSURLConnection *)connection didReceiveResponse:(NSURLResponse *)response 
+{
 	// If the response is anything but a 200 (OK) or 300 (redirect), we call the response a failure and bail.
 	if ([response respondsToSelector:@selector(statusCode)])
 	{
@@ -303,7 +255,7 @@
 	self.clickURL = [NSURL URLWithString:[headers objectForKey:@"X-Clickthrough"]];
 	self.interceptURL = [NSURL URLWithString:[headers objectForKey:@"X-Launchpage"]];
 	self.failURL = [NSURL URLWithString:[headers objectForKey:@"X-Failurl"]];
-	self.impTrackerURL = [NSURL URLWithString:[headers objectForKey:@"X-Imptrackerurl"]];
+	self.impTrackerURL = [NSURL URLWithString:[headers objectForKey:@"X-Imptracker"]];
 	
 	NSString *shouldInterceptLinksString = [headers objectForKey:@"X-Interceptlinks"];
 	if (shouldInterceptLinksString)
@@ -335,14 +287,13 @@
 	Class cls = NSClassFromString(classString);
 	if (cls != nil)
 	{
-		_adapter.adView = nil;
+		// Release previous adapter, since we're never loading multiple ads concurrently.
+		[_adapter stopBeingDelegate];
 		[_adapter release];
 		
-		_adapter = (MPBaseAdapter *)[[cls alloc] init];
-		_adapter.adView = self;
+		_adapter = (MPBaseAdapter *)[[cls alloc] initWithAdView:self];
 		
 		[connection cancel];
-		//_isLoading = NO;
 		
 		// Tell adapter to fire off ad request.
 		NSDictionary *params = [(NSHTTPURLResponse *)response allHeaderFields];
@@ -358,18 +309,21 @@
 	}
 }
 
-- (void)connection:(NSURLConnection *)connection didReceiveData:(NSData *)d {
+- (void)connection:(NSURLConnection *)connection didReceiveData:(NSData *)d
+{
 	[_data appendData:d];
 }
 
-- (void)connection:(NSURLConnection *)connection didFailWithError:(NSError *)error {
-	NSLog(@"MOPUB: ad view failed to load any content. %@", error);
+- (void)connection:(NSURLConnection *)connection didFailWithError:(NSError *)error
+{
+	MPLog(@"MOPUB: ad view failed to load any content. %@", error);
 
 	_isLoading = NO;
 	[self backFillWithNothing];
 }
 
-- (void)connectionDidFinishLoading:(NSURLConnection *)connection {
+- (void)connectionDidFinishLoading:(NSURLConnection *)connection
+{
 	// Put any HTML content into the webview.
 	_webView.delegate = self;
 	[_webView loadData:_data MIMEType:@"text/html" textEncodingName:@"utf-8" baseURL:self.URL];
@@ -377,20 +331,15 @@
 	
 	// Print out the response, for debugging.
 	NSString *response = [[NSString alloc] initWithData:_data encoding:NSUTF8StringEncoding];
-	NSLog(@"MOPUB: response %@",response);
+	MPLog(@"MOPUB: response %@", response);
 	[response release];
-	
-	//_isLoading = NO;
 }
 
-# pragma mark -
+#pragma mark -
+#pragma mark UIWebViewDelegate
 
-- (void)didCloseAd:(id)sender
-{
-	[_webView stringByEvaluatingJavaScriptFromString:@"webViewDidClose();"];
-}
-
-- (BOOL)webView:(UIWebView *)webView shouldStartLoadWithRequest:(NSURLRequest *)request navigationType:(UIWebViewNavigationType)navigationType
+- (BOOL)webView:(UIWebView *)webView shouldStartLoadWithRequest:(NSURLRequest *)request 
+ navigationType:(UIWebViewNavigationType)navigationType
 {
 	NSURL *URL = [request URL];
 	
@@ -403,9 +352,7 @@
 		}
 		else if ([host isEqualToString:@"finishLoad"])
 		{
-			_webViewIsLoading = NO;
 			_webView.hidden = NO;
-			
 			_isLoading = NO;
 			
 			// Notify delegate that an ad has been loaded.
@@ -414,18 +361,12 @@
 		}
 		else if ([host isEqualToString:@"failLoad"])
 		{
-			_webViewIsLoading = NO;
-			_webView.hidden = NO;
-			
+			_webView.hidden = YES;
 			_isLoading = NO;
 			
 			// Notify delegate that an ad failed to load.
 			if ([self.delegate respondsToSelector:@selector(adViewDidFailToLoadAd:)]) 
 				[self.delegate adViewDidFailToLoadAd:self];
-		}
-		else if ([host isEqualToString:@"open"])
-		{
-			[self adLinkClicked:URL];
 		}
 		else if ([host isEqualToString:@"inapp"])
 		{
@@ -456,26 +397,15 @@
 	return YES;
 }
 
-- (void)dismissModalViewForBrowserController:(MPAdBrowserController *)browserController
+#pragma mark -
+#pragma mark MPAdBrowserControllerDelegate
+
+- (void)dismissBrowserController:(MPAdBrowserController *)browserController
 {
 	[[self.delegate viewControllerForPresentingModalView] dismissModalViewControllerAnimated:YES];
-}
-
-- (void)adViewDidAppear
-{
-	[_webView stringByEvaluatingJavaScriptFromString:@"webviewDidAppear();"]; 
-}
-
-- (void)customEventDidLoadAd
-{
-	_isLoading = NO;
-	[self trackImpressionWithURL:self.impTrackerURL];
-}
-
-- (void)customEventDidFailToLoadAd
-{
-	_isLoading = NO;
-	[self loadAdWithURL:self.failURL];
+	
+	if ([self.delegate respondsToSelector:@selector(didDismissModalViewForAd:)])
+		[self.delegate didDismissModalViewForAd:self];
 }
 
 #pragma mark -
@@ -484,6 +414,7 @@
 - (void)adapterDidFinishLoadingAd:(MPBaseAdapter *)adapter
 {
 	_isLoading = NO;
+	[self trackImpression];
 	if ([self.delegate respondsToSelector:@selector(adViewDidLoadAd:)])
 		[self.delegate adViewDidLoadAd:self];
 }
@@ -491,17 +422,93 @@
 - (void)adapter:(MPBaseAdapter *)adapter didFailToLoadAdWithError:(NSError *)error
 {
 	_isLoading = NO;
-	NSLog(@"MOPUB: Adapter failed to load ad. Error: %@", error);
+	MPLog(@"MOPUB: Adapter failed to load ad. Error: %@", error);
 	[self loadAdWithURL:self.failURL];
 }
 
-- (void)adClickedForAdapter:(MPBaseAdapter *)adapter
+- (void)userActionWillBeginForAdapter:(MPBaseAdapter *)adapter
 {
-	[self trackClickWithURL:self.clickURL];
+	[self trackClick];
 	
-	// Notify delegate that an ad was clicked.
-	if ([self.delegate respondsToSelector:@selector(nativeAdClicked:)])
-		[self.delegate nativeAdClicked:self];
+	// Notify delegate that the ad will present a modal view / disrupt the app.
+	if ([self.delegate respondsToSelector:@selector(willPresentModalViewForAd:)])
+		[self.delegate willPresentModalViewForAd:self];
+}
+
+- (void)userActionDidEndForAdapter:(MPBaseAdapter *)adapter
+{
+	// Notify delegate that the ad's modal view was dismissed, returning focus to the app.
+	if ([self.delegate respondsToSelector:@selector(didDismissModalViewForAd:)])
+		[self.delegate didDismissModalViewForAd:self];
+}
+
+#pragma mark -
+#pragma mark Internal
+
+- (void)setUpWebViewWithFrame:(CGRect)frame
+{
+	_webView = [[UIWebView alloc] initWithFrame:CGRectMake(0, 0, frame.size.width, frame.size.height)];
+	_webView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+	_webView.backgroundColor = [UIColor clearColor];
+	_webView.opaque = NO;
+	_webView.delegate = self;
+	
+	self.scrollable = _scrollable;
+}
+
+- (void)adLinkClicked:(NSURL *)URL
+{
+	NSString *redirectURLString = [[URL absoluteString] URLescapedString];	
+	NSURL *desiredURL = [NSURL URLWithString:[NSString stringWithFormat:@"%@&r=%@",
+											  _clickURL,
+											  redirectURLString]];
+	
+	// Notify delegate that the ad browser is about to open.
+	if ([self.delegate respondsToSelector:@selector(willPresentModalViewForAd:)])
+		[self.delegate willPresentModalViewForAd:self];
+	
+	// Present ad browser.
+	MPAdBrowserController *browserController = [[[MPAdBrowserController alloc] initWithURL:desiredURL 
+																				  delegate:self] autorelease];
+	[[self.delegate viewControllerForPresentingModalView] presentModalViewController:browserController animated:YES];
+}
+
+- (void)backFillWithNothing
+{
+	self.backgroundColor = [UIColor clearColor];
+	self.hidden = YES;
+	
+	// Notify delegate that the ad has failed to load.
+	if ([self.delegate respondsToSelector:@selector(adViewDidFailToLoadAd:)])
+		[self.delegate adViewDidFailToLoadAd:self];
+}
+
+- (void)trackClick
+{
+	NSURLRequest *clickURLRequest = [NSURLRequest requestWithURL:self.clickURL];
+	[NSURLConnection connectionWithRequest:clickURLRequest delegate:nil];
+	MPLog(@"MOPUB: tracking click %@", self.clickURL);
+}
+
+- (void)trackImpression
+{
+	NSURLRequest *impTrackerURLRequest = [NSURLRequest requestWithURL:self.impTrackerURL];
+	[NSURLConnection connectionWithRequest:impTrackerURLRequest delegate:nil];
+	MPLog(@"MOPUB: tracking impression %@", self.impTrackerURL);
+}
+
+- (NSDictionary *)queryToDictionary:(NSString *)query
+{
+	NSMutableDictionary *queryDict = [[NSMutableDictionary alloc] initWithCapacity:1];
+	NSArray *queryElements = [query componentsSeparatedByString:@"&"];
+	for (NSString *element in queryElements) {
+		NSArray *keyVal = [element componentsSeparatedByString:@"="];
+		NSString *key = [keyVal objectAtIndex:0];
+		NSString *value = [keyVal lastObject];
+		[queryDict setObject:[value stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding] 
+					  forKey:key];
+	}
+	return [queryDict autorelease];
 }
 
 @end
@@ -514,7 +521,7 @@
 - (NSString *)hashedMopubUDID 
 {
 	NSString *result = nil;
-	NSString *udid = [NSString stringWithFormat:@"mopub-%@", [UIDevice currentDevice].uniqueIdentifier];
+	NSString *udid = [NSString stringWithFormat:@"mopub-%@", [[UIDevice currentDevice] uniqueIdentifier]];
 	
 	if (udid) 
 	{

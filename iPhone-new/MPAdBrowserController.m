@@ -7,7 +7,7 @@
 //
 
 #import "MPAdBrowserController.h"
-
+#import "MPLogging.h"
 
 @implementation MPAdBrowserController
 @synthesize delegate = _delegate;
@@ -36,9 +36,10 @@ static NSArray *SAFARI_SCHEMES, *SAFARI_HOSTS;
 	{
 		_delegate = delegate;
 		_URL = [URL copy];
-		NSLog(@"URL: %@", _URL);
+		MPLog(@"URL: %@", _URL);
 		
 		_webView = [[UIWebView alloc] initWithFrame:CGRectZero];
+		_webView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
 		_webView.delegate = self;
 		
 		_spinner = [[UIActivityIndicatorView alloc] initWithFrame:CGRectZero];
@@ -51,6 +52,7 @@ static NSArray *SAFARI_SCHEMES, *SAFARI_HOSTS;
 - (void)dealloc
 {
 	_delegate = nil;
+	_webView.delegate = nil;
 	[_webView release];
 	[_URL release];
 	[_backButton release];
@@ -72,6 +74,7 @@ static NSArray *SAFARI_SCHEMES, *SAFARI_HOSTS;
 	// Set up toolbar.
 	UIToolbar *toolbar = [[UIToolbar alloc] initWithFrame:CGRectZero];
 	toolbar.barStyle = UIBarStyleBlackTranslucent;
+	toolbar.autoresizingMask = UIViewAutoresizingFlexibleTopMargin | UIViewAutoresizingFlexibleWidth;
 	
 	_backButton = [[UIBarButtonItem alloc] initWithImage:[self backArrowImage]
 												   style:UIBarButtonItemStylePlain
@@ -138,7 +141,7 @@ static NSArray *SAFARI_SCHEMES, *SAFARI_HOSTS;
 
 - (void)done 
 {
-	[self.delegate dismissModalViewForBrowserController:self];
+	[self.delegate dismissBrowserController:self];
 }
 
 - (void)back 
@@ -184,7 +187,7 @@ static NSArray *SAFARI_SCHEMES, *SAFARI_HOSTS;
 - (BOOL)webView:(UIWebView *)webView shouldStartLoadWithRequest:(NSURLRequest *)request 
  navigationType:(UIWebViewNavigationType)navigationType 
 {
-	NSLog(@"MOPUB: %@", request.URL);
+	MPLog(@"MOPUB: %@", request.URL);
 	if ([SAFARI_SCHEMES containsObject:request.URL.scheme])
 	{
 		if ([SAFARI_HOSTS containsObject:request.URL.host])
@@ -203,6 +206,7 @@ static NSArray *SAFARI_SCHEMES, *SAFARI_HOSTS;
 		if ([[UIApplication sharedApplication] canOpenURL:request.URL])
 		{
 			[self dismissModalViewControllerAnimated:NO];
+			[[UIApplication sharedApplication] openURL:request.URL];
 			return NO;
 		}
 	}
@@ -292,13 +296,10 @@ static NSArray *SAFARI_SCHEMES, *SAFARI_HOSTS;
 
 #pragma mark -
 
-/*
-// Override to allow orientations other than the default portrait orientation.
-- (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation {
-    // Return YES for supported orientations.
-    return (interfaceOrientation == UIInterfaceOrientationPortrait);
+- (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation 
+{
+    return YES;
 }
-*/
 
 - (void)didReceiveMemoryWarning {
     // Releases the view if it doesn't have a superview.

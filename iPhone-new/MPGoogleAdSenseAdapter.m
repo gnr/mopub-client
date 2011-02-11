@@ -9,6 +9,7 @@
 #import "MPGoogleAdSenseAdapter.h"
 #import "CJSONDeserializer.h"
 #import "MPAdView.h"
+#import "MPLogging.h"
 
 static NSDictionary *GADHeaderAttrMap = nil;
 
@@ -40,9 +41,9 @@ static NSDictionary *GADHeaderAttrMap = nil;
 											 nil];
 }
 
-- (id)init
+- (id)initWithAdView:(MPAdView *)adView
 {
-	if (self = [super init])
+	if (self = [super initWithAdView:adView])
 	{
 		_adViewController = [[GADAdViewController alloc] initWithDelegate:self];
 	}
@@ -129,28 +130,32 @@ static NSDictionary *GADHeaderAttrMap = nil;
 }
 
 - (void)loadSucceeded:(GADAdViewController *)adController
-          withResults:(NSDictionary *) results
+          withResults:(NSDictionary *)results
 {
 	[self.adView setAdContentView:adController.view];
 	[self.adView adapterDidFinishLoadingAd:self];
 }
 
 - (void)loadFailed:(GADAdViewController *)adController
-         withError:(NSError *) error
+         withError:(NSError *)error
 {
 	[self.adView adapter:self didFailToLoadAdWithError:nil];
+	
+	_adViewController.delegate = nil;
+	[_adViewController release];
+	_adViewController = nil;
 }
 
 - (GADAdClickAction)adControllerActionModelForAdClick:
 (GADAdViewController *)adController
 {
-	[self.adView adClickedForAdapter:self];
+	[self.adView userActionWillBeginForAdapter:self];
 	return GAD_ACTION_DISPLAY_INTERNAL_WEBSITE_VIEW;
 }
 
-// Invoked when the website view has been closed.
 - (void)adControllerDidCloseWebsiteView:(GADAdViewController *)adController
 {
+	[self.adView userActionDidEndForAdapter:self];
 }
 
 @end

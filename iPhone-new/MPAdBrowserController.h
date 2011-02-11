@@ -44,6 +44,6 @@
 @end
 
 @protocol MPAdBrowserControllerDelegate <NSObject>
-@optional
-- (void)dismissModalViewForBrowserController:(MPAdBrowserController *)browserController;
+@required
+- (void)dismissBrowserController:(MPAdBrowserController *)browserController;
 @end

@@ -15,8 +15,10 @@
 	MPAdView *_adView;
 }
 
-@property (nonatomic, assign) MPAdView *adView;
+@property (nonatomic, readonly) MPAdView *adView;
 
+- (id)initWithAdView:(MPAdView *)adView;
+- (void)stopBeingDelegate;
 - (void)getAd;
 - (void)getAdWithParams:(NSDictionary *)params;
 - (void)rotateToOrientation:(UIInterfaceOrientation)newOrientation;
@@ -27,6 +29,6 @@
 @required
 - (void)adapterDidFinishLoadingAd:(MPBaseAdapter *)adapter;
 - (void)adapter:(MPBaseAdapter *)adapter didFailToLoadAdWithError:(NSError *)error;
-- (void)adClickedForAdapter:(MPBaseAdapter *)adapter;
-
+- (void)userActionWillBeginForAdapter:(MPBaseAdapter *)adapter;
+- (void)userActionDidEndForAdapter:(MPBaseAdapter *)adapter;
 @end

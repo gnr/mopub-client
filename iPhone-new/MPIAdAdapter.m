@@ -8,6 +8,7 @@
 
 #import "MPIAdAdapter.h"
 #import "MPAdView.h"
+#import "MPLogging.h"
 
 @implementation MPIAdAdapter
 
@@ -22,7 +23,7 @@
 {
 	Class cls = NSClassFromString(@"ADBannerView");
 	if (cls != nil) {
-		CGSize size = self.adView.frame.size;
+		CGSize size = self.adView.bounds.size;
 		
 		if (_adBannerView)
 		{
@@ -35,13 +36,15 @@
 		// iOS 4.2:
 		if (&ADBannerContentSizeIdentifierPortrait != nil)
 		{
-			_adBannerView.requiredContentSizeIdentifiers = [NSSet setWithObjects:ADBannerContentSizeIdentifierPortrait, ADBannerContentSizeIdentifierLandscape, nil];
+			_adBannerView.requiredContentSizeIdentifiers = [NSSet setWithObjects:ADBannerContentSizeIdentifierPortrait, 
+															ADBannerContentSizeIdentifierLandscape, nil];
 			_adBannerView.currentContentSizeIdentifier = ADBannerContentSizeIdentifierPortrait;
 		}
 		// Prior to iOS 4.2:
 		else
 		{
-			_adBannerView.requiredContentSizeIdentifiers = [NSSet setWithObjects:ADBannerContentSizeIdentifier320x50, ADBannerContentSizeIdentifier480x32, nil];
+			_adBannerView.requiredContentSizeIdentifiers = [NSSet setWithObjects:ADBannerContentSizeIdentifier320x50, 
+															ADBannerContentSizeIdentifier480x32, nil];
 			_adBannerView.currentContentSizeIdentifier = ADBannerContentSizeIdentifier320x50;
 		}
 			
@@ -49,7 +52,7 @@
 	} 
 	else 
 	{
-		// iAd isn't supported in iOS versions before 4.0
+		// iAd not supported in iOS versions before 4.0.
 		[self bannerView:nil didFailToReceiveAdWithError:nil];
 	}
 }
@@ -60,12 +63,16 @@
 		return;
 	
 	if (UIInterfaceOrientationIsLandscape(newOrientation))
-		_adBannerView.currentContentSizeIdentifier = ADBannerContentSizeIdentifier480x32;//ADBannerContentSizeIdentifierLandscape;
-	else 
-		_adBannerView.currentContentSizeIdentifier = ADBannerContentSizeIdentifier320x50;//ADBannerContentSizeIdentifierPortrait;
-	
-	// ADBannerView positions itself in the center of its superview, which
-	// we don't want, since we rely on publishers to resize the container view.
+	{
+		_adBannerView.currentContentSizeIdentifier = (&ADBannerContentSizeIdentifierLandscape) ? 
+			ADBannerContentSizeIdentifierLandscape : ADBannerContentSizeIdentifier480x32;
+	}
+	else
+	{
+		_adBannerView.currentContentSizeIdentifier = (&ADBannerContentSizeIdentifierPortrait) ?
+			ADBannerContentSizeIdentifierPortrait : ADBannerContentSizeIdentifier320x50;
+	}
+		
 	_adBannerView.frame = CGRectMake(0.0, 
 									 0.0, 
 									 _adBannerView.frame.size.width, 
@@ -77,26 +84,30 @@
 
 - (void)bannerView:(ADBannerView *)banner didFailToReceiveAdWithError:(NSError *)error
 {
-	NSLog(@"MOPUB: iAd Failed To Receive Ad");
+	MPLog(@"MOPUB: iAd Failed To Receive Ad");
 	[self.adView adapter:self didFailToLoadAdWithError:error];
+	
+	_adBannerView.delegate = nil;
+	[_adBannerView release];
+	_adBannerView = nil;
 }
 
 - (void)bannerViewActionDidFinish:(ADBannerView *)banner
 {
-	NSLog(@"MOPUB: iAd Finished Executing Banner Action");
-	// TODO: bannerview action finish
+	MPLog(@"MOPUB: iAd Finished Executing Banner Action");
+	[self.adView userActionDidEndForAdapter:self];
 }
 
 - (BOOL)bannerViewActionShouldBegin:(ADBannerView *)banner willLeaveApplication:(BOOL)willLeave
 {
-	NSLog(@"MOPUB: iAd Should Begin Banner Action");
-	[self.adView adClickedForAdapter:self];
+	MPLog(@"MOPUB: iAd Should Begin Banner Action");
+	[self.adView userActionWillBeginForAdapter:self];
 	return YES;
 }
 
 - (void)bannerViewDidLoadAd:(ADBannerView *)banner
 {
-	NSLog(@"MOPUB: iAd Load Succeeded");
+	MPLog(@"MOPUB: iAd Load Succeeded");
 	[self.adView setAdContentView:_adBannerView];
 	[self.adView adapterDidFinishLoadingAd:self];
 }

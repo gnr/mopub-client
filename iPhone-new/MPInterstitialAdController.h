@@ -30,9 +30,7 @@ typedef NSUInteger InterstitialOrientationType;
 {
 	BOOL _statusBarWasHidden;
 	BOOL _navigationBarWasHidden;
-	
 	BOOL _ready;
-	
 	MPAdView *_adView;
 	UIViewController<MPInterstitialAdControllerDelegate> *_parent;
 	NSString *_adUnitId;
@@ -60,10 +58,8 @@ typedef NSUInteger InterstitialOrientationType;
 - (void)dismissInterstitial:(MPInterstitialAdController *)interstitial;
 
 @optional
-- (void)interstitialWillLoadAd:(MPInterstitialAdController *)interstitial;
 - (void)interstitialDidLoadAd:(MPInterstitialAdController *)interstitial;
 - (void)interstitialDidFailToLoadAd:(MPInterstitialAdController *)interstitial;
 - (void)interstitialWillAppear:(MPInterstitialAdController *)interstitial;
-- (void)interstitialDidAppear:(MPInterstitialAdController *)interstitial;
 @end
 

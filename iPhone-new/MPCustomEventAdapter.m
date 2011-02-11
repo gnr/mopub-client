@@ -8,6 +8,7 @@
 
 #import "MPCustomEventAdapter.h"
 #import "MPAdView.h"
+#import "MPLogging.h"
 
 @implementation MPCustomEventAdapter
 
@@ -16,7 +17,7 @@
 	NSString *selectorString = [params objectForKey:@"X-Customselector"];
 	if (!selectorString)
 	{
-		NSLog(@"MOPUB: Custom event requested, but no custom selector was provided.",
+		MPLog(@"MOPUB: Custom event requested, but no custom selector was provided.",
 			  selectorString);
 		[self.adView customEventDidFailToLoadAd];
 	}
@@ -38,7 +39,7 @@
 		}
 		else
 		{
-			NSLog(@"MOPUB: Ad view delegate does not implement custom event selectors %@ or %@.",
+			MPLog(@"MOPUB: Ad view delegate does not implement custom event selectors %@ or %@.",
 				  selectorString,
 				  selectorWithObjectString);
 			[self.adView customEventDidFailToLoadAd];

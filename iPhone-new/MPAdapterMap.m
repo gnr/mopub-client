@@ -7,6 +7,7 @@
 //
 
 #import "MPAdapterMap.h"
+#import "MPLogging.h"
 
 static MPAdapterMap *sharedAdapterMap = nil;
 
@@ -44,6 +45,11 @@ static MPAdapterMap *sharedAdapterMap = nil;
 - (NSString *)classStringForAdapterType:(NSString *)type
 {
 	return [_map objectForKey:type];
+}
+
+- (Class)classForAdapterType:(NSString *)type
+{
+	return NSClassFromString([_map objectForKey:type]);
 }
 
 @end

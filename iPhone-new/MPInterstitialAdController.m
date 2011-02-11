@@ -8,6 +8,10 @@
 
 #import "MPInterstitialAdController.h"
 
+#define ORIENTATION_PORTRAIT_ONLY	@"p"
+#define ORIENTATION_LANDSCAPE_ONLY	@"l"
+#define ORIENTATION_BOTH			@"b"
+
 @interface MPInterstitialAdController (Internal)
 - (void)setUpCloseButton;
 @end
@@ -95,19 +99,35 @@
 
 - (void)loadView 
 {
-	UIView *container = [[[UIView alloc] initWithFrame:CGRectZero] autorelease];
-	container.backgroundColor = [UIColor blackColor];
-	container.frame = (CGRect){{0, 0}, [UIScreen mainScreen].bounds.size};
-	container.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
-	self.view = container;
+	self.view = [[[UIView alloc] initWithFrame:CGRectZero] autorelease];
+	self.view.backgroundColor = [UIColor blackColor];
+	self.view.frame = (CGRect){{0, 0}, [UIScreen mainScreen].bounds.size};
+	self.view.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
 	
-	_adView = [[MPAdView alloc] initWithFrame:(CGRect){{0, 0}, _adSize}];
+	_adView = [[MPAdView alloc] initWithAdUnitId:self.adUnitId frame:(CGRect){{0, 0}, _adSize}];
 	_adView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
-	_adView.adUnitId = self.adUnitId;
 	_adView.delegate = self;
 	[self.view addSubview:_adView];
 	
 	[self setUpCloseButton];
+}
+
+- (void)viewWillAppear:(BOOL)animated
+{
+	// Triggers -loadView if it hasn't happened.
+	self.view;
+	[super viewWillAppear:animated];
+	
+	if ([self.parent respondsToSelector:@selector(interstitialWillAppear:)])
+		[self.parent interstitialWillAppear:self];
+}
+
+- (void)viewDidAppear:(BOOL)animated
+{
+	// Triggers -loadView if it hasn't happened.
+	self.view;
+	[_adView adViewDidAppear];
+	[super viewDidAppear:animated];
 }
 
 #pragma mark -
@@ -160,6 +180,7 @@
 
 - (void)loadAd
 {
+	// Triggers -loadView if it hasn't happened.
 	self.view;
 	[_adView loadAd];
 }
@@ -177,37 +198,12 @@
 	[self.parent presentModalViewController:self animated:YES];
 }
 
-- (void)viewWillAppear:(BOOL)animated
-{
-	self.view;
-	[super viewWillAppear:animated];
-	
-	if ([self.parent respondsToSelector:@selector(interstitialWillAppear:)])
-		[self.parent interstitialWillAppear:self];
-}
-
-- (void)viewDidAppear:(BOOL)animated
-{
-	self.view;
-	[_adView adViewDidAppear];
-	[super viewDidAppear:animated];
-	
-	if ([self.parent respondsToSelector:@selector(interstitialDidAppear:)])
-		[self.parent interstitialDidAppear:self];
-}
-
 #pragma mark -
 #pragma mark MPAdViewDelegate
 
 - (UIViewController *)viewControllerForPresentingModalView
 {
-	return self.parent;
-}
-
-- (void)adViewWillLoadAd:(MPAdView *)view
-{
-	if ([self.parent respondsToSelector:@selector(interstitialWillLoadAd:)])
-		[self.parent interstitialWillLoadAd:self];
+	return self;
 }
 
 - (void)adViewDidLoadAd:(MPAdView *)view
@@ -235,12 +231,7 @@
 - (void)willPresentModalViewForAd:(MPAdView *)view
 {
 	if ([self.parent respondsToSelector:@selector(willPresentModalViewForAd:)])
-		[self.parent willPresentModalViewForAd:view];}
-
-- (void)didPresentModalViewForAd:(MPAdView *)view
-{
-	if ([self.parent respondsToSelector:@selector(didPresentModalViewForAd:)])
-		[self.parent didPresentModalViewForAd:view];
+		[self.parent willPresentModalViewForAd:view];
 }
 
 - (void)adViewDidReceiveResponseParams:(NSDictionary *)params
@@ -252,14 +243,20 @@
 	else
 		_closeButtonType = InterstitialCloseButtonTypeDefault;
 	
+	[self setUpCloseButton];
+	
 	NSString *orientationChoice = [params objectForKey:@"X-Orientation"];
-	// TODO: turn these into constants
-	if ([orientationChoice isEqualToString:@"p"])
+	if ([orientationChoice isEqualToString:ORIENTATION_PORTRAIT_ONLY])
 		_orientationType = InterstitialOrientationTypePortrait;
-	else if ([orientationChoice isEqualToString:@"l"])
+	else if ([orientationChoice isEqualToString:ORIENTATION_LANDSCAPE_ONLY])
 		_orientationType = InterstitialOrientationTypeLandscape;
 	else 
 		_orientationType = InterstitialOrientationTypeBoth;
+}
+
+- (void)adViewShouldClose:(MPAdView *)view
+{
+	[self closeButtonPressed];
 }
 
 #pragma mark -

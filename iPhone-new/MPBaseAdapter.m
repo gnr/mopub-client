@@ -8,10 +8,23 @@
 
 #import "MPBaseAdapter.h"
 #import "MPAdView.h"
+#import "MPLogging.h"
 
 @implementation MPBaseAdapter
 
 @synthesize adView = _adView;
+
+- (id)initWithAdView:(MPAdView *)adView
+{
+	if (self = [super init])
+		_adView = [adView retain];
+	return self;
+}
+
+- (void)stopBeingDelegate
+{
+	_adView = nil;
+}
 
 - (void)getAd
 {
@@ -27,7 +40,7 @@
 - (void)rotateToOrientation:(UIInterfaceOrientation)newOrientation
 {
 	// Do nothing by default. Subclasses can override.
-	NSLog(@"MOPUB: rotateToOrientation %d called for adapter %@",
+	MPLog(@"MOPUB: rotateToOrientation %d called for adapter %@",
 		  newOrientation, NSStringFromClass([self class]));
 }
 

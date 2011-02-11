@@ -11,7 +11,6 @@
 
 @interface MPCustomEventAdapter : MPBaseAdapter 
 {
-
 }
 
 @end

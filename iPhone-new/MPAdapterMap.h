@@ -15,5 +15,6 @@
 
 + (id)sharedAdapterMap;
 - (NSString *)classStringForAdapterType:(NSString *)type;
+- (Class)classForAdapterType:(NSString *)type;
 
 @end
