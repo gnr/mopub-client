@@ -108,11 +108,6 @@
 	NSLog(@"Ad View DELEGATE: %@", NSStringFromSelector(_cmd));
 }
 
-- (void)nativeAdClicked:(MPAdView *)view
-{
-	NSLog(@"Ad View DELEGATE: %@", NSStringFromSelector(_cmd));
-}
-
 - (void)willPresentModalViewForAd:(MPAdView *)view
 {
 	NSLog(@"Ad View DELEGATE: %@", NSStringFromSelector(_cmd));

@@ -222,12 +222,6 @@
 		[self.parent interstitialDidFailToLoadAd:self];
 }
 
-- (void)nativeAdClicked:(MPAdView *)view
-{
-	if ([self.parent respondsToSelector:@selector(nativeAdClicked:)])
-		[self.parent nativeAdClicked:view];
-}
-
 - (void)willPresentModalViewForAd:(MPAdView *)view
 {
 	if ([self.parent respondsToSelector:@selector(willPresentModalViewForAd:)])

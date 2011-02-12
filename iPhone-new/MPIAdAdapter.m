@@ -64,15 +64,18 @@
 	
 	if (UIInterfaceOrientationIsLandscape(newOrientation))
 	{
+		// Tests for iOS >= 4.2.
 		_adBannerView.currentContentSizeIdentifier = (&ADBannerContentSizeIdentifierLandscape) ? 
 			ADBannerContentSizeIdentifierLandscape : ADBannerContentSizeIdentifier480x32;
 	}
 	else
 	{
+		// Tests for iOS >= 4.2.
 		_adBannerView.currentContentSizeIdentifier = (&ADBannerContentSizeIdentifierPortrait) ?
 			ADBannerContentSizeIdentifierPortrait : ADBannerContentSizeIdentifier320x50;
 	}
-		
+	
+	// Prevent this view from automatically positioning itself in the center of its superview.
 	_adBannerView.frame = CGRectMake(0.0, 
 									 0.0, 
 									 _adBannerView.frame.size.width, 
@@ -86,10 +89,6 @@
 {
 	MPLog(@"MOPUB: iAd Failed To Receive Ad");
 	[self.adView adapter:self didFailToLoadAdWithError:error];
-	
-	_adBannerView.delegate = nil;
-	[_adBannerView release];
-	_adBannerView = nil;
 }
 
 - (void)bannerViewActionDidFinish:(ADBannerView *)banner

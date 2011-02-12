@@ -46,7 +46,6 @@
 		[self setUpWebViewWithFrame:frame];
 		_adUnitId = (adUnitId) ? [adUnitId copy] : DEFAULT_PUB_ID;
 		_data = [[NSMutableData data] retain];
-		_excludeParams = [[NSMutableArray array] retain];
 		_shouldInterceptLinks = YES;
 		_scrollable = NO;
 		_isLoading = NO;
@@ -67,7 +66,6 @@
 	[_interceptURL release];
 	[_failURL release];
 	[_impTrackerURL release];
-	[_excludeParams release];
 	[_keywords release];
 	[_location release];
     [super dealloc];
@@ -127,7 +125,6 @@
 
 - (void)refreshAd
 {
-	[_excludeParams removeAllObjects];
 	[self loadAdWithURL:nil];
 }
 
@@ -149,12 +146,6 @@
 			urlString = [urlString stringByAppendingFormat:@"&ll=%f,%f",
 						 self.location.coordinate.latitude,
 						 self.location.coordinate.longitude];
-		}
-		
-		// Append exclude parameters.
-		for (NSString *exclude in _excludeParams)
-		{
-			urlString = [urlString stringByAppendingFormat:@"&exclude=%@", exclude];
 		}
 		
 		URL = [NSURL URLWithString:urlString];
@@ -423,6 +414,13 @@
 {
 	_isLoading = NO;
 	MPLog(@"MOPUB: Adapter failed to load ad. Error: %@", error);
+	
+	// Dispose of the current adapter, because we don't need it to try again.
+	[_adapter stopBeingDelegate];
+	[_adapter release];
+	_adapter = nil;
+	
+	// Start a new request using the fall-back URL.
 	[self loadAdWithURL:self.failURL];
 }
 
@@ -458,7 +456,7 @@
 
 - (void)adLinkClicked:(NSURL *)URL
 {
-	NSString *redirectURLString = [[URL absoluteString] URLescapedString];	
+	NSString *redirectURLString = [[URL absoluteString] URLEncodedString];	
 	NSURL *desiredURL = [NSURL URLWithString:[NSString stringWithFormat:@"%@&r=%@",
 											  _clickURL,
 											  redirectURLString]];
@@ -547,7 +545,7 @@
 
 @implementation NSString (MPAdditions)
 
-- (NSString *)URLescapedString
+- (NSString *)URLEncodedString
 {
 	NSString *result = (NSString *)CFURLCreateStringByAddingPercentEscapes(NULL,
 																		   (CFStringRef)self,

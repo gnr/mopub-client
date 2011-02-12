@@ -112,7 +112,7 @@
 													encoding:NSUTF8StringEncoding] autorelease];
 	NSString *postBody = [NSString stringWithFormat:@"udid=%@&receipt=%@", 
 						  [[UIDevice currentDevice] hashedMopubUDID],
-						  [receiptString URLescapedString]];
+						  [receiptString URLEncodedString]];
 	NSString *msgLength = [NSString stringWithFormat:@"%d", [postBody length]];
 	[request addValue:msgLength forHTTPHeaderField:@"Content-Length"];
 	[request setHTTPMethod:@"POST"];
