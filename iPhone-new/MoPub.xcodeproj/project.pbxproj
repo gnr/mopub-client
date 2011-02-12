@@ -177,6 +177,7 @@
 		29B97314FDCFA39411CA2CEA /* CustomTemplate */ = {
 			isa = PBXGroup;
 			children = (
+				A8E4406C12F0E6100096079D /* GoogleAdSense */,
 				A8393AC413050A5200F613DC /* AdMob */,
 				A8E4408B12F0EBD50096079D /* Libraries */,
 				3C6ED1A212E7B0E900C5E818 /* SDK */,
@@ -231,7 +232,6 @@
 		3C6ED1A212E7B0E900C5E818 /* SDK */ = {
 			isa = PBXGroup;
 			children = (
-				A8E4406C12F0E6100096079D /* GoogleAdSense */,
 				A8E4402D12F0E30E0096079D /* Adapters */,
 				A8E43FCE12F0D8000096079D /* MPAdapterMap.h */,
 				A8E43FEC12F0DED80096079D /* MPAdapterMap.m */,

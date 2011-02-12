@@ -18,15 +18,19 @@
 
 @interface NSString (MPAdditions)
 
-// Returns string with reserved/unsafe characters encoded.
+/* 
+ * Returns string with reserved/unsafe characters encoded.
+ */
 - (NSString *)URLEncodedString;
 
 @end
 
 @interface UIDevice (MPAdditions)
 
-// Produces MD5 hash of a UDID.
-- (NSString *)hashedMopubUDID;
+/* 
+ * Produces MD5 hash of a UDID.
+ */
+- (NSString *)hashedMoPubUDID;
 
 @end
 
@@ -194,7 +198,7 @@
 - (void)adViewDidReceiveResponseParams:(NSDictionary *)params;
 
 /*
- * This callback notifies you when 
+ * TODO: This callback notifies you when 
  */
 - (void)adViewShouldClose:(MPAdView *)view;
 

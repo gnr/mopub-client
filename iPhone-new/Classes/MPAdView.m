@@ -78,6 +78,7 @@
 	_scrollable = scrollable;
 	if (_webView)
 	{
+		// This isn't very clean, but it seems to be the best way to disable webview scrolling.
 		UIScrollView *scrollView = nil;
 		for (UIView *v in _webView.subviews)
 		{
@@ -115,6 +116,7 @@
 
 - (void)rotateToOrientation:(UIInterfaceOrientation)newOrientation
 {
+	// Pass along this notification to the adapter, so that it can handle the orientation change.
 	[_adapter rotateToOrientation:newOrientation];
 }
 
@@ -135,7 +137,7 @@
 	{
 		NSString *urlString = [NSString stringWithFormat:@"http://%@/m/ad?v=3&udid=%@&q=%@&id=%@", 
 							   HOSTNAME,
-							   [[UIDevice currentDevice] hashedMopubUDID],
+							   [[UIDevice currentDevice] hashedMoPubUDID],
 							   [self.keywords stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding],
 							   [self.adUnitId stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]
 							   ];
@@ -152,14 +154,14 @@
 	}
 	
 	self.URL = URL;
-	MPLog(@"loadAdWithURL: %@", URL);
+	MPLog(@"Calling loadAdWithURL: %@", URL);
 	
 	NSMutableURLRequest *request = [[[NSMutableURLRequest alloc] initWithURL:self.URL 
 																 cachePolicy:NSURLRequestUseProtocolCachePolicy 
 															 timeoutInterval:3.0] autorelease];
 	
 	// Set the user agent so that we know where the request is coming from. 
-	// !important for targeting!
+	// This is important for targeting!
 	if ([request respondsToSelector:@selector(setValue:forHTTPHeaderField:)]) 
 	{
 		NSString *systemVersion = [[UIDevice currentDevice] systemVersion];
@@ -183,7 +185,7 @@
 	
 	[_conn release];
 	_conn = [[NSURLConnection connectionWithRequest:request delegate:self] retain];
-	MPLog(@"request fired");
+	MPLog(@"MOPUB: initial ad request fired.");
 	_isLoading = YES;
 }
 
@@ -241,7 +243,7 @@
 	if ([self.delegate respondsToSelector:@selector(adViewDidReceiveResponseParams:)])
 		[self.delegate adViewDidReceiveResponseParams:[(NSHTTPURLResponse*)response allHeaderFields]];
 	
-	// Parse response headers.
+	// Parse response headers, set relevant URLs and booleans.
 	NSDictionary *headers = [(NSHTTPURLResponse *)response allHeaderFields];
 	self.clickURL = [NSURL URLWithString:[headers objectForKey:@"X-Clickthrough"]];
 	self.interceptURL = [NSURL URLWithString:[headers objectForKey:@"X-Launchpage"]];
@@ -278,7 +280,7 @@
 	Class cls = NSClassFromString(classString);
 	if (cls != nil)
 	{
-		// Release previous adapter, since we're never loading multiple ads concurrently.
+		// Release previous adapter, since we don't load ads concurrently.
 		[_adapter stopBeingDelegate];
 		[_adapter release];
 		
@@ -290,7 +292,7 @@
 		NSDictionary *params = [(NSHTTPURLResponse *)response allHeaderFields];
 		[_adapter getAdWithParams:params];
 	}
-	// There's no adapter for the specified ad type, so just fail over.
+	// Else: no adapter for the specified ad type, so just fail over.
 	else 
 	{
 		[connection cancel];
@@ -308,7 +310,8 @@
 - (void)connection:(NSURLConnection *)connection didFailWithError:(NSError *)error
 {
 	MPLog(@"MOPUB: ad view failed to load any content. %@", error);
-
+	
+	// If the initial request to MoPub fails, replace the current ad content with a blank.
 	_isLoading = NO;
 	[self backFillWithNothing];
 }
@@ -334,6 +337,7 @@
 {
 	NSURL *URL = [request URL];
 	
+	// Handle the custom mopub:// scheme.
 	if ([[URL scheme] isEqualToString:@"mopub"])
 	{
 		NSString *host = [URL host];
@@ -369,6 +373,8 @@
 		return NO;
 	}
 	
+	// Intercept non-click forms of navigation (e.g. "window.location = ...") if the target URL
+	// has the interceptURL prefix. Launch the ad browser.
 	if (navigationType == UIWebViewNavigationTypeOther && 
 		self.shouldInterceptLinks && 
 		self.interceptURL &&
@@ -377,7 +383,8 @@
 		[self adLinkClicked:URL];
 		return NO;
 	}
-
+	
+	// Launch the ad browser for all clicks (if shouldInterceptLinks is YES).
 	if (navigationType == UIWebViewNavigationTypeLinkClicked && self.shouldInterceptLinks)
 	{
 		[self adLinkClicked:URL];
@@ -415,7 +422,7 @@
 	_isLoading = NO;
 	MPLog(@"MOPUB: Adapter failed to load ad. Error: %@", error);
 	
-	// Dispose of the current adapter, because we don't need it to try again.
+	// Dispose of the current adapter, because we don't want it to try loading again.
 	[_adapter stopBeingDelegate];
 	[_adapter release];
 	_adapter = nil;
@@ -456,6 +463,7 @@
 
 - (void)adLinkClicked:(NSURL *)URL
 {
+	// Construct the URL that we want to load in the ad browser, using the click-tracking URL.
 	NSString *redirectURLString = [[URL absoluteString] URLEncodedString];	
 	NSURL *desiredURL = [NSURL URLWithString:[NSString stringWithFormat:@"%@&r=%@",
 											  _clickURL,
@@ -473,6 +481,7 @@
 
 - (void)backFillWithNothing
 {
+	// Make the ad view disappear.
 	self.backgroundColor = [UIColor clearColor];
 	self.hidden = YES;
 	
@@ -516,7 +525,7 @@
 
 @implementation UIDevice (MPAdditions)
 
-- (NSString *)hashedMopubUDID 
+- (NSString *)hashedMoPubUDID 
 {
 	NSString *result = nil;
 	NSString *udid = [NSString stringWithFormat:@"mopub-%@", [[UIDevice currentDevice] uniqueIdentifier]];

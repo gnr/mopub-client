@@ -111,7 +111,7 @@
 	NSString *receiptString = [[[NSString alloc] initWithData:transaction.transactionReceipt 
 													encoding:NSUTF8StringEncoding] autorelease];
 	NSString *postBody = [NSString stringWithFormat:@"udid=%@&receipt=%@", 
-						  [[UIDevice currentDevice] hashedMopubUDID],
+						  [[UIDevice currentDevice] hashedMoPubUDID],
 						  [receiptString URLEncodedString]];
 	NSString *msgLength = [NSString stringWithFormat:@"%d", [postBody length]];
 	[request addValue:msgLength forHTTPHeaderField:@"Content-Length"];
