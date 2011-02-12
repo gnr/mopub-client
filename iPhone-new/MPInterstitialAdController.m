@@ -12,7 +12,10 @@
 #define ORIENTATION_LANDSCAPE_ONLY	@"l"
 #define ORIENTATION_BOTH			@"b"
 
+#define CLOSE_BUTTON_PADDING		15.0
+
 @interface MPInterstitialAdController (Internal)
+- (id)initWithAdUnitId:(NSString *)ID parentViewController:(UIViewController *)parent;
 - (void)setUpCloseButton;
 @end
 
@@ -37,7 +40,7 @@
 	return sharedInterstitialAdControllers;
 }
 
-+ (MPInterstitialAdController *)sharedInterstitialAdControllerForAdUnitId:(NSString *)ID
++ (MPInterstitialAdController *)interstitialAdControllerForAdUnitId:(NSString *)ID
 {	
 	NSMutableArray *controllers = [MPInterstitialAdController sharedInterstitialAdControllers];
 	
@@ -104,7 +107,9 @@
 	self.view.frame = (CGRect){{0, 0}, [UIScreen mainScreen].bounds.size};
 	self.view.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
 	
-	_adView = [[MPAdView alloc] initWithAdUnitId:self.adUnitId frame:(CGRect){{0, 0}, _adSize}];
+	_adView = [[MPAdView alloc] initWithAdUnitId:self.adUnitId size:_adSize];
+	// Typically, we don't set an autoresizing mask for MPAdView, but in this case we always
+	// want it to occupy the full screen.
 	_adView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
 	_adView.delegate = self;
 	[self.view addSubview:_adView];
@@ -142,8 +147,8 @@
 		UIImage *closeButtonImage = [UIImage imageNamed:@"moPubCloseButtonX.png"];
 		[_closeButton setImage:closeButtonImage forState:UIControlStateNormal];
 		[_closeButton sizeToFit];
-		_closeButton.frame = CGRectMake(self.view.frame.size.width - 20.0 - _closeButton.frame.size.width,
-										20.0,
+		_closeButton.frame = CGRectMake(self.view.frame.size.width - CLOSE_BUTTON_PADDING - _closeButton.frame.size.width,
+										CLOSE_BUTTON_PADDING,
 										_closeButton.frame.size.width,
 										_closeButton.frame.size.height);
 		_closeButton.autoresizingMask = UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleBottomMargin;
@@ -198,6 +203,25 @@
 	[self.parent presentModalViewController:self animated:YES];
 }
 
+- (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation 
+{
+	if (_orientationType == InterstitialOrientationTypePortrait)
+		return (interfaceOrientation == UIInterfaceOrientationPortrait || 
+				interfaceOrientation == UIInterfaceOrientationPortraitUpsideDown);
+	else if (_orientationType == InterstitialOrientationTypeLandscape)
+		return (interfaceOrientation == UIInterfaceOrientationLandscapeLeft || 
+				interfaceOrientation == UIInterfaceOrientationLandscapeRight);
+	else
+		return YES;
+}
+
+- (void)willAnimateRotationToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation 
+										 duration:(NSTimeInterval)duration
+{
+	[super willAnimateRotationToInterfaceOrientation:toInterfaceOrientation duration:duration];
+	//[[UIApplication sharedApplication] setStatusBarHidden:YES withAnimation:UIStatusBarAnimationNone];	
+}
+
 #pragma mark -
 #pragma mark MPAdViewDelegate
 
@@ -237,8 +261,10 @@
 	else
 		_closeButtonType = InterstitialCloseButtonTypeDefault;
 	
+	// Adjust the close button depending on the value of "X-Closebutton".
 	[self setUpCloseButton];
 	
+	// Set the allowed orientations.
 	NSString *orientationChoice = [params objectForKey:@"X-Orientation"];
 	if ([orientationChoice isEqualToString:ORIENTATION_PORTRAIT_ONLY])
 		_orientationType = InterstitialOrientationTypePortrait;
@@ -255,27 +281,7 @@
 
 #pragma mark -
 
-- (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation 
-{
-	if (_orientationType == InterstitialOrientationTypePortrait)
-		return (interfaceOrientation == UIInterfaceOrientationPortrait || 
-				interfaceOrientation == UIInterfaceOrientationPortraitUpsideDown);
-	else if (_orientationType == InterstitialOrientationTypeLandscape)
-		return (interfaceOrientation == UIInterfaceOrientationLandscapeLeft || 
-				interfaceOrientation == UIInterfaceOrientationLandscapeRight);
-	else
-		return YES;
-}
-
-- (void)willAnimateRotationToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation 
-										 duration:(NSTimeInterval)duration
-{
-	[super willAnimateRotationToInterfaceOrientation:toInterfaceOrientation duration:duration];
-	//[[UIApplication sharedApplication] setStatusBarHidden:YES withAnimation:UIStatusBarAnimationNone];	
-}
-
 - (void)didReceiveMemoryWarning {
-    // Releases the view if it doesn't have a superview.
     [super didReceiveMemoryWarning];
     
     // Release any cached data, images, etc. that aren't in use.

@@ -24,10 +24,12 @@
 
 	SEL selector = NSSelectorFromString(selectorString);
 	
+	// First, try calling the no-object selector.
 	if ([self.adView.delegate respondsToSelector:selector])
 	{
 		[self.adView.delegate performSelector:selector];
 	}
+	// Then, try calling the selector passing in the ad view.
 	else 
 	{
 		NSString *selectorWithObjectString = [NSString stringWithFormat:@"%@:", selectorString];

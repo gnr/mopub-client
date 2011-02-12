@@ -37,13 +37,14 @@
 #pragma mark -
 #pragma mark Lifecycle
 
-- (id)initWithAdUnitId:(NSString *)adUnitId frame:(CGRect)frame 
-{    
-    if (self = [super initWithFrame:frame]) 
+- (id)initWithAdUnitId:(NSString *)adUnitId size:(CGSize)size 
+{   
+	CGRect f = (CGRect){{0, 0}, size};
+    if (self = [super initWithFrame:f]) 
 	{
 		self.backgroundColor = [UIColor clearColor];
 		self.clipsToBounds = YES;
-		[self setUpWebViewWithFrame:frame];
+		[self setUpWebViewWithFrame:f];
 		_adUnitId = (adUnitId) ? [adUnitId copy] : DEFAULT_PUB_ID;
 		_data = [[NSMutableData data] retain];
 		_shouldInterceptLinks = YES;

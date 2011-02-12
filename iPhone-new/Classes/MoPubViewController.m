@@ -36,7 +36,7 @@
 - (void)presentInterstitial
 {
 	MPInterstitialAdController *interstitialController = 
-		[MPInterstitialAdController sharedInterstitialAdControllerForAdUnitId:PUB_ID_INTERSTITIAL];
+		[MPInterstitialAdController interstitialAdControllerForAdUnitId:@"agltb3B1Yi1pbmNyDAsSBFNpdGUY4YYdDA"];
 	interstitialController.parent = self;
 	[interstitialController loadAd];
 }
@@ -45,7 +45,8 @@
 {
 	self.view = [[[UIView alloc] initWithFrame:[[UIScreen mainScreen] applicationFrame]] autorelease];
 	self.view.backgroundColor = [UIColor blackColor];
-	adView = [[MPAdView alloc] initWithAdUnitId:PUB_ID_320x50 frame:CGRectMake(0, 200, 320, 50)];
+	adView = [[MPAdView alloc] initWithAdUnitId:@"agltb3B1Yi1pbmNyDAsSBFNpdGUY-v4cDA" size:MOPUB_BANNER_SIZE];
+	adView.frame = (CGRect){{0, 200}, MOPUB_BANNER_SIZE};
 	adView.delegate = self;
 	[self.view addSubview:adView];
 	

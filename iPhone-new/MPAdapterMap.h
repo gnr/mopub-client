@@ -10,10 +10,18 @@
 
 @interface MPAdapterMap : NSObject
 {
+	// Mapping of adapter class names to ad types (NSString -> NSString).
 	NSDictionary *_map;
 }
 
+/*
+ * Get the shared adapter map.
+ */
 + (id)sharedAdapterMap;
+
+/*
+ * Convenience methods for getting the NSString or Class representation for a certain ad type.
+ */
 - (NSString *)classStringForAdapterType:(NSString *)type;
 - (Class)classForAdapterType:(NSString *)type;
 

@@ -98,7 +98,7 @@
 /*
  * Returns an MPAdView with the given ad unit ID.
  */
-- (id)initWithAdUnitId:(NSString *)adUnitId frame:(CGRect)frame;
+- (id)initWithAdUnitId:(NSString *)adUnitId size:(CGSize)size;
 
 /* 
  * Ad sizes may vary between different ad networks. This method returns the actual
@@ -198,7 +198,8 @@
 - (void)adViewDidReceiveResponseParams:(NSDictionary *)params;
 
 /*
- * TODO: This callback notifies you when 
+ * This method is called when a mopub://close link is activated. If implemented, this method 
+ * should remove the ad view from the screen (see MPInterstitialAdController for an example).
  */
 - (void)adViewShouldClose:(MPAdView *)view;
 

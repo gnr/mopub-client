@@ -57,17 +57,20 @@ static NSDictionary *GADHeaderAttrMap = nil;
 	[super dealloc];
 }
 
-- (NSNumber *)GtestadrequestKeyConvert:(NSString *)str{
+- (NSNumber *)GtestadrequestKeyConvert:(NSString *)str
+{
 	return [NSNumber numberWithInt:[str intValue]];
 }
 
-- (NSArray *)GchannelidsKeyConvert:(NSString *)str{
+- (NSArray *)GchannelidsKeyConvert:(NSString *)str
+{
 	// chop off [" and "]
 	str = [str substringWithRange:NSMakeRange(2, [str length] - 4)];
 	return [str componentsSeparatedByString:@"', '"]; 
 }
 
-- (NSString *)GadtypeKeyConvert:(NSString *)str{
+- (NSString *)GadtypeKeyConvert:(NSString *)str
+{
 	if ([str isEqual:@"GADAdSenseTextAdType"])
 		return kGADAdSenseTextAdType;
 	if ([str isEqual:@"GADAdSenseImageAdType"])
@@ -115,6 +118,7 @@ static NSDictionary *GADHeaderAttrMap = nil;
 		_adViewController.adSize = kGADAdSize728x90;
 	}
 	
+	// Finally, request the ad.
 	_adViewController.view.frame = CGRectMake(0, 0, width, height);
 	[_adViewController loadGoogleAd:attributes];
 	[attributes release];
@@ -140,10 +144,6 @@ static NSDictionary *GADHeaderAttrMap = nil;
          withError:(NSError *)error
 {
 	[self.adView adapter:self didFailToLoadAdWithError:nil];
-	
-	_adViewController.delegate = nil;
-	[_adViewController release];
-	_adViewController = nil;
 }
 
 - (GADAdClickAction)adControllerActionModelForAdClick:

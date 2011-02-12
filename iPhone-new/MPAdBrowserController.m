@@ -13,15 +13,18 @@
 @synthesize delegate = _delegate;
 @synthesize URL = _URL;
 
-static NSArray *SAFARI_SCHEMES, *SAFARI_HOSTS;
+static NSArray *BROWSER_SCHEMES, *SPECIAL_HOSTS;
 
 + (void)initialize 
 {
-	SAFARI_SCHEMES = [[NSArray arrayWithObjects:
+	// Schemes that should be handled by the in-app browser.
+	BROWSER_SCHEMES = [[NSArray arrayWithObjects:
 					   @"http",
 					   @"https",
 					   nil] retain];
-	SAFARI_HOSTS = [[NSArray arrayWithObjects:
+	
+	// Hosts that should be handled by the OS.
+	SPECIAL_HOSTS = [[NSArray arrayWithObjects:
 					 @"phobos.apple.com",
 					 @"maps.google.com",
 					 nil] retain];
@@ -188,9 +191,14 @@ static NSArray *SAFARI_SCHEMES, *SAFARI_HOSTS;
  navigationType:(UIWebViewNavigationType)navigationType 
 {
 	MPLog(@"MOPUB: %@", request.URL);
-	if ([SAFARI_SCHEMES containsObject:request.URL.scheme])
+	
+	/* 
+	 * For all links with http:// or https:// scheme, open in our browser UNLESS
+	 * the host is one of our special hosts that should be handled by the OS.
+	 */
+	if ([BROWSER_SCHEMES containsObject:request.URL.scheme])
 	{
-		if ([SAFARI_HOSTS containsObject:request.URL.host])
+		if ([SPECIAL_HOSTS containsObject:request.URL.host])
 		{
 			[self dismissModalViewControllerAnimated:NO];
 			[[UIApplication sharedApplication] openURL:request.URL];
@@ -200,7 +208,8 @@ static NSArray *SAFARI_SCHEMES, *SAFARI_HOSTS;
 		{
 			return YES;
 		}
-	} 
+	}
+	// Non-http(s):// scheme, so ask the OS if it can handle.
 	else 
 	{
 		if ([[UIApplication sharedApplication] canOpenURL:request.URL])

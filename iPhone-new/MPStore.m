@@ -10,6 +10,14 @@
 #import "MPAdView.h"
 #import "MPConstants.h"
 
+@interface MPStore (Internal)
+
+- (void)requestProductDataForProductIdentifier:(NSString *)identifier;
+- (void)startPaymentForProductIdentifier:(NSString *)identifier;
+- (void)recordTransaction:(SKPaymentTransaction *)transaction;
+
+@end
+
 @implementation MPStore
 
 + (MPStore *)sharedStore
@@ -31,6 +39,8 @@
 	if (self = [super init])
 	{
 		_isProcessing = NO;
+		
+		// Default to purchase quantity of 1.
 		_quantity = 1;
 	}
 	return self;
@@ -42,19 +52,7 @@
 }
 
 #pragma mark -
-
-- (void)initiatePurchaseForProductIdentifier:(NSString *)identifier quantity:(NSInteger)quantity
-{
-	if (_isProcessing)
-	{
-		MPLog(@"MOPUB: Warning - can only initiate one store request at a time.");
-		return;
-	}
-	
-	_isProcessing = YES;
-	_quantity = quantity;
-	[self requestProductDataForProductIdentifier:identifier];
-}
+#pragma mark Internal
 
 - (void)requestProductDataForProductIdentifier:(NSString *)identifier
 {
@@ -70,6 +68,38 @@
 	payment.quantity = _quantity;
 	[[SKPaymentQueue defaultQueue] addPayment:payment];
 	_isProcessing = NO;
+}
+
+- (void)recordTransaction:(SKPaymentTransaction *)transaction 
+{
+	// Report this transaction (specifically its receipt) back to the MoPub servers.
+	NSURL *url = [NSURL URLWithString:[NSString stringWithFormat:@"http://%@%@", HOSTNAME, STORE_RECEIPT_SUFFIX]];
+	NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:url];
+	NSString *receiptString = [[[NSString alloc] initWithData:transaction.transactionReceipt 
+													 encoding:NSUTF8StringEncoding] autorelease];
+	NSString *postBody = [NSString stringWithFormat:@"udid=%@&receipt=%@", 
+						  [[UIDevice currentDevice] hashedMoPubUDID],
+						  [receiptString URLEncodedString]];
+	NSString *msgLength = [NSString stringWithFormat:@"%d", [postBody length]];
+	[request addValue:msgLength forHTTPHeaderField:@"Content-Length"];
+	[request setHTTPMethod:@"POST"];
+	[request setHTTPBody:[postBody dataUsingEncoding:NSUTF8StringEncoding]];
+	[NSURLConnection connectionWithRequest:request delegate:self];
+}
+
+#pragma mark -
+
+- (void)initiatePurchaseForProductIdentifier:(NSString *)identifier quantity:(NSInteger)quantity
+{
+	if (_isProcessing)
+	{
+		MPLog(@"MOPUB: Warning - can only initiate one store request at a time.");
+		return;
+	}
+	
+	_isProcessing = YES;
+	_quantity = quantity;
+	[self requestProductDataForProductIdentifier:identifier];
 }
 
 #pragma mark -
@@ -102,22 +132,6 @@
 			[self recordTransaction:transaction];
         }
     }
-}
-
-- (void)recordTransaction:(SKPaymentTransaction *)transaction 
-{
-	NSURL *url = [NSURL URLWithString:[NSString stringWithFormat:@"http://%@%@", HOSTNAME, STORE_RECEIPT_SUFFIX]];
-	NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:url];
-	NSString *receiptString = [[[NSString alloc] initWithData:transaction.transactionReceipt 
-													encoding:NSUTF8StringEncoding] autorelease];
-	NSString *postBody = [NSString stringWithFormat:@"udid=%@&receipt=%@", 
-						  [[UIDevice currentDevice] hashedMoPubUDID],
-						  [receiptString URLEncodedString]];
-	NSString *msgLength = [NSString stringWithFormat:@"%d", [postBody length]];
-	[request addValue:msgLength forHTTPHeaderField:@"Content-Length"];
-	[request setHTTPMethod:@"POST"];
-	[request setHTTPBody:[postBody dataUsingEncoding:NSUTF8StringEncoding]];
-	[NSURLConnection connectionWithRequest:request delegate:self];
 }
 
 @end

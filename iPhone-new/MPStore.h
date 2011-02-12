@@ -11,15 +11,23 @@
 
 @interface MPStore : NSObject <SKProductsRequestDelegate, SKPaymentTransactionObserver>
 {
+	// Whether the store is currently processing an in-app purchase.
+	// Note: this class is not thread-safe.
 	BOOL _isProcessing;
+	
+	// The amount of product desired for the current purchase.
 	NSInteger _quantity;
 }
 
+/*
+ * Gets the singleton store object.
+ */
 + (MPStore *)sharedStore;
+
+/*
+ * Begins an in-app purchase given the product identifier and the desired quantity.
+ */
 - (void)initiatePurchaseForProductIdentifier:(NSString *)identifier quantity:(NSInteger)quantity;
-- (void)requestProductDataForProductIdentifier:(NSString *)identifier;
-- (void)startPaymentForProductIdentifier:(NSString *)identifier;
-- (void)recordTransaction:(SKPaymentTransaction *)transaction;
 
 @end
 
