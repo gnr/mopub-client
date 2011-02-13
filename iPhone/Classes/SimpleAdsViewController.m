@@ -4,47 +4,41 @@
 //
 
 #import "SimpleAdsViewController.h"
-#import "AdController.h"
-#import "InterstitialAdController.h"
+#import "MPAdView.h"
 
 @implementation SimpleAdsViewController
 
 @synthesize keyword;
-@synthesize adController, mrectController;
+@synthesize mpAdView, mpMrectView;
 @synthesize adView, mrectView;
 
 - (void)viewDidLoad {
     [super viewDidLoad];
 	
 	// 320x50 size
-	self.adController = [[AdController alloc] initWithSize:self.adView.frame.size adUnitId:PUB_ID_320x50 parentViewController:self];
-	self.adController.delegate = self;
-	[self.adView addSubview:self.adController.view];
+	mpAdView = [[MPAdView alloc] initWithAdUnitId:PUB_ID_320x50 size:MOPUB_BANNER_SIZE];
+	mpAdView.delegate = self;
+	[mpAdView loadAd];
+	[self.adView addSubview:mpAdView];
 	
 	// MRect size
-	self.mrectController = [[AdController alloc] initWithSize:self.mrectView.frame.size adUnitId:PUB_ID_300x250 parentViewController:self];
-	self.mrectController.delegate = self;
-	[self.mrectView addSubview:self.mrectController.view];	
+	mpMrectView = [[MPAdView alloc] initWithAdUnitId:PUB_ID_300x250 size:MOPUB_MEDIUM_RECT_SIZE];
+	mpMrectView.delegate = self;
+	[mpMrectView loadAd];
+	[self.mrectView addSubview:mpMrectView];	
 }
 
-- (void)adControllerDidLoadAd:(AdController *)_adController{
-	NSLog(@"AD DID LOAD %@", _adController);
-}
-
-- (void)adControllerFailedLoadAd:(AdController *)_adController{
-	NSLog(@"AD FAILED LOAD %@", _adController);
-}
 
 - (IBAction) refreshAd {
 	[keyword resignFirstResponder];
 	
 	// update ad 
-	self.adController.keywords = keyword.text;
-	[self.adController refresh];
+	self.mpAdView.keywords = keyword.text;
+	[self.mpAdView refreshAd];
 	
 	// update mrect
-	self.mrectController.keywords = keyword.text;
-	[self.mrectController refresh];
+	self.mpMrectView.keywords = keyword.text;
+	[self.mpMrectView refreshAd];
 }
 
 - (BOOL)textFieldShouldReturn:(UITextField *)textField {
@@ -65,9 +59,19 @@
 }
 
 - (void)dealloc{
-	[adController release];
-	[mrectController release];
+	[mpAdView release];
+	[mpMrectView release];
 	[super dealloc];
+}
+
+- (UIViewController *)viewControllerForPresentingModalView
+{
+	return self;
+}
+
+- (void)dismissInterstitial:(MPInterstitialAdController *)interstitial
+{
+	[self dismissModalViewControllerAnimated:YES];
 }
 
 @end
