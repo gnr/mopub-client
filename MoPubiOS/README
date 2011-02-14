@@ -1,32 +1,34 @@
 Installation Instructions
 ==========================
 
-Step 1 - Add MoPub Source Code into your app.
--------
-Add the MoPub SDK to your project. You may do this by simply dragging the 'MoPubSDK' folder into your project.
+Step 1 - Add the MoPub source code to your app.
+------
 
-Step 2. - Include Appropriate Frameworks
--------
+Add the MoPub SDK by simply dragging the 'MoPubSDK' folder into your project.
+
+Step 2 - Include required frameworks.
+------
+
 Add the following frameworks to your project if they do not already exist:
 UIKit.framework
 Foundation.framework
 StoreKit.framework
 CoreLocation.framework
 
-*You may also want to want to weak link the iAd.framework if you potentially intend on including iAd advertisements in your app.
+*You may also want to weakly link iAd.framework if you intend on including iAd advertisements in your app.
 
-Step 3. - Include Helper Libraries. 
--------
+Step 3 - Include helper libraries.
+------
 
 1) Include the TouchJSON library into your application if it is not already present. 
 
-2) Include Network Adapters if you want to potentially include iAd or Google Adsense for Mobile advertisements in your app
-   drag in the MoPubNetworkAdapters folder from the 'extras' directory.
-   You should only include the adapters that you need.
-   Note: You will receive build errors if you do not have the iAd framework (weak) or the Adsense binary included in your application. 
+2) Include network adapters if you want to include advertisements from iAd or Google AdSense for Mobile in your app.
+   You can do this by dragging in the MoPubNetworkAdapters folder from the 'extras' directory, or by including only the adapters that you need.
+   Note: You will receive build errors if you do not weak-link iAd.framework or include the AdSense binary in your application. 
 
-Step 4. - Place MoPub ad views and make ad requests.
--------
+Step 4 - Place MoPub ad views in your application and make ad requests.
+------
+
 Add the MoPub AdView into your application with the appropriate AdUnit IDs that you have set up on the web console.
 
 A) Basic Banner Ad Integration
@@ -35,7 +37,7 @@ A) Basic Banner Ad Integration
 
 ...
 
-// see sizing constants in MPConstants.h
+// For more banner sizes, see the sizing constants in MPConstants.h.
 MPAdView *adView = [[MPAdView alloc] initWithAdUnitId:@"<YOUR ADUNIT ID HERE>" size:MOPUB_BANNER_SIZE];
 adView.delegate = self;
 [adView loadAd];
@@ -44,22 +46,20 @@ adView.delegate = self;
 
 ...
 
-# pragma mark
-# pragma mark MPAdviewDelegate Methods
-# pragma mark
+#pragma mark MPAdViewDelegate Methods
 
 - (UIViewController *)viewControllerForPresentingModalView
 {
 	return self;
 }
 
-
 B) Interstitial Integration
 
   i) Simple Integration - display the full screen ad as soon as it is ready
 
 #import "MPInterstitialAdController.h"
-...
+
+... somewhere in your application code ...
 
 MPInterstitialAdController *interstitialController = 
 		[MPInterstitialAdController interstitialAdControllerForAdUnitId:@"<YOUR INTERSTITIAL ADUNIT ID HERE>"];
@@ -68,12 +68,12 @@ interstitialController.parent = self;
 
 ...
 
-# pragma mark
-# pragma mark MPInterstitialAdControllerDelegate Methods
-# pragma mark
-// present the add as soon as it is ready
-- (void)interstitialDidLoadAd:(MPInterstitialAdController *)interstitial{
-  [interstitial show];
+#pragma mark MPInterstitialAdControllerDelegate Methods
+
+// present the ad as soon as it is ready
+- (void)interstitialDidLoadAd:(MPInterstitialAdController *)interstitial
+{
+	[interstitial show];
 }
 
 // dismiss the ad appropriately and release the object
@@ -83,43 +83,52 @@ interstitialController.parent = self;
 	[MPInterstitialAdController removeSharedInterstitialAdController:interstitial];
 }
 
-i) Prefetch Integration - retrieve the ad and display later downstream
+  ii) Prefetch Integration - retrieve the ad and display later downstream
 
-Same as above except no action is needed for the interstitialDidLoadAd: delegate method.
-Instead, whenever you would like check to see if the ad is ready, then display it
+This is done as above, except you do not need to implement the interstitialDidLoadAd: delegate method.
+Instead, when you want to display the ad, first check to see if it is ready. If it is, call
+-show; otherwise, do something else.
 
-E.g. Display the interstitial at the end of a level if it is ready, else continue on as usual.
+Example: We have a game, and we want to display an interstitial at the end of a level if it is ready.
 
-- (void)levelDidEnd{
-  MPInterstitialAdController *interstitial [MPInterstitialAdController 
-                  interstitialAdControllerForAdUnitId:@"<YOUR INTERSTITIAL ADUNIT ID HERE>"];
-  if (interstitial.ready)
-  {
-    [interstitial show];
-  }
-  else
-  {
-    [self presentScoreBoard];
-  }
+In the .h of your view controller, create an MPInterstitialAdController instance variable.
+
+MPInterstitialAdController *interstitial;
+
+Somewhere in your .m, initialize the AdController and tell it to load an ad (prefetch).
+
+interstitial = [MPInterstitialAdController interstitialAdControllerForAdUnitId:@"<YOUR INTERSTITIAL ADUNIT ID HERE>"];
+interstitial.parent = self;
+[interstitial loadAd];
+
+When you want to display the ad:
+
+- (void)levelDidEnd
+{
+	if (interstitial.ready)
+		[interstitial show];
+	else
+		// Present a scoreboard or continue as usual.
 }
 
 
-Step 5. - Report application installations.
--------
-In your app delegate place the following snippet in your didFinishLaunchingWithOptions: delegate call back.
+Step 5 - Report application installations.
+------
+
+In your app delegate, place the following snippet in your didFinishLaunchingWithOptions: delegate callback.
 
 #import "MPAdConversionTracker.h"
 
 ...
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions 
-{    
-  [[MPAdConversionTracker sharedConversionTracker] reportApplicationOpenForApplicationID:@"<YOUR APPLICATION ID>"];
-  ...
+{	
+	[[MPAdConversionTracker sharedConversionTracker] reportApplicationOpenForApplicationID:@"<YOUR APPLICATION ID>"];
+	// ... rest of didFinishLaunchingWithOptions ...
 }
 
 
-If you have any issues installing the SDK or receiving ads please contact support@mopub.com, we're eager to help.
+If you have any issues installing the SDK or receiving ads, please contact support@mopub.com -- we're eager to help!
 
 
 
