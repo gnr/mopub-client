@@ -8,6 +8,17 @@
 
 #import "MPInterstitialAdController.h"
 
+#define ORIENTATION_PORTRAIT_ONLY	@"p"
+#define ORIENTATION_LANDSCAPE_ONLY	@"l"
+#define ORIENTATION_BOTH			@"b"
+
+#define CLOSE_BUTTON_PADDING		15.0
+
+@interface MPInterstitialAdController (Internal)
+- (id)initWithAdUnitId:(NSString *)ID parentViewController:(UIViewController *)parent;
+- (void)setUpCloseButton;
+@end
+
 @implementation MPInterstitialAdController
 
 @synthesize ready = _ready;
@@ -29,7 +40,7 @@
 	return sharedInterstitialAdControllers;
 }
 
-+ (MPInterstitialAdController *)sharedInterstitialAdControllerForAdUnitId:(NSString *)ID
++ (MPInterstitialAdController *)interstitialAdControllerForAdUnitId:(NSString *)ID
 {	
 	NSMutableArray *controllers = [MPInterstitialAdController sharedInterstitialAdControllers];
 	
@@ -71,8 +82,8 @@
 	if (self = [super init])
 	{
 		_ready = NO;
-		self.parent = parent;
-		self.adUnitId = ID;
+		_parent = parent;
+		_adUnitId = ID;
 		_adSize = [[UIScreen mainScreen] bounds].size;
 		_closeButtonType = InterstitialCloseButtonTypeDefault;
 		_orientationType = InterstitialOrientationTypeBoth;
@@ -87,6 +98,68 @@
 	[_adView release];
 	[_adUnitId release];
     [super dealloc];
+}
+
+- (void)loadView 
+{
+	self.view = [[[UIView alloc] initWithFrame:CGRectZero] autorelease];
+	self.view.backgroundColor = [UIColor blackColor];
+	self.view.frame = (CGRect){{0, 0}, [UIScreen mainScreen].bounds.size};
+	self.view.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+	
+	_adView = [[MPAdView alloc] initWithAdUnitId:self.adUnitId size:_adSize];
+	// Typically, we don't set an autoresizing mask for MPAdView, but in this case we always
+	// want it to occupy the full screen.
+	_adView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+	_adView.delegate = self;
+	[self.view addSubview:_adView];
+	
+	[self setUpCloseButton];
+}
+
+- (void)viewWillAppear:(BOOL)animated
+{
+	// Triggers -loadView if it hasn't happened.
+	self.view;
+	[super viewWillAppear:animated];
+	
+	if ([self.parent respondsToSelector:@selector(interstitialWillAppear:)])
+		[self.parent interstitialWillAppear:self];
+}
+
+- (void)viewDidAppear:(BOOL)animated
+{
+	// Triggers -loadView if it hasn't happened.
+	self.view;
+	[_adView adViewDidAppear];
+	[super viewDidAppear:animated];
+}
+
+#pragma mark -
+#pragma mark Internal
+
+- (void)setUpCloseButton
+{
+	if (_closeButtonType == InterstitialCloseButtonTypeDefault)
+	{
+		[_closeButton removeFromSuperview];
+		_closeButton = [UIButton buttonWithType:UIButtonTypeCustom];
+		UIImage *closeButtonImage = [UIImage imageNamed:@"moPubCloseButtonX.png"];
+		[_closeButton setImage:closeButtonImage forState:UIControlStateNormal];
+		[_closeButton sizeToFit];
+		_closeButton.frame = CGRectMake(self.view.frame.size.width - CLOSE_BUTTON_PADDING - _closeButton.frame.size.width,
+										CLOSE_BUTTON_PADDING,
+										_closeButton.frame.size.width,
+										_closeButton.frame.size.height);
+		_closeButton.autoresizingMask = UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleBottomMargin;
+		[_closeButton addTarget:self action:@selector(closeButtonPressed) forControlEvents:UIControlEventTouchUpInside];
+		[self.view addSubview:_closeButton];
+		[self.view bringSubviewToFront:_closeButton];
+	}
+	else
+	{
+		[_closeButton removeFromSuperview];
+	}
 }
 
 #pragma mark -
@@ -104,159 +177,31 @@
 - (void)closeButtonPressed
 {
 	// Restore previous status/navigation bar state.
-	[[UIApplication sharedApplication] setStatusBarHidden:_statusBarWasHidden withAnimation:UIStatusBarAnimationNone];
+	[[UIApplication sharedApplication] setStatusBarHidden:_statusBarWasHidden withAnimation:UIStatusBarAnimationFade];
 	[self.navigationController setNavigationBarHidden:_navigationBarWasHidden animated:NO];
 	
 	[self.parent dismissInterstitial:self];
 }
 
-- (void)_setUpCloseButton
-{
-	if (_closeButtonType == InterstitialCloseButtonTypeDefault)
-	{
-		[_closeButton removeFromSuperview];
-		_closeButton = [UIButton buttonWithType:UIButtonTypeCustom];
-		UIImage *closeButtonImage = [UIImage imageNamed:@"moPubCloseButtonX.png"];
-		[_closeButton setImage:closeButtonImage forState:UIControlStateNormal];
-		[_closeButton sizeToFit];
-		_closeButton.frame = CGRectMake(self.view.frame.size.width - 20.0 - _closeButton.frame.size.width,
-										20.0,
-										_closeButton.frame.size.width,
-										_closeButton.frame.size.height);
-		_closeButton.autoresizingMask = UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleBottomMargin;
-		[_closeButton addTarget:self action:@selector(closeButtonPressed) forControlEvents:UIControlEventTouchUpInside];
-		[self.view addSubview:_closeButton];
-		[self.view bringSubviewToFront:_closeButton];
-	}
-	else
-	{
-		[_closeButton removeFromSuperview];
-	}
-}
-
-- (void)loadView 
-{
-	UIView *container = [[[UIView alloc] initWithFrame:CGRectZero] autorelease];
-	container.backgroundColor = [UIColor greenColor];
-	container.frame = (CGRect){{0, 0}, [[UIScreen mainScreen] applicationFrame].size};
-	container.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
-	self.view = container;
-	
-	_adView = [[MPAdView alloc] initWithFrame:(CGRect){{0, 0}, _adSize}];
-	_adView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
-	_adView.adUnitId = self.adUnitId;
-	_adView.delegate = self;
-	[self.view addSubview:_adView];
-	
-	[self _setUpCloseButton];
-}
-
 - (void)loadAd
 {
-	// TODO: figure out better place to do this load view
+	// Triggers -loadView if it hasn't happened.
 	self.view;
 	[_adView loadAd];
 }
 
 - (void)show
-{
+{	
 	// Track the previous state of the status bar, so that we can restore it.
 	_statusBarWasHidden = [UIApplication sharedApplication].statusBarHidden;
-	[[UIApplication sharedApplication] setStatusBarHidden:YES withAnimation:UIStatusBarAnimationNone];
+	[[UIApplication sharedApplication] setStatusBarHidden:YES withAnimation:UIStatusBarAnimationFade];
 	
 	// Likewise, track the previous state of the navigation bar.
 	_navigationBarWasHidden = self.navigationController.navigationBarHidden;
-	[self.navigationController setNavigationBarHidden:YES animated:NO];
+	[self.navigationController setNavigationBarHidden:YES animated:YES];
 	
 	[self.parent presentModalViewController:self animated:YES];
 }
-
-- (void)viewWillAppear:(BOOL)animated
-{
-	self.view;
-	[super viewWillAppear:animated];
-	
-	if ([self.parent respondsToSelector:@selector(interstitialWillAppear:)])
-		[self.parent interstitialWillAppear:self];
-}
-
-- (void)viewDidAppear:(BOOL)animated
-{
-	self.view;
-	[_adView viewDidAppear];
-	[super viewDidAppear:animated];
-	
-	if ([self.parent respondsToSelector:@selector(interstitialDidAppear:)])
-		[self.parent interstitialDidAppear:self];
-}
-
-#pragma mark -
-#pragma mark MPAdViewDelegate
-
-- (UIViewController *)viewControllerForPresentingModalView
-{
-	return self.parent;
-}
-
-- (void)adViewWillLoadAd:(MPAdView *)view
-{
-	if ([self.parent respondsToSelector:@selector(adViewWillLoadAd:)])
-		[self.parent adViewWillLoadAd:view];
-}
-
-- (void)adViewDidFailToLoadAd:(MPAdView *)view
-{
-	_ready = NO;
-	
-	if ([self.parent respondsToSelector:@selector(interstitialDidFailToLoadAd:)])
-		[self.parent interstitialDidFailToLoadAd:self];
-}
-
-- (void)adViewDidLoadAd:(MPAdView *)view
-{
-	_ready = YES;
-	
-	if ([self.parent respondsToSelector:@selector(interstitialDidLoadAd:)])
-		[self.parent interstitialDidLoadAd:self];
-}
-
-- (void)nativeAdClicked:(MPAdView *)view
-{
-	if ([self.parent respondsToSelector:@selector(nativeAdClicked:)])
-		[self.parent nativeAdClicked:view];
-}
-
-- (void)willPresentModalViewForAd:(MPAdView *)view
-{
-	if ([self.parent respondsToSelector:@selector(willPresentModalViewForAd:)])
-		[self.parent willPresentModalViewForAd:view];}
-
-- (void)didPresentModalViewForAd:(MPAdView *)view
-{
-	if ([self.parent respondsToSelector:@selector(didPresentModalViewForAd:)])
-		[self.parent didPresentModalViewForAd:view];
-}
-
-- (void)adViewDidReceiveResponseParams:(NSDictionary *)params
-{
-	NSString *closeButtonChoice = [params objectForKey:@"X-Closebutton"];
-	
-	if ([closeButtonChoice isEqualToString:@"None"])
-		_closeButtonType = InterstitialCloseButtonTypeNone;
-	else
-		_closeButtonType = InterstitialCloseButtonTypeDefault;
-	
-	NSString *orientationChoice = [params objectForKey:@"X-Orientation"];
-	// TODO: turn these into constants
-	if ([orientationChoice isEqualToString:@"p"])
-		_orientationType = InterstitialOrientationTypePortrait;
-	else if ([orientationChoice isEqualToString:@"l"])
-		_orientationType = InterstitialOrientationTypeLandscape;
-	else 
-		_orientationType = InterstitialOrientationTypeBoth;
-}
-
-#pragma mark -
 
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation 
 {
@@ -277,8 +222,66 @@
 	//[[UIApplication sharedApplication] setStatusBarHidden:YES withAnimation:UIStatusBarAnimationNone];	
 }
 
+#pragma mark -
+#pragma mark MPAdViewDelegate
+
+- (UIViewController *)viewControllerForPresentingModalView
+{
+	return self;
+}
+
+- (void)adViewDidLoadAd:(MPAdView *)view
+{
+	_ready = YES;
+	
+	if ([self.parent respondsToSelector:@selector(interstitialDidLoadAd:)])
+		[self.parent interstitialDidLoadAd:self];
+}
+
+- (void)adViewDidFailToLoadAd:(MPAdView *)view
+{
+	_ready = NO;
+	
+	if ([self.parent respondsToSelector:@selector(interstitialDidFailToLoadAd:)])
+		[self.parent interstitialDidFailToLoadAd:self];
+}
+
+- (void)willPresentModalViewForAd:(MPAdView *)view
+{
+	if ([self.parent respondsToSelector:@selector(willPresentModalViewForAd:)])
+		[self.parent willPresentModalViewForAd:view];
+}
+
+- (void)adViewDidReceiveResponseParams:(NSDictionary *)params
+{
+	NSString *closeButtonChoice = [params objectForKey:@"X-Closebutton"];
+	
+	if ([closeButtonChoice isEqualToString:@"None"])
+		_closeButtonType = InterstitialCloseButtonTypeNone;
+	else
+		_closeButtonType = InterstitialCloseButtonTypeDefault;
+	
+	// Adjust the close button depending on the value of "X-Closebutton".
+	[self setUpCloseButton];
+	
+	// Set the allowed orientations.
+	NSString *orientationChoice = [params objectForKey:@"X-Orientation"];
+	if ([orientationChoice isEqualToString:ORIENTATION_PORTRAIT_ONLY])
+		_orientationType = InterstitialOrientationTypePortrait;
+	else if ([orientationChoice isEqualToString:ORIENTATION_LANDSCAPE_ONLY])
+		_orientationType = InterstitialOrientationTypeLandscape;
+	else 
+		_orientationType = InterstitialOrientationTypeBoth;
+}
+
+- (void)adViewShouldClose:(MPAdView *)view
+{
+	[self closeButtonPressed];
+}
+
+#pragma mark -
+
 - (void)didReceiveMemoryWarning {
-    // Releases the view if it doesn't have a superview.
     [super didReceiveMemoryWarning];
     
     // Release any cached data, images, etc. that aren't in use.

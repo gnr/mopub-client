@@ -7,12 +7,20 @@
 //
 
 #import "MoPubViewController.h"
-
-#define PUB_ID_INTERSTITIAL @"agltb3B1Yi1pbmNyCgsSBFNpdGUYJww"//@"agltb3B1Yi1pbmNyDAsSBFNpdGUYsckMDA"
+#import "MPAdView.h"
+#import "AdMobView.h"
 
 @implementation MoPubViewController
 
+- (NSString *)publisherIdForAd:(AdMobView *)adView
+{
+	return @"a14adfaa7cd5965";
+}
 
+- (UIViewController *)currentViewControllerForAd:(AdMobView *)adView
+{
+	return self;
+}
 
 /*
 // The designated initializer. Override to perform setup that is required before the view is loaded.
@@ -28,7 +36,7 @@
 - (void)presentInterstitial
 {
 	MPInterstitialAdController *interstitialController = 
-		[MPInterstitialAdController sharedInterstitialAdControllerForAdUnitId:PUB_ID_INTERSTITIAL];
+		[MPInterstitialAdController interstitialAdControllerForAdUnitId:@"agltb3B1Yi1pbmNyDAsSBFNpdGUY4YYdDA"];
 	interstitialController.parent = self;
 	[interstitialController loadAd];
 }
@@ -37,9 +45,8 @@
 {
 	self.view = [[[UIView alloc] initWithFrame:[[UIScreen mainScreen] applicationFrame]] autorelease];
 	self.view.backgroundColor = [UIColor blackColor];
-	MPAdView *adView = [[MPAdView alloc] initWithFrame:CGRectMake(0, 200, 320, 50)];
-	adView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleTopMargin |
-		UIViewAutoresizingFlexibleBottomMargin;
+	adView = [[MPAdView alloc] initWithAdUnitId:@"agltb3B1Yi1pbmNyDAsSBFNpdGUY-v4cDA" size:MOPUB_BANNER_SIZE];
+	adView.frame = (CGRect){{0, 200}, MOPUB_BANNER_SIZE};
 	adView.delegate = self;
 	[self.view addSubview:adView];
 	
@@ -73,6 +80,12 @@
     return YES;
 }
 
+- (void)willRotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration
+{
+	[adView rotateToOrientation:toInterfaceOrientation];
+	adView.frame = (CGRect){{adView.frame.origin.x, adView.frame.origin.y}, [adView adContentViewSize]};
+}
+
 #pragma mark -
 #pragma mark MPAdViewDelegate
 
@@ -96,17 +109,12 @@
 	NSLog(@"Ad View DELEGATE: %@", NSStringFromSelector(_cmd));
 }
 
-- (void)nativeAdClicked:(MPAdView *)view
-{
-	NSLog(@"Ad View DELEGATE: %@", NSStringFromSelector(_cmd));
-}
-
 - (void)willPresentModalViewForAd:(MPAdView *)view
 {
 	NSLog(@"Ad View DELEGATE: %@", NSStringFromSelector(_cmd));
 }
 
-- (void)didPresentModalViewForAd:(MPAdView *)view
+- (void)didDismissModalViewForAd:(MPAdView *)view
 {
 	NSLog(@"Ad View DELEGATE: %@", NSStringFromSelector(_cmd));
 }
@@ -118,23 +126,56 @@
 {
 	[self dismissModalViewControllerAnimated:YES];
 	[MPInterstitialAdController removeSharedInterstitialAdController:interstitial];
+	NSLog(@"Interstitial DELEGATE: %@", NSStringFromSelector(_cmd));
 }
 
 - (void)interstitialDidLoadAd:(MPInterstitialAdController *)interstitial
 {
 	[interstitial show];
+	NSLog(@"Interstitial DELEGATE: %@", NSStringFromSelector(_cmd));
 }
 
 - (void)interstitialDidFailToLoadAd:(MPInterstitialAdController *)interstitial
 {
+	NSLog(@"Interstitial DELEGATE: %@", NSStringFromSelector(_cmd));
 }
 
 - (void)interstitialWillAppear:(MPInterstitialAdController *)interstitial
 {
+	NSLog(@"Interstitial DELEGATE: %@", NSStringFromSelector(_cmd));
 }
 
-- (void)interstitialDidAppear:(MPInterstitialAdController *)interstitial
+#pragma mark -
+#pragma mark Custom Event
+
+/*- (void)customEventTest
 {
+	UIView *redView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 320, 100)];
+	redView.backgroundColor = [UIColor redColor];
+	[adView setAdContentView:redView];
+	[redView release];
+}*/
+
+- (void)customEventTest:(MPAdView *)theAdView
+{
+	AdMobView *admob = [AdMobView requestAdOfSize:ADMOB_SIZE_320x48	withDelegate:self];
+	//admob.frame = CGPointZero;
+		
+	/*UIView *blueView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 320, 100)];
+	blueView.backgroundColor = [UIColor blueColor];
+	[theAdView setAdContentView:blueView];
+	[blueView release];*/
+}
+
+- (void)didReceiveAd:(AdMobView *)theAdView
+{
+	[adView customEventDidLoadAd];
+	[adView setAdContentView:theAdView];
+}
+
+- (void)didFailToReceiveAd:(AdMobView *)theAdView
+{
+	[adView customEventDidFailToLoadAd];
 }
 
 #pragma mark -

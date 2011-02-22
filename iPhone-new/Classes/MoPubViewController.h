@@ -10,7 +10,9 @@
 #import "MPAdView.h"
 #import "MPInterstitialAdController.h"
 
-@interface MoPubViewController : UIViewController <MPInterstitialAdControllerDelegate> {
+@interface MoPubViewController : UIViewController <MPInterstitialAdControllerDelegate> 
+{
+	MPAdView *adView;
 }
 
 @end
