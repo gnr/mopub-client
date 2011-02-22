@@ -33,6 +33,5 @@
 -(IBAction) getModalInterstitial;
 -(IBAction) getAndShowModalInterstitial;
 -(IBAction) getNavigationInterstitial;
--(IBAction) showNavigationInterstitial;
 
 @end
