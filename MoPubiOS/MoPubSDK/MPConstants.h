@@ -3,12 +3,13 @@
 //  MoPub
 //
 //  Created by Nafis Jamal on 2/9/11.
-//  Copyright 2011 Stanford. All rights reserved.
+//  Copyright 2011 MoPub, Inc. All rights reserved.
 //
 
 #import <UIKit/UIKit.h>
 
-#define HOSTNAME @"ads.mopub.com"
+#define HOSTNAME @"38-newlog.latest.mopub-inc.appspot.com"
+//#define HOSTNAME @"ads.mopub.com"
 #define DEFAULT_PUB_ID @"agltb3B1Yi1pbmNyDAsSBFNpdGUYkaoMDA"
 
 // Sizing constants.

@@ -3,7 +3,7 @@
 //  MoPub
 //
 //  Created by Nafis Jamal on 1/19/11.
-//  Copyright 2011 Stanford. All rights reserved.
+//  Copyright 2011 MoPub, Inc. All rights reserved.
 //
 
 #import "MPBaseAdapter.h"

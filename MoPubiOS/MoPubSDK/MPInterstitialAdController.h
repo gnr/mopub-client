@@ -3,7 +3,7 @@
 //  MoPub
 //
 //  Created by Andrew He on 2/2/11.
-//  Copyright 2011 __MyCompanyName__. All rights reserved.
+//  Copyright 2011 MoPub, Inc. All rights reserved.
 //
 
 #import <UIKit/UIKit.h>

@@ -3,7 +3,7 @@
 //  MoPub
 //
 //  Created by Nafis Jamal on 1/19/11.
-//  Copyright 2011 Stanford. All rights reserved.
+//  Copyright 2011 MoPub, Inc. All rights reserved.
 //
 
 #import <UIKit/UIKit.h>
@@ -13,6 +13,19 @@
 #import "MPStore.h"
 #import "MPConstants.h"
 #import "MPLogging.h"
+
+typedef enum
+{
+	MPAdAnimationTypeNone,
+	MPAdAnimationTypeRandom,
+	MPAdAnimationTypeFlipFromLeft,
+	MPAdAnimationTypeFlipFromRight,
+	MPAdAnimationTypeCurlUp,
+	MPAdAnimationTypeCurlDown,
+	MPAdAnimationTypeFade,
+	// Important: additional types must be added here to maintain backwards compatibility.
+	MPAdAnimationTypeCount
+} MPAdAnimationType;
 
 @protocol MPAdViewDelegate;
 
@@ -36,9 +49,10 @@
 
 @interface MPAdView : UIView <UIWebViewDelegate, MPAdBrowserControllerDelegate, MPAdapterDelegate> 
 {
+	// Delegate object for the ad view.
 	id<MPAdViewDelegate> _delegate;
 	
-	// Ad unit identifier for this ad view.
+	// Ad unit identifier for the ad view.
 	NSString *_adUnitId;
 	
 	// Targeting parameters.
@@ -47,9 +61,6 @@
 	
 	// Subview that represents the actual ad content. Set via -setAdContentView.
 	UIView *_adContentView;
-	
-	// Default webview used for HTML ads.
-	UIWebView *_webView;
 	
 	// URL for initial MoPub ad request.
 	NSURL *_URL;
@@ -87,6 +98,15 @@
 	
 	// Whether this ad view is currently loading an ad.
 	BOOL _isLoading;
+	
+	// Timer that sends a -refresh message upon firing, with a time interval handed
+	// down from the server. You can set the desired interval for any ad unit using 
+	// the MoPub web interface.
+	NSTimer *_autorefreshTimer;
+	
+	// Specifies the transition used for bringing an ad into view. You can specify an
+	// animation type for any ad unit using the MoPub web interface.
+	MPAdAnimationType _animationType;
 }
 
 @property (nonatomic, assign) id<MPAdViewDelegate> delegate;
@@ -118,14 +138,23 @@
 - (void)loadAdWithURL:(NSURL *)URL;
 
 /*
- * Request that the ad view get another ad using its current URL. Note that the 
- * resulting ad is not guaranteed to be the same ad currently being displayed.
+ * Tells the ad view to get another ad using its current URL. Note: if the ad view
+ * is already loading an ad, this call does nothing; use -forceRefreshAd instead
+ * if you want to cancel any existing ad requests.
  */
 - (void)refreshAd;
 
 /*
- * Replaces the content of the MPAdView with the specified view. This method is
- * crucial for implementing adapters or custom events.
+ * Tells the ad view to get another ad using its current URL, and cancels any existing
+ * ad requests.
+ */
+- (void)forceRefreshAd;
+
+/*
+ * Replaces the content of the MPAdView with the specified view and retains the view.
+ * 
+ * This method is crucial for implementing adapters or custom events involving other 
+ * ad networks.
  */
 - (void)setAdContentView:(UIView *)view;
 
@@ -168,8 +197,8 @@
 @required
 /*
  * The ad view relies on this method to determine which view controller will be 
- * used for presenting/dismissing modal views (e.g. the ad browser presented 
- * when a user clicks on an ad).
+ * used for presenting/dismissing modal views, such as the browser view presented 
+ * when a user clicks on an ad.
  */
 - (UIViewController *)viewControllerForPresentingModalView;
 
@@ -182,7 +211,7 @@
 - (void)adViewDidLoadAd:(MPAdView *)view;
 
 /*
- * These callbacks are triggerd when the ad view is about to present/dismiss a
+ * These callbacks are triggered when the ad view is about to present/dismiss a
  * modal view. If your application may be disrupted by these actions, you can
  * use these notifications to handle them (for example, a game might need to
  * pause/unpause).
@@ -198,8 +227,8 @@
 - (void)adViewDidReceiveResponseParams:(NSDictionary *)params;
 
 /*
- * This method is called when a mopub://close link is activated. If implemented, this method 
- * should remove the ad view from the screen (see MPInterstitialAdController for an example).
+ * This method is called when a mopub://close link is activated. Your implementation of this
+ * method should remove the ad view from the screen (see MPInterstitialAdController for an example).
  */
 - (void)adViewShouldClose:(MPAdView *)view;
 
@@ -213,5 +242,6 @@
 @property (nonatomic, copy) NSURL *impTrackerURL;
 @property (nonatomic, assign) BOOL shouldInterceptLinks;
 @property (nonatomic, assign) BOOL scrollable;
+@property (nonatomic, retain) NSTimer *autorefreshTimer;
 
 @end

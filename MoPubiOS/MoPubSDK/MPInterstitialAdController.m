@@ -3,7 +3,7 @@
 //  MoPub
 //
 //  Created by Andrew He on 2/2/11.
-//  Copyright 2011 __MyCompanyName__. All rights reserved.
+//  Copyright 2011 MoPub, Inc. All rights reserved.
 //
 
 #import "MPInterstitialAdController.h"
@@ -152,7 +152,9 @@
 										_closeButton.frame.size.width,
 										_closeButton.frame.size.height);
 		_closeButton.autoresizingMask = UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleBottomMargin;
-		[_closeButton addTarget:self action:@selector(closeButtonPressed) forControlEvents:UIControlEventTouchUpInside];
+		[_closeButton addTarget:self 
+						 action:@selector(closeButtonPressed) 
+			   forControlEvents:UIControlEventTouchUpInside];
 		[self.view addSubview:_closeButton];
 		[self.view bringSubviewToFront:_closeButton];
 	}

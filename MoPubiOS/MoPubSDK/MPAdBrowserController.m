@@ -3,7 +3,7 @@
 //  MoPub
 //
 //  Created by Nafis Jamal on 1/19/11.
-//  Copyright 2011 Stanford. All rights reserved.
+//  Copyright 2011 MoPub, Inc. All rights reserved.
 //
 
 #import "MPAdBrowserController.h"
@@ -42,7 +42,8 @@ static NSArray *BROWSER_SCHEMES, *SPECIAL_HOSTS;
 		MPLog(@"URL: %@", _URL);
 		
 		_webView = [[UIWebView alloc] initWithFrame:CGRectZero];
-		_webView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+		_webView.autoresizingMask = UIViewAutoresizingFlexibleWidth | 
+			UIViewAutoresizingFlexibleHeight;
 		_webView.delegate = self;
 		
 		_spinner = [[UIActivityIndicatorView alloc] initWithFrame:CGRectZero];

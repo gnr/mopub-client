@@ -3,7 +3,7 @@
 //  MoPub
 //
 //  Created by Nafis Jamal on 1/19/11.
-//  Copyright 2011 Stanford. All rights reserved.
+//  Copyright 2011 MoPub, Inc. All rights reserved.
 //
 
 #import "MPIAdAdapter.h"
@@ -36,15 +36,19 @@
 		// iOS 4.2:
 		if (&ADBannerContentSizeIdentifierPortrait != nil)
 		{
-			_adBannerView.requiredContentSizeIdentifiers = [NSSet setWithObjects:ADBannerContentSizeIdentifierPortrait, 
-															ADBannerContentSizeIdentifierLandscape, nil];
+			_adBannerView.requiredContentSizeIdentifiers = [NSSet setWithObjects:
+															ADBannerContentSizeIdentifierPortrait, 
+															ADBannerContentSizeIdentifierLandscape, 
+															nil];
 			_adBannerView.currentContentSizeIdentifier = ADBannerContentSizeIdentifierPortrait;
 		}
 		// Prior to iOS 4.2:
 		else
 		{
-			_adBannerView.requiredContentSizeIdentifiers = [NSSet setWithObjects:ADBannerContentSizeIdentifier320x50, 
-															ADBannerContentSizeIdentifier480x32, nil];
+			_adBannerView.requiredContentSizeIdentifiers = [NSSet setWithObjects:
+															ADBannerContentSizeIdentifier320x50, 
+															ADBannerContentSizeIdentifier480x32, 
+															nil];
 			_adBannerView.currentContentSizeIdentifier = ADBannerContentSizeIdentifier320x50;
 		}
 			

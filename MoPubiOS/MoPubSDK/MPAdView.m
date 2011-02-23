@@ -3,21 +3,24 @@
 //  MoPub
 //
 //  Created by Nafis Jamal on 1/19/11.
-//  Copyright 2011 Stanford. All rights reserved.
+//  Copyright 2011 MoPub, Inc. All rights reserved.
 //
 
 #import "MPAdView.h"
 #import "MPBaseAdapter.h"
 #import "MPAdapterMap.h"
 #import <CommonCrypto/CommonDigest.h>
+#import <stdlib.h>
+#import <time.h>
 
 @interface MPAdView (Internal)
-- (void)setUpWebViewWithFrame:(CGRect)frame;
+- (void)setScrollable:(BOOL)scrollable forView:(UIView *)view;
+- (UIWebView *)makeAdWebViewWithFrame:(CGRect)frame;
 - (void)adLinkClicked:(NSURL *)URL;
 - (void)backFillWithNothing;
 - (void)trackClick;
 - (void)trackImpression;
-- (NSDictionary *)queryToDictionary:(NSString *)query;
+- (NSDictionary *)dictionaryFromQueryString:(NSString *)query;
 @end
 
 @implementation MPAdView
@@ -33,9 +36,15 @@
 @synthesize location = _location;
 @synthesize shouldInterceptLinks = _shouldInterceptLinks;
 @synthesize scrollable = _scrollable;
+@synthesize autorefreshTimer = _autorefreshTimer;
 
 #pragma mark -
 #pragma mark Lifecycle
+
++ (void)initialize
+{
+	srandom(time(NULL));
+}
 
 - (id)initWithAdUnitId:(NSString *)adUnitId size:(CGSize)size 
 {   
@@ -44,22 +53,23 @@
 	{
 		self.backgroundColor = [UIColor clearColor];
 		self.clipsToBounds = YES;
-		[self setUpWebViewWithFrame:f];
 		_adUnitId = (adUnitId) ? [adUnitId copy] : DEFAULT_PUB_ID;
 		_data = [[NSMutableData data] retain];
 		_shouldInterceptLinks = YES;
 		_scrollable = NO;
 		_isLoading = NO;
 		_store = [MPStore sharedStore];
+		_animationType = MPAdAnimationTypeNone;
     }
     return self;
 }
 
 - (void)dealloc 
 {
+	_delegate = nil;
 	[_adContentView release];
+	[_adapter stopBeingDelegate];
 	[_adapter release];
-	[_webView release];
 	[_adUnitId release];
 	[_data release];
 	[_URL release];
@@ -69,45 +79,89 @@
 	[_impTrackerURL release];
 	[_keywords release];
 	[_location release];
+	[_autorefreshTimer invalidate];
+	[_autorefreshTimer release];
     [super dealloc];
 }
 
 #pragma mark -
 
-- (void)setScrollable:(BOOL)scrollable
-{
-	_scrollable = scrollable;
-	if (_webView)
-	{
-		// This isn't very clean, but it seems to be the best way to disable webview scrolling.
-		UIScrollView *scrollView = nil;
-		for (UIView *v in _webView.subviews)
-		{
-			if ([v isKindOfClass:[UIScrollView class]])
-			{
-				scrollView = (UIScrollView *)v;
-				break;
-			}
-		}
-		
-		if (scrollView)
-		{
-			scrollView.scrollEnabled = scrollable;
-			scrollView.bounces = scrollable;
-		}
-	}
-}
-
 - (void)setAdContentView:(UIView *)view
 {
-	if (view != _adContentView)
-	{
-		[_adContentView release];
-		[_adContentView removeFromSuperview];
-	}
-	_adContentView = [view retain];
-	[self addSubview:_adContentView];
+	if (!view)
+		return;
+	
+	[view retain];
+	
 	self.hidden = NO;
+	
+	// We don't necessarily know where this view came from, so make sure its scrollability
+	// corresponds to our value of _scrollable.
+	[self setScrollable:_scrollable forView:view];
+	
+	MPAdAnimationType type = (_animationType == MPAdAnimationTypeRandom) ? 
+		(random() % (MPAdAnimationTypeCount - 2)) + 2 : _animationType;
+	
+	// Special case: if there's currently no ad content view, certain transitions will
+	// look strange (e.g. CurlUp / CurlDown). We'll just omit the transition.
+	if (!_adContentView)
+		type = MPAdAnimationTypeNone;
+	
+	if (type == MPAdAnimationTypeFade)
+		view.alpha = 0.0;
+	MPLog(@"MOPUB: animationType chosen: %d", type);
+	
+	[UIView beginAnimations:@"MPAdTransition" context:view];
+	[UIView setAnimationDelegate:self];
+	[UIView setAnimationDidStopSelector:@selector(animationDidStop:finished:context:)];
+	[UIView setAnimationDuration:1.0];
+	
+	switch (type)
+	{
+		case MPAdAnimationTypeFlipFromLeft:
+			[self addSubview:view];
+			[UIView setAnimationTransition:UIViewAnimationTransitionFlipFromLeft 
+								   forView:self 
+									 cache:YES];
+			break;
+		case MPAdAnimationTypeFlipFromRight:
+			[self addSubview:view];
+			[UIView setAnimationTransition:UIViewAnimationTransitionFlipFromRight
+								   forView:self 
+									 cache:YES];
+			break;
+		case MPAdAnimationTypeCurlUp:
+			[self addSubview:view];
+			[UIView setAnimationTransition:UIViewAnimationTransitionCurlUp
+								   forView:self 
+									 cache:YES];
+			break;
+		case MPAdAnimationTypeCurlDown:
+			[self addSubview:view];
+			[UIView setAnimationTransition:UIViewAnimationTransitionCurlDown
+								   forView:self 
+									 cache:YES];
+			break;
+		case MPAdAnimationTypeFade:
+			[UIView setAnimationCurve:UIViewAnimationCurveLinear];
+			[self addSubview:view];
+			view.alpha = 1.0;
+			break;
+		default:
+			[self addSubview:view];
+			break;
+	}
+	
+	[UIView commitAnimations];
+}
+
+- (void)animationDidStop:(NSString *)animationID finished:(NSNumber *)finished 
+				 context:(void *)context
+{
+	[_adContentView removeFromSuperview];
+	UIView *view = (UIView *)context;
+	[_adContentView release];
+	_adContentView = view;
 }
 
 - (CGSize)adContentViewSize
@@ -128,11 +182,35 @@
 
 - (void)refreshAd
 {
+	[self.autorefreshTimer invalidate];
+	[self loadAdWithURL:nil];
+}
+
+- (void)forceRefreshAd
+{
+	// Cancel any existing request to the ad server.
+	[_conn cancel];
+	
+	// Release any adapter that may already be fetching an ad.
+	[_adapter stopBeingDelegate];
+	[_adapter release];
+	_adapter = nil;
+	
+	_isLoading = NO;
+	[self.autorefreshTimer invalidate];
 	[self loadAdWithURL:nil];
 }
 
 - (void)loadAdWithURL:(NSURL *)URL
 {
+	// If this ad view is already loading a request, don't proceed; instead, wait
+	// for the previous load to finish.
+	if (_isLoading) 
+	{
+		MPLog(@"MOPUB: ad view already loading an ad, wait to finish.");
+		return;
+	}
+	
 	// If the passed-in URL is nil, construct a URL from our initial parameters.
 	if (!URL)
 	{
@@ -176,14 +254,6 @@
 		[request setValue:userAgentString forHTTPHeaderField:@"User-Agent"];
 	}		
 	
-	// If this ad view is already loading a request, don't proceed; instead, wait
-	// for the previous load to finish.
-	if (_isLoading) 
-	{
-		MPLog(@"MOPUB: ad view already loading an ad, wait to finish.");
-		return;
-	}
-	
 	[_conn release];
 	_conn = [[NSURLConnection connectionWithRequest:request delegate:self] retain];
 	MPLog(@"MOPUB: initial ad request fired.");
@@ -192,14 +262,17 @@
 
 - (void)didCloseAd:(id)sender
 {
-	[_webView stringByEvaluatingJavaScriptFromString:@"webviewDidClose();"];
+	if ([_adContentView isKindOfClass:[UIWebView class]])
+		[(UIWebView *)_adContentView stringByEvaluatingJavaScriptFromString:@"webviewDidClose();"];
+	
 	if ([self.delegate respondsToSelector:@selector(adViewShouldClose:)])
 		[self.delegate adViewShouldClose:self];
 }
 
 - (void)adViewDidAppear
 {
-	[_webView stringByEvaluatingJavaScriptFromString:@"webviewDidAppear();"];
+	if ([_adContentView isKindOfClass:[UIWebView class]])
+		[(UIWebView *)_adContentView stringByEvaluatingJavaScriptFromString:@"webviewDidAppear();"];
 }
 
 - (void)customEventDidLoadAd
@@ -219,7 +292,7 @@
 
 - (void)connection:(NSURLConnection *)connection didReceiveResponse:(NSURLResponse *)response 
 {
-	// If the response is anything but a 200 (OK) or 300 (redirect), we call the response a failure and bail.
+	// If the response is anything but a 200 (OK) or 300 (redirect), consider it a failure and bail.
 	if ([response respondsToSelector:@selector(statusCode)])
 	{
 		int statusCode = [((NSHTTPURLResponse *)response) statusCode];
@@ -259,8 +332,23 @@
 	if (scrollableString)
 		self.scrollable = [scrollableString boolValue];
 	
+	// Create the autorefresh timer, which will be scheduled either when the ad appears,
+	// or if it fails to load.
+	NSString *refreshString = [headers objectForKey:@"X-Refreshtime"];
+	if (refreshString)
+		self.autorefreshTimer = [NSTimer timerWithTimeInterval:[refreshString doubleValue]
+														target:self 
+													  selector:@selector(forceRefreshAd) 
+													  userInfo:nil 
+													   repeats:NO];
+	
+	NSString *animationString = [headers objectForKey:@"X-Animation"];
+	if (animationString)
+		_animationType = [animationString intValue];
+	
 	// Determine ad type.
-	NSString *typeHeader = [[(NSHTTPURLResponse *)response allHeaderFields] objectForKey:@"X-Adtype"];
+	NSString *typeHeader = [[(NSHTTPURLResponse *)response allHeaderFields] 
+								objectForKey:@"X-Adtype"];
 	
 	if (!typeHeader || [typeHeader isEqualToString:@"html"])
 	{
@@ -270,6 +358,7 @@
 	else if ([typeHeader isEqualToString:@"clear"])
 	{
 		// Show a blank.
+		MPLog(@"*** CLEAR ***");
 		[connection cancel];
 		_isLoading = NO;
 		[self backFillWithNothing];
@@ -315,18 +404,22 @@
 	// If the initial request to MoPub fails, replace the current ad content with a blank.
 	_isLoading = NO;
 	[self backFillWithNothing];
+	
+	// Schedule autorefresh timer.
+	if ([self.autorefreshTimer isValid])
+		[[NSRunLoop currentRunLoop] addTimer:self.autorefreshTimer forMode:NSDefaultRunLoopMode];
 }
 
 - (void)connectionDidFinishLoading:(NSURLConnection *)connection
 {
-	// Put any HTML content into the webview.
-	_webView.delegate = self;
-	[_webView loadData:_data MIMEType:@"text/html" textEncodingName:@"utf-8" baseURL:self.URL];
-	[self setAdContentView:_webView];
+	// Generate a webview to contain the HTML.
+	UIWebView *webView = [[self makeAdWebViewWithFrame:self.bounds] retain];
+	webView.delegate = self;
+	[webView loadData:_data MIMEType:@"text/html" textEncodingName:@"utf-8" baseURL:self.URL];
 	
 	// Print out the response, for debugging.
 	NSString *response = [[NSString alloc] initWithData:_data encoding:NSUTF8StringEncoding];
-	MPLog(@"MOPUB: response %@", response);
+	//MPLog(@"MOPUB: response %@", response);
 	[response release];
 }
 
@@ -348,8 +441,16 @@
 		}
 		else if ([host isEqualToString:@"finishLoad"])
 		{
-			_webView.hidden = NO;
 			_isLoading = NO;
+			
+			[self setAdContentView:webView];
+			
+			// Previously retained in -connectionDidFinishLoading, so we have to release here.
+			[webView release];
+			
+			// Schedule autorefresh timer.
+			if ([self.autorefreshTimer isValid])
+				[[NSRunLoop currentRunLoop] addTimer:self.autorefreshTimer forMode:NSDefaultRunLoopMode];
 			
 			// Notify delegate that an ad has been loaded.
 			if ([self.delegate respondsToSelector:@selector(adViewDidLoadAd:)]) 
@@ -357,8 +458,14 @@
 		}
 		else if ([host isEqualToString:@"failLoad"])
 		{
-			_webView.hidden = YES;
 			_isLoading = NO;
+			
+			// Previously retained in -connectionDidFinishLoading, so we have to release here.
+			[webView release];
+			
+			// Schedule autorefresh timer.
+			if ([self.autorefreshTimer isValid])
+				[[NSRunLoop currentRunLoop] addTimer:self.autorefreshTimer forMode:NSDefaultRunLoopMode];
 			
 			// Notify delegate that an ad failed to load.
 			if ([self.delegate respondsToSelector:@selector(adViewDidFailToLoadAd:)]) 
@@ -366,7 +473,7 @@
 		}
 		else if ([host isEqualToString:@"inapp"])
 		{
-			NSDictionary *queryDict = [self queryToDictionary:[URL query]];
+			NSDictionary *queryDict = [self dictionaryFromQueryString:[URL query]];
 			[_store initiatePurchaseForProductIdentifier:[queryDict objectForKey:@"id"] 
 												quantity:[[queryDict objectForKey:@"num"] intValue]];
 		}
@@ -396,6 +503,8 @@
 	return YES;
 }
 
+
+
 #pragma mark -
 #pragma mark MPAdBrowserControllerDelegate
 
@@ -414,6 +523,11 @@
 {
 	_isLoading = NO;
 	[self trackImpression];
+	
+	// Schedule autorefresh timer.
+	if ([self.autorefreshTimer isValid])
+		[[NSRunLoop currentRunLoop] addTimer:self.autorefreshTimer forMode:NSDefaultRunLoopMode];
+	
 	if ([self.delegate respondsToSelector:@selector(adViewDidLoadAd:)])
 		[self.delegate adViewDidLoadAd:self];
 }
@@ -451,15 +565,38 @@
 #pragma mark -
 #pragma mark Internal
 
-- (void)setUpWebViewWithFrame:(CGRect)frame
+- (void)setScrollable:(BOOL)scrollable forView:(UIView *)view
 {
-	_webView = [[UIWebView alloc] initWithFrame:CGRectMake(0, 0, frame.size.width, frame.size.height)];
-	_webView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
-	_webView.backgroundColor = [UIColor clearColor];
-	_webView.opaque = NO;
-	_webView.delegate = self;
-	
-	self.scrollable = _scrollable;
+	// For webviews, find all subviews that are UIScrollViews or subclasses
+	// and disable scrolling and bounce.
+	if ([view isKindOfClass:[UIWebView class]])
+	{
+		UIScrollView *scrollView = nil;
+		for (UIView *v in view.subviews)
+		{
+			if ([v isKindOfClass:[UIScrollView class]])
+			{
+				scrollView = (UIScrollView *)v;
+				scrollView.scrollEnabled = scrollable;
+				scrollView.bounces = scrollable;
+			}
+		}
+	}
+	// For normal UIScrollView subclasses, use the provided setter.
+	else if ([view isKindOfClass:[UIScrollView class]])
+	{
+		[(UIScrollView *)view setScrollEnabled:scrollable];
+	}
+}
+
+- (UIWebView *)makeAdWebViewWithFrame:(CGRect)frame
+{
+	UIWebView *webView = [[UIWebView alloc] initWithFrame:CGRectMake(0, 0, frame.size.width, frame.size.height)];
+	webView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+	webView.backgroundColor = [UIColor clearColor];
+	webView.opaque = NO;
+	webView.delegate = self;
+	return [webView autorelease];
 }
 
 - (void)adLinkClicked:(NSURL *)URL
@@ -475,9 +612,11 @@
 		[self.delegate willPresentModalViewForAd:self];
 	
 	// Present ad browser.
-	MPAdBrowserController *browserController = [[[MPAdBrowserController alloc] initWithURL:desiredURL 
-																				  delegate:self] autorelease];
-	[[self.delegate viewControllerForPresentingModalView] presentModalViewController:browserController animated:YES];
+	MPAdBrowserController *browserController = [[MPAdBrowserController alloc] initWithURL:desiredURL 
+																				 delegate:self];
+	[[self.delegate viewControllerForPresentingModalView] presentModalViewController:browserController 
+																			animated:YES];
+	[browserController release];
 }
 
 - (void)backFillWithNothing
@@ -505,7 +644,7 @@
 	MPLog(@"MOPUB: tracking impression %@", self.impTrackerURL);
 }
 
-- (NSDictionary *)queryToDictionary:(NSString *)query
+- (NSDictionary *)dictionaryFromQueryString:(NSString *)query
 {
 	NSMutableDictionary *queryDict = [[NSMutableDictionary alloc] initWithCapacity:1];
 	NSArray *queryElements = [query componentsSeparatedByString:@"&"];
