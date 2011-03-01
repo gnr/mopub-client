@@ -35,14 +35,16 @@
 #pragma mark -
 #pragma mark Internal
 
-- (void)reportApplicationOpenSynchronous:(NSString *)appID{
+- (void)reportApplicationOpenSynchronous:(NSString *)appID
+{
 	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init]; 
-	
-	// Have we already reported an app open?
+
 	NSString *documentsDir = [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory,
 																  NSUserDomainMask, YES) objectAtIndex:0];
 	NSString *appOpenLogPath = [documentsDir stringByAppendingPathComponent:@"mopubAppOpen.log"];
 	NSFileManager *fileManager = [NSFileManager defaultManager];
+	
+	// The existence of mopubAppOpen.log tells us whether we have already reported this app open.
 	if (![fileManager fileExistsAtPath:appOpenLogPath]) 
 	{
 		NSString *appOpenUrlString = [NSString stringWithFormat:@"http://%@/m/open?v=3&udid=%@&id=%@",

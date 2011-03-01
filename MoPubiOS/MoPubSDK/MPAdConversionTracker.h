@@ -14,6 +14,10 @@
 }
 
 + (MPAdConversionTracker *)sharedConversionTracker;
+
+/*
+ * Notify MoPub that the current user has opened the application corresponding to appID.
+ */
 - (void)reportApplicationOpenForApplicationID:(NSString *)appID;
 
 @end

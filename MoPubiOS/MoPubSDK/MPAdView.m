@@ -67,8 +67,11 @@
 - (void)dealloc 
 {
 	_delegate = nil;
+	// If our content is a webview or otherwise has a delegate, set its delegate to nil.
+	if ([_adContentView respondsToSelector:@selector(setDelegate:)])
+		[_adContentView performSelector:@selector(setDelegate:) withObject:nil];
 	[_adContentView release];
-	[_adapter stopBeingDelegate];
+	[_adapter unregisterDelegate];
 	[_adapter release];
 	[_adUnitId release];
 	[_data release];
@@ -192,7 +195,7 @@
 	[_conn cancel];
 	
 	// Release any adapter that may already be fetching an ad.
-	[_adapter stopBeingDelegate];
+	[_adapter unregisterDelegate];
 	[_adapter release];
 	_adapter = nil;
 	
@@ -336,11 +339,15 @@
 	// or if it fails to load.
 	NSString *refreshString = [headers objectForKey:@"X-Refreshtime"];
 	if (refreshString)
-		self.autorefreshTimer = [NSTimer timerWithTimeInterval:[refreshString doubleValue]
+	{
+		NSTimeInterval interval = [refreshString doubleValue];
+		interval = (interval >= MINIMUM_REFRESH_INTERVAL) ? interval : MINIMUM_REFRESH_INTERVAL;
+		self.autorefreshTimer = [NSTimer timerWithTimeInterval:interval
 														target:self 
 													  selector:@selector(forceRefreshAd) 
 													  userInfo:nil 
 													   repeats:NO];
+	}
 	
 	NSString *animationString = [headers objectForKey:@"X-Animation"];
 	if (animationString)
@@ -371,7 +378,7 @@
 	if (cls != nil)
 	{
 		// Release previous adapter, since we don't load ads concurrently.
-		[_adapter stopBeingDelegate];
+		[_adapter unregisterDelegate];
 		[_adapter release];
 		
 		_adapter = (MPBaseAdapter *)[[cls alloc] initWithAdView:self];
@@ -538,7 +545,7 @@
 	MPLog(@"MOPUB: Adapter failed to load ad. Error: %@", error);
 	
 	// Dispose of the current adapter, because we don't want it to try loading again.
-	[_adapter stopBeingDelegate];
+	[_adapter unregisterDelegate];
 	[_adapter release];
 	_adapter = nil;
 	

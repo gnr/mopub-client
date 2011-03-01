@@ -8,8 +8,7 @@
 
 #import <UIKit/UIKit.h>
 
-#define HOSTNAME @"38-newlog.latest.mopub-inc.appspot.com"
-//#define HOSTNAME @"ads.mopub.com"
+#define HOSTNAME @"ads.mopub.com"
 #define DEFAULT_PUB_ID @"agltb3B1Yi1pbmNyDAsSBFNpdGUYkaoMDA"
 
 // Sizing constants.
@@ -19,4 +18,5 @@
 #define MOPUB_WIDE_SKYSCRAPER_SIZE	CGSizeMake(160, 600)
 
 // Miscellaneous constants.
+#define MINIMUM_REFRESH_INTERVAL	5.0
 #define STORE_RECEIPT_SUFFIX @"/m/purchase"

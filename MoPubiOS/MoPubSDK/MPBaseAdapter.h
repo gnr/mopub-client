@@ -27,7 +27,7 @@
 /*
  * Sets the adapter's delegate to nil.
  */
-- (void)stopBeingDelegate;
+- (void)unregisterDelegate;
 
 /*
  * -getAdWithParams: needs to be implemented by adapter subclasses that want to load native ads.

@@ -21,7 +21,7 @@
 	return self;
 }
 
-- (void)stopBeingDelegate
+- (void)unregisterDelegate
 {
 	_adView = nil;
 }
