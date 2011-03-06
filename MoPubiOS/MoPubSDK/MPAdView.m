@@ -470,13 +470,8 @@
 			// Previously retained in -connectionDidFinishLoading, so we have to release here.
 			[webView release];
 			
-			// Schedule autorefresh timer.
-			if ([self.autorefreshTimer isValid])
-				[[NSRunLoop currentRunLoop] addTimer:self.autorefreshTimer forMode:NSDefaultRunLoopMode];
-			
-			// Notify delegate that an ad failed to load.
-			if ([self.delegate respondsToSelector:@selector(adViewDidFailToLoadAd:)]) 
-				[self.delegate adViewDidFailToLoadAd:self];
+			// Start a new request using the fall-back URL.
+			[self loadAdWithURL:self.failURL];
 		}
 		else if ([host isEqualToString:@"inapp"])
 		{
