@@ -161,9 +161,19 @@
 - (void)animationDidStop:(NSString *)animationID finished:(NSNumber *)finished 
 				 context:(void *)context
 {
-	[_adContentView removeFromSuperview];
+	// context is the view that we just added to the view hierarchy (i.e. the view 
+	// passed to -setAdContentView:.
 	UIView *view = (UIView *)context;
+	
+	// Remove the old _adContentView from the view hierarchy, but first confirm that it's
+	// not the same as view; otherwise, we'll be left with no content view.
+	if (view != _adContentView)
+		[_adContentView removeFromSuperview];
+	
+	// Release _adContentView regardless of whether it was the same as view, since 
+	// -setAdContentView: retained it.
 	[_adContentView release];
+	
 	_adContentView = view;
 }
 

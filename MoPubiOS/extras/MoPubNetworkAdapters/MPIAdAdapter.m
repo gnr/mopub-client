@@ -91,8 +91,20 @@
 
 - (void)bannerView:(ADBannerView *)banner didFailToReceiveAdWithError:(NSError *)error
 {
-	MPLog(@"MOPUB: iAd Failed To Receive Ad");
-	[self.adView adapter:self didFailToLoadAdWithError:error];
+	// ADBannerView has its own internal timer for refreshing ads, so this callback may happen
+	// multiple times. If iAd's first load fails, we tell the ad view to try another network.
+	// Otherwise, iAd has failed on an internal refresh, which doesn't really matter because it
+	// can just continue to display its current ad.
+	if (!_hasReceivedFirstResponse)
+	{
+		MPLog(@"MOPUB: iAd Failed To Receive Ad");
+		_hasReceivedFirstResponse = YES;
+		[self.adView adapter:self didFailToLoadAdWithError:error];
+	}
+	else 
+	{
+		MPLog(@"MOPUB: iAd Internal Refresh Failed");
+	}
 }
 
 - (void)bannerViewActionDidFinish:(ADBannerView *)banner
@@ -110,9 +122,19 @@
 
 - (void)bannerViewDidLoadAd:(ADBannerView *)banner
 {
-	MPLog(@"MOPUB: iAd Load Succeeded");
-	[self.adView setAdContentView:_adBannerView];
-	[self.adView adapterDidFinishLoadingAd:self];
+	// ADBannerView has its own internal timer for refreshing ads, so this callback may happen
+	// multiple times. We should only set the ad content view once -- the first time an iAd loads.
+	if (!_hasReceivedFirstResponse)
+	{
+		MPLog(@"MOPUB: iAd Load Succeeded");
+		_hasReceivedFirstResponse = YES;
+		[self.adView setAdContentView:_adBannerView];
+		[self.adView adapterDidFinishLoadingAd:self];
+	}
+	else 
+	{
+		MPLog(@"MOPUB: iAd Internal Refresh Succeeded");
+	}
 }
 
 @end
