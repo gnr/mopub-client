@@ -17,13 +17,13 @@
     [super viewDidLoad];
 	
 	// 320x50 size
-	mpAdView = [[MPAdView alloc] initWithAdUnitId:DEFAULT_PUB_ID size:MOPUB_BANNER_SIZE];
+	mpAdView = [[MPAdView alloc] initWithAdUnitId:PUB_ID_320x50 size:MOPUB_BANNER_SIZE];
 	mpAdView.delegate = self;
 	[mpAdView loadAd];
 	[self.adView addSubview:mpAdView];
 	
 	// MRect size
-	mpMrectView = [[MPAdView alloc] initWithAdUnitId:DEFAULT_PUB_ID size:MOPUB_MEDIUM_RECT_SIZE];
+	mpMrectView = [[MPAdView alloc] initWithAdUnitId:PUB_ID_300x250 size:MOPUB_MEDIUM_RECT_SIZE];
 	mpMrectView.delegate = self;
 	[mpMrectView loadAd];
 	[self.mrectView addSubview:mpMrectView];	
