@@ -17,8 +17,14 @@
 - (id)initWithAdView:(MPAdView *)adView
 {
 	if (self = [super init])
-		_adView = [adView retain];
+		_adView = adView;
 	return self;
+}
+
+- (void)dealloc
+{
+	_adView = nil;
+	[super dealloc];
 }
 
 - (void)unregisterDelegate
