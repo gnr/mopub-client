@@ -97,25 +97,25 @@
 	// can just continue to display its current ad.
 	if (!_hasReceivedFirstResponse)
 	{
-		MPLog(@"MOPUB: iAd Failed To Receive Ad");
+		MPLogInfo(@"iAd Failed To Receive Ad");
 		_hasReceivedFirstResponse = YES;
 		[self.adView adapter:self didFailToLoadAdWithError:error];
 	}
 	else 
 	{
-		MPLog(@"MOPUB: iAd Internal Refresh Failed");
+		MPLogInfo(@"iAd Internal Refresh Failed");
 	}
 }
 
 - (void)bannerViewActionDidFinish:(ADBannerView *)banner
 {
-	MPLog(@"MOPUB: iAd Finished Executing Banner Action");
+	MPLogInfo(@"iAd Finished Executing Banner Action");
 	[self.adView userActionDidEndForAdapter:self];
 }
 
 - (BOOL)bannerViewActionShouldBegin:(ADBannerView *)banner willLeaveApplication:(BOOL)willLeave
 {
-	MPLog(@"MOPUB: iAd Should Begin Banner Action");
+	MPLogInfo(@"iAd Should Begin Banner Action");
 	[self.adView userActionWillBeginForAdapter:self];
 	return YES;
 }
@@ -126,14 +126,14 @@
 	// multiple times. We should only set the ad content view once -- the first time an iAd loads.
 	if (!_hasReceivedFirstResponse)
 	{
-		MPLog(@"MOPUB: iAd Load Succeeded");
+		MPLogInfo(@"iAd Load Succeeded");
 		_hasReceivedFirstResponse = YES;
 		[self.adView setAdContentView:_adBannerView];
 		[self.adView adapterDidFinishLoadingAd:self];
 	}
 	else 
 	{
-		MPLog(@"MOPUB: iAd Internal Refresh Succeeded");
+		MPLogInfo(@"iAd Internal Refresh Succeeded");
 	}
 }
 

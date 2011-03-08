@@ -40,8 +40,8 @@
 - (void)rotateToOrientation:(UIInterfaceOrientation)newOrientation
 {
 	// Do nothing by default. Subclasses can override.
-	MPLog(@"MOPUB: rotateToOrientation %d called for adapter %@",
-		  newOrientation, NSStringFromClass([self class]));
+	MPLogDebug(@"rotateToOrientation %d called for adapter %@ (%p)",
+		  newOrientation, NSStringFromClass([self class]), self);
 }
 
 @end

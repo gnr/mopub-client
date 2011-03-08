@@ -39,7 +39,7 @@ static NSArray *BROWSER_SCHEMES, *SPECIAL_HOSTS;
 	{
 		_delegate = delegate;
 		_URL = [URL copy];
-		MPLog(@"URL: %@", _URL);
+		MPLogDebug(@"Ad browser (%p) initialized with URL: %@", self, _URL);
 		
 		_webView = [[UIWebView alloc] initWithFrame:CGRectZero];
 		_webView.autoresizingMask = UIViewAutoresizingFlexibleWidth | 
@@ -72,6 +72,8 @@ static NSArray *BROWSER_SCHEMES, *SPECIAL_HOSTS;
 - (void)loadView 
 {
 	self.view = [[UIView alloc] initWithFrame:[[UIScreen mainScreen] applicationFrame]];
+	self.view.opaque = YES;
+	self.view.backgroundColor = [UIColor whiteColor];
 	CGFloat height = self.view.frame.size.height;
 	CGFloat width = self.view.frame.size.width;
 	
@@ -191,7 +193,7 @@ static NSArray *BROWSER_SCHEMES, *SPECIAL_HOSTS;
 - (BOOL)webView:(UIWebView *)webView shouldStartLoadWithRequest:(NSURLRequest *)request 
  navigationType:(UIWebViewNavigationType)navigationType 
 {
-	MPLog(@"MOPUB: %@", request.URL);
+	MPLogDebug(@"Ad browser starting to load request %@", request.URL);
 	
 	/* 
 	 * For all links with http:// or https:// scheme, open in our browser UNLESS

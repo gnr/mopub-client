@@ -52,7 +52,7 @@
 									  [[UIDevice currentDevice] hashedMoPubUDID],
 									  appID 
 									  ];
-		MPLog(@"MOPUB: Reporting application did launch for the first time to mopub: %@", appOpenUrlString);
+		MPLogInfo(@"Reporting application did launch for the first time to MoPub: %@", appOpenUrlString);
 		NSURLRequest *request = [NSURLRequest requestWithURL:[NSURL URLWithString:appOpenUrlString]];
 		NSURLResponse *response;
 		NSError *error = nil;

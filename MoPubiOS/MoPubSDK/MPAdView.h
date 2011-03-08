@@ -47,6 +47,8 @@ typedef enum
 
 @end
 
+@class MPTimer;
+
 @interface MPAdView : UIView <UIWebViewDelegate, MPAdBrowserControllerDelegate, MPAdapterDelegate> 
 {
 	// Delegate object for the ad view.
@@ -102,7 +104,11 @@ typedef enum
 	// Timer that sends a -refresh message upon firing, with a time interval handed
 	// down from the server. You can set the desired interval for any ad unit using 
 	// the MoPub web interface.
-	NSTimer *_autorefreshTimer;
+	MPTimer *_autorefreshTimer;
+	
+	// Whether this ad view respects autorefresh values sent down from the server. If NO,
+	// the ad view will not create an autorefresh timer.
+	BOOL _ignoresAutorefresh;
 	
 	// Specifies the transition used for bringing an ad into view. You can specify an
 	// animation type for any ad unit using the MoPub web interface.
@@ -114,6 +120,7 @@ typedef enum
 @property (nonatomic, copy) NSString *keywords;
 @property (nonatomic, retain) CLLocation *location;
 @property (nonatomic, copy) NSURL *URL;
+@property (nonatomic, assign) BOOL ignoresAutorefresh;
 
 /*
  * Returns an MPAdView with the given ad unit ID.
@@ -231,17 +238,5 @@ typedef enum
  * method should remove the ad view from the screen (see MPInterstitialAdController for an example).
  */
 - (void)adViewShouldClose:(MPAdView *)view;
-
-@end
-
-@interface MPAdView ()
-
-@property (nonatomic, copy) NSURL *clickURL;
-@property (nonatomic, copy) NSURL *interceptURL;
-@property (nonatomic, copy) NSURL *failURL;
-@property (nonatomic, copy) NSURL *impTrackerURL;
-@property (nonatomic, assign) BOOL shouldInterceptLinks;
-@property (nonatomic, assign) BOOL scrollable;
-@property (nonatomic, retain) NSTimer *autorefreshTimer;
 
 @end

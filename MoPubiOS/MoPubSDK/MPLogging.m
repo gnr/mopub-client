@@ -8,12 +8,90 @@
 
 #import "MPLogging.h"
 
-void MPLog(NSString *format,...)
+static MPLogLevel MPLOG_LEVEL = MPLogLevelInfo;
+
+void MPLogSetLevel(MPLogLevel level)
 {
-    if (MPLOG_LEVEL)
+	MPLOG_LEVEL = level;
+}
+
+// TODO: Deprecate.
+void MPLog(NSString *format, ...)
+{
+	format = [NSString stringWithFormat:@"MOPUB: %@", format];
+    va_list args;
+    va_start(args, format);
+    NSLogv(format, args);
+    va_end(args);
+}
+
+void MPLogTrace(NSString *format, ...)
+{
+	if (MPLOG_LEVEL <= MPLogLevelTrace)
     {
+		format = [NSString stringWithFormat:@"MOPUB: %@", format];
         va_list args;
-        va_start(args,format);
+        va_start(args, format);
+        NSLogv(format, args);
+        va_end(args);
+    }
+}
+
+void MPLogDebug(NSString *format, ...)
+{
+	if (MPLOG_LEVEL <= MPLogLevelDebug)
+    {
+		format = [NSString stringWithFormat:@"MOPUB: %@", format];
+        va_list args;
+        va_start(args, format);
+        NSLogv(format, args);
+        va_end(args);
+    }
+}
+
+void MPLogWarn(NSString *format, ...)
+{
+	if (MPLOG_LEVEL <= MPLogLevelWarn)
+    {
+		format = [NSString stringWithFormat:@"MOPUB: %@", format];
+        va_list args;
+        va_start(args, format);
+        NSLogv(format, args);
+        va_end(args);
+    }
+}
+
+void MPLogInfo(NSString *format, ...)
+{
+	if (MPLOG_LEVEL <= MPLogLevelInfo)
+    {
+		format = [NSString stringWithFormat:@"MOPUB: %@", format];
+        va_list args;
+        va_start(args, format);
+        NSLogv(format, args);
+        va_end(args);
+    }
+}
+
+void MPLogError(NSString *format, ...)
+{
+	if (MPLOG_LEVEL <= MPLogLevelError)
+    {
+		format = [NSString stringWithFormat:@"MOPUB: %@", format];
+        va_list args;
+        va_start(args, format);
+        NSLogv(format, args);
+        va_end(args);
+    }
+}
+
+void MPLogFatal(NSString *format, ...)
+{
+	if (MPLOG_LEVEL <= MPLogLevelFatal)
+    {
+		format = [NSString stringWithFormat:@"MOPUB: %@", format];
+        va_list args;
+        va_start(args, format);
         NSLogv(format, args);
         va_end(args);
     }
