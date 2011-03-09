@@ -51,6 +51,7 @@
 		3CB4A0F2113F5E75000DB158 /* MainWindow.xib in Resources */ = {isa = PBXBuildFile; fileRef = 3CB4A0F0113F5E75000DB158 /* MainWindow.xib */; };
 		3CB4A0F3113F5E75000DB158 /* SimpleAdsViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 3CB4A0F1113F5E75000DB158 /* SimpleAdsViewController.xib */; };
 		3CC4D7791264DC6800212F16 /* SecondViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 3CC4D7771264DC6800212F16 /* SecondViewController.xib */; };
+		A8065E8B1326769E00C147DC /* MPTimer.m in Sources */ = {isa = PBXBuildFile; fileRef = A8065E8A1326769E00C147DC /* MPTimer.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -126,6 +127,8 @@
 		3CC4D7761264DC6800212F16 /* SecondViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SecondViewController.m; sourceTree = "<group>"; };
 		3CC4D7771264DC6800212F16 /* SecondViewController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = SecondViewController.xib; path = Classes/SecondViewController.xib; sourceTree = "<group>"; };
 		8D1107310486CEB800E47090 /* SimpleAds-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "SimpleAds-Info.plist"; plistStructureDefinitionIdentifier = "com.apple.xcode.plist.structure-definition.iphone.info-plist"; sourceTree = "<group>"; };
+		A8065E891326769E00C147DC /* MPTimer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPTimer.h; sourceTree = "<group>"; };
+		A8065E8A1326769E00C147DC /* MPTimer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPTimer.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -290,6 +293,8 @@
 			children = (
 				3C83C64E1308146000CD306C /* MPAdView.h */,
 				3C83C64F1308146000CD306C /* MPAdView.m */,
+				A8065E891326769E00C147DC /* MPTimer.h */,
+				A8065E8A1326769E00C147DC /* MPTimer.m */,
 				3C83C6561308146000CD306C /* MPInterstitialAdController.h */,
 				3C83C6571308146000CD306C /* MPInterstitialAdController.m */,
 				3C83C6521308146000CD306C /* MPCloseButtonX.png */,
@@ -410,6 +415,7 @@
 				3C83C6631308146000CD306C /* MPInterstitialAdController.m in Sources */,
 				3C83C6641308146000CD306C /* MPLogging.m in Sources */,
 				3C83C6651308146000CD306C /* MPStore.m in Sources */,
+				A8065E8B1326769E00C147DC /* MPTimer.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

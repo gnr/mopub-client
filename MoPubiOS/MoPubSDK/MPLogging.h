@@ -8,7 +8,23 @@
 
 #import <Foundation/Foundation.h>
 
-// Debug level: 1 = Enable logging, 0 = Disable logging.
-#define MPLOG_LEVEL 0
+// Lower = finer-grained logs.
+typedef enum 
+{
+	MPLogLevelAll		= 0,
+	MPLogLevelTrace		= 10,
+	MPLogLevelDebug		= 20,
+	MPLogLevelInfo		= 30,
+	MPLogLevelWarn		= 40,
+	MPLogLevelError		= 50,
+	MPLogLevelFatal		= 60,
+	MPLogLevelOff		= 70
+} MPLogLevel;
 
-void MPLog(NSString *format,...);
+void MPLogSetLevel(MPLogLevel level);
+void MPLogTrace(NSString *format, ...);
+void MPLogDebug(NSString *format, ...);
+void MPLogInfo(NSString *format, ...);
+void MPLogWarn(NSString *format, ...);
+void MPLogError(NSString *format, ...);
+void MPLogFatal(NSString *format, ...);

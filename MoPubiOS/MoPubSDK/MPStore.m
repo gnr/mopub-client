@@ -93,7 +93,7 @@
 {
 	if (_isProcessing)
 	{
-		MPLog(@"MOPUB: Warning - can only initiate one store request at a time.");
+		MPLogWarn(@"Warning - MPStore (%p) can only initiate one store request at a time.", self);
 		return;
 	}
 	
@@ -115,7 +115,7 @@
 - (void)request:(SKRequest *)request didFailWithError:(NSError *)error
 {
 	[request autorelease];
-	MPLog(@"SKProductsRequest failed with error %@.", error);
+	MPLogError(@"SKProductsRequest failed with error %@.", error);
 	_isProcessing = NO;
 }
 

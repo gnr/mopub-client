@@ -17,8 +17,14 @@
 - (id)initWithAdView:(MPAdView *)adView
 {
 	if (self = [super init])
-		_adView = [adView retain];
+		_adView = adView;
 	return self;
+}
+
+- (void)dealloc
+{
+	_adView = nil;
+	[super dealloc];
 }
 
 - (void)unregisterDelegate
@@ -40,8 +46,8 @@
 - (void)rotateToOrientation:(UIInterfaceOrientation)newOrientation
 {
 	// Do nothing by default. Subclasses can override.
-	MPLog(@"MOPUB: rotateToOrientation %d called for adapter %@",
-		  newOrientation, NSStringFromClass([self class]));
+	MPLogDebug(@"rotateToOrientation %d called for adapter %@ (%p)",
+		  newOrientation, NSStringFromClass([self class]), self);
 }
 
 @end

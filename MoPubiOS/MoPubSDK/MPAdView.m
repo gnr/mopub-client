@@ -9,6 +9,7 @@
 #import "MPAdView.h"
 #import "MPBaseAdapter.h"
 #import "MPAdapterMap.h"
+#import "MPTimer.h"
 #import <CommonCrypto/CommonDigest.h>
 #import <stdlib.h>
 #import <time.h>
@@ -21,6 +22,16 @@
 - (void)trackClick;
 - (void)trackImpression;
 - (NSDictionary *)dictionaryFromQueryString:(NSString *)query;
+@end
+
+@interface MPAdView ()
+@property (nonatomic, copy) NSURL *clickURL;
+@property (nonatomic, copy) NSURL *interceptURL;
+@property (nonatomic, copy) NSURL *failURL;
+@property (nonatomic, copy) NSURL *impTrackerURL;
+@property (nonatomic, assign) BOOL shouldInterceptLinks;
+@property (nonatomic, assign) BOOL scrollable;
+@property (nonatomic, retain) MPTimer *autorefreshTimer;
 @end
 
 @implementation MPAdView
@@ -37,6 +48,7 @@
 @synthesize shouldInterceptLinks = _shouldInterceptLinks;
 @synthesize scrollable = _scrollable;
 @synthesize autorefreshTimer = _autorefreshTimer;
+@synthesize ignoresAutorefresh = _ignoresAutorefresh;
 
 #pragma mark -
 #pragma mark Lifecycle
@@ -58,6 +70,7 @@
 		_shouldInterceptLinks = YES;
 		_scrollable = NO;
 		_isLoading = NO;
+		_ignoresAutorefresh = NO;
 		_store = [MPStore sharedStore];
 		_animationType = MPAdAnimationTypeNone;
     }
@@ -74,6 +87,8 @@
 	[_adapter unregisterDelegate];
 	[_adapter release];
 	[_adUnitId release];
+	[_conn cancel];
+	[_conn release];
 	[_data release];
 	[_URL release];
 	[_clickURL release];
@@ -112,7 +127,7 @@
 	
 	if (type == MPAdAnimationTypeFade)
 		view.alpha = 0.0;
-	MPLog(@"MOPUB: animationType chosen: %d", type);
+	MPLogDebug(@"Ad view (%p) is using animationType: %d", self, type);
 	
 	[UIView beginAnimations:@"MPAdTransition" context:view];
 	[UIView setAnimationDelegate:self];
@@ -162,7 +177,7 @@
 				 context:(void *)context
 {
 	// context is the view that we just added to the view hierarchy (i.e. the view 
-	// passed to -setAdContentView:.
+	// passed to -setAdContentView:).
 	UIView *view = (UIView *)context;
 	
 	// Remove the old _adContentView from the view hierarchy, but first confirm that it's
@@ -180,6 +195,22 @@
 - (CGSize)adContentViewSize
 {
 	return (!_adContentView) ? MOPUB_BANNER_SIZE : _adContentView.bounds.size;
+}
+
+- (void)setIgnoresAutorefresh:(BOOL)ignoresAutorefresh
+{
+	_ignoresAutorefresh = ignoresAutorefresh;
+	
+	if (_ignoresAutorefresh) 
+	{
+		MPLogInfo(@"Ad view (%p) is now ignoring autorefresh.", self);
+		if ([self.autorefreshTimer isValid]) [self.autorefreshTimer pause];
+	}
+	else 
+	{
+		MPLogInfo(@"Ad view (%p) is no longer ignoring autorefresh.", self);
+		if ([self.autorefreshTimer isValid]) [self.autorefreshTimer resume];
+	}
 }
 
 - (void)rotateToOrientation:(UIInterfaceOrientation)newOrientation
@@ -220,7 +251,7 @@
 	// for the previous load to finish.
 	if (_isLoading) 
 	{
-		MPLog(@"MOPUB: ad view already loading an ad, wait to finish.");
+		MPLogWarn(@"Ad view (%p) is already loading an ad, wait to finish.", self);
 		return;
 	}
 	
@@ -246,7 +277,7 @@
 	}
 	
 	self.URL = URL;
-	MPLog(@"Calling loadAdWithURL: %@", URL);
+	MPLogDebug(@"Ad view (%p) calling loadAdWithURL: %@", self, URL);
 	
 	NSMutableURLRequest *request = [[[NSMutableURLRequest alloc] initWithURL:self.URL 
 																 cachePolicy:NSURLRequestUseProtocolCachePolicy 
@@ -269,7 +300,7 @@
 	
 	[_conn release];
 	_conn = [[NSURLConnection connectionWithRequest:request delegate:self] retain];
-	MPLog(@"MOPUB: initial ad request fired.");
+	MPLogInfo(@"Ad view (%p) fired initial ad request.", self);
 	_isLoading = YES;
 }
 
@@ -324,6 +355,8 @@
 		}
 	}
 	
+	MPLogInfo(@"Ad view (%p) received valid response from MoPub server.", self);
+	
 	// Initialize data.
 	[_data setLength:0];
 	
@@ -348,11 +381,11 @@
 	// Create the autorefresh timer, which will be scheduled either when the ad appears,
 	// or if it fails to load.
 	NSString *refreshString = [headers objectForKey:@"X-Refreshtime"];
-	if (refreshString)
+	if (refreshString && !self.ignoresAutorefresh)
 	{
 		NSTimeInterval interval = [refreshString doubleValue];
 		interval = (interval >= MINIMUM_REFRESH_INTERVAL) ? interval : MINIMUM_REFRESH_INTERVAL;
-		self.autorefreshTimer = [NSTimer timerWithTimeInterval:interval
+		self.autorefreshTimer = [MPTimer timerWithTimeInterval:interval
 														target:self 
 													  selector:@selector(forceRefreshAd) 
 													  userInfo:nil 
@@ -375,7 +408,7 @@
 	else if ([typeHeader isEqualToString:@"clear"])
 	{
 		// Show a blank.
-		MPLog(@"*** CLEAR ***");
+		MPLogInfo(@"*** CLEAR ***");
 		[connection cancel];
 		_isLoading = NO;
 		[self backFillWithNothing];
@@ -416,15 +449,14 @@
 
 - (void)connection:(NSURLConnection *)connection didFailWithError:(NSError *)error
 {
-	MPLog(@"MOPUB: ad view failed to load any content. %@", error);
+	MPLogError(@"Ad view (%p) failed to get a valid response from MoPub server. Error: %@", self, error);
 	
 	// If the initial request to MoPub fails, replace the current ad content with a blank.
 	_isLoading = NO;
 	[self backFillWithNothing];
 	
 	// Schedule autorefresh timer.
-	if ([self.autorefreshTimer isValid])
-		[[NSRunLoop currentRunLoop] addTimer:self.autorefreshTimer forMode:NSDefaultRunLoopMode];
+	[self.autorefreshTimer scheduleNow];
 }
 
 - (void)connectionDidFinishLoading:(NSURLConnection *)connection
@@ -436,7 +468,7 @@
 	
 	// Print out the response, for debugging.
 	NSString *response = [[NSString alloc] initWithData:_data encoding:NSUTF8StringEncoding];
-	//MPLog(@"MOPUB: response %@", response);
+	MPLogTrace(@"Ad view (%p) loaded HTML content: %@", self, response);
 	[response release];
 }
 
@@ -466,8 +498,7 @@
 			[webView release];
 			
 			// Schedule autorefresh timer.
-			if ([self.autorefreshTimer isValid])
-				[[NSRunLoop currentRunLoop] addTimer:self.autorefreshTimer forMode:NSDefaultRunLoopMode];
+			[self.autorefreshTimer scheduleNow];
 			
 			// Notify delegate that an ad has been loaded.
 			if ([self.delegate respondsToSelector:@selector(adViewDidLoadAd:)]) 
@@ -515,8 +546,6 @@
 	return YES;
 }
 
-
-
 #pragma mark -
 #pragma mark MPAdBrowserControllerDelegate
 
@@ -526,6 +555,8 @@
 	
 	if ([self.delegate respondsToSelector:@selector(didDismissModalViewForAd:)])
 		[self.delegate didDismissModalViewForAd:self];
+	
+	[self.autorefreshTimer resume];
 }
 
 #pragma mark -
@@ -537,8 +568,7 @@
 	[self trackImpression];
 	
 	// Schedule autorefresh timer.
-	if ([self.autorefreshTimer isValid])
-		[[NSRunLoop currentRunLoop] addTimer:self.autorefreshTimer forMode:NSDefaultRunLoopMode];
+	[self.autorefreshTimer scheduleNow];
 	
 	if ([self.delegate respondsToSelector:@selector(adViewDidLoadAd:)])
 		[self.delegate adViewDidLoadAd:self];
@@ -547,7 +577,7 @@
 - (void)adapter:(MPBaseAdapter *)adapter didFailToLoadAdWithError:(NSError *)error
 {
 	_isLoading = NO;
-	MPLog(@"MOPUB: Adapter failed to load ad. Error: %@", error);
+	MPLogError(@"Adapter (%p) failed to load ad. Error: %@", adapter, error);
 	
 	// Dispose of the current adapter, because we don't want it to try loading again.
 	[_adapter unregisterDelegate];
@@ -561,6 +591,7 @@
 - (void)userActionWillBeginForAdapter:(MPBaseAdapter *)adapter
 {
 	[self trackClick];
+	[self.autorefreshTimer pause];
 	
 	// Notify delegate that the ad will present a modal view / disrupt the app.
 	if ([self.delegate respondsToSelector:@selector(willPresentModalViewForAd:)])
@@ -569,6 +600,8 @@
 
 - (void)userActionDidEndForAdapter:(MPBaseAdapter *)adapter
 {
+	[self.autorefreshTimer resume];
+	
 	// Notify delegate that the ad's modal view was dismissed, returning focus to the app.
 	if ([self.delegate respondsToSelector:@selector(didDismissModalViewForAd:)])
 		[self.delegate didDismissModalViewForAd:self];
@@ -580,7 +613,7 @@
 - (void)setScrollable:(BOOL)scrollable forView:(UIView *)view
 {
 	// For webviews, find all subviews that are UIScrollViews or subclasses
-	// and disable scrolling and bounce.
+	// and set their scrolling and bounce.
 	if ([view isKindOfClass:[UIWebView class]])
 	{
 		UIScrollView *scrollView = nil;
@@ -623,6 +656,8 @@
 	if ([self.delegate respondsToSelector:@selector(willPresentModalViewForAd:)])
 		[self.delegate willPresentModalViewForAd:self];
 	
+	[self.autorefreshTimer pause];
+	
 	// Present ad browser.
 	MPAdBrowserController *browserController = [[MPAdBrowserController alloc] initWithURL:desiredURL 
 																				 delegate:self];
@@ -646,14 +681,14 @@
 {
 	NSURLRequest *clickURLRequest = [NSURLRequest requestWithURL:self.clickURL];
 	[NSURLConnection connectionWithRequest:clickURLRequest delegate:nil];
-	MPLog(@"MOPUB: tracking click %@", self.clickURL);
+	MPLogDebug(@"Ad view (%p) tracking click %@", self, self.clickURL);
 }
 
 - (void)trackImpression
 {
 	NSURLRequest *impTrackerURLRequest = [NSURLRequest requestWithURL:self.impTrackerURL];
 	[NSURLConnection connectionWithRequest:impTrackerURLRequest delegate:nil];
-	MPLog(@"MOPUB: tracking impression %@", self.impTrackerURL);
+	MPLogDebug(@"Ad view (%p) tracking impression %@", self, self.impTrackerURL);
 }
 
 - (NSDictionary *)dictionaryFromQueryString:(NSString *)query
