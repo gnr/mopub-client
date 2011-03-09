@@ -365,10 +365,19 @@
 	
 	// Parse response headers, set relevant URLs and booleans.
 	NSDictionary *headers = [(NSHTTPURLResponse *)response allHeaderFields];
-	self.clickURL = [NSURL URLWithString:[headers objectForKey:@"X-Clickthrough"]];
-	self.interceptURL = [NSURL URLWithString:[headers objectForKey:@"X-Launchpage"]];
-	self.failURL = [NSURL URLWithString:[headers objectForKey:@"X-Failurl"]];
-	self.impTrackerURL = [NSURL URLWithString:[headers objectForKey:@"X-Imptracker"]];
+	NSString *urlString = nil;
+	
+	urlString = [headers objectForKey:@"X-Clickthrough"];
+	self.clickURL = urlString ? [NSURL URLWithString:urlString] : nil;
+	
+	urlString = [headers objectForKey:@"X-Launchpage"];
+	self.interceptURL = urlString ? [NSURL URLWithString:urlString] : nil;
+	
+	urlString = [headers objectForKey:@"X-Failurl"];
+	self.failURL = urlString ? [NSURL URLWithString:urlString] : nil;
+	
+	urlString = [headers objectForKey:@"X-Imptracker"];
+	self.impTrackerURL = urlString ? [NSURL URLWithString:urlString] : nil;
 	
 	NSString *shouldInterceptLinksString = [headers objectForKey:@"X-Interceptlinks"];
 	if (shouldInterceptLinksString)

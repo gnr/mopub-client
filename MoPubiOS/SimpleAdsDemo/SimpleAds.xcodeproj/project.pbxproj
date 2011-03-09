@@ -58,7 +58,7 @@
 		1D30AB110D05D00D00671497 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		1D3623240D0F684500981E51 /* SimpleAdsAppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SimpleAdsAppDelegate.h; sourceTree = "<group>"; };
 		1D3623250D0F684500981E51 /* SimpleAdsAppDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SimpleAdsAppDelegate.m; sourceTree = "<group>"; };
-		1D6058910D05DD3D006BFB54 /* MoPubDemo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MoPubDemo.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		1D6058910D05DD3D006BFB54 /* MoPub.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MoPub.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		288765A40DF7441C002DB57D /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
 		28D7ACF60DDB3853001CB0EB /* SimpleAdsViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SimpleAdsViewController.h; sourceTree = "<group>"; };
 		28D7ACF70DDB3853001CB0EB /* SimpleAdsViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SimpleAdsViewController.m; sourceTree = "<group>"; };
@@ -170,7 +170,7 @@
 		19C28FACFE9D520D11CA2CBB /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				1D6058910D05DD3D006BFB54 /* MoPubDemo.app */,
+				1D6058910D05DD3D006BFB54 /* MoPub.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -335,7 +335,7 @@
 			);
 			name = MoPub;
 			productName = SimpleAds;
-			productReference = 1D6058910D05DD3D006BFB54 /* MoPubDemo.app */;
+			productReference = 1D6058910D05DD3D006BFB54 /* MoPub.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -436,7 +436,7 @@
 					"$(inherited)",
 					"\"$(SRCROOT)\"",
 				);
-				PRODUCT_NAME = MoPubDemo;
+				PRODUCT_NAME = MoPub;
 			};
 			name = Debug;
 		};
@@ -453,7 +453,7 @@
 					"\"$(SRCROOT)/Library\"",
 					"\"$(SRCROOT)\"",
 				);
-				PRODUCT_NAME = SimpleAds;
+				PRODUCT_NAME = MoPub;
 				VALIDATE_PRODUCT = YES;
 			};
 			name = Release;

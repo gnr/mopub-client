@@ -283,7 +283,7 @@
 								</array>
 							</array>
 							<key>PBXSmartGroupTreeModuleOutlineStateVisibleRectKey</key>
-							<string>{{0, 292}, {250, 551}}</string>
+							<string>{{0, 299}, {250, 551}}</string>
 						</dict>
 						<key>PBXTopSmartGroupGIDs</key>
 						<array/>
@@ -302,7 +302,7 @@
 							<real>250</real>
 						</array>
 						<key>RubberWindowFrame</key>
-						<string>799 391 1090 610 0 0 1920 1058 </string>
+						<string>709 237 1090 610 0 0 1920 1058 </string>
 					</dict>
 					<key>Module</key>
 					<string>PBXSmartGroupTreeModule</string>
@@ -330,7 +330,7 @@
 										<key>_historyCapacity</key>
 										<integer>0</integer>
 										<key>bookmark</key>
-										<string>3C189C881325D5DF0053DC1D</string>
+										<string>3C189CB6132716960053DC1D</string>
 										<key>history</key>
 										<array>
 											<string>3C92F34111C8592900AED241</string>
@@ -361,7 +361,7 @@
 											<string>3C189C7B1325B6550053DC1D</string>
 											<string>3C189C7C1325B6550053DC1D</string>
 											<string>3C189C861325D5DF0053DC1D</string>
-											<string>3C189C871325D5DF0053DC1D</string>
+											<string>3C189CB5132716960053DC1D</string>
 										</array>
 									</dict>
 									<key>SplitCount</key>
@@ -373,14 +373,14 @@
 							<key>GeometryConfiguration</key>
 							<dict>
 								<key>Frame</key>
-								<string>{{0, 0}, {818, 406}}</string>
+								<string>{{0, 0}, {818, 400}}</string>
 								<key>RubberWindowFrame</key>
-								<string>799 391 1090 610 0 0 1920 1058 </string>
+								<string>709 237 1090 610 0 0 1920 1058 </string>
 							</dict>
 							<key>Module</key>
 							<string>PBXNavigatorGroup</string>
 							<key>Proportion</key>
-							<string>406pt</string>
+							<string>400pt</string>
 						</dict>
 						<dict>
 							<key>ContentConfiguration</key>
@@ -393,14 +393,14 @@
 							<key>GeometryConfiguration</key>
 							<dict>
 								<key>Frame</key>
-								<string>{{0, 411}, {818, 158}}</string>
+								<string>{{0, 405}, {818, 164}}</string>
 								<key>RubberWindowFrame</key>
-								<string>799 391 1090 610 0 0 1920 1058 </string>
+								<string>709 237 1090 610 0 0 1920 1058 </string>
 							</dict>
 							<key>Module</key>
 							<string>XCDetailModule</string>
 							<key>Proportion</key>
-							<string>158pt</string>
+							<string>164pt</string>
 						</dict>
 					</array>
 					<key>Proportion</key>
@@ -419,9 +419,9 @@
 			</array>
 			<key>TableOfContents</key>
 			<array>
-				<string>3C189C1613257DC80053DC1D</string>
+				<string>3C189CB7132716960053DC1D</string>
 				<string>1CE0B1FE06471DED0097A5F4</string>
-				<string>3C189C1713257DC80053DC1D</string>
+				<string>3C189CB8132716960053DC1D</string>
 				<string>1CE0B20306471E060097A5F4</string>
 				<string>1CE0B20506471E060097A5F4</string>
 			</array>
@@ -559,16 +559,11 @@
 	<integer>5</integer>
 	<key>WindowOrderList</key>
 	<array>
-		<string>1C530D57069F1CE1000CFCEE</string>
-		<string>3C189C2E13258C390053DC1D</string>
-		<string>3C189C2F13258C390053DC1D</string>
-		<string>1CD10A99069EF8BA00B06720</string>
 		<string>3C0815771115E6A70083D30D</string>
-		<string>1C78EAAD065D492600B07095</string>
 		<string>/Users/jpayne/mopub-client/MoPubiOS/SimpleAdsDemo/SimpleAds.xcodeproj</string>
 	</array>
 	<key>WindowString</key>
-	<string>799 391 1090 610 0 0 1920 1058 </string>
+	<string>709 237 1090 610 0 0 1920 1058 </string>
 	<key>WindowToolsV3</key>
 	<array>
 		<dict>
@@ -645,7 +640,7 @@
 			<key>TableOfContents</key>
 			<array>
 				<string>3C0815771115E6A70083D30D</string>
-				<string>3C189C1813257DC80053DC1D</string>
+				<string>3C189CB9132716960053DC1D</string>
 				<string>1CD0528F0623707200166675</string>
 				<string>XCMainBuildResultsModuleGUID</string>
 			</array>
