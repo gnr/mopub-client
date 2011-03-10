@@ -179,7 +179,7 @@
 - (void)closeButtonPressed
 {
 	// Restore previous status/navigation bar state.
-	[[UIApplication sharedApplication] setStatusBarHidden:_statusBarWasHidden withAnimation:UIStatusBarAnimationFade];
+	[[UIApplication sharedApplication] setStatusBarHidden:_statusBarWasHidden];
 	[self.navigationController setNavigationBarHidden:_navigationBarWasHidden animated:NO];
 	
 	[self.parent dismissInterstitial:self];

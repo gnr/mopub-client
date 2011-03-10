@@ -36,7 +36,7 @@
 		};
 	};
 	29B97313FDCFA39411CA2CEA /* Project object */ = {
-		activeBuildConfigurationName = Debug;
+		activeBuildConfigurationName = Distribution;
 		activeExecutable = 3C0815541115E48D0083D30D /* MoPub */;
 		activeSDKPreference = iphoneos4.2;
 		activeTarget = 1D6058900D05DD3D006BFB54 /* MoPub */;
@@ -160,6 +160,12 @@
 			3C189C881325D5DF0053DC1D = 3C189C881325D5DF0053DC1D /* PlistBookmark */;
 			3C189CB5132716960053DC1D /* PlistBookmark */ = 3C189CB5132716960053DC1D /* PlistBookmark */;
 			3C189CB6132716960053DC1D /* PlistBookmark */ = 3C189CB6132716960053DC1D /* PlistBookmark */;
+			3C189CE413284E1E0053DC1D /* PBXTextBookmark */ = 3C189CE413284E1E0053DC1D /* PBXTextBookmark */;
+			3C189CE513284E1E0053DC1D /* PBXTextBookmark */ = 3C189CE513284E1E0053DC1D /* PBXTextBookmark */;
+			3C189CE613284E1E0053DC1D /* PlistBookmark */ = 3C189CE613284E1E0053DC1D /* PlistBookmark */;
+			3C189CE713284E1E0053DC1D /* PlistBookmark */ = 3C189CE713284E1E0053DC1D /* PlistBookmark */;
+			3C189CF3132850940053DC1D /* PlistBookmark */ = 3C189CF3132850940053DC1D /* PlistBookmark */;
+			3C189CF4132850940053DC1D /* PlistBookmark */ = 3C189CF4132850940053DC1D /* PlistBookmark */;
 			3C92F34111C8592900AED241 = 3C92F34111C8592900AED241 /* PBXTextBookmark */;
 			3CA858D812FB89F600967C3F = 3CA858D812FB89F600967C3F /* PBXTextBookmark */;
 			3CA858D912FB89F600967C3F = 3CA858D912FB89F600967C3F /* PBXTextBookmark */;
@@ -346,6 +352,71 @@
 		rLoc = 9223372036854775807;
 	};
 	3C189CB6132716960053DC1D /* PlistBookmark */ = {
+		isa = PlistBookmark;
+		fRef = 8D1107310486CEB800E47090 /* SimpleAds-Info.plist */;
+		fallbackIsa = PBXBookmark;
+		isK = 0;
+		kPath = (
+		);
+		name = "/Users/jpayne/mopub-client/MoPubiOS/SimpleAdsDemo/SimpleAds-Info.plist";
+		rLen = 0;
+		rLoc = 9223372036854775807;
+	};
+	3C189CE413284E1E0053DC1D /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 3C83C64F1308146000CD306C /* MPAdView.m */;
+		name = "MPAdView.m: 381";
+		rLen = 0;
+		rLoc = 11547;
+		rType = 0;
+		vrLen = 1569;
+		vrLoc = 10495;
+	};
+	3C189CE513284E1E0053DC1D /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 3C83C6571308146000CD306C /* MPInterstitialAdController.m */;
+		name = "MPInterstitialAdController.m: 188";
+		rLen = 0;
+		rLoc = 5130;
+		rType = 0;
+		vrLen = 1521;
+		vrLoc = 4757;
+	};
+	3C189CE613284E1E0053DC1D /* PlistBookmark */ = {
+		isa = PlistBookmark;
+		fRef = 8D1107310486CEB800E47090 /* SimpleAds-Info.plist */;
+		fallbackIsa = PBXBookmark;
+		isK = 0;
+		kPath = (
+		);
+		name = "/Users/jpayne/mopub-client/MoPubiOS/SimpleAdsDemo/SimpleAds-Info.plist";
+		rLen = 0;
+		rLoc = 9223372036854775807;
+	};
+	3C189CE713284E1E0053DC1D /* PlistBookmark */ = {
+		isa = PlistBookmark;
+		fRef = 8D1107310486CEB800E47090 /* SimpleAds-Info.plist */;
+		fallbackIsa = PBXBookmark;
+		isK = 0;
+		kPath = (
+		);
+		name = "/Users/jpayne/mopub-client/MoPubiOS/SimpleAdsDemo/SimpleAds-Info.plist";
+		rLen = 0;
+		rLoc = 9223372036854775807;
+	};
+	3C189CF3132850940053DC1D /* PlistBookmark */ = {
+		isa = PlistBookmark;
+		fRef = 8D1107310486CEB800E47090 /* SimpleAds-Info.plist */;
+		fallbackIsa = PBXBookmark;
+		isK = 0;
+		kPath = (
+			CFBundleName,
+		);
+		name = "/Users/jpayne/mopub-client/MoPubiOS/SimpleAdsDemo/SimpleAds-Info.plist";
+		rLen = 0;
+		rLoc = 9223372036854775807;
+	};
+	3C189CF4132850940053DC1D /* PlistBookmark */ = {
 		isa = PlistBookmark;
 		fRef = 8D1107310486CEB800E47090 /* SimpleAds-Info.plist */;
 		fallbackIsa = PBXBookmark;
