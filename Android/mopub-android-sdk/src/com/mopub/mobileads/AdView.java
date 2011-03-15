@@ -417,7 +417,7 @@ public class AdView extends WebView {
             // Check if this is a local call
             if (url.startsWith("mopub://")) {
                 if (url.equals("mopub://finishLoad")) {
-                    //
+                    ((AdView)view).pageFinished();
                 }
                 else if (url.equals("mopub://close")) {
                     ((AdView)view).pageClosed();
@@ -443,11 +443,6 @@ public class AdView extends WebView {
             // and fire off a system wide intent
             view.getContext().startActivity(new Intent(android.content.Intent.ACTION_VIEW, Uri.parse(uri)));
             return true;
-        }
-
-        @Override
-        public void onPageFinished(WebView view, String url) {
-            ((AdView)view).pageFinished();
         }
 
         @Override
