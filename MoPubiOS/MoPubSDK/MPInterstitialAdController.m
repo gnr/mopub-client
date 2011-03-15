@@ -196,7 +196,7 @@
 {	
 	// Track the previous state of the status bar, so that we can restore it.
 	_statusBarWasHidden = [UIApplication sharedApplication].statusBarHidden;
-	[[UIApplication sharedApplication] setStatusBarHidden:YES withAnimation:UIStatusBarAnimationFade];
+	[[UIApplication sharedApplication] setStatusBarHidden:YES];
 	
 	// Likewise, track the previous state of the navigation bar.
 	_navigationBarWasHidden = self.navigationController.navigationBarHidden;
@@ -221,7 +221,6 @@
 										 duration:(NSTimeInterval)duration
 {
 	[super willAnimateRotationToInterfaceOrientation:toInterfaceOrientation duration:duration];
-	//[[UIApplication sharedApplication] setStatusBarHidden:YES withAnimation:UIStatusBarAnimationNone];	
 }
 
 #pragma mark -

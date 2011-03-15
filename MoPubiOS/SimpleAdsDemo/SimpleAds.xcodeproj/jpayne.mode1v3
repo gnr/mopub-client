@@ -229,6 +229,8 @@
 			<key>Layout</key>
 			<array>
 				<dict>
+					<key>BecomeActive</key>
+					<true/>
 					<key>ContentConfiguration</key>
 					<dict>
 						<key>PBXBottomSmartGroupGIDs</key>
@@ -264,7 +266,6 @@
 							<key>PBXSmartGroupTreeModuleOutlineStateExpansionKey</key>
 							<array>
 								<string>29B97314FDCFA39411CA2CEA</string>
-								<string>3C83C6471308146000CD306C</string>
 								<string>080E96DDFE201D6D7F000001</string>
 								<string>29B97315FDCFA39411CA2CEA</string>
 								<string>29B97317FDCFA39411CA2CEA</string>
@@ -277,6 +278,7 @@
 							<key>PBXSmartGroupTreeModuleOutlineStateSelectionKey</key>
 							<array>
 								<array>
+									<integer>1</integer>
 									<integer>0</integer>
 								</array>
 							</array>
@@ -300,7 +302,7 @@
 							<real>250</real>
 						</array>
 						<key>RubberWindowFrame</key>
-						<string>778 333 1090 610 0 0 1920 1058 </string>
+						<string>771 448 1090 610 0 0 1920 1058 </string>
 					</dict>
 					<key>Module</key>
 					<string>PBXSmartGroupTreeModule</string>
@@ -328,7 +330,7 @@
 										<key>_historyCapacity</key>
 										<integer>0</integer>
 										<key>bookmark</key>
-										<string>3C189CF4132850940053DC1D</string>
+										<string>3C189E2C1329C0C50053DC1D</string>
 										<key>history</key>
 										<array>
 											<string>3C92F34111C8592900AED241</string>
@@ -375,7 +377,7 @@
 								<key>Frame</key>
 								<string>{{0, 0}, {818, 395}}</string>
 								<key>RubberWindowFrame</key>
-								<string>778 333 1090 610 0 0 1920 1058 </string>
+								<string>771 448 1090 610 0 0 1920 1058 </string>
 							</dict>
 							<key>Module</key>
 							<string>PBXNavigatorGroup</string>
@@ -395,7 +397,7 @@
 								<key>Frame</key>
 								<string>{{0, 400}, {818, 169}}</string>
 								<key>RubberWindowFrame</key>
-								<string>778 333 1090 610 0 0 1920 1058 </string>
+								<string>771 448 1090 610 0 0 1920 1058 </string>
 							</dict>
 							<key>Module</key>
 							<string>XCDetailModule</string>
@@ -565,10 +567,9 @@
 		<string>1C78EAAD065D492600B07095</string>
 		<string>1CD10A99069EF8BA00B06720</string>
 		<string>3C0815771115E6A70083D30D</string>
-		<string>/Users/jpayne/mopub-client/MoPubiOS/SimpleAdsDemo/SimpleAds.xcodeproj</string>
 	</array>
 	<key>WindowString</key>
-	<string>778 333 1090 610 0 0 1920 1058 </string>
+	<string>771 448 1090 610 0 0 1920 1058 </string>
 	<key>WindowToolsV3</key>
 	<array>
 		<dict>
