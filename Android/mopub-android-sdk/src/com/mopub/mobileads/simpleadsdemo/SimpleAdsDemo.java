@@ -33,85 +33,66 @@
 package com.mopub.mobileads.simpleadsdemo;
 
 import com.mopub.mobileads.MoPubConversionTracker;
-import com.mopub.mobileads.MoPubView;
 import com.mopub.mobileads.MoPubActivity;
 import com.mopub.mobileads.R;
 
-import android.app.Activity;
-import android.content.Context;
+import android.app.TabActivity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.View;
-import android.view.View.OnClickListener;
-import android.view.inputmethod.InputMethodManager;
-import android.widget.Button;
-import android.widget.EditText;
+import android.widget.TabHost;
 import android.widget.Toast;
 
-public class SimpleAdsDemo extends Activity {
-	private MoPubView		mTopBanner;
-	private MoPubView		mMidBanner;
+public class SimpleAdsDemo extends TabActivity {
+    private final int   INTERSTITIAL_AD_REQUEST = 0;
 
-	private EditText			mSearchText;
-	private Button				mSearchButton;
-	private Button				mShowButton;
+    /** Called when the activity is first created. */
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.main);
 
-	private final int			INTERSTITIAL_AD_REQUEST = 0;
+        TabHost tabHost = getTabHost();
+        TabHost.TabSpec spec;
 
-	/** Called when the activity is first created. */
-	@Override
-	public void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		setContentView(R.layout.main);
+        spec = tabHost.newTabSpec("banners")
+                .setIndicator("Banners")
+                .setContent(new Intent().setClass(this, BannersTab.class));
+        tabHost.addTab(spec);
 
-		// Conversion tracking
-		new MoPubConversionTracker().reportAppOpen(this,"agltb3B1Yi1pbmNyDAsSBFNpdGUY2aQGDA");
-		
-		// Initialize Ad components
-		mTopBanner = (MoPubView) findViewById(R.id.topadview);
-		mTopBanner.setAdUnitId("agltb3B1Yi1pbmNyDAsSBFNpdGUY2aQGDA");
-		mTopBanner.loadAd();
+        spec = tabHost.newTabSpec("interstitials")
+                .setIndicator("Full")
+                .setContent(new Intent().setClass(this, InterstitialsTab.class));
+        tabHost.addTab(spec);
 
-		mMidBanner = (MoPubView) findViewById(R.id.middleadview);
-		mMidBanner.setAdUnitId("agltb3B1Yi1pbmNyDAsSBFNpdGUY2aQGDA");
-		mMidBanner.loadAd();
+        spec = tabHost.newTabSpec("console")
+                .setIndicator("Console")
+                .setContent(new Intent().setClass(this, ConsoleTab.class));
+        tabHost.addTab(spec);
 
-		mSearchText = (EditText) findViewById(R.id.searchtext);
-		mSearchButton = (Button) findViewById(R.id.searchbutton);
-		mSearchButton.setOnClickListener(new OnClickListener() {
-			public void onClick(View v) {
-				InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
-				imm.hideSoftInputFromWindow(mSearchText.getWindowToken(), 0);
-				mTopBanner.setKeywords(mSearchText.getText().toString());
-				mMidBanner.setKeywords(mSearchText.getText().toString());
-				mTopBanner.loadAd();
-				mMidBanner.loadAd();
-			}
-		});
+        spec = tabHost.newTabSpec("about")
+                .setIndicator("About")
+                .setContent(new Intent().setClass(this, AboutTab.class));
+        tabHost.addTab(spec);
 
-		mShowButton = (Button) findViewById(R.id.showbutton);
-		mShowButton.setOnClickListener(new OnClickListener() {
-			public void onClick(View v) {
-				showInterstitialAd();
-			}
-		});
-	}
+        // Conversion tracking
+        new MoPubConversionTracker().reportAppOpen(this,"agltb3B1Yi1pbmNyDAsSBFNpdGUY2aQGDA");
+    }
 
-	public void showInterstitialAd() {
-		Intent i = new Intent(this, MoPubActivity.class);
-		i.putExtra("com.mopub.mobileads.AdUnitId", "agltb3B1Yi1pbmNyDAsSBFNpdGUYstgHDA");
-		startActivityForResult(i, INTERSTITIAL_AD_REQUEST);
-	}
-	
-	// Listen for results from the interstitial ad
-	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-	    switch (requestCode) {
-	    case INTERSTITIAL_AD_REQUEST:
-	    	// Handle interstitial closed result here if needed.
-	    	// This is called immediately before onResume()
-	    	if (resultCode == RESULT_CANCELED) {
-	    		Toast.makeText(this, "No ad available", Toast.LENGTH_SHORT).show();
-	    	}
-	    }
-	}
+    public void showInterstitialAd() {
+        Intent i = new Intent(this, MoPubActivity.class);
+        i.putExtra("com.mopub.mobileads.AdUnitId", "agltb3B1Yi1pbmNyDAsSBFNpdGUY6tERDA");
+        startActivityForResult(i, INTERSTITIAL_AD_REQUEST);
+    }
+
+    // Listen for results from the interstitial ad
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        switch (requestCode) {
+        case INTERSTITIAL_AD_REQUEST:
+            // Handle interstitial closed result here if needed.
+            // This is called immediately before onResume()
+            if (resultCode == RESULT_CANCELED) {
+                Toast.makeText(this, "No ad available", Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
 }

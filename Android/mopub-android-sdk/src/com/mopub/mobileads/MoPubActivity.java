@@ -37,93 +37,105 @@ import com.mopub.mobileads.MoPubView.OnAdFailedListener;
 import com.mopub.mobileads.MoPubView.OnAdLoadedListener;
 
 import android.app.Activity;
+import android.content.res.Configuration;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.view.Window;
 import android.view.WindowManager;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.RelativeLayout;
 
 public class MoPubActivity extends Activity {
-	private MoPubView				mMoPubView;
-	private RelativeLayout			mLayout;
+    public static final int MOPUB_ACTIVITY_NO_AD = 1234;
 
-	/** Called when the activity is first created. */
-	@Override
-	public void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
+    private MoPubView mMoPubView;
+    private RelativeLayout mLayout;
 
-		// Don't display the interstitial until we get an ad
-		setVisible(false);
+    /** Called when the activity is first created. */
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
 
-		String adUnitId = getIntent().getStringExtra("com.mopub.mobileads.AdUnitId");
-		String keywords = getIntent().getStringExtra("com.mopub.mobileads.Keywords");
-		int timeout = getIntent().getIntExtra("com.mopub.mobileads.Timeout", 0);
+        // Don't display the interstitial until we get an ad
+        setVisible(false);
+        
+        requestWindowFeature(Window.FEATURE_NO_TITLE);
 
-		if (adUnitId == null) {
-			throw new RuntimeException("AdUnitId isn't set in com.mopub.mobileads.InterstitialAdActivity");
-		}
+        String adUnitId = getIntent().getStringExtra("com.mopub.mobileads.AdUnitId");
+        String keywords = getIntent().getStringExtra("com.mopub.mobileads.Keywords");
+        int timeout = getIntent().getIntExtra("com.mopub.mobileads.Timeout", 0);
 
-		mMoPubView = new MoPubView(this);
-		mMoPubView.setAdUnitId(adUnitId);
-		if (keywords != null) {
-			mMoPubView.setKeywords(keywords);
-		}
-		if (timeout > 0) {
-			mMoPubView.setTimeout(timeout);
-		}
+        if (adUnitId == null) {
+            throw new RuntimeException("AdUnitId isn't set in " +
+                    "com.mopub.mobileads.InterstitialAdActivity");
+        }
 
-		mMoPubView.setOnAdClosedListener(new OnAdClosedListener() {
-			public void OnAdClosed(MoPubView a) {
-				setResult(RESULT_OK);
-				finish();
-			}
-		});
-		mMoPubView.setOnAdLoadedListener(new OnAdLoadedListener() {
-			public void OnAdLoaded(MoPubView a) {
-				Log.i("mopub","ad loaded");
-				/*
-				if (!a.isFullPage()) {
-					showButton();
-				}
-				*/
-				setVisible(true);
-			}
-		});
-		mMoPubView.setOnAdFailedListener(new OnAdFailedListener() {
-			public void OnAdFailed(MoPubView a) {
-				Log.i("mopub","ad failed");
-				setResult(RESULT_CANCELED);
-				finish();
-			}
-		});
-		
-		mMoPubView.loadAd();
+        mMoPubView = new MoPubView(this);
+        mMoPubView.setAdUnitId(adUnitId);
+        if (keywords != null) {
+            mMoPubView.setKeywords(keywords);
+        }
+        if (timeout > 0) {
+            mMoPubView.setTimeout(timeout);
+        }
 
-		this.getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
-		mLayout = new RelativeLayout(this);
-		
-		final RelativeLayout.LayoutParams adViewLayout = new RelativeLayout.LayoutParams(
-				RelativeLayout.LayoutParams.FILL_PARENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
-		adViewLayout.addRule(RelativeLayout.CENTER_IN_PARENT);
-		mLayout.addView(mMoPubView, adViewLayout);
-		
-		setContentView(mLayout);
-	}
-	
-	public void showButton() {
-		Button button = new Button(this);
-		button.setText("Continue");
-		button.setOnClickListener(new OnClickListener() {
-			public void onClick(View v) {
-				setResult(RESULT_OK);
-				finish();
-			}
-		});
-		final RelativeLayout.LayoutParams buttonLayout = new RelativeLayout.LayoutParams(
-				RelativeLayout.LayoutParams.FILL_PARENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
-		buttonLayout.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
-		mLayout.addView(button, buttonLayout);		
-	}
+        mMoPubView.setOnAdClosedListener(new OnAdClosedListener() {
+            public void OnAdClosed(MoPubView a) {
+                setResult(RESULT_OK);
+                finish();
+            }
+        });
+        mMoPubView.setOnAdLoadedListener(new OnAdLoadedListener() {
+            public void OnAdLoaded(MoPubView a) {
+                Log.i("mopub","ad loaded");
+                /*
+                if (!a.isFullPage()) {
+                    showButton();
+                }
+                */
+                setVisible(true);
+            }
+        });
+        mMoPubView.setOnAdFailedListener(new OnAdFailedListener() {
+            public void OnAdFailed(MoPubView a) {
+                Log.i("mopub","ad failed");
+                setResult(MOPUB_ACTIVITY_NO_AD);
+                finish();
+            }
+        });
+
+        mMoPubView.loadAd();
+
+        this.getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        mLayout = new RelativeLayout(this);
+
+        final RelativeLayout.LayoutParams adViewLayout = new RelativeLayout.LayoutParams(
+                RelativeLayout.LayoutParams.FILL_PARENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
+        adViewLayout.addRule(RelativeLayout.CENTER_IN_PARENT);
+        mLayout.addView(mMoPubView, adViewLayout);
+
+        setContentView(mLayout);
+    }
+    
+    @Override
+    public void onConfigurationChanged(Configuration newConfig){
+        super.onConfigurationChanged(newConfig);
+    }
+
+    public void showButton() {
+        Button button = new Button(this);
+        button.setText("Continue");
+        button.setOnClickListener(new OnClickListener() {
+            public void onClick(View v) {
+                setResult(RESULT_OK);
+                finish();
+            }
+        });
+        final RelativeLayout.LayoutParams buttonLayout = new RelativeLayout.LayoutParams(
+                RelativeLayout.LayoutParams.FILL_PARENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
+        buttonLayout.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
+        mLayout.addView(button, buttonLayout);
+    }
 }

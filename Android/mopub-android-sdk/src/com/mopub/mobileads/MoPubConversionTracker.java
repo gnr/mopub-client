@@ -32,68 +32,66 @@
 
 package com.mopub.mobileads;
 
+import android.content.Context;
+import android.content.SharedPreferences;
+import android.provider.Settings.Secure;
+import android.util.Log;
+
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
 
-import android.content.Context;
-import android.content.SharedPreferences;
-import android.provider.Settings.Secure;
-import android.util.Log;
+public class MoPubConversionTracker {
+    private Context mContext;
+    private String mAppId;
 
-public class MoPubConversionTracker {	
-	private Context		mContext = null;
-	private String		mAppId = null;
-	
-	static private String TRACK_HOST = "ads.mopub.com";
-	static private String TRACK_HANDLER = "/m/track";
-	
-	public MoPubConversionTracker() {
-	}
+    static private String TRACK_HOST = "ads.mopub.com";
+    static private String TRACK_HANDLER = "/m/open";
 
-	public void reportAppOpen(Context context, String appId) {
-		if (context == null || appId == null) {
-			return;
-		}
-		mContext = context;
-		mAppId = appId;
-		
-	    SharedPreferences settings = mContext.getSharedPreferences("mopubSettings", 0);
-    	if (settings.getBoolean(appId+" tracked", false) == false) {
-    		new Thread(mTrackOpen).start();
-    	}
-	}
+    public void reportAppOpen(Context context, String appId) {
+        if (context == null || appId == null) {
+            return;
+        }
+        mContext = context;
+        mAppId = appId;
+
+        SharedPreferences settings = mContext.getSharedPreferences("mopubSettings", 0);
+        if (settings.getBoolean(appId+" tracked", false) == false) {
+            new Thread(mTrackOpen).start();
+        }
+    }
 
     Runnable mTrackOpen = new Runnable() {
-		public void run() {
-			StringBuilder sz = new StringBuilder("http://"+TRACK_HOST+TRACK_HANDLER);
-			sz.append("?v=2&id=" + mAppId);
-			sz.append("&udid=" + Secure.getString(mContext.getContentResolver(), Secure.ANDROID_ID));
-			String url = sz.toString();
-			Log.d("MoPub", "conversion track: "+url);
+        public void run() {
+            StringBuilder sz = new StringBuilder("http://"+TRACK_HOST+TRACK_HANDLER);
+            sz.append("?v=2&id=" + mAppId);
+            sz.append("&udid="+Secure.getString(mContext.getContentResolver(), Secure.ANDROID_ID));
+            String url = sz.toString();
+            Log.d("MoPub", "conversion track: "+url);
 
-			try {
-				DefaultHttpClient httpclient = new DefaultHttpClient();
-				HttpGet httpget = new HttpGet(url);  
-				HttpResponse response = httpclient.execute(httpget);
-				
-				if (response.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
-					return;
-				}
+            try {
+                DefaultHttpClient httpclient = new DefaultHttpClient();
+                HttpGet httpget = new HttpGet(url);
+                HttpResponse response = httpclient.execute(httpget);
 
-				HttpEntity entity = response.getEntity();
-				if (entity == null || entity.getContentLength() == 0) {
-					return;
-				}
-				
-				// If we made it here, the request has been tracked
-				SharedPreferences.Editor editor = mContext.getSharedPreferences("mopubSettings", 0).edit();
-				editor.putBoolean(mAppId+" tracked", true).commit();
-				
-			} catch (Exception e) {
-			}
-		}
-	};
+                if (response.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
+                    return;
+                }
+
+                HttpEntity entity = response.getEntity();
+                if (entity == null || entity.getContentLength() == 0) {
+                    return;
+                }
+
+                // If we made it here, the request has been tracked
+                SharedPreferences.Editor editor
+                        = mContext.getSharedPreferences("mopubSettings", 0).edit();
+                editor.putBoolean(mAppId+" tracked", true).commit();
+
+            } catch (Exception e) {
+            }
+        }
+    };
 }
