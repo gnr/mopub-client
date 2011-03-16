@@ -40,7 +40,10 @@
 															ADBannerContentSizeIdentifierPortrait, 
 															ADBannerContentSizeIdentifierLandscape, 
 															nil];
-			_adBannerView.currentContentSizeIdentifier = ADBannerContentSizeIdentifierPortrait;
+			if (UIInterfaceOrientationIsLandscape([UIDevice currentDevice].orientation))
+				_adBannerView.currentContentSizeIdentifier = ADBannerContentSizeIdentifierLandscape;
+			else
+				_adBannerView.currentContentSizeIdentifier = ADBannerContentSizeIdentifierPortrait;
 		}
 		// Prior to iOS 4.2:
 		else
@@ -49,7 +52,11 @@
 															ADBannerContentSizeIdentifier320x50, 
 															ADBannerContentSizeIdentifier480x32, 
 															nil];
-			_adBannerView.currentContentSizeIdentifier = ADBannerContentSizeIdentifier320x50;
+			if (UIInterfaceOrientationIsLandscape([UIDevice currentDevice].orientation))
+				_adBannerView.currentContentSizeIdentifier = ADBannerContentSizeIdentifier480x32;
+			else
+				_adBannerView.currentContentSizeIdentifier = ADBannerContentSizeIdentifier320x50;
+			
 		}
 			
 		_adBannerView.delegate = self;
