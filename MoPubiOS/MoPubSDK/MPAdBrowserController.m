@@ -114,7 +114,7 @@ static NSArray *BROWSER_SCHEMES, *SPECIAL_HOSTS;
 	[toolbar setItems:toolbarItems animated:NO];
 	[toolbar sizeToFit];
 	toolbar.frame = CGRectMake(0, height - toolbar.frame.size.height,
-							   toolbar.frame.size.width, toolbar.frame.size.height);
+							   self.view.frame.size.width, toolbar.frame.size.height);
 	[self.view addSubview:toolbar];
 	[toolbar release];
 	
