@@ -11,9 +11,9 @@
 #import "SmallViewController.h"
 
 @interface iPadTestViewController : UIViewController {
-	SmallViewController *smallVC;
 	MPAdView *adView;
 }
 
+- (IBAction)refresh;
 @end
 

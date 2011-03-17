@@ -39,7 +39,7 @@
 	//self.view = [[UIView alloc] initWithFrame:CGRectMake(0.0, 100.0, 320.0, 50.0)];
 	self.view.backgroundColor = [UIColor greenColor];
 	
-	adView = [[MPAdView alloc] initWithAdUnitId:@"agltb3B1Yi1pbmNyDAsSBFNpdGUY1uYfDA" size:MOPUB_BANNER_SIZE];
+	adView = [[MPAdView alloc] initWithAdUnitId:@"agltb3B1Yi1pbmNyDAsSBFNpdGUY3KwgDA" size:MOPUB_BANNER_SIZE];
 	adView.delegate = self;
 	
 	CGSize size = [adView adContentViewSize];
@@ -76,9 +76,23 @@
 	return self;
 }
 
+- (IBAction)refresh{
+	[adView refreshAd];
+}
+
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation{
-	[smallVC shouldAutorotateToInterfaceOrientation:toInterfaceOrientation];
+	[adView rotateToOrientation:toInterfaceOrientation];
 	return YES;
+}
+
+- (void)didRotateFromInterfaceOrientation:(UIInterfaceOrientation)fromInterfaceOrientation{
+	CGSize size = [adView adContentViewSize];
+    CGRect newFrame = adView.frame;
+	
+    newFrame.size = size;
+    newFrame.origin.x = (self.view.bounds.size.width - size.width) / 2;	
+	adView.frame = newFrame;
+
 }
 
 - (void)didReceiveMemoryWarning {

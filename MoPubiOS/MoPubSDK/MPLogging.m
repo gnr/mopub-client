@@ -8,7 +8,7 @@
 
 #import "MPLogging.h"
 
-static MPLogLevel MPLOG_LEVEL = MPLogLevelInfo;
+static MPLogLevel MPLOG_LEVEL = MPLogLevelAll;
 
 void MPLogSetLevel(MPLogLevel level)
 {
