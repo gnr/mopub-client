@@ -36,19 +36,45 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
 
+	//self.view = [[UIView alloc] initWithFrame:CGRectMake(0.0, 100.0, 320.0, 50.0)];
+	self.view.backgroundColor = [UIColor greenColor];
 	
-	smallVC = [[SmallViewController alloc] initWithNibName:nil bundle:nil];
+	adView = [[MPAdView alloc] initWithAdUnitId:@"agltb3B1Yi1pbmNyDAsSBFNpdGUY1uYfDA" size:MOPUB_BANNER_SIZE];
+	adView.delegate = self;
+	
+	CGSize size = [adView adContentViewSize];
+	CGRect frame = adView.frame;
+	frame.origin.x = (self.view.bounds.size.width - size.width)/2.0;
+	adView.frame = frame;
+	
+    [adView loadAd];
+    [self.view addSubview:adView];
+    [adView release];
+	
+	/*smallVC = [[SmallViewController alloc] initWithNibName:nil bundle:nil];
 	CGRect frame = smallVC.view.frame;
 	frame.origin.x = (self.view.frame.size.width - smallVC.view.frame.size.width) / 2.0 ;
 	smallVC.view.frame = frame;
 	smallVC.view.autoresizingMask = UIViewAutoresizingFlexibleRightMargin | UIViewAutoresizingFlexibleLeftMargin;
 	smallVC.parent = self;
-	[self.view addSubview:smallVC.view];
+	[self.view addSubview:smallVC.view];*/
 	
 }
 
+- (void)adViewDidLoadAd:(MPAdView *)view_
+{
+    CGSize size = [view_ adContentViewSize];
+    CGRect newFrame = view_.frame;
+	
+    newFrame.size = size;
+	CGSize blah = self.view.bounds.size;
+    newFrame.origin.x = (self.view.bounds.size.width - size.width) / 2;
+    view_.frame = newFrame;
+}
 
-
+- (UIViewController *)viewControllerForPresentingModalView{
+	return self;
+}
 
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation{
 	[smallVC shouldAutorotateToInterfaceOrientation:toInterfaceOrientation];

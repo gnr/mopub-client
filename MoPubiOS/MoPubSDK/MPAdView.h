@@ -113,6 +113,13 @@ typedef enum
 	// Specifies the transition used for bringing an ad into view. You can specify an
 	// animation type for any ad unit using the MoPub web interface.
 	MPAdAnimationType _animationType;
+	
+	// Stores the initial size of the ad view.
+	CGSize _originalSize;
+	
+	// Whether webviews added to this ad view should automatically stretch to the
+	// ad view's full size. Typically only set to YES for interstitial ads.
+	BOOL _stretchesWebContentToFill;
 }
 
 @property (nonatomic, assign) id<MPAdViewDelegate> delegate;
@@ -121,6 +128,7 @@ typedef enum
 @property (nonatomic, retain) CLLocation *location;
 @property (nonatomic, copy) NSURL *URL;
 @property (nonatomic, assign) BOOL ignoresAutorefresh;
+@property (nonatomic, assign) BOOL stretchesWebContentToFill;
 
 /*
  * Returns an MPAdView with the given ad unit ID.

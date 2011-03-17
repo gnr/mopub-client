@@ -8,6 +8,7 @@
 
 #import "SmallViewController.h"
 #import "MPAdView.h"
+#import "MPLogging.h"
 
 @implementation SmallViewController
 @synthesize parent;
@@ -26,10 +27,12 @@
 
 // Implement loadView to create a view hierarchy programmatically, without using a nib.
 - (void)loadView {
+	//MPLogSetLevel(MPLogLevelTrace);
+	
 	self.view = [[UIView alloc] initWithFrame:CGRectMake(0.0, 0.0, 320.0, 50.0)];
 	self.view.backgroundColor = [UIColor greenColor];
 	
-	adView = [[MPAdView alloc] initWithAdUnitId:@"agltb3B1Yi1pbmNyDAsSBFNpdGUY3KwgDA" size:MOPUB_BANNER_SIZE];
+	adView = [[MPAdView alloc] initWithAdUnitId:@"agltb3B1Yi1pbmNyDAsSBFNpdGUY1uYfDA" size:MOPUB_BANNER_SIZE];
 	adView.delegate = self;
 	
 	CGSize size = [adView adContentViewSize];

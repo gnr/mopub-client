@@ -98,20 +98,16 @@
 
 - (void)bannerView:(ADBannerView *)banner didFailToReceiveAdWithError:(NSError *)error
 {
-	// ADBannerView has its own internal timer for refreshing ads, so this callback may happen
-	// multiple times. If iAd's first load fails, we tell the ad view to try another network.
-	// Otherwise, iAd has failed on an internal refresh, which doesn't really matter because it
-	// can just continue to display its current ad.
-	if (!_hasReceivedFirstResponse)
-	{
-		MPLogInfo(@"iAd Failed To Receive Ad");
-		_hasReceivedFirstResponse = YES;
-		[self.adView adapter:self didFailToLoadAdWithError:error];
-	}
-	else 
-	{
-		MPLogInfo(@"iAd Internal Refresh Failed");
-	}
+	MPLogInfo(@"iAd Failed To Receive Ad");
+	_hasReceivedFirstResponse = YES;
+
+	// Edge case: This method schedules the banner view to be deallocated. If this method
+	// was called due to a failed internal iAd refresh, there is a chance the user could
+	// initiate a banner action, only to have the banner view be deallocated during that action.
+	// So, just don't allow the user to interact with the iAd.
+	[_adBannerView setUserInteractionEnabled:NO];
+	
+	[self.adView adapter:self didFailToLoadAdWithError:error];
 }
 
 - (void)bannerViewActionDidFinish:(ADBannerView *)banner
