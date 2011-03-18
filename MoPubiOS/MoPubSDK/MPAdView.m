@@ -49,6 +49,7 @@
 @synthesize scrollable = _scrollable;
 @synthesize autorefreshTimer = _autorefreshTimer;
 @synthesize ignoresAutorefresh = _ignoresAutorefresh;
+@synthesize stretchesWebContentToFill = _stretchesWebContentToFill;
 
 #pragma mark -
 #pragma mark Lifecycle
@@ -73,6 +74,7 @@
 		_ignoresAutorefresh = NO;
 		_store = [MPStore sharedStore];
 		_animationType = MPAdAnimationTypeNone;
+		_originalSize = size;
     }
     return self;
 }
@@ -471,7 +473,7 @@
 - (void)connectionDidFinishLoading:(NSURLConnection *)connection
 {
 	// Generate a webview to contain the HTML.
-	UIWebView *webView = [[self makeAdWebViewWithFrame:self.bounds] retain];
+	UIWebView *webView = [[self makeAdWebViewWithFrame:(CGRect){{0, 0}, _originalSize}] retain];
 	webView.delegate = self;
 	[webView loadData:_data MIMEType:@"text/html" textEncodingName:@"utf-8" baseURL:self.URL];
 	
@@ -646,7 +648,8 @@
 - (UIWebView *)makeAdWebViewWithFrame:(CGRect)frame
 {
 	UIWebView *webView = [[UIWebView alloc] initWithFrame:CGRectMake(0, 0, frame.size.width, frame.size.height)];
-	webView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+	if (self.stretchesWebContentToFill)
+		webView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
 	webView.backgroundColor = [UIColor clearColor];
 	webView.opaque = NO;
 	webView.delegate = self;
