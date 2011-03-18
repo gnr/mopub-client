@@ -39,7 +39,7 @@
 	//self.view = [[UIView alloc] initWithFrame:CGRectMake(0.0, 100.0, 320.0, 50.0)];
 	self.view.backgroundColor = [UIColor greenColor];
 	
-	adView = [[MPAdView alloc] initWithAdUnitId:@"agltb3B1Yi1pbmNyDAsSBFNpdGUY3KwgDA" size:MOPUB_BANNER_SIZE];
+	adView = [[MPAdView alloc] initWithAdUnitId:@"agltb3B1Yi1pbmNyDAsSBFNpdGUYucAcDA" size:MOPUB_BANNER_SIZE];
 	adView.delegate = self;
 	
 	CGSize size = [adView adContentViewSize];
