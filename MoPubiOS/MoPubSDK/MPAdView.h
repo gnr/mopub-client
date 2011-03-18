@@ -89,6 +89,9 @@ typedef enum
 	// Impression-tracking URL.
 	NSURL *_impTrackerURL;
 	
+	// Size of the creative from the ad server. 
+	CGSize _creativeSize;
+	
 	// Handle to the shared store object that manages in-app purchases from ads.
 	MPStore *_store;
 	
@@ -129,6 +132,7 @@ typedef enum
 @property (nonatomic, copy) NSURL *URL;
 @property (nonatomic, assign) BOOL ignoresAutorefresh;
 @property (nonatomic, assign) BOOL stretchesWebContentToFill;
+@property (nonatomic, assign) CGSize creativeSize;
 
 /*
  * Returns an MPAdView with the given ad unit ID.

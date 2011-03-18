@@ -10,7 +10,7 @@
 #import "MPAdView.h"
 #import "SmallViewController.h"
 
-@interface iPadTestViewController : UIViewController {
+@interface iPadTestViewController : UIViewController <MPAdViewDelegate> {
 	MPAdView *adView;
 }
 

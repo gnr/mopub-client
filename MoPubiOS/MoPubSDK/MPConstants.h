@@ -8,7 +8,7 @@
 
 #import <UIKit/UIKit.h>
 
-#define HOSTNAME @"ads.mopub.com"
+#define HOSTNAME @"38-resize.latest.mopub-inc.appspot.com"
 #define DEFAULT_PUB_ID @"agltb3B1Yi1pbmNyDAsSBFNpdGUYkaoMDA"
 
 // Sizing constants.

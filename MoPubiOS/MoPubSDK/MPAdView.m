@@ -43,6 +43,7 @@
 @synthesize interceptURL = _interceptURL;
 @synthesize failURL = _failURL;
 @synthesize impTrackerURL = _impTrackerURL;
+@synthesize creativeSize = _creativeSize;
 @synthesize keywords = _keywords;
 @synthesize location = _location;
 @synthesize shouldInterceptLinks = _shouldInterceptLinks;
@@ -389,6 +390,15 @@
 	if (scrollableString)
 		self.scrollable = [scrollableString boolValue];
 	
+	NSString *widthString = [headers objectForKey:@"X-Width"];
+	NSString *heightString = [headers objectForKey:@"X-Height"];
+	
+	// Try to get the creative size from the server or otherwise use the original container's size
+	if (widthString && heightString)
+		self.creativeSize = CGSizeMake([widthString floatValue], [heightString floatValue]);
+	else
+		self.creativeSize = _originalSize;
+	
 	// Create the autorefresh timer, which will be scheduled either when the ad appears,
 	// or if it fails to load.
 	NSString *refreshString = [headers objectForKey:@"X-Refreshtime"];
@@ -473,7 +483,7 @@
 - (void)connectionDidFinishLoading:(NSURLConnection *)connection
 {
 	// Generate a webview to contain the HTML.
-	UIWebView *webView = [[self makeAdWebViewWithFrame:(CGRect){{0, 0}, _originalSize}] retain];
+	UIWebView *webView = [[self makeAdWebViewWithFrame:(CGRect){{0, 0}, self.creativeSize}] retain];
 	webView.delegate = self;
 	[webView loadData:_data MIMEType:@"text/html" textEncodingName:@"utf-8" baseURL:self.URL];
 	
