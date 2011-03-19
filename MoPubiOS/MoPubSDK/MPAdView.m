@@ -15,6 +15,7 @@
 #import <time.h>
 
 @interface MPAdView (Internal)
+- (void)scheduleAutorefreshTimer;
 - (void)setScrollable:(BOOL)scrollable forView:(UIView *)view;
 - (UIWebView *)makeAdWebViewWithFrame:(CGRect)frame;
 - (void)adLinkClicked:(NSURL *)URL;
@@ -86,8 +87,10 @@
 	if ([_adContentView respondsToSelector:@selector(setDelegate:)])
 		[_adContentView performSelector:@selector(setDelegate:) withObject:nil];
 	[_adContentView release];
-	[_adapter unregisterDelegate];
-	[_adapter release];
+	[_currentAdapter unregisterDelegate];
+	[_currentAdapter release];
+	[_previousAdapter unregisterDelegate];
+	[_previousAdapter release];
 	[_adUnitId release];
 	[_conn cancel];
 	[_conn release];
@@ -206,19 +209,19 @@
 	if (_ignoresAutorefresh) 
 	{
 		MPLogInfo(@"Ad view (%p) is now ignoring autorefresh.", self);
-		if ([self.autorefreshTimer isValid]) [self.autorefreshTimer pause];
+		if ([self.autorefreshTimer isScheduled]) [self.autorefreshTimer pause];
 	}
 	else 
 	{
 		MPLogInfo(@"Ad view (%p) is no longer ignoring autorefresh.", self);
-		if ([self.autorefreshTimer isValid]) [self.autorefreshTimer resume];
+		if ([self.autorefreshTimer isScheduled]) [self.autorefreshTimer resume];
 	}
 }
 
 - (void)rotateToOrientation:(UIInterfaceOrientation)newOrientation
 {
 	// Pass along this notification to the adapter, so that it can handle the orientation change.
-	[_adapter rotateToOrientation:newOrientation];
+	[_currentAdapter rotateToOrientation:newOrientation];
 }
 
 - (void)loadAd
@@ -236,11 +239,6 @@
 {
 	// Cancel any existing request to the ad server.
 	[_conn cancel];
-	
-	// Release any adapter that may already be fetching an ad.
-	[_adapter unregisterDelegate];
-	[_adapter release];
-	_adapter = nil;
 	
 	_isLoading = NO;
 	[self.autorefreshTimer invalidate];
@@ -411,6 +409,11 @@
 	NSString *typeHeader = [[(NSHTTPURLResponse *)response allHeaderFields] 
 								objectForKey:@"X-Adtype"];
 	
+	// Dispose of the last adapter stored in _previousAdapter.
+	[_previousAdapter unregisterDelegate];
+	[_previousAdapter release];
+	_previousAdapter = nil;
+	
 	if (!typeHeader || [typeHeader isEqualToString:@"html"])
 	{
 		// HTML ad, so just return. connectionDidFinishLoading: will take care of the rest.
@@ -431,17 +434,15 @@
 	Class cls = NSClassFromString(classString);
 	if (cls != nil)
 	{
-		// Release previous adapter, since we don't load ads concurrently.
-		[_adapter unregisterDelegate];
-		[_adapter release];
-		
-		_adapter = (MPBaseAdapter *)[[cls alloc] initWithAdView:self];
+		// Create a new adapter and update _previousAdapter.
+		_previousAdapter = _currentAdapter;
+		_currentAdapter = (MPBaseAdapter *)[[cls alloc] initWithAdView:self];
 		
 		[connection cancel];
 		
 		// Tell adapter to fire off ad request.
 		NSDictionary *params = [(NSHTTPURLResponse *)response allHeaderFields];
-		[_adapter getAdWithParams:params];
+		[_currentAdapter getAdWithParams:params];
 	}
 	// Else: no adapter for the specified ad type, so just fail over.
 	else 
@@ -465,9 +466,7 @@
 	// If the initial request to MoPub fails, replace the current ad content with a blank.
 	_isLoading = NO;
 	[self backFillWithNothing];
-	
-	// Schedule autorefresh timer.
-	[self.autorefreshTimer scheduleNow];
+	[self scheduleAutorefreshTimer];
 }
 
 - (void)connectionDidFinishLoading:(NSURLConnection *)connection
@@ -508,8 +507,7 @@
 			// Previously retained in -connectionDidFinishLoading, so we have to release here.
 			[webView release];
 			
-			// Schedule autorefresh timer.
-			[self.autorefreshTimer scheduleNow];
+			[self scheduleAutorefreshTimer];
 			
 			// Notify delegate that an ad has been loaded.
 			if ([self.delegate respondsToSelector:@selector(adViewDidLoadAd:)]) 
@@ -562,24 +560,29 @@
 
 - (void)dismissBrowserController:(MPAdBrowserController *)browserController
 {
+	_adActionInProgress = NO;
 	[[self.delegate viewControllerForPresentingModalView] dismissModalViewControllerAnimated:YES];
 	
 	if ([self.delegate respondsToSelector:@selector(didDismissModalViewForAd:)])
 		[self.delegate didDismissModalViewForAd:self];
 	
-	[self.autorefreshTimer resume];
+	if (_autorefreshTimerNeedsScheduling)
+	{
+		[self.autorefreshTimer scheduleNow];
+		_autorefreshTimerNeedsScheduling = NO;
+	}
+	else if ([self.autorefreshTimer isScheduled])
+		[self.autorefreshTimer resume];
 }
 
 #pragma mark -
 #pragma mark MPAdapterDelegate
 
 - (void)adapterDidFinishLoadingAd:(MPBaseAdapter *)adapter
-{
+{	
 	_isLoading = NO;
 	[self trackImpression];
-	
-	// Schedule autorefresh timer.
-	[self.autorefreshTimer scheduleNow];
+	[self scheduleAutorefreshTimer];
 	
 	if ([self.delegate respondsToSelector:@selector(adViewDidLoadAd:)])
 		[self.delegate adViewDidLoadAd:self];
@@ -587,13 +590,16 @@
 
 - (void)adapter:(MPBaseAdapter *)adapter didFailToLoadAdWithError:(NSError *)error
 {
+	// Ignore fail messages from the previous adapter.
+	if (adapter == _previousAdapter) return;
+	
 	_isLoading = NO;
 	MPLogError(@"Adapter (%p) failed to load ad. Error: %@", adapter, error);
 	
 	// Dispose of the current adapter, because we don't want it to try loading again.
-	[_adapter unregisterDelegate];
-	[_adapter release];
-	_adapter = nil;
+	[_currentAdapter unregisterDelegate];
+	[_currentAdapter release];
+	_currentAdapter = nil;
 	
 	// Start a new request using the fall-back URL.
 	[self loadAdWithURL:self.failURL];
@@ -601,8 +607,11 @@
 
 - (void)userActionWillBeginForAdapter:(MPBaseAdapter *)adapter
 {
+	_adActionInProgress = YES;
 	[self trackClick];
-	[self.autorefreshTimer pause];
+	
+	if ([self.autorefreshTimer isScheduled])
+		[self.autorefreshTimer pause];
 	
 	// Notify delegate that the ad will present a modal view / disrupt the app.
 	if ([self.delegate respondsToSelector:@selector(willPresentModalViewForAd:)])
@@ -611,7 +620,15 @@
 
 - (void)userActionDidEndForAdapter:(MPBaseAdapter *)adapter
 {
-	[self.autorefreshTimer resume];
+	_adActionInProgress = NO;
+	
+	if (_autorefreshTimerNeedsScheduling)
+	{
+		[self.autorefreshTimer scheduleNow];
+		_autorefreshTimerNeedsScheduling = NO;
+	}
+	else if ([self.autorefreshTimer isScheduled])
+		[self.autorefreshTimer resume];
 	
 	// Notify delegate that the ad's modal view was dismissed, returning focus to the app.
 	if ([self.delegate respondsToSelector:@selector(didDismissModalViewForAd:)])
@@ -620,6 +637,16 @@
 
 #pragma mark -
 #pragma mark Internal
+
+- (void)scheduleAutorefreshTimer
+{
+	if (!_adActionInProgress) [self.autorefreshTimer scheduleNow];
+	else 
+	{
+		MPLogDebug(@"Ad action in progress: MPTimer will be scheduled after action ends.");
+		_autorefreshTimerNeedsScheduling = YES;
+	}
+}
 
 - (void)setScrollable:(BOOL)scrollable forView:(UIView *)view
 {
@@ -658,6 +685,8 @@
 
 - (void)adLinkClicked:(NSURL *)URL
 {
+	_adActionInProgress = YES;
+	
 	// Construct the URL that we want to load in the ad browser, using the click-tracking URL.
 	NSString *redirectURLString = [[URL absoluteString] URLEncodedString];	
 	NSURL *desiredURL = [NSURL URLWithString:[NSString stringWithFormat:@"%@&r=%@",

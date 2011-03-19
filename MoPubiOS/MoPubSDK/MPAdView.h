@@ -74,7 +74,13 @@ typedef enum
 	NSMutableData *_data;
 	
 	// Current adapter being used for serving native ads.
-	MPBaseAdapter *_adapter;
+	MPBaseAdapter *_currentAdapter;
+	
+	// Previous adapter.
+	MPBaseAdapter *_previousAdapter;
+	
+	// Whether the ad is currently in the middle of a user-triggered action.
+	BOOL _adActionInProgress;
 	
 	// Click-tracking URL.
 	NSURL *_clickURL;
@@ -106,8 +112,13 @@ typedef enum
 	// the MoPub web interface.
 	MPTimer *_autorefreshTimer;
 	
-	// Whether this ad view respects autorefresh values sent down from the server. If NO,
-	// the ad view will not create an autorefresh timer.
+	// Whether the autorefresh timer needs to be scheduled. Use case: during a user-triggered ad 
+	// action, we must postpone any attempted timer scheduling until the action ends. This flag 
+	// allows the "action-ended" callbacks to decide whether the timer needs to be re-scheduled.
+	BOOL _autorefreshTimerNeedsScheduling;
+	
+	// Whether this ad view ignores autorefresh values sent down from the server. If YES,
+	// the ad view will never create an autorefresh timer.
 	BOOL _ignoresAutorefresh;
 	
 	// Specifies the transition used for bringing an ad into view. You can specify an

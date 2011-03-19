@@ -9,6 +9,7 @@
 #import "iPadTestViewController.h"
 #import "MPAdView.h"
 #import "SmallViewController.h"
+#import "MPLogging.h"
 
 @implementation iPadTestViewController
 
@@ -34,12 +35,14 @@
 
 // Implement viewDidLoad to do additional setup after loading the view, typically from a nib.
 - (void)viewDidLoad {
+	MPLogSetLevel(MPLogLevelDebug);
+	
     [super viewDidLoad];
 
 	//self.view = [[UIView alloc] initWithFrame:CGRectMake(0.0, 100.0, 320.0, 50.0)];
 	self.view.backgroundColor = [UIColor greenColor];
 	
-	adView = [[MPAdView alloc] initWithAdUnitId:@"agltb3B1Yi1pbmNyDAsSBFNpdGUYucAcDA" size:MOPUB_BANNER_SIZE];
+	adView = [[MPAdView alloc] initWithAdUnitId:@"agltb3B1Yi1pbmNyDAsSBFNpdGUY1uYfDA" size:MOPUB_BANNER_SIZE];
 	adView.delegate = self;
 	
 	CGSize size = [adView adContentViewSize];
