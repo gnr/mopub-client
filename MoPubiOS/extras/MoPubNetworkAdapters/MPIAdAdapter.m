@@ -21,6 +21,7 @@
 
 - (void)getAdWithParams:(NSDictionary *)params
 {
+	[[UIDevice currentDevice] beginGeneratingDeviceOrientationNotifications];
 	Class cls = NSClassFromString(@"ADBannerView");
 	if (cls != nil) {
 		CGSize size = self.adView.bounds.size;
@@ -66,6 +67,7 @@
 		// iAd not supported in iOS versions before 4.0.
 		[self bannerView:nil didFailToReceiveAdWithError:nil];
 	}
+	[[UIDevice currentDevice] endGeneratingDeviceOrientationNotifications];
 }
 
 - (void)rotateToOrientation:(UIInterfaceOrientation)newOrientation

@@ -612,7 +612,10 @@
 	_currentAdapter = nil;
 	
 	// Start a new request using the fall-back URL.
-	[self loadAdWithURL:self.failURL];
+	if (!_adActionInProgress)
+		[self loadAdWithURL:self.failURL];
+	else
+		[self scheduleAutorefreshTimer];
 }
 
 - (void)userActionWillBeginForAdapter:(MPBaseAdapter *)adapter
@@ -707,7 +710,8 @@
 	if ([self.delegate respondsToSelector:@selector(willPresentModalViewForAd:)])
 		[self.delegate willPresentModalViewForAd:self];
 	
-	[self.autorefreshTimer pause];
+	if ([self.autorefreshTimer isScheduled])
+		[self.autorefreshTimer pause];
 	
 	// Present ad browser.
 	MPAdBrowserController *browserController = [[MPAdBrowserController alloc] initWithURL:desiredURL 
