@@ -28,7 +28,7 @@
 									selector:aSelector 
 									userInfo:userInfo 
 									 repeats:repeats];
-	return m;
+	return [m autorelease];
 }
 
 - (void)dealloc
@@ -49,6 +49,12 @@
 	[self.timer invalidate];
 }
 
+- (BOOL)isScheduled
+{
+	CFRunLoopRef runLoopRef = [[NSRunLoop currentRunLoop] getCFRunLoop];
+	return CFRunLoopContainsTimer(runLoopRef, (CFRunLoopTimerRef)self.timer, kCFRunLoopDefaultMode);
+}
+
 - (void)scheduleNow
 {
 	if (![self.timer isValid])
@@ -57,6 +63,7 @@
 		return;
 	}
 	
+	MPLogDebug(@"Scheduled MPTimer (%p).", self);
 	[[NSRunLoop currentRunLoop] addTimer:self.timer forMode:NSDefaultRunLoopMode];
 }
 
@@ -103,6 +110,10 @@
 	// Resume the timer.
 	NSDate *newFireDate = [NSDate dateWithTimeInterval:_secondsLeft sinceDate:[NSDate date]];
 	[self.timer setFireDate:newFireDate];
+	
+	if (![self isScheduled])
+		[[NSRunLoop currentRunLoop] addTimer:self.timer forMode:NSDefaultRunLoopMode];
+	
 	_isPaused = NO;
 }
 

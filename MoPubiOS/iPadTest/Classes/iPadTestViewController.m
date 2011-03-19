@@ -9,6 +9,7 @@
 #import "iPadTestViewController.h"
 #import "MPAdView.h"
 #import "SmallViewController.h"
+#import "MPLogging.h"
 
 @implementation iPadTestViewController
 
@@ -34,6 +35,8 @@
 
 // Implement viewDidLoad to do additional setup after loading the view, typically from a nib.
 - (void)viewDidLoad {
+	MPLogSetLevel(MPLogLevelDebug);
+	
     [super viewDidLoad];
 
 	//self.view = [[UIView alloc] initWithFrame:CGRectMake(0.0, 100.0, 320.0, 50.0)];

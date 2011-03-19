@@ -21,6 +21,7 @@
 
 - (BOOL)isValid;
 - (void)invalidate;
+- (BOOL)isScheduled;
 - (void)scheduleNow;
 - (void)pause;
 - (void)resume;
