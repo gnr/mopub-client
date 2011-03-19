@@ -45,20 +45,20 @@ import org.apache.http.impl.client.DefaultHttpClient;
 
 public class MoPubConversionTracker {
     private Context mContext;
-    private String mAppId;
+    private String mPackageName;
 
     static private String TRACK_HOST = "ads.mopub.com";
     static private String TRACK_HANDLER = "/m/open";
 
-    public void reportAppOpen(Context context, String appId) {
-        if (context == null || appId == null) {
+    public void reportAppOpen(Context context) {
+        if (context == null) {
             return;
         }
         mContext = context;
-        mAppId = appId;
+        mPackageName = mContext.getPackageName();
 
         SharedPreferences settings = mContext.getSharedPreferences("mopubSettings", 0);
-        if (settings.getBoolean(appId+" tracked", false) == false) {
+        if (settings.getBoolean(mPackageName+" tracked", false) == false) {
             new Thread(mTrackOpen).start();
         }
     }
@@ -66,7 +66,7 @@ public class MoPubConversionTracker {
     Runnable mTrackOpen = new Runnable() {
         public void run() {
             StringBuilder sz = new StringBuilder("http://"+TRACK_HOST+TRACK_HANDLER);
-            sz.append("?v=2&id=" + mAppId);
+            sz.append("?v=2&id=" + mPackageName);
             sz.append("&udid="+Secure.getString(mContext.getContentResolver(), Secure.ANDROID_ID));
             String url = sz.toString();
             Log.d("MoPub", "conversion track: "+url);
@@ -88,7 +88,7 @@ public class MoPubConversionTracker {
                 // If we made it here, the request has been tracked
                 SharedPreferences.Editor editor
                         = mContext.getSharedPreferences("mopubSettings", 0).edit();
-                editor.putBoolean(mAppId+" tracked", true).commit();
+                editor.putBoolean(mPackageName+" tracked", true).commit();
 
             } catch (Exception e) {
             }

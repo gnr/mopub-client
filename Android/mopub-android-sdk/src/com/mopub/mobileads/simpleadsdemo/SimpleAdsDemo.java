@@ -75,7 +75,7 @@ public class SimpleAdsDemo extends TabActivity {
         tabHost.addTab(spec);
 
         // Conversion tracking
-        new MoPubConversionTracker().reportAppOpen(this,"agltb3B1Yi1pbmNyDAsSBFNpdGUY2aQGDA");
+        new MoPubConversionTracker().reportAppOpen(this);
     }
 
     public void showInterstitialAd() {
