@@ -91,6 +91,38 @@
 	return self;
 }
 
+# pragma
+# pragma AdWhirlDelegates
+# pragma
+- (CLLocation *)locationInfo{
+	return [[[CLLocation alloc] initWithLatitude:10.0 longitude:10.0] autorelease];
+}
+
+- (NSString *)postalCode{
+	return @"94107";
+}
+- (NSString *)areaCode{
+	return @"650";
+}
+- (NSDate *)dateOfBirth{
+	return [NSDate dateWithTimeIntervalSince1970:520344000];
+}
+- (NSString *)gender{
+	return @"m";
+}; // user's gender (e.g. @"m" or @"f")
+- (NSString *)keywords{
+	return @"cookies,cream,chocolate,coffee";
+}; // keywords the user has provided or that are contextually relevant, e.g. @"twitter client iPhone"
+- (NSString *)searchString{
+	return @"this is what i am searching for";
+} // a search string the user has provided, e.g. @"Jasmine Tea House San Francisco"
+- (NSUInteger)incomeLevel{
+	return 5;
+}
+
+# pragma
+# pragma custom selector
+# pragma
 
 - (void)mopubLoadAd:(AdWhirlView *)awView {
 	// replace banner content
