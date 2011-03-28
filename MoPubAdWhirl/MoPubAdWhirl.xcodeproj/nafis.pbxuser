@@ -2,7 +2,7 @@
 {
 	1D3623240D0F684500981E51 /* MoPubAdWhirlAppDelegate.h */ = {
 		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {648, 404}}";
+			sepNavIntBoundsRect = "{{0, 0}, {648, 355}}";
 			sepNavSelRange = "{0, 0}";
 			sepNavVisRange = "{0, 496}";
 		};
@@ -22,16 +22,16 @@
 	};
 	28D7ACF60DDB3853001CB0EB /* MoPubAdWhirlViewController.h */ = {
 		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {648, 378}}";
+			sepNavIntBoundsRect = "{{0, 0}, {648, 355}}";
 			sepNavSelRange = "{487, 0}";
 			sepNavVisRange = "{0, 578}";
 		};
 	};
 	28D7ACF70DDB3853001CB0EB /* MoPubAdWhirlViewController.m */ = {
 		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {852, 1768}}";
-			sepNavSelRange = "{3076, 0}";
-			sepNavVisRange = "{2465, 905}";
+			sepNavIntBoundsRect = "{{0, 0}, {852, 1755}}";
+			sepNavSelRange = "{3170, 199}";
+			sepNavVisRange = "{2507, 871}";
 		};
 	};
 	29B97313FDCFA39411CA2CEA /* Project object */ = {
@@ -208,9 +208,9 @@
 	};
 	3C83BBE113355E0500C03382 /* AdWhirlConfig.m */ = {
 		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {719, 7241}}";
-			sepNavSelRange = "{6655, 0}";
-			sepNavVisRange = "{6000, 1232}";
+			sepNavIntBoundsRect = "{{0, 0}, {759, 7306}}";
+			sepNavSelRange = "{6513, 0}";
+			sepNavVisRange = "{6223, 570}";
 		};
 	};
 	3C83BBE813355E0500C03382 /* AdWhirlLog.h */ = {
@@ -313,9 +313,9 @@
 		path = "/Users/nafis/programs/mopub-client/MoPubAdWhirl/MoPubSDK/MPLogging.m";
 		sourceTree = "<absolute>";
 		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {648, 1300}}";
+			sepNavIntBoundsRect = "{{0, 0}, {648, 1287}}";
 			sepNavSelRange = "{194, 0}";
-			sepNavVisRange = "{0, 509}";
+			sepNavVisRange = "{554, 663}";
 		};
 	};
 	3C83BD7E1335679F00C03382 /* PBXTextBookmark */ = {

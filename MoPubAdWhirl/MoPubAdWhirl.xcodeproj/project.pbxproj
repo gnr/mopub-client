@@ -64,7 +64,7 @@
 		3CC0BB431340252B009BCBB2 /* MPLogging.m in Sources */ = {isa = PBXBuildFile; fileRef = 3CC0BB361340252B009BCBB2 /* MPLogging.m */; };
 		3CC0BB441340252B009BCBB2 /* MPStore.m in Sources */ = {isa = PBXBuildFile; fileRef = 3CC0BB381340252B009BCBB2 /* MPStore.m */; };
 		3CC0BB451340252B009BCBB2 /* MPTimer.m in Sources */ = {isa = PBXBuildFile; fileRef = 3CC0BB3A1340252B009BCBB2 /* MPTimer.m */; };
-		3CC0BB4A13402568009BCBB2 /* AdWhirlCustomEventAdapterMoPub.m in Sources */ = {isa = PBXBuildFile; fileRef = 3CC0BB4913402568009BCBB2 /* AdWhirlCustomEventAdapterMoPub.m */; };
+		3CC0BBC1134030A0009BCBB2 /* AdWhirlCustomEventAdapterMoPub.m in Sources */ = {isa = PBXBuildFile; fileRef = 3CC0BBC0134030A0009BCBB2 /* AdWhirlCustomEventAdapterMoPub.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -198,8 +198,8 @@
 		3CC0BB381340252B009BCBB2 /* MPStore.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPStore.m; sourceTree = "<group>"; };
 		3CC0BB391340252B009BCBB2 /* MPTimer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPTimer.h; sourceTree = "<group>"; };
 		3CC0BB3A1340252B009BCBB2 /* MPTimer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPTimer.m; sourceTree = "<group>"; };
-		3CC0BB4813402568009BCBB2 /* AdWhirlCustomEventAdapterMoPub.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AdWhirlCustomEventAdapterMoPub.h; sourceTree = "<group>"; };
-		3CC0BB4913402568009BCBB2 /* AdWhirlCustomEventAdapterMoPub.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AdWhirlCustomEventAdapterMoPub.m; sourceTree = "<group>"; };
+		3CC0BBBF134030A0009BCBB2 /* AdWhirlCustomEventAdapterMoPub.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AdWhirlCustomEventAdapterMoPub.h; path = MoPubAdWhirlAdapter/AdWhirlCustomEventAdapterMoPub.h; sourceTree = SOURCE_ROOT; };
+		3CC0BBC0134030A0009BCBB2 /* AdWhirlCustomEventAdapterMoPub.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = AdWhirlCustomEventAdapterMoPub.m; path = MoPubAdWhirlAdapter/AdWhirlCustomEventAdapterMoPub.m; sourceTree = SOURCE_ROOT; };
 		8D1107310486CEB800E47090 /* MoPubAdWhirl-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "MoPubAdWhirl-Info.plist"; plistStructureDefinitionIdentifier = "com.apple.xcode.plist.structure-definition.iphone.info-plist"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -229,8 +229,8 @@
 		080E96DDFE201D6D7F000001 /* Classes */ = {
 			isa = PBXGroup;
 			children = (
-				3CC0BB4813402568009BCBB2 /* AdWhirlCustomEventAdapterMoPub.h */,
-				3CC0BB4913402568009BCBB2 /* AdWhirlCustomEventAdapterMoPub.m */,
+				3CC0BBBF134030A0009BCBB2 /* AdWhirlCustomEventAdapterMoPub.h */,
+				3CC0BBC0134030A0009BCBB2 /* AdWhirlCustomEventAdapterMoPub.m */,
 				1D3623240D0F684500981E51 /* MoPubAdWhirlAppDelegate.h */,
 				1D3623250D0F684500981E51 /* MoPubAdWhirlAppDelegate.m */,
 				28D7ACF60DDB3853001CB0EB /* MoPubAdWhirlViewController.h */,
@@ -574,7 +574,7 @@
 				3CC0BB431340252B009BCBB2 /* MPLogging.m in Sources */,
 				3CC0BB441340252B009BCBB2 /* MPStore.m in Sources */,
 				3CC0BB451340252B009BCBB2 /* MPTimer.m in Sources */,
-				3CC0BB4A13402568009BCBB2 /* AdWhirlCustomEventAdapterMoPub.m in Sources */,
+				3CC0BBC1134030A0009BCBB2 /* AdWhirlCustomEventAdapterMoPub.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
