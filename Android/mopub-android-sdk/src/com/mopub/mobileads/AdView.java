@@ -39,6 +39,7 @@ import android.location.Location;
 import android.location.LocationManager;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Handler;
 import android.provider.Settings.Secure;
 import android.util.Log;
 import android.view.Gravity;
@@ -52,6 +53,7 @@ import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
+import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.params.BasicHttpParams;
@@ -72,6 +74,8 @@ public class AdView extends WebView {
     private String mRedirectUrl;
     private String mFailUrl;
     private Location mLocation;
+    private Boolean mIsLoading = false;
+    private long mRefreshTime = 0;
     private int mTimeout = -1; // HTTP connection timeout in msec
     private int mWidth;
     private int mHeight;
@@ -107,11 +111,19 @@ public class AdView extends WebView {
     // Android WebView doesn't let us get to the headers...
     @Override
     public void loadUrl(String url) {
-        mUrl = url;
-        if (mUrl.startsWith("javascript:")) {
-            super.loadUrl(mUrl);
+        if (url.startsWith("javascript:")) {
+            super.loadUrl(url);
+            return;
         }
 
+        // If this ad view is already loading a request, don't proceed; instead, wait
+        // for the previous load to finish.
+        if (mIsLoading) {
+            Log.i("MoPub", "Already loading an ad for "+mAdUnitId+", wait to finish.");
+            return;
+        }
+        mUrl = url;
+        mIsLoading = true;
         new LoadUrlTask().execute(mUrl);
     }
 
@@ -142,8 +154,11 @@ public class AdView extends WebView {
         DefaultHttpClient httpclient = new DefaultHttpClient(httpParameters);
         try {
             return httpclient.execute(httpget);
-        } catch (Exception e) {
-            // TODO: Handle this correctly
+        } catch (ClientProtocolException e) {
+            pageFailed();
+            return null;
+        } catch (IOException e) {
+            pageFailed();
             return null;
         }
     }
@@ -201,9 +216,20 @@ public class AdView extends WebView {
         if (wHeader != null && hHeader != null) {
             mWidth = Integer.parseInt(wHeader.getValue().trim());
             mHeight = Integer.parseInt(hHeader.getValue().trim());
-        } else {
+        }
+        else {
             mWidth = 0;
             mHeight = 0;
+        }
+
+        // Get the period for the autorefresh timer, which will be scheduled either when the ad
+        // appears, or if it fails to load.  Passed down as seconds, but stored as milliseconds.
+        Header rtHeader = mResponse.getFirstHeader("X-Refreshtime");
+        if (rtHeader != null) {
+            mRefreshTime = Long.valueOf(rtHeader.getValue()) * 1000;
+        }
+        else {
+            mRefreshTime = 0;
         }
 
         // Handle requests for native SDK ads
@@ -211,6 +237,7 @@ public class AdView extends WebView {
             Log.i("MoPub","Load AdSense ad");
             Header npHeader = mResponse.getFirstHeader("X-Nativeparams");
             if (npHeader != null) {
+                mIsLoading = false;
                 mMoPubView.loadAdSense(npHeader.getValue());
                 return;
             }
@@ -222,31 +249,33 @@ public class AdView extends WebView {
 
         mResponseString = null;
         StringBuilder sb = new StringBuilder();
+        InputStream is;
         try {
-            InputStream is = entity.getContent();
-
-            BufferedReader reader = new BufferedReader(new InputStreamReader(is));
-
-            String line;
-            try {
-                while ((line = reader.readLine()) != null) {
-                    sb.append(line + "\n");
-                }
-            } catch (IOException e) {
-                pageFailed();
-                return;
-            } finally {
-                try {
-                    is.close();
-                } catch (IOException e) {
-                    // TODO: Handle this correctly
-                }
-            }
-
-        } catch (Exception e) {
-            // TODO: Handle this correctly
+            is = entity.getContent();
+        } catch (IllegalStateException e1) {
             pageFailed();
             return;
+        } catch (IOException e1) {
+            pageFailed();
+            return;
+        }
+
+        BufferedReader reader = new BufferedReader(new InputStreamReader(is));
+
+        String line;
+        try {
+            while ((line = reader.readLine()) != null) {
+                sb.append(line + "\n");
+            }
+        } catch (IOException e) {
+            pageFailed();
+            return;
+        } finally {
+            try {
+                is.close();
+            } catch (IOException e) {
+                // Ignore since at this point we have the data we need
+            }
         }
         mResponseString = sb.toString();
         loadDataWithBaseURL("http://"+MoPubView.HOST+"/",
@@ -280,12 +309,13 @@ public class AdView extends WebView {
             try {
                 mLocation = lm.getLastKnownLocation(LocationManager.GPS_PROVIDER);
             } catch (SecurityException e) {
-                // TODO: Handle this correctly
+                // Ignore since access to location may be disabled
             }
             Location loc_network = null;
             try {
                 loc_network= lm.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
             } catch (SecurityException e) {
+                // Ignore since access to location may be disabled
             }
 
             if (mLocation == null) {
@@ -309,6 +339,7 @@ public class AdView extends WebView {
     }
 
     public void loadFailUrl() {
+        mIsLoading = false;
         if (mFailUrl != null) {
             Log.d("MoPub", "Loading failover url: "+mFailUrl);
             loadUrl(mFailUrl);
@@ -324,35 +355,76 @@ public class AdView extends WebView {
 
         new Thread(new Runnable() {
             public void run () {
+                DefaultHttpClient httpclient = new DefaultHttpClient();
+                HttpGet httpget = new HttpGet(mClickthroughUrl);
+                httpget.addHeader("User-Agent", getSettings().getUserAgentString());
                 try {
-                    DefaultHttpClient httpclient = new DefaultHttpClient();
-                    HttpGet httpget = new HttpGet(mClickthroughUrl);
-                    httpget.addHeader("User-Agent", getSettings().getUserAgentString());
                     httpclient.execute(httpget);
-                } catch (Exception e) {
+                } catch (ClientProtocolException e) {
+                    Log.i("MoPub", "Click tracking failed: "+mClickthroughUrl);
+                } catch (IOException e) {
+                    Log.i("MoPub", "Click tracking failed: "+mClickthroughUrl);
                 }
             }
         }).start();
     }
 
-    public void pageFinished() {
+    private void pageFinished() {
         Log.i("MoPub","pageFinished");
+        mIsLoading = false;
+        scheduleRefreshTimer();
         mMoPubView.removeAllViews();
         FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(
                 FrameLayout.LayoutParams.WRAP_CONTENT,
                 FrameLayout.LayoutParams.WRAP_CONTENT,
                 Gravity.CENTER);
         mMoPubView.addView(this, layoutParams);
+
         mMoPubView.adLoaded();
     }
 
-    public void pageFailed() {
+    private void pageFailed() {
         Log.i("MoPub", "pageFailed");
+        mIsLoading = false;
+        scheduleRefreshTimer();
         mMoPubView.adFailed();
     }
 
-    public void pageClosed() {
+    private void pageClosed() {
         mMoPubView.adClosed();
+    }
+
+    @Override
+    protected void onWindowVisibilityChanged(int visibility) {
+        if (visibility == VISIBLE) {
+            Log.d("MoPub","Ad Unit ("+mAdUnitId+") going visible: enabling refresh");
+            scheduleRefreshTimer();
+        }
+        else {
+            Log.d("MoPub","Ad Unit ("+mAdUnitId+") going invisible: disabling refresh");
+            cancelRefreshTimer();
+        }
+    }
+
+    private Handler mRefreshHandler = new Handler();
+    private Runnable mRefreshRunnable = new Runnable() {
+        public void run() {
+            loadAd();
+        }
+    };
+
+    private void scheduleRefreshTimer() {
+        // Cancel any previously scheduled refreshes.
+        cancelRefreshTimer();
+        if (mRefreshTime <= 0) {
+            return;
+        }
+
+        mRefreshHandler.postDelayed(mRefreshRunnable, mRefreshTime);
+    }
+
+    private void cancelRefreshTimer() {
+        mRefreshHandler.removeCallbacks(mRefreshRunnable);
     }
 
     // Getters and Setters
@@ -421,9 +493,6 @@ public class AdView extends WebView {
                 }
                 else if (url.equals("mopub://close")) {
                     ((AdView)view).pageClosed();
-                }
-                else if (url.equals("mopub://reload")) {
-                    ((AdView)view).reload();
                 }
                 else if (url.equals("mopub://failLoad")) {
                     ((AdView)view).loadFailUrl();
