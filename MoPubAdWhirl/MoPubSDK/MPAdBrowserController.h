@@ -24,22 +24,33 @@
 	NSURL *_URL;
 }
 
+@property (nonatomic,retain) IBOutlet UIWebView *webView;
+@property (nonatomic,retain) IBOutlet UIBarButtonItem *backButton;
+@property (nonatomic,retain) IBOutlet UIBarButtonItem *forwardButton;
+@property (nonatomic,retain) IBOutlet UIBarButtonItem *refreshButton;
+@property (nonatomic,retain) IBOutlet UIBarButtonItem *safariButton;
+@property (nonatomic,retain) IBOutlet UIBarButtonItem *doneButton;
+@property (nonatomic,retain) IBOutlet UIBarButtonItem *spinnerItem;
+
+
+@property (nonatomic, assign) id<MPAdBrowserControllerDelegate> delegate;
+@property (nonatomic, copy) NSURL *URL;
+
+
 - (id)initWithURL:(NSURL *)URL delegate:(id<MPAdBrowserControllerDelegate>)delegate;
 
 // Navigation methods.
-- (void)back;
-- (void)forward;
-- (void)refresh;
-- (void)safari;
-- (void)done;
+- (IBAction)back;
+- (IBAction)forward;
+- (IBAction)refresh;
+- (IBAction)safari;
+- (IBAction)done;
 
 // Drawing methods.
 - (CGContextRef)createContext;
 - (UIImage *)backArrowImage;
 - (UIImage *)forwardArrowImage;
 
-@property (nonatomic, assign) id<MPAdBrowserControllerDelegate> delegate;
-@property (nonatomic, copy) NSURL *URL;
 
 @end
 

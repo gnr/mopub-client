@@ -10,6 +10,15 @@
 #import "MPLogging.h"
 
 @implementation MPAdBrowserController
+
+@synthesize webView = _webView;
+@synthesize backButton = _backButton;
+@synthesize forwardButton = _forwardButton;
+@synthesize refreshButton = _refreshButton;
+@synthesize safariButton = _safariButton;
+@synthesize doneButton = _doneButton;
+@synthesize spinnerItem = _spinnerItem;
+
 @synthesize delegate = _delegate;
 @synthesize URL = _URL;
 
@@ -35,7 +44,7 @@ static NSArray *BROWSER_SCHEMES, *SPECIAL_HOSTS;
 
 - (id)initWithURL:(NSURL *)URL delegate:(id<MPAdBrowserControllerDelegate>)delegate
 {
-	if (self = [super init])
+	if (self = [super initWithNibName:@"MPAdBrowserController" bundle:nil])
 	{
 		_delegate = delegate;
 		_URL = [URL copy];
@@ -69,58 +78,16 @@ static NSArray *BROWSER_SCHEMES, *SPECIAL_HOSTS;
 	[super dealloc];
 }
 
-- (void)loadView 
-{
-	self.view = [[UIView alloc] initWithFrame:[[UIScreen mainScreen] applicationFrame]];
-	self.view.opaque = YES;
-	self.view.backgroundColor = [UIColor whiteColor];
-	CGFloat height = self.view.frame.size.height;
-	CGFloat width = self.view.frame.size.width;
-	
-	// Set up toolbar.
-	UIToolbar *toolbar = [[UIToolbar alloc] initWithFrame:CGRectZero];
-	toolbar.barStyle = UIBarStyleBlackTranslucent;
-	toolbar.autoresizingMask = UIViewAutoresizingFlexibleTopMargin | UIViewAutoresizingFlexibleWidth;
-	
-	_backButton = [[UIBarButtonItem alloc] initWithImage:[self backArrowImage]
-												   style:UIBarButtonItemStylePlain
-												  target:self
-												  action:@selector(back)];
-	_forwardButton = [[UIBarButtonItem alloc] initWithImage:[self forwardArrowImage]
-													  style:UIBarButtonItemStylePlain
-													 target:self
-													 action:@selector(forward)];
-	_refreshButton = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemRefresh 
-																   target:self 
-																   action:@selector(refresh)];
-	_safariButton = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAction
-																  target:self 
-																  action:@selector(safari)];	
-	_doneButton = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemDone 
-																target:self 
-																action:@selector(done)];
-	_spinnerItem = [[UIBarButtonItem alloc] initWithCustomView:_spinner];
-	
-	UIBarButtonItem *spacer = [[[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFlexibleSpace
-																			 target:nil
-																			 action:nil] autorelease];
-	NSArray *toolbarItems = [NSArray arrayWithObjects:
-							 _backButton, spacer,
-							 _forwardButton, spacer,
-							 _refreshButton, spacer,
-							 _safariButton, spacer,
-							 _spinnerItem, spacer,
-							 _doneButton, nil];
-	[toolbar setItems:toolbarItems animated:NO];
-	[toolbar sizeToFit];
-	toolbar.frame = CGRectMake(0, height - toolbar.frame.size.height,
-							   self.view.frame.size.width, toolbar.frame.size.height);
-	[self.view addSubview:toolbar];
-	[toolbar release];
-	
-	// Lay out webview.
-	_webView.frame = CGRectMake(0, 0, width, height - toolbar.frame.size.height);
-	[self.view addSubview:_webView];
+- (void)viewDidLoad{
+	[super viewDidLoad];
+
+	// Set up toolbar buttons
+	self.backButton.image = [self backArrowImage];
+	self.backButton.title = nil;
+	self.forwardButton.image = [self forwardArrowImage];
+	self.forwardButton.title = nil;
+	self.spinnerItem.customView = _spinner;	
+	self.spinnerItem.title = nil;
 }
 
 - (void)viewWillAppear:(BOOL)animated
@@ -140,31 +107,31 @@ static NSArray *BROWSER_SCHEMES, *SPECIAL_HOSTS;
 #pragma mark -
 #pragma mark Navigation
 
-- (void)refresh 
+- (IBAction)refresh 
 {
 	[_webView reload];
 }
 
-- (void)done 
+- (IBAction)done 
 {
 	[self.delegate dismissBrowserController:self];
 }
 
-- (void)back 
+- (IBAction)back 
 {
 	[_webView goBack];
 	_backButton.enabled = _webView.canGoBack;
 	_forwardButton.enabled = _webView.canGoForward;
 }
 
-- (void)forward 
+- (IBAction)forward 
 {
 	[_webView goForward];
 	_backButton.enabled = _webView.canGoBack;
 	_forwardButton.enabled = _webView.canGoForward;
 }
 
-- (void)safari
+- (IBAction)safari
 {
 	UIActionSheet *actionSheet = [[UIActionSheet alloc] initWithTitle:nil
 															 delegate:self 

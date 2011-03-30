@@ -23,6 +23,8 @@
 - (void)trackClick;
 - (void)trackImpression;
 - (NSDictionary *)dictionaryFromQueryString:(NSString *)query;
+- (void)applicationDidEnterBackground;
+- (void)applicationWillEnterForeground;
 @end
 
 @interface MPAdView ()
@@ -77,6 +79,16 @@
 		_store = [MPStore sharedStore];
 		_animationType = MPAdAnimationTypeNone;
 		_originalSize = size;
+		
+		// register as lister for events for going into and returning from background
+		[[NSNotificationCenter defaultCenter] addObserver:self 
+												 selector:@selector(applicationDidEnterBackground) 
+													 name:UIApplicationDidEnterBackgroundNotification 
+												   object:[UIApplication sharedApplication]];
+		[[NSNotificationCenter defaultCenter] addObserver:self 
+												 selector:@selector(applicationWillEnterForeground)
+													 name:UIApplicationWillEnterForegroundNotification 
+												   object:[UIApplication sharedApplication]];
     }
     return self;
 }
@@ -760,7 +772,23 @@
 	return [queryDict autorelease];
 }
 
+# pragma mark -
+# pragma UIApplicationNotification responders
+
+- (void)applicationDidEnterBackground
+{
+	[self.autorefreshTimer pause];
+}
+
+- (void)applicationWillEnterForeground
+{
+	[self forceRefreshAd];
+}
+
+
 @end
+
+
 
 #pragma mark -
 #pragma mark Categories

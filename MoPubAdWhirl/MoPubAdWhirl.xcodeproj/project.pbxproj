@@ -53,6 +53,7 @@
 		3C83BC621335600600C03382 /* libz.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 3C83BC611335600600C03382 /* libz.dylib */; };
 		3C83BC8D133561B000C03382 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3C83BC8C133561B000C03382 /* SystemConfiguration.framework */; };
 		3C83BCC6133562EC00C03382 /* StoreKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3C83BCC5133562EC00C03382 /* StoreKit.framework */; };
+		3CA225251343C70D0078FC88 /* MPAdBrowserController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 3CA225241343C70D0078FC88 /* MPAdBrowserController.xib */; };
 		3CC0BB3B1340252B009BCBB2 /* MPAdapterMap.m in Sources */ = {isa = PBXBuildFile; fileRef = 3CC0BB261340252B009BCBB2 /* MPAdapterMap.m */; };
 		3CC0BB3C1340252B009BCBB2 /* MPAdBrowserController.m in Sources */ = {isa = PBXBuildFile; fileRef = 3CC0BB281340252B009BCBB2 /* MPAdBrowserController.m */; };
 		3CC0BB3D1340252B009BCBB2 /* MPAdConversionTracker.m in Sources */ = {isa = PBXBuildFile; fileRef = 3CC0BB2A1340252B009BCBB2 /* MPAdConversionTracker.m */; };
@@ -176,6 +177,7 @@
 		3C83BC611335600600C03382 /* libz.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libz.dylib; path = usr/lib/libz.dylib; sourceTree = SDKROOT; };
 		3C83BC8C133561B000C03382 /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
 		3C83BCC5133562EC00C03382 /* StoreKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = StoreKit.framework; path = System/Library/Frameworks/StoreKit.framework; sourceTree = SDKROOT; };
+		3CA225241343C70D0078FC88 /* MPAdBrowserController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = MPAdBrowserController.xib; sourceTree = "<group>"; };
 		3CC0BB251340252B009BCBB2 /* MPAdapterMap.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPAdapterMap.h; sourceTree = "<group>"; };
 		3CC0BB261340252B009BCBB2 /* MPAdapterMap.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPAdapterMap.m; sourceTree = "<group>"; };
 		3CC0BB271340252B009BCBB2 /* MPAdBrowserController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPAdBrowserController.h; sourceTree = "<group>"; };
@@ -446,6 +448,7 @@
 			children = (
 				3CC0BB251340252B009BCBB2 /* MPAdapterMap.h */,
 				3CC0BB261340252B009BCBB2 /* MPAdapterMap.m */,
+				3CA225241343C70D0078FC88 /* MPAdBrowserController.xib */,
 				3CC0BB271340252B009BCBB2 /* MPAdBrowserController.h */,
 				3CC0BB281340252B009BCBB2 /* MPAdBrowserController.m */,
 				3CC0BB291340252B009BCBB2 /* MPAdConversionTracker.h */,
@@ -523,6 +526,7 @@
 				2899E5220DE3E06400AC0155 /* MoPubAdWhirlViewController.xib in Resources */,
 				3C83BC1313355E0500C03382 /* AdWhirlWebBrowser.xib in Resources */,
 				3CC0BB401340252B009BCBB2 /* MPCloseButtonX.png in Resources */,
+				3CA225251343C70D0078FC88 /* MPAdBrowserController.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

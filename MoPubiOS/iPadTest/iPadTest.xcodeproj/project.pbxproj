@@ -30,6 +30,7 @@
 		3C168D3913317C24002CF571 /* MPStore.m in Sources */ = {isa = PBXBuildFile; fileRef = 3C168D2D13317C24002CF571 /* MPStore.m */; };
 		3C168D3A13317C24002CF571 /* MPTimer.m in Sources */ = {isa = PBXBuildFile; fileRef = 3C168D2F13317C24002CF571 /* MPTimer.m */; };
 		3C168D4113317C2B002CF571 /* MPIAdAdapter.m in Sources */ = {isa = PBXBuildFile; fileRef = 3C168D3F13317C2B002CF571 /* MPIAdAdapter.m */; };
+		3CA2248B1343B21E0078FC88 /* MPAdBrowserController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 3CA2248A1343B21E0078FC88 /* MPAdBrowserController.xib */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -75,6 +76,7 @@
 		3C168D3D13317C2B002CF571 /* MPGoogleAdSenseAdapter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPGoogleAdSenseAdapter.m; sourceTree = "<group>"; };
 		3C168D3E13317C2B002CF571 /* MPIAdAdapter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPIAdAdapter.h; sourceTree = "<group>"; };
 		3C168D3F13317C2B002CF571 /* MPIAdAdapter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPIAdAdapter.m; sourceTree = "<group>"; };
+		3CA2248A1343B21E0078FC88 /* MPAdBrowserController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = MPAdBrowserController.xib; sourceTree = "<group>"; };
 		8D1107310486CEB800E47090 /* iPadTest-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "iPadTest-Info.plist"; plistStructureDefinitionIdentifier = "com.apple.xcode.plist.structure-definition.iphone.info-plist"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -165,6 +167,7 @@
 			children = (
 				3C168D1A13317C24002CF571 /* MPAdapterMap.h */,
 				3C168D1B13317C24002CF571 /* MPAdapterMap.m */,
+				3CA2248A1343B21E0078FC88 /* MPAdBrowserController.xib */,
 				3C168D1C13317C24002CF571 /* MPAdBrowserController.h */,
 				3C168D1D13317C24002CF571 /* MPAdBrowserController.m */,
 				3C168D1E13317C24002CF571 /* MPAdConversionTracker.h */,
@@ -254,6 +257,7 @@
 				28AD733F0D9D9553002E5188 /* MainWindow.xib in Resources */,
 				2899E5220DE3E06400AC0155 /* iPadTestViewController.xib in Resources */,
 				3C168D3513317C24002CF571 /* MPCloseButtonX.png in Resources */,
+				3CA2248B1343B21E0078FC88 /* MPAdBrowserController.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
