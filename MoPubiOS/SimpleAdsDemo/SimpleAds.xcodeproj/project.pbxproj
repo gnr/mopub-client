@@ -36,8 +36,7 @@
 		3C83C6651308146000CD306C /* MPStore.m in Sources */ = {isa = PBXBuildFile; fileRef = 3C83C65B1308146000CD306C /* MPStore.m */; };
 		3C83C7241308151700CD306C /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3C83C7231308151700CD306C /* CoreLocation.framework */; };
 		3C83C7451308184D00CD306C /* iAd.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3C83C7441308184D00CD306C /* iAd.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
-		3C8790E41344ED8600462D08 /* MPGoogleAdSenseAdapter.m in Sources */ = {isa = PBXBuildFile; fileRef = 3C8790E11344ED8600462D08 /* MPGoogleAdSenseAdapter.m */; };
-		3C8790E51344ED8600462D08 /* MPIAdAdapter.m in Sources */ = {isa = PBXBuildFile; fileRef = 3C8790E31344ED8600462D08 /* MPIAdAdapter.m */; };
+		3C8790E81344EF0800462D08 /* MPIAdAdapter.m in Sources */ = {isa = PBXBuildFile; fileRef = 3C8790E31344ED8600462D08 /* MPIAdAdapter.m */; };
 		3CA8587312FB85AC00967C3F /* square-mopub.png in Resources */ = {isa = PBXBuildFile; fileRef = 3CA8587212FB85AC00967C3F /* square-mopub.png */; };
 		3CA858E912FB8C1A00967C3F /* WelcomeViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 3CA858E712FB8C1A00967C3F /* WelcomeViewController.m */; };
 		3CA858EA12FB8C1A00967C3F /* WelcomeViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 3CA858E812FB8C1A00967C3F /* WelcomeViewController.xib */; };
@@ -435,8 +434,7 @@
 				3C83C6641308146000CD306C /* MPLogging.m in Sources */,
 				3C83C6651308146000CD306C /* MPStore.m in Sources */,
 				A8065E8B1326769E00C147DC /* MPTimer.m in Sources */,
-				3C8790E41344ED8600462D08 /* MPGoogleAdSenseAdapter.m in Sources */,
-				3C8790E51344ED8600462D08 /* MPIAdAdapter.m in Sources */,
+				3C8790E81344EF0800462D08 /* MPIAdAdapter.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
