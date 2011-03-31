@@ -36,6 +36,7 @@ import android.content.Context;
 import android.location.Location;
 import android.util.AttributeSet;
 import android.util.Log;
+import android.webkit.WebViewDatabase;
 import android.widget.FrameLayout;
 
 import org.apache.http.HttpResponse;
@@ -78,15 +79,33 @@ public class MoPubView extends FrameLayout {
     public MoPubView(Context context, AttributeSet attrs) {
         super(context, attrs);
 
+        // There is a rare bug in Froyo/2.2 where creation of a WebView causes a
+        // NullPointerException. (http://code.google.com/p/android/issues/detail?id=10789)
+        // It happens when the WebView can't access the local file store to make a cache file.
+        // Here, we'll work around it by trying to create a file store and then just go inert
+        // if it's not accessible.
+        if (WebViewDatabase.getInstance(context) == null) {
+            Log.e("MoPub", "Disabling MoPub. Local cache file is inaccessbile so MoPub will " +
+                "fail if we try to create a WebView. Details of this Android bug found at:" +
+                "http://code.google.com/p/android/issues/detail?id=10789");
+            return;
+        }
+
         // The AdView doesn't need to be in the view hierarchy until an ad is loaded
         mAdView = new AdView(context, this);
     }
 
     public void loadAd() {
+        if (mAdView == null) {
+            return;
+        }
         mAdView.loadAd();
     }
 
     public void loadFailUrl() {
+        if (mAdView == null) {
+            return;
+        }
         mAdView.loadFailUrl();
     }
 
@@ -129,48 +148,81 @@ public class MoPubView extends FrameLayout {
     }
 
     public void registerClick() {
+        if (mAdView == null) {
+            return;
+        }
         mAdView.registerClick();
     }
 
     // Getters and Setters
 
     public void setAdUnitId(String adUnitId) {
+        if (mAdView == null) {
+            return;
+        }
         mAdView.setAdUnitId(adUnitId);
     }
 
     public void setKeywords(String keywords) {
+        if (mAdView == null) {
+            return;
+        }
         mAdView.setKeywords(keywords);
     }
 
     public String getKeywords() {
+        if (mAdView == null) {
+            return null;
+        }
         return mAdView.getKeywords();
     }
 
     public void setLocation(Location location) {
+        if (mAdView == null) {
+            return;
+        }
         mAdView.setLocation(location);
     }
 
     public Location getLocation() {
+        if (mAdView == null) {
+            return null;
+        }
         return mAdView.getLocation();
     }
 
     public void setTimeout(int milliseconds) {
+        if (mAdView == null) {
+            return;
+        }
         mAdView.setTimeout(milliseconds);
     }
 
     public int getAdWidth() {
+        if (mAdView == null) {
+            return 0;
+        }
         return mAdView.getAdWidth();
     }
 
     public int getAdHeight() {
+        if (mAdView == null) {
+            return 0;
+        }
         return mAdView.getAdHeight();
     }
 
     public HttpResponse getResponse() {
+        if (mAdView == null) {
+            return null;
+        }
         return mAdView.getResponse();
     }
 
     public String getResponseString() {
+        if (mAdView == null) {
+            return null;
+        }
         return mAdView.getResponseString();
     }
 
