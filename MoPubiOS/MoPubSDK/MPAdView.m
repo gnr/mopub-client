@@ -81,14 +81,21 @@
 		_originalSize = size;
 		
 		// register as lister for events for going into and returning from background
-		[[NSNotificationCenter defaultCenter] addObserver:self 
-												 selector:@selector(applicationDidEnterBackground) 
-													 name:UIApplicationDidEnterBackgroundNotification 
-												   object:[UIApplication sharedApplication]];
-		[[NSNotificationCenter defaultCenter] addObserver:self 
-												 selector:@selector(applicationWillEnterForeground)
-													 name:UIApplicationWillEnterForegroundNotification 
-												   object:[UIApplication sharedApplication]];
+		// for iOS 4.0 +
+		if (&UIApplicationDidEnterBackgroundNotification != nil)
+		{
+			[[NSNotificationCenter defaultCenter] addObserver:self 
+													 selector:@selector(applicationDidEnterBackground) 
+														 name:UIApplicationDidEnterBackgroundNotification 
+													   object:[UIApplication sharedApplication]];
+		}		
+		if (&UIApplicationWillEnterForegroundNotification != nil)
+		{
+			[[NSNotificationCenter defaultCenter] addObserver:self 
+													 selector:@selector(applicationWillEnterForeground)
+														 name:UIApplicationWillEnterForegroundNotification 
+													   object:[UIApplication sharedApplication]];
+		}
     }
     return self;
 }

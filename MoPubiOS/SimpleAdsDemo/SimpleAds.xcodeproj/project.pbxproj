@@ -36,6 +36,8 @@
 		3C83C6651308146000CD306C /* MPStore.m in Sources */ = {isa = PBXBuildFile; fileRef = 3C83C65B1308146000CD306C /* MPStore.m */; };
 		3C83C7241308151700CD306C /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3C83C7231308151700CD306C /* CoreLocation.framework */; };
 		3C83C7451308184D00CD306C /* iAd.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3C83C7441308184D00CD306C /* iAd.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
+		3C8790E41344ED8600462D08 /* MPGoogleAdSenseAdapter.m in Sources */ = {isa = PBXBuildFile; fileRef = 3C8790E11344ED8600462D08 /* MPGoogleAdSenseAdapter.m */; };
+		3C8790E51344ED8600462D08 /* MPIAdAdapter.m in Sources */ = {isa = PBXBuildFile; fileRef = 3C8790E31344ED8600462D08 /* MPIAdAdapter.m */; };
 		3CA8587312FB85AC00967C3F /* square-mopub.png in Resources */ = {isa = PBXBuildFile; fileRef = 3CA8587212FB85AC00967C3F /* square-mopub.png */; };
 		3CA858E912FB8C1A00967C3F /* WelcomeViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 3CA858E712FB8C1A00967C3F /* WelcomeViewController.m */; };
 		3CA858EA12FB8C1A00967C3F /* WelcomeViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 3CA858E812FB8C1A00967C3F /* WelcomeViewController.xib */; };
@@ -106,6 +108,10 @@
 		3C83C65B1308146000CD306C /* MPStore.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPStore.m; sourceTree = "<group>"; };
 		3C83C7231308151700CD306C /* CoreLocation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreLocation.framework; path = System/Library/Frameworks/CoreLocation.framework; sourceTree = SDKROOT; };
 		3C83C7441308184D00CD306C /* iAd.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = iAd.framework; path = System/Library/Frameworks/iAd.framework; sourceTree = SDKROOT; };
+		3C8790E01344ED8600462D08 /* MPGoogleAdSenseAdapter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPGoogleAdSenseAdapter.h; sourceTree = "<group>"; };
+		3C8790E11344ED8600462D08 /* MPGoogleAdSenseAdapter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPGoogleAdSenseAdapter.m; sourceTree = "<group>"; };
+		3C8790E21344ED8600462D08 /* MPIAdAdapter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPIAdAdapter.h; sourceTree = "<group>"; };
+		3C8790E31344ED8600462D08 /* MPIAdAdapter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPIAdAdapter.m; sourceTree = "<group>"; };
 		3CA8587212FB85AC00967C3F /* square-mopub.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "square-mopub.png"; sourceTree = "<group>"; };
 		3CA858E612FB8C1A00967C3F /* WelcomeViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WelcomeViewController.h; sourceTree = "<group>"; };
 		3CA858E712FB8C1A00967C3F /* WelcomeViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WelcomeViewController.m; sourceTree = "<group>"; };
@@ -178,6 +184,7 @@
 		29B97314FDCFA39411CA2CEA /* CustomTemplate */ = {
 			isa = PBXGroup;
 			children = (
+				3C8790DF1344ED8600462D08 /* MoPubNetworkAdapters */,
 				3C83C6471308146000CD306C /* MoPubSDK */,
 				3C0638391305113500D7EB70 /* Libraries */,
 				080E96DDFE201D6D7F000001 /* Classes */,
@@ -318,6 +325,18 @@
 			path = ../MoPubSDK;
 			sourceTree = SOURCE_ROOT;
 		};
+		3C8790DF1344ED8600462D08 /* MoPubNetworkAdapters */ = {
+			isa = PBXGroup;
+			children = (
+				3C8790E01344ED8600462D08 /* MPGoogleAdSenseAdapter.h */,
+				3C8790E11344ED8600462D08 /* MPGoogleAdSenseAdapter.m */,
+				3C8790E21344ED8600462D08 /* MPIAdAdapter.h */,
+				3C8790E31344ED8600462D08 /* MPIAdAdapter.m */,
+			);
+			name = MoPubNetworkAdapters;
+			path = ../extras/MoPubNetworkAdapters;
+			sourceTree = SOURCE_ROOT;
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -416,6 +435,8 @@
 				3C83C6641308146000CD306C /* MPLogging.m in Sources */,
 				3C83C6651308146000CD306C /* MPStore.m in Sources */,
 				A8065E8B1326769E00C147DC /* MPTimer.m in Sources */,
+				3C8790E41344ED8600462D08 /* MPGoogleAdSenseAdapter.m in Sources */,
+				3C8790E51344ED8600462D08 /* MPIAdAdapter.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

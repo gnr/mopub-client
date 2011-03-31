@@ -317,7 +317,7 @@
 								<key>PBXProjectModuleGUID</key>
 								<string>1CE0B20306471E060097A5F4</string>
 								<key>PBXProjectModuleLabel</key>
-								<string>MPAdBrowserController.m</string>
+								<string>MPAdView.m</string>
 								<key>PBXSplitModuleInNavigatorKey</key>
 								<dict>
 									<key>Split0</key>
@@ -325,11 +325,11 @@
 										<key>PBXProjectModuleGUID</key>
 										<string>1CE0B20406471E060097A5F4</string>
 										<key>PBXProjectModuleLabel</key>
-										<string>MPAdBrowserController.m</string>
+										<string>MPAdView.m</string>
 										<key>_historyCapacity</key>
 										<integer>0</integer>
 										<key>bookmark</key>
-										<string>3CA2254D1343C8100078FC88</string>
+										<string>3CA225501343CB820078FC88</string>
 										<key>history</key>
 										<array>
 											<string>3CC73D231331D618002BF214</string>
@@ -348,8 +348,6 @@
 											<string>3CA2248D1343B2230078FC88</string>
 											<string>3CA224941343B4A80078FC88</string>
 											<string>3CA224951343B4A80078FC88</string>
-											<string>3CA224A81343B52A0078FC88</string>
-											<string>3CA224B41343C39C0078FC88</string>
 										</array>
 									</dict>
 									<key>SplitCount</key>
