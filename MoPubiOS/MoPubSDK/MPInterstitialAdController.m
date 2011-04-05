@@ -111,6 +111,7 @@
 	// Typically, we don't set an autoresizing mask for MPAdView, but in this case we always
 	// want it to occupy the full screen.
 	_adView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+	_adView.stretchesWebContentToFill = YES;
 	_adView.delegate = self;
 	[self.view addSubview:_adView];
 	
