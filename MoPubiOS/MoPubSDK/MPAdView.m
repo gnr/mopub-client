@@ -10,6 +10,7 @@
 #import "MPBaseAdapter.h"
 #import "MPAdapterMap.h"
 #import "MPTimer.h"
+#import "CJSONDeserializer.h"
 #import <CommonCrypto/CommonDigest.h>
 #import <stdlib.h>
 #import <time.h>
@@ -25,6 +26,8 @@
 - (NSDictionary *)dictionaryFromQueryString:(NSString *)query;
 - (void)applicationDidEnterBackground;
 - (void)applicationWillEnterForeground;
+- (void)customLinkClickedForSelectorString:(NSString *)selectorString 
+							withDataString:(NSString *)dataString;
 @end
 
 @interface MPAdView ()
@@ -556,10 +559,18 @@
 		}
 		else if ([host isEqualToString:@"inapp"])
 		{
+			[self trackClick];
 			NSDictionary *queryDict = [self dictionaryFromQueryString:[URL query]];
 			[_store initiatePurchaseForProductIdentifier:[queryDict objectForKey:@"id"] 
 												quantity:[[queryDict objectForKey:@"num"] intValue]];
 		}
+		else if ([host isEqualToString:@"custom"]){
+			[self trackClick];
+			NSDictionary *queryDict = [self dictionaryFromQueryString:[URL query]];
+			[self customLinkClickedForSelectorString:[queryDict objectForKey:@"fnc"]
+									  withDataString:[queryDict objectForKey:@"data"]];
+		}
+
 		
 		return NO;
 	}
@@ -780,6 +791,46 @@
 	}
 	return [queryDict autorelease];
 }
+
+- (void)customLinkClickedForSelectorString:(NSString *)selectorString 
+							withDataString:(NSString *)dataString{
+
+	if (!selectorString)
+	{
+		MPLogError(@"Custom selector requested, but no custom selector string was provided.",
+				   selectorString);
+	}
+	
+	SEL selector = NSSelectorFromString(selectorString);
+	
+	// First, try calling the no-object selector.
+	if ([self.delegate respondsToSelector:selector])
+	{
+		[self.delegate performSelector:selector];
+	}
+	// Then, try calling the selector passing in the ad view.
+	else 
+	{
+		NSString *selectorWithObjectString = [NSString stringWithFormat:@"%@:", selectorString];
+		SEL selectorWithObject = NSSelectorFromString(selectorWithObjectString);
+		
+		if ([self.delegate respondsToSelector:selectorWithObject])
+		{
+			NSData *data = [dataString dataUsingEncoding:NSUTF8StringEncoding];
+			NSDictionary *dataDictionary = [[CJSONDeserializer deserializer] deserializeAsDictionary:data
+																							   error:NULL];
+			[self.delegate performSelector:selectorWithObject withObject:dataDictionary];
+		}
+		else
+		{
+			MPLogError(@"Ad view delegate does not implement custom selectors %@ or %@.",
+					   selectorString,
+					   selectorWithObjectString);
+		}
+	}
+	
+}
+
 
 # pragma mark -
 # pragma UIApplicationNotification responders
