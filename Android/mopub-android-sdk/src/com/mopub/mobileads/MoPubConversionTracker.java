@@ -40,8 +40,11 @@ import android.util.Log;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
+import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
+
+import java.io.IOException;
 
 public class MoPubConversionTracker {
     private Context mContext;
@@ -60,6 +63,8 @@ public class MoPubConversionTracker {
         SharedPreferences settings = mContext.getSharedPreferences("mopubSettings", 0);
         if (settings.getBoolean(mPackageName+" tracked", false) == false) {
             new Thread(mTrackOpen).start();
+        } else {
+            Log.d("MoPub", "Conversion already tracked");
         }
     }
 
@@ -69,29 +74,39 @@ public class MoPubConversionTracker {
             sz.append("?v=2&id=" + mPackageName);
             sz.append("&udid="+Secure.getString(mContext.getContentResolver(), Secure.ANDROID_ID));
             String url = sz.toString();
-            Log.d("MoPub", "conversion track: "+url);
+            Log.d("MoPub", "Conversion track: "+url);
 
+            DefaultHttpClient httpclient = new DefaultHttpClient();
+            HttpGet httpget = new HttpGet(url);
+            HttpResponse response;
             try {
-                DefaultHttpClient httpclient = new DefaultHttpClient();
-                HttpGet httpget = new HttpGet(url);
-                HttpResponse response = httpclient.execute(httpget);
-
-                if (response.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
-                    return;
-                }
-
-                HttpEntity entity = response.getEntity();
-                if (entity == null || entity.getContentLength() == 0) {
-                    return;
-                }
-
-                // If we made it here, the request has been tracked
-                SharedPreferences.Editor editor
-                        = mContext.getSharedPreferences("mopubSettings", 0).edit();
-                editor.putBoolean(mPackageName+" tracked", true).commit();
-
-            } catch (Exception e) {
+                response = httpclient.execute(httpget);
+            } catch (ClientProtocolException e) {
+                // Just fail silently. We'll try the next time the app opens
+                Log.d("MoPub", "Conversion track failed: ClientProtocolException (no signal?)");
+                return;
+            } catch (IOException e) {
+                // Just fail silently. We'll try the next time the app opens
+                Log.d("MoPub", "Conversion track failed: IOException (no signal?)");
+                return;
             }
+
+            if (response.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
+                Log.d("MoPub", "Conversion track failed: Status code != 200");
+                return;
+            }
+
+            HttpEntity entity = response.getEntity();
+            if (entity == null || entity.getContentLength() == 0) {
+                Log.d("MoPub", "Conversion track failed: Response was empty");
+                return;
+            }
+
+            // If we made it here, the request has been tracked
+            Log.d("MoPub", "Conversion track successful");
+            SharedPreferences.Editor editor
+                    = mContext.getSharedPreferences("mopubSettings", 0).edit();
+            editor.putBoolean(mPackageName+" tracked", true).commit();
         }
     };
 }
