@@ -103,6 +103,15 @@
 - (void)dealloc 
 {
 	_delegate = nil;
+	
+	// Remove self as the observer for various notifications
+	[[NSNotificationCenter defaultCenter] removeObserver:self 
+													name:UIApplicationWillEnterForegroundNotification 
+												  object:[UIApplication sharedApplication]];
+	[[NSNotificationCenter defaultCenter] removeObserver:self 
+													name:UIApplicationDidEnterBackgroundNotification 
+												  object:[UIApplication sharedApplication]];
+	
 	// If our content is a webview or otherwise has a delegate, set its delegate to nil.
 	if ([_adContentView respondsToSelector:@selector(setDelegate:)])
 		[_adContentView performSelector:@selector(setDelegate:) withObject:nil];
