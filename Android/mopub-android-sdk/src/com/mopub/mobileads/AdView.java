@@ -83,6 +83,7 @@ public class AdView extends WebView {
     private MoPubView mMoPubView;
     private HttpResponse mResponse;
     private String mResponseString;
+    private AsyncTask<String, Void, HttpResponse> mLoadUrlTask;
 
     public AdView(Context context, MoPubView view) {
         super(context);
@@ -106,6 +107,13 @@ public class AdView extends WebView {
         setWebViewClient(new AdWebViewClient());
     }
 
+    @Override
+    public void destroy() {
+        Log.i("MoPub", "Called destroy() on MoPubView: "+mAdUnitId);
+        mLoadUrlTask.cancel(true);
+        super.destroy();
+    }
+
     // Have to override loadUrl() in order to get the headers, which
     // MoPub uses to pass control information to the client.  Unfortunately
     // Android WebView doesn't let us get to the headers...
@@ -124,7 +132,7 @@ public class AdView extends WebView {
         }
         mUrl = url;
         mIsLoading = true;
-        new LoadUrlTask().execute(mUrl);
+        mLoadUrlTask = new LoadUrlTask().execute(mUrl);
     }
 
     private class LoadUrlTask extends AsyncTask<String, Void, HttpResponse> {
