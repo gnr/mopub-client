@@ -226,6 +226,14 @@ public class MoPubView extends FrameLayout {
         return mAdView.getResponseString();
     }
 
+    public void destroy() {
+        if (mAdView == null) {
+            return;
+        }
+        mAdView.destroy();
+        mAdView = null;
+    }
+
     public void adWillLoad(String url) {
         Log.d("MoPub", "adWillLoad: "+url);
         if (mOnAdWillLoadListener != null) {
