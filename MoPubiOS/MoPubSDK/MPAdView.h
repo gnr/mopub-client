@@ -110,10 +110,13 @@ typedef enum
 	// Whether this ad view is currently loading an ad.
 	BOOL _isLoading;
 	
-	// Timer that sends a -refresh message upon firing, with a time interval handed
+	// Timer that sends a -forceRefreshAd message upon firing, with a time interval handed
 	// down from the server. You can set the desired interval for any ad unit using 
 	// the MoPub web interface.
 	MPTimer *_autorefreshTimer;
+	
+	// Used as the target object for the MPTimer, in order to avoid a retain cycle (see MPTimer.h).
+	MPTimerTarget *_timerTarget;
 	
 	// Whether the autorefresh timer needs to be scheduled. Use case: during a user-triggered ad 
 	// action, we must postpone any attempted timer scheduling until the action ends. This flag 

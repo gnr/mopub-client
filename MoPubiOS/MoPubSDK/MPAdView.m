@@ -37,6 +37,8 @@
 @property (nonatomic, retain) MPTimer *autorefreshTimer;
 @end
 
+static NSString * const kTimerNotificationName = @"Autorefresh";
+
 @implementation MPAdView
 
 @synthesize delegate = _delegate;
@@ -80,8 +82,7 @@
 		_animationType = MPAdAnimationTypeNone;
 		_originalSize = size;
 		
-		// register as lister for events for going into and returning from background
-		// for iOS 4.0 +
+		// iOS version > 4.0: Register for relevant application state transition notifications.
 		if (&UIApplicationDidEnterBackgroundNotification != nil)
 		{
 			[[NSNotificationCenter defaultCenter] addObserver:self 
@@ -96,6 +97,12 @@
 														 name:UIApplicationWillEnterForegroundNotification 
 													   object:[UIApplication sharedApplication]];
 		}
+		
+		_timerTarget = [[MPTimerTarget alloc] initWithNotificationName:kTimerNotificationName];
+		[[NSNotificationCenter defaultCenter] addObserver:self
+												 selector:@selector(forceRefreshAd)
+													 name:kTimerNotificationName
+												   object:_timerTarget];
     }
     return self;
 }
@@ -126,6 +133,7 @@
 	[_location release];
 	[_autorefreshTimer invalidate];
 	[_autorefreshTimer release];
+	[_timerTarget release];
     [super dealloc];
 }
 
@@ -426,8 +434,8 @@
 		NSTimeInterval interval = [refreshString doubleValue];
 		interval = (interval >= MINIMUM_REFRESH_INTERVAL) ? interval : MINIMUM_REFRESH_INTERVAL;
 		self.autorefreshTimer = [MPTimer timerWithTimeInterval:interval
-														target:self 
-													  selector:@selector(forceRefreshAd) 
+														target:_timerTarget 
+													  selector:@selector(postNotification) 
 													  userInfo:nil 
 													   repeats:NO];
 	}

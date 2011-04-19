@@ -118,3 +118,39 @@
 }
 
 @end
+
+@interface MPTimerTarget ()
+- (void)postNotification;
+@end
+
+@implementation MPTimerTarget
+
+- (id)initWithNotificationName:(NSString *)name
+{
+	if (self = [super init])
+	{
+		_notificationName = [name copy];
+	}
+	return self;
+}
+
+- (void)dealloc
+{
+	[_notificationName release];
+	[super dealloc];
+}
+
+- (void)postNotification
+{
+	if (!_notificationName)
+	{
+		MPLogWarn(@"MPTimerTarget (%p) can't post notification without a notification name.", self);
+		return;
+	}
+	
+	[[NSNotificationCenter defaultCenter] postNotification:
+	 [NSNotification notificationWithName:_notificationName object:self]];
+}
+
+@end
+
