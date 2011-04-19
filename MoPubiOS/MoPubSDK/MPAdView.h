@@ -28,6 +28,8 @@ typedef enum
 } MPAdAnimationType;
 
 @protocol MPAdViewDelegate;
+@class MPTimer;
+@class MPTimerTarget;
 
 @interface NSString (MPAdditions)
 
