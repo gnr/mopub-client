@@ -229,7 +229,7 @@ static NSString * const kTimerNotificationName = @"Autorefresh";
 
 - (CGSize)adContentViewSize
 {
-	return (!_adContentView) ? MOPUB_BANNER_SIZE : _adContentView.bounds.size;
+	return (!_adContentView) ? _originalSize : _adContentView.bounds.size;
 }
 
 - (void)setIgnoresAutorefresh:(BOOL)ignoresAutorefresh
