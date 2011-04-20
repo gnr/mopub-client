@@ -81,6 +81,9 @@ typedef enum
 	// Previous adapter.
 	MPBaseAdapter *_previousAdapter;
 	
+	// Pool of webviews being used as HTML ads.
+	NSMutableSet *_webviewPool;
+	
 	// Whether the ad is currently in the middle of a user-triggered action.
 	BOOL _adActionInProgress;
 	

@@ -84,6 +84,7 @@ static NSString * const kTimerNotificationName = @"Autorefresh";
 		_store = [MPStore sharedStore];
 		_animationType = MPAdAnimationTypeNone;
 		_originalSize = size;
+		_webviewPool = [[NSMutableSet set] retain];
 		
 		// iOS version > 4.0: Register for relevant application state transition notifications.
 		if (&UIApplicationDidEnterBackgroundNotification != nil)
@@ -113,12 +114,20 @@ static NSString * const kTimerNotificationName = @"Autorefresh";
 - (void)dealloc 
 {
 	_delegate = nil;
-	
 	[[NSNotificationCenter defaultCenter] removeObserver:self];	
-	// If our content is a webview or otherwise has a delegate, set its delegate to nil.
+	
+	// If our content has a delegate, set its delegate to nil.
 	if ([_adContentView respondsToSelector:@selector(setDelegate:)])
 		[_adContentView performSelector:@selector(setDelegate:) withObject:nil];
 	[_adContentView release];
+	
+	for (UIWebView *webview in _webviewPool)
+	{
+		[webview setDelegate:nil];
+		[webview stopLoading];
+	}
+	[_webviewPool release];
+	
 	[_currentAdapter unregisterDelegate];
 	[_currentAdapter release];
 	[_previousAdapter unregisterDelegate];
@@ -220,8 +229,18 @@ static NSString * const kTimerNotificationName = @"Autorefresh";
 	
 	// Remove the old _adContentView from the view hierarchy, but first confirm that it's
 	// not the same as view; otherwise, we'll be left with no content view.
-	if (view != _adContentView)
+	if (_adContentView != view)
+	{
 		[_adContentView removeFromSuperview];
+		
+		// Additionally, do webview-related cleanup if the old _adContentView was a webview.
+		if ([_adContentView isKindOfClass:[UIWebView class]])
+		{
+			[(UIWebView *)_adContentView setDelegate:nil];
+			[(UIWebView *)_adContentView stopLoading];
+			[_webviewPool removeObject:_adContentView];
+		}
+	}
 	
 	// Release _adContentView regardless of whether it was the same as view, since 
 	// -setAdContentView: retained it.
@@ -513,10 +532,11 @@ static NSString * const kTimerNotificationName = @"Autorefresh";
 
 - (void)connectionDidFinishLoading:(NSURLConnection *)connection
 {
-	// Generate a webview to contain the HTML.
-	UIWebView *webView = [[self makeAdWebViewWithFrame:(CGRect){{0, 0}, self.creativeSize}] retain];
-	webView.delegate = self;
-	[webView loadData:_data MIMEType:@"text/html" textEncodingName:@"utf-8" baseURL:self.URL];
+	// Generate a new webview to contain the HTML and add it to the webview pool.
+	UIWebView *webview = [self makeAdWebViewWithFrame:(CGRect){{0, 0}, self.creativeSize}];
+	webview.delegate = self;
+	[_webviewPool addObject:webview];
+	[webview loadData:_data MIMEType:@"text/html" textEncodingName:@"utf-8" baseURL:self.URL];
 	
 	// Print out the response, for debugging.
 	NSString *response = [[NSString alloc] initWithData:_data encoding:NSUTF8StringEncoding];
@@ -545,10 +565,6 @@ static NSString * const kTimerNotificationName = @"Autorefresh";
 			_isLoading = NO;
 			
 			[self setAdContentView:webView];
-			
-			// Previously retained in -connectionDidFinishLoading, so we have to release here.
-			[webView release];
-			
 			[self scheduleAutorefreshTimer];
 			
 			// Notify delegate that an ad has been loaded.
@@ -559,8 +575,10 @@ static NSString * const kTimerNotificationName = @"Autorefresh";
 		{
 			_isLoading = NO;
 			
-			// Previously retained in -connectionDidFinishLoading, so we have to release here.
-			[webView release];
+			// Deallocate this webview by removing it from the pool.
+			webView.delegate = nil;
+			[webView stopLoading];
+			[_webviewPool removeObject:webView];
 			
 			// Start a new request using the fall-back URL.
 			[self loadAdWithURL:self.failURL];
@@ -579,7 +597,6 @@ static NSString * const kTimerNotificationName = @"Autorefresh";
 									  withDataString:[queryDict objectForKey:@"data"]];
 		}
 
-		
 		return NO;
 	}
 	
@@ -732,7 +749,6 @@ static NSString * const kTimerNotificationName = @"Autorefresh";
 		webView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
 	webView.backgroundColor = [UIColor clearColor];
 	webView.opaque = NO;
-	webView.delegate = self;
 	return [webView autorelease];
 }
 
