@@ -8,7 +8,11 @@
 
 #import "MPLogging.h"
 
+#ifdef DEBUG
 static MPLogLevel MPLOG_LEVEL = MPLogLevelInfo;
+#else
+static MPLogLevel MPLOG_LEVEL = MPLogLevelError;
+#endif
 
 void MPLogSetLevel(MPLogLevel level)
 {
