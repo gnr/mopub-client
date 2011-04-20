@@ -21,7 +21,6 @@
 
 - (void)getAdWithParams:(NSDictionary *)params
 {
-	[[UIDevice currentDevice] beginGeneratingDeviceOrientationNotifications];
 	Class cls = NSClassFromString(@"ADBannerView");
 	if (cls != nil) {
 		CGSize size = self.adView.bounds.size;
@@ -33,7 +32,8 @@
 		}
 		
 		_adBannerView = [[cls alloc] initWithFrame:(CGRect){{0, 0}, size}];
-		
+
+		UIInterfaceOrientation currentOrientation = [UIApplication sharedApplication].statusBarOrientation;
 		// iOS 4.2:
 		if (&ADBannerContentSizeIdentifierPortrait != nil)
 		{
@@ -41,7 +41,7 @@
 															ADBannerContentSizeIdentifierPortrait, 
 															ADBannerContentSizeIdentifierLandscape, 
 															nil];
-			if (UIInterfaceOrientationIsLandscape([UIDevice currentDevice].orientation))
+			if (UIInterfaceOrientationIsLandscape(currentOrientation))
 				_adBannerView.currentContentSizeIdentifier = ADBannerContentSizeIdentifierLandscape;
 			else
 				_adBannerView.currentContentSizeIdentifier = ADBannerContentSizeIdentifierPortrait;
@@ -53,7 +53,7 @@
 															ADBannerContentSizeIdentifier320x50, 
 															ADBannerContentSizeIdentifier480x32, 
 															nil];
-			if (UIInterfaceOrientationIsLandscape([UIDevice currentDevice].orientation))
+			if (UIInterfaceOrientationIsLandscape(currentOrientation))
 				_adBannerView.currentContentSizeIdentifier = ADBannerContentSizeIdentifier480x32;
 			else
 				_adBannerView.currentContentSizeIdentifier = ADBannerContentSizeIdentifier320x50;
@@ -67,7 +67,6 @@
 		// iAd not supported in iOS versions before 4.0.
 		[self bannerView:nil didFailToReceiveAdWithError:nil];
 	}
-	[[UIDevice currentDevice] endGeneratingDeviceOrientationNotifications];
 }
 
 - (void)rotateToOrientation:(UIInterfaceOrientation)newOrientation
