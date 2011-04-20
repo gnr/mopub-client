@@ -149,6 +149,10 @@ public class AdView extends WebView {
             HttpConnectionParams.setSoTimeout(httpParameters, timeoutSocket);
         }
 
+        // Set the buffer size to avoid OutOfMemoryError exceptions on certain HTC devices.
+        // http://stackoverflow.com/questions/5358014/android-httpclient-oom-on-4g-lte-htc-thunderbolt
+        HttpConnectionParams.setSocketBufferSize(httpParameters, 8192);
+
         HttpGet httpget = new HttpGet(url);
         httpget.addHeader("User-Agent", getSettings().getUserAgentString());
         DefaultHttpClient httpclient = new DefaultHttpClient(httpParameters);
