@@ -508,6 +508,15 @@ static NSString * const kTimerNotificationName = @"Autorefresh";
 	// If the initial request to MoPub fails, replace the current ad content with a blank.
 	_isLoading = NO;
 	[self backFillWithNothing];
+	
+	if(self.autorefreshTimer == nil) {
+		self.autorefreshTimer = [MPTimer timerWithTimeInterval:60.0f
+														target:_timerTarget 
+													  selector:@selector(postNotification) 
+													  userInfo:nil 
+													   repeats:NO];		
+	}
+	
 	[self scheduleAutorefreshTimer];
 }
 
