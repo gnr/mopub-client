@@ -866,7 +866,9 @@ static NSString * const kTimerNotificationName = @"Autorefresh";
 
 - (void)applicationWillEnterForeground
 {
-	[self forceRefreshAd];
+	if(_ignoresAutorefresh == NO) {
+		[self forceRefreshAd];
+	}
 }
 
 
