@@ -33,6 +33,9 @@ static MPAdapterMap *sharedAdapterMap = nil;
 				 @"MPGoogleAdMobAdapter", @"admob_native",
 				 @"MPMillennialAdapter", @"millennial_native",
 				 @"MPCustomEventAdapter", @"custom",
+				 @"MPAdMobInterstitialAdapter", @"admob",
+				 @"MPMillennialInterstitialAdapter", @"millennial",
+				 @"MPInterstitialAdapter", @"interstitial",
 				 nil] retain];
 	}
 	return self;

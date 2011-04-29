@@ -7,6 +7,8 @@
 //
 
 #import "MPInterstitialAdController.h"
+#import "MPBaseInterstitialAdapter.h"
+#import "MPAdapterMap.h"
 
 static const CGFloat kCloseButtonPadding				= 6.0;
 static NSString * const kCloseButtonXImageName			= @"MPCloseButtonX.png";
@@ -27,7 +29,9 @@ static NSString * const kOrientationBoth				= @"b";
 
 @interface MPInterstitialAdController ()
 @property (nonatomic, retain) UIButton *closeButton;
+@property (nonatomic, retain) MPBaseInterstitialAdapter *currentAdapter;
 @end
+
 
 @implementation MPInterstitialAdController
 
@@ -35,6 +39,7 @@ static NSString * const kOrientationBoth				= @"b";
 @synthesize parent = _parent;
 @synthesize adUnitId = _adUnitId;
 @synthesize closeButton = _closeButton;
+@synthesize currentAdapter = _currentAdapter;
 
 #pragma mark -
 #pragma mark Class methods
@@ -122,6 +127,8 @@ static NSString * const kOrientationBoth				= @"b";
 {
 	_parent = nil;
 	_adView.delegate = nil;
+	[_currentAdapter unregisterDelegate];
+	[_currentAdapter release];
 	[_adView release];
 	[_adUnitId release];
     [super dealloc];
@@ -228,16 +235,25 @@ static NSString * const kOrientationBoth				= @"b";
 }
 
 - (void)show
-{
-	// Track the previous state of the status bar, so that we can restore it.
-	_statusBarWasHidden = [UIApplication sharedApplication].statusBarHidden;
-	[[UIApplication sharedApplication] setStatusBarHidden:YES];
-	
-	// Likewise, track the previous state of the navigation bar.
-	_navigationBarWasHidden = self.navigationController.navigationBarHidden;
-	[self.navigationController setNavigationBarHidden:YES animated:YES];
-	
-	[self.parent presentModalViewController:self animated:YES];
+{	
+	if (self.currentAdapter != nil)
+	{
+		[self.currentAdapter showInterstitialFromViewController:self.parent];
+	}
+	else 
+	{
+		[self interstitialWillAppearForAdapter:nil];
+		// Track the previous state of the status bar, so that we can restore it.
+		_statusBarWasHidden = [UIApplication sharedApplication].statusBarHidden;
+		[[UIApplication sharedApplication] setStatusBarHidden:YES];
+		
+		// Likewise, track the previous state of the navigation bar.
+		_navigationBarWasHidden = self.navigationController.navigationBarHidden;
+		[self.navigationController setNavigationBarHidden:YES animated:YES];
+		
+		[self.parent presentModalViewController:self animated:YES];
+		[self interstitialDidAppearForAdapter:nil];
+	}
 }
 
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation 
@@ -307,12 +323,69 @@ static NSString * const kOrientationBoth				= @"b";
 		_orientationType = InterstitialOrientationTypeLandscape;
 	else 
 		_orientationType = InterstitialOrientationTypeBoth;
+	
+	NSString *adapterType = [params objectForKey:@"X-Fulladtype"];
+	NSString *classString = [[MPAdapterMap sharedAdapterMap] classStringForAdapterType:adapterType];
+	Class cls = NSClassFromString(classString);
+	if (cls != nil)
+	{
+		[self.currentAdapter unregisterDelegate];	
+		self.currentAdapter = (MPBaseInterstitialAdapter *)[[cls alloc] initWithInterstitialAdController:self];
+		[self.currentAdapter getAdWithParams:params];
+	}	
 }
 
 - (void)adViewShouldClose:(MPAdView *)view
 {
 	[self closeButtonPressed];
 }
+
+#pragma mark -
+#pragma mark MPBaseInterstitialAdapterDelegate
+
+- (void)adapterDidFinishLoadingAd:(MPBaseInterstitialAdapter *)adapter
+{	
+	_ready = YES;
+	[_adView setIsLoading:NO];
+	if ([self.parent respondsToSelector:@selector(interstitialDidLoadAd:)])
+		[self.parent interstitialDidLoadAd:self];
+}
+
+- (void)adapter:(MPBaseInterstitialAdapter *)adapter didFailToLoadAdWithError:(NSError *)error
+{
+	_ready = NO;
+	MPLogError(@"Adapter (%p) failed to load ad. Error: %@", adapter, error);
+	
+	// Dispose of the current adapter, because we don't want it to try loading again.
+	[_currentAdapter unregisterDelegate];
+	[_currentAdapter release];
+	_currentAdapter = nil;
+	
+	[_adView adapter:nil didFailToLoadAdWithError:error];
+}
+
+- (void)interstitialWillAppearForAdapter:(MPBaseInterstitialAdapter *)adapter{
+	[_adView trackImpression];
+	if ([self.parent respondsToSelector:@selector(interstitialWillAppear:)]
+		[self.parent interstitialWillAppear:self];
+}
+
+- (void)interstitialDidAppearForAdapter:(MPBaseInterstitialAdapter *)adapter{
+	if ([self.parent respondsToSelector:@selector(interstitialDidAppear:)])
+		[self.parent interstitialDidAppear:self];
+}
+
+- (void)interstitialWillDissappearForAdapter:(MPBaseInterstitialAdapter *)adapter
+{
+	if ([self.parent respondsToSelector:@selector(interstitialWillDisappear:)])
+		[self.parent interstitialWillDisappear:self];
+}
+- (void)interstitialDidDissappearForAdapter:(MPBaseInterstitialAdapter *)adapter
+{
+	if ([self.parent respondsToSelector:@selector(interstitialDidDisappear:)])
+		[self.parent interstitialDidDisappear:self];
+}
+
 
 #pragma mark -
 
