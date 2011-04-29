@@ -31,6 +31,9 @@ static MPAdapterMap *sharedAdapterMap = nil;
 				 @"MPIAdAdapter", @"iAd",
 				 @"MPGoogleAdSenseAdapter", @"adsense",
 				 @"MPCustomEventAdapter", @"custom",
+				 @"MPAdMobInterstitialAdapter", @"admob",
+				 @"MPMillennialInterstitialAdapter", @"millennial",
+				 @"MPInterstitialAdapter", @"interstitial",
 				 nil] retain];
 	}
 	return self;

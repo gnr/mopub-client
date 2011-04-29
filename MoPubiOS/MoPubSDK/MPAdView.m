@@ -38,6 +38,7 @@
 @property (nonatomic, assign) BOOL shouldInterceptLinks;
 @property (nonatomic, assign) BOOL scrollable;
 @property (nonatomic, retain) MPTimer *autorefreshTimer;
+@property (nonatomic, assign) BOOL isLoading;
 @end
 
 static NSString * const kTimerNotificationName = @"Autorefresh";
@@ -59,6 +60,7 @@ static NSString * const kTimerNotificationName = @"Autorefresh";
 @synthesize autorefreshTimer = _autorefreshTimer;
 @synthesize ignoresAutorefresh = _ignoresAutorefresh;
 @synthesize stretchesWebContentToFill = _stretchesWebContentToFill;
+@synthesize isLoading = _isLoading;
 
 #pragma mark -
 #pragma mark Lifecycle
@@ -658,7 +660,7 @@ static NSString * const kTimerNotificationName = @"Autorefresh";
 - (void)adapter:(MPBaseAdapter *)adapter didFailToLoadAdWithError:(NSError *)error
 {
 	// Ignore fail messages from the previous adapter.
-	if (adapter == _previousAdapter) return;
+	if (_previousAdapter && adapter == _previousAdapter) return;
 	
 	_isLoading = NO;
 	MPLogError(@"Adapter (%p) failed to load ad. Error: %@", adapter, error);
