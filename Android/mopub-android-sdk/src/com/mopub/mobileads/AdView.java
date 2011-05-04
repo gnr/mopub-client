@@ -512,6 +512,7 @@ public class AdView extends WebView {
             }
 
             Log.d("MoPub", "click url: "+uri);
+            mMoPubView.adClicked();
 
             // and fire off a system wide intent
             view.getContext().startActivity(new Intent(android.content.Intent.ACTION_VIEW, Uri.parse(uri)));

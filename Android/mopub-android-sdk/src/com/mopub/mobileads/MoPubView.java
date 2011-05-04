@@ -62,6 +62,10 @@ public class MoPubView extends FrameLayout {
         public void OnAdClosed(MoPubView m);
     }
 
+    public interface OnAdClickedListener {
+        public void OnAdClicked(MoPubView m);
+    }
+
     public static String HOST = "ads.mopub.com";
     public static String AD_HANDLER = "/m/ad";
 
@@ -71,6 +75,7 @@ public class MoPubView extends FrameLayout {
     private OnAdLoadedListener mOnAdLoadedListener;
     private OnAdFailedListener mOnAdFailedListener;
     private OnAdClosedListener mOnAdClosedListener;
+    private OnAdClickedListener mOnAdClickedListener;
 
     public MoPubView(Context context) {
         this(context, null);
@@ -152,6 +157,9 @@ public class MoPubView extends FrameLayout {
             return;
         }
         mAdView.registerClick();
+        
+        // Let any listeners know that an ad was clicked
+        adClicked();
     }
 
     // Getters and Setters
@@ -251,6 +259,12 @@ public class MoPubView extends FrameLayout {
             mOnAdClosedListener.OnAdClosed(this);
         }
     }
+    
+    public void adClicked() {
+        if (mOnAdClickedListener != null) {
+            mOnAdClickedListener.OnAdClicked(this);
+        }
+    }
 
     public void setOnAdWillLoadListener(OnAdWillLoadListener listener) {
         mOnAdWillLoadListener = listener;
@@ -266,5 +280,9 @@ public class MoPubView extends FrameLayout {
 
     public void setOnAdClosedListener(OnAdClosedListener listener) {
         mOnAdClosedListener = listener;
+    }
+
+    public void setOnAdClickedListener(OnAdClickedListener listener) {
+        mOnAdClickedListener = listener;
     }
 }
