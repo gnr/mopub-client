@@ -153,10 +153,16 @@ static NSString * const kTimerNotificationName = @"Autorefresh";
 
 - (void)setAdContentView:(UIView *)view
 {
-	if (!view)
-		return;
-	
+	if (!view) return;
 	[view retain];
+	
+	if (_stretchesWebContentToFill && [view isKindOfClass:[UIWebView class]])
+	{
+		// Avoids a race condition: 
+		// 1) a webview is initialized with the ad view's frame
+		// 2) ad view resizes its frame before webview gets set as the content view
+		view.frame = self.bounds;
+	}
 	
 	self.hidden = NO;
 	
@@ -442,7 +448,7 @@ static NSString * const kTimerNotificationName = @"Autorefresh";
 	NSString *widthString = [headers objectForKey:@"X-Width"];
 	NSString *heightString = [headers objectForKey:@"X-Height"];
 	
-	// Try to get the creative size from the server or otherwise use the original container's size
+	// Try to get the creative size from the server or otherwise use the original container's size.
 	if (widthString && heightString)
 		self.creativeSize = CGSizeMake([widthString floatValue], [heightString floatValue]);
 	else
@@ -744,7 +750,7 @@ static NSString * const kTimerNotificationName = @"Autorefresh";
 
 - (UIWebView *)makeAdWebViewWithFrame:(CGRect)frame
 {
-	UIWebView *webView = [[UIWebView alloc] initWithFrame:CGRectMake(0, 0, frame.size.width, frame.size.height)];
+	UIWebView *webView = [[UIWebView alloc] initWithFrame:frame];
 	if (self.stretchesWebContentToFill)
 		webView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
 	webView.backgroundColor = [UIColor clearColor];

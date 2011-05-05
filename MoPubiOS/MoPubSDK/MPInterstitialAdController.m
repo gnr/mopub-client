@@ -8,15 +8,24 @@
 
 #import "MPInterstitialAdController.h"
 
-#define ORIENTATION_PORTRAIT_ONLY	@"p"
-#define ORIENTATION_LANDSCAPE_ONLY	@"l"
-#define ORIENTATION_BOTH			@"b"
+static const CGFloat kCloseButtonPadding				= 15.0;
 
-#define CLOSE_BUTTON_PADDING		15.0
+// Ad header key-value constants.
+static NSString * const kCloseButtonHeaderKey			= @"X-Closebutton";
+static NSString * const kCloseButtonNone				= @"None";
+static NSString * const kOrientationHeaderKey			= @"X-Orientation";
+static NSString * const kOrientationPortraitOnly		= @"p";
+static NSString * const kOrientationLandscapeOnly		= @"l";
+static NSString * const kOrientationBoth				= @"b";
 
 @interface MPInterstitialAdController (Internal)
 - (id)initWithAdUnitId:(NSString *)ID parentViewController:(UIViewController *)parent;
-- (void)setUpCloseButton;
+- (void)setCloseButtonImageNamed:(NSString *)name;
+- (void)layoutCloseButton;
+@end
+
+@interface MPInterstitialAdController ()
+@property (nonatomic, retain) UIButton *closeButton;
 @end
 
 @implementation MPInterstitialAdController
@@ -24,6 +33,7 @@
 @synthesize ready = _ready;
 @synthesize parent = _parent;
 @synthesize adUnitId = _adUnitId;
+@synthesize closeButton = _closeButton;
 
 #pragma mark -
 #pragma mark Class methods
@@ -84,7 +94,6 @@
 		_ready = NO;
 		_parent = parent;
 		_adUnitId = ID;
-		_adSize = [[UIScreen mainScreen] bounds].size;
 		_closeButtonType = InterstitialCloseButtonTypeDefault;
 		_orientationType = InterstitialOrientationTypeBoth;
 	}
@@ -102,20 +111,25 @@
 
 - (void)loadView 
 {
+	CGRect screenBounds = MPScreenBounds();
+	
 	self.view = [[[UIView alloc] initWithFrame:CGRectZero] autorelease];
 	self.view.backgroundColor = [UIColor blackColor];
-	self.view.frame = (CGRect){{0, 0}, [UIScreen mainScreen].bounds.size};
+	self.view.frame = screenBounds;
 	self.view.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+
+	_adView = [[MPAdView alloc] initWithAdUnitId:self.adUnitId size:screenBounds.size];
+	_adView.frame = self.view.bounds;
+	_adView.stretchesWebContentToFill = YES;
+	_adView.delegate = self;
 	
-	_adView = [[MPAdView alloc] initWithAdUnitId:self.adUnitId size:_adSize];
 	// Typically, we don't set an autoresizing mask for MPAdView, but in this case we always
 	// want it to occupy the full screen.
 	_adView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
-	_adView.stretchesWebContentToFill = YES;
-	_adView.delegate = self;
+
 	[self.view addSubview:_adView];
 	
-	[self setUpCloseButton];
+	[self layoutCloseButton];
 }
 
 - (void)viewWillAppear:(BOOL)animated
@@ -132,6 +146,7 @@
 {
 	// Triggers -loadView if it hasn't happened.
 	self.view;
+	
 	[_adView adViewDidAppear];
 	[super viewDidAppear:animated];
 }
@@ -139,29 +154,44 @@
 #pragma mark -
 #pragma mark Internal
 
-- (void)setUpCloseButton
+- (void)setCloseButtonImageNamed:(NSString *)name
 {
+	UIImage *image = [UIImage imageNamed:name];
+	[self.closeButton setImage:image forState:UIControlStateNormal];
+	[self.closeButton sizeToFit];
+}
+
+- (void)layoutCloseButton
+{
+	if (!self.closeButton) 
+	{
+		self.closeButton = [UIButton buttonWithType:UIButtonTypeCustom];
+		self.closeButton.autoresizingMask = UIViewAutoresizingFlexibleLeftMargin | 
+			UIViewAutoresizingFlexibleBottomMargin;
+		[self.closeButton addTarget:self 
+							 action:@selector(closeButtonPressed) 
+				   forControlEvents:UIControlEventTouchUpInside];
+		
+		[self setCloseButtonImageNamed:@"MPCloseButtonX.png"];
+		CGFloat originx = self.view.frame.size.width;
+		originx -= self.closeButton.frame.size.width + kCloseButtonPadding;
+		self.closeButton.frame = CGRectMake(originx, 
+											kCloseButtonPadding, 
+											self.closeButton.frame.size.width,
+											self.closeButton.frame.size.height);
+		
+		[self.view addSubview:self.closeButton];
+		[self.view bringSubviewToFront:self.closeButton];
+	}
+					
 	if (_closeButtonType == InterstitialCloseButtonTypeDefault)
 	{
-		[_closeButton removeFromSuperview];
-		_closeButton = [UIButton buttonWithType:UIButtonTypeCustom];
-		UIImage *closeButtonImage = [UIImage imageNamed:@"MPCloseButtonX.png"];
-		[_closeButton setImage:closeButtonImage forState:UIControlStateNormal];
-		[_closeButton sizeToFit];
-		_closeButton.frame = CGRectMake(self.view.frame.size.width - CLOSE_BUTTON_PADDING - _closeButton.frame.size.width,
-										CLOSE_BUTTON_PADDING,
-										_closeButton.frame.size.width,
-										_closeButton.frame.size.height);
-		_closeButton.autoresizingMask = UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleBottomMargin;
-		[_closeButton addTarget:self 
-						 action:@selector(closeButtonPressed) 
-			   forControlEvents:UIControlEventTouchUpInside];
-		[self.view addSubview:_closeButton];
-		[self.view bringSubviewToFront:_closeButton];
+		[self setCloseButtonImageNamed:@"MPCloseButtonX.png"];
+		self.closeButton.hidden = NO;
 	}
 	else
 	{
-		[_closeButton removeFromSuperview];
+		self.closeButton.hidden = YES;
 	}
 }
 
@@ -190,6 +220,7 @@
 {
 	// Triggers -loadView if it hasn't happened.
 	self.view;
+	_ready = NO;
 	[_adView loadAd];
 }
 
@@ -214,8 +245,7 @@
 	else if (_orientationType == InterstitialOrientationTypeLandscape)
 		return (interfaceOrientation == UIInterfaceOrientationLandscapeLeft || 
 				interfaceOrientation == UIInterfaceOrientationLandscapeRight);
-	else
-		return YES;
+	else return YES;
 }
 
 - (void)willAnimateRotationToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation 
@@ -256,21 +286,21 @@
 
 - (void)adViewDidReceiveResponseParams:(NSDictionary *)params
 {
-	NSString *closeButtonChoice = [params objectForKey:@"X-Closebutton"];
+	NSString *closeButtonChoice = [params objectForKey:kCloseButtonHeaderKey];
 	
-	if ([closeButtonChoice isEqualToString:@"None"])
+	if ([closeButtonChoice isEqualToString:kCloseButtonNone])
 		_closeButtonType = InterstitialCloseButtonTypeNone;
 	else
 		_closeButtonType = InterstitialCloseButtonTypeDefault;
 	
-	// Adjust the close button depending on the value of "X-Closebutton".
-	[self setUpCloseButton];
+	// Adjust the close button depending on the header value.
+	[self layoutCloseButton];
 	
 	// Set the allowed orientations.
-	NSString *orientationChoice = [params objectForKey:@"X-Orientation"];
-	if ([orientationChoice isEqualToString:ORIENTATION_PORTRAIT_ONLY])
+	NSString *orientationChoice = [params objectForKey:kOrientationHeaderKey];
+	if ([orientationChoice isEqualToString:kOrientationPortraitOnly])
 		_orientationType = InterstitialOrientationTypePortrait;
-	else if ([orientationChoice isEqualToString:ORIENTATION_LANDSCAPE_ONLY])
+	else if ([orientationChoice isEqualToString:kOrientationLandscapeOnly])
 		_orientationType = InterstitialOrientationTypeLandscape;
 	else 
 		_orientationType = InterstitialOrientationTypeBoth;

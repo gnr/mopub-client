@@ -10,6 +10,7 @@
 
 #define HOSTNAME @"ads.mopub.com"
 #define DEFAULT_PUB_ID @"agltb3B1Yi1pbmNyDAsSBFNpdGUYkaoMDA"
+//#define HOSTNAME @"38-fullscreen.latest.mopub-inc.appspot.com"
 
 // Sizing constants.
 #define MOPUB_BANNER_SIZE			CGSizeMake(320, 50)

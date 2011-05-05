@@ -46,9 +46,6 @@ typedef NSUInteger InterstitialOrientationType;
 	// The ad unit ID.
 	NSString *_adUnitId;
 	
-	// Size of the interstitial ad. Defaults to fill the entire screen.
-	CGSize _adSize;
-	
 	// Determines what kind of close button we want to display.
 	InterstitialCloseButtonType _closeButtonType;
 	
