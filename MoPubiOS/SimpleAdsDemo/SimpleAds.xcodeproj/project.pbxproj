@@ -52,9 +52,9 @@
 		3CB4A0F2113F5E75000DB158 /* MainWindow.xib in Resources */ = {isa = PBXBuildFile; fileRef = 3CB4A0F0113F5E75000DB158 /* MainWindow.xib */; };
 		3CB4A0F3113F5E75000DB158 /* SimpleAdsViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 3CB4A0F1113F5E75000DB158 /* SimpleAdsViewController.xib */; };
 		3CC4D7791264DC6800212F16 /* SecondViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 3CC4D7771264DC6800212F16 /* SecondViewController.xib */; };
-		A737AAA913734B9F004E58BB /* MPCloseButtonX.png in Resources */ = {isa = PBXBuildFile; fileRef = A737AAA713734B9F004E58BB /* MPCloseButtonX.png */; };
-		A737AAAA13734B9F004E58BB /* MPCloseButtonX@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = A737AAA813734B9F004E58BB /* MPCloseButtonX@2x.png */; };
 		A77155331373282E00069B34 /* MPGlobal.m in Sources */ = {isa = PBXBuildFile; fileRef = A77155321373282E00069B34 /* MPGlobal.m */; };
+		A7F12BB51373689E008ECC4E /* MPCloseButtonX.png in Resources */ = {isa = PBXBuildFile; fileRef = A7F12BB31373689E008ECC4E /* MPCloseButtonX.png */; };
+		A7F12BB61373689E008ECC4E /* MPCloseButtonX@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = A7F12BB41373689E008ECC4E /* MPCloseButtonX@2x.png */; };
 		A8065E8B1326769E00C147DC /* MPTimer.m in Sources */ = {isa = PBXBuildFile; fileRef = A8065E8A1326769E00C147DC /* MPTimer.m */; };
 /* End PBXBuildFile section */
 
@@ -135,10 +135,10 @@
 		3CC4D7761264DC6800212F16 /* SecondViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SecondViewController.m; sourceTree = "<group>"; };
 		3CC4D7771264DC6800212F16 /* SecondViewController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = SecondViewController.xib; path = Classes/SecondViewController.xib; sourceTree = "<group>"; };
 		8D1107310486CEB800E47090 /* SimpleAds-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "SimpleAds-Info.plist"; plistStructureDefinitionIdentifier = "com.apple.xcode.plist.structure-definition.iphone.info-plist"; sourceTree = "<group>"; };
-		A737AAA713734B9F004E58BB /* MPCloseButtonX.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = MPCloseButtonX.png; sourceTree = "<group>"; };
-		A737AAA813734B9F004E58BB /* MPCloseButtonX@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "MPCloseButtonX@2x.png"; sourceTree = "<group>"; };
 		A77155311373282E00069B34 /* MPGlobal.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPGlobal.h; sourceTree = "<group>"; };
 		A77155321373282E00069B34 /* MPGlobal.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPGlobal.m; sourceTree = "<group>"; };
+		A7F12BB31373689E008ECC4E /* MPCloseButtonX.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = MPCloseButtonX.png; sourceTree = "<group>"; };
+		A7F12BB41373689E008ECC4E /* MPCloseButtonX@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "MPCloseButtonX@2x.png"; sourceTree = "<group>"; };
 		A8065E891326769E00C147DC /* MPTimer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPTimer.h; sourceTree = "<group>"; };
 		A8065E8A1326769E00C147DC /* MPTimer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPTimer.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -328,8 +328,8 @@
 				3C83C6491308146000CD306C /* MPAdapterMap.m */,
 				A77155311373282E00069B34 /* MPGlobal.h */,
 				A77155321373282E00069B34 /* MPGlobal.m */,
-				A737AAA713734B9F004E58BB /* MPCloseButtonX.png */,
-				A737AAA813734B9F004E58BB /* MPCloseButtonX@2x.png */,
+				A7F12BB31373689E008ECC4E /* MPCloseButtonX.png */,
+				A7F12BB41373689E008ECC4E /* MPCloseButtonX@2x.png */,
 			);
 			name = MoPubSDK;
 			path = ../MoPubSDK;
@@ -409,8 +409,8 @@
 				3CABE6C41300AFFB00887B75 /* Icon@2x.png in Resources */,
 				3CABE6DB1300B82A00887B75 /* 300x250spacer.png in Resources */,
 				3C94E562135757900078FE9E /* MPAdBrowserController.xib in Resources */,
-				A737AAA913734B9F004E58BB /* MPCloseButtonX.png in Resources */,
-				A737AAAA13734B9F004E58BB /* MPCloseButtonX@2x.png in Resources */,
+				A7F12BB51373689E008ECC4E /* MPCloseButtonX.png in Resources */,
+				A7F12BB61373689E008ECC4E /* MPCloseButtonX@2x.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
