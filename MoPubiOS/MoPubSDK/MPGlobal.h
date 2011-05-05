@@ -3,7 +3,7 @@
 //  SimpleAds
 //
 //  Created by Andrew He on 5/5/11.
-//  Copyright 2011 __MyCompanyName__. All rights reserved.
+//  Copyright 2011 MoPub, Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
