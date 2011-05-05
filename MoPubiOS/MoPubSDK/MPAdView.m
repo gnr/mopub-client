@@ -159,7 +159,7 @@ static NSString * const kTimerNotificationName = @"Autorefresh";
 	if (_stretchesWebContentToFill && [view isKindOfClass:[UIWebView class]])
 	{
 		// Avoids a race condition: 
-		// 1) a webview is initialized with the ad view's frame
+		// 1) a webview is initialized with the ad view's bounds
 		// 2) ad view resizes its frame before webview gets set as the content view
 		view.frame = self.bounds;
 	}
