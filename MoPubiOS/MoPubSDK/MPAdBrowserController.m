@@ -18,7 +18,6 @@
 @synthesize safariButton = _safariButton;
 @synthesize doneButton = _doneButton;
 @synthesize spinnerItem = _spinnerItem;
-
 @synthesize delegate = _delegate;
 @synthesize URL = _URL;
 
@@ -54,6 +53,7 @@ static NSArray *BROWSER_SCHEMES, *SPECIAL_HOSTS;
 		_webView.autoresizingMask = UIViewAutoresizingFlexibleWidth | 
 			UIViewAutoresizingFlexibleHeight;
 		_webView.delegate = self;
+		_webView.scalesPageToFit = YES;
 		
 		_spinner = [[UIActivityIndicatorView alloc] initWithFrame:CGRectZero];
 		[_spinner sizeToFit];

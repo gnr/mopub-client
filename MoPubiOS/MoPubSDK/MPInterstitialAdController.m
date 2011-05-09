@@ -9,8 +9,9 @@
 #import "MPInterstitialAdController.h"
 
 static const CGFloat kCloseButtonPadding				= 15.0;
+static NSString * const kCloseButtonXImageName			= @"MPCloseButtonX.png";
 
-// Ad header key-value constants.
+// Ad header key/value constants.
 static NSString * const kCloseButtonHeaderKey			= @"X-Closebutton";
 static NSString * const kCloseButtonNone				= @"None";
 static NSString * const kOrientationHeaderKey			= @"X-Orientation";
@@ -172,7 +173,7 @@ static NSString * const kOrientationBoth				= @"b";
 							 action:@selector(closeButtonPressed) 
 				   forControlEvents:UIControlEventTouchUpInside];
 		
-		[self setCloseButtonImageNamed:@"MPCloseButtonX.png"];
+		[self setCloseButtonImageNamed:kCloseButtonXImageName];
 		CGFloat originx = self.view.frame.size.width;
 		originx -= self.closeButton.frame.size.width + kCloseButtonPadding;
 		self.closeButton.frame = CGRectMake(originx, 
@@ -186,7 +187,7 @@ static NSString * const kOrientationBoth				= @"b";
 					
 	if (_closeButtonType == InterstitialCloseButtonTypeDefault)
 	{
-		[self setCloseButtonImageNamed:@"MPCloseButtonX.png"];
+		[self setCloseButtonImageNamed:kCloseButtonXImageName];
 		self.closeButton.hidden = NO;
 	}
 	else

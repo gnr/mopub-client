@@ -8,8 +8,8 @@
 
 #import <UIKit/UIKit.h>
 
-#define HOSTNAME @"ads.mopub.com"
-#define DEFAULT_PUB_ID @"agltb3B1Yi1pbmNyDAsSBFNpdGUYkaoMDA"
+#define HOSTNAME					@"ads.mopub.com"
+#define DEFAULT_PUB_ID				@"agltb3B1Yi1pbmNyDAsSBFNpdGUYkaoMDA"
 
 // Sizing constants.
 #define MOPUB_BANNER_SIZE			CGSizeMake(320, 50)
@@ -19,4 +19,4 @@
 
 // Miscellaneous constants.
 #define MINIMUM_REFRESH_INTERVAL	5.0
-#define STORE_RECEIPT_SUFFIX @"/m/purchase"
+#define STORE_RECEIPT_SUFFIX		@"/m/purchase"
