@@ -208,13 +208,8 @@ static NSArray *BROWSER_SCHEMES, *SPECIAL_HOSTS;
 
 - (void)webView:(UIWebView *)webView didFailLoadWithError:(NSError *)error 
 {
-	UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Could not load page." 
-													message:[error localizedDescription] 
-												   delegate:self 
-										  cancelButtonTitle:@"OK" 
-										  otherButtonTitles:nil];
-	[alert show];
-	[alert release];
+	MPLogError(@"Ad browser %@ experienced an error: %@.", self, [error localizedDescription]);
+	[self webViewDidFinishLoad:webView];
 }
 
 #pragma mark -
