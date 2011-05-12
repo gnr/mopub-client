@@ -516,6 +516,7 @@ static NSString * const kAdTypeClear				= @"clear";
 		[connection cancel];
 		_isLoading = NO;
 		[self backFillWithNothing];
+		[self scheduleAutorefreshTimer];
 		return;
 	}
 	
