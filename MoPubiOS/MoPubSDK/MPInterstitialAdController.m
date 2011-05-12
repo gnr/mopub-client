@@ -8,7 +8,7 @@
 
 #import "MPInterstitialAdController.h"
 
-static const CGFloat kCloseButtonPadding				= 15.0;
+static const CGFloat kCloseButtonPadding				= 6.0;
 static NSString * const kCloseButtonXImageName			= @"MPCloseButtonX.png";
 
 // Ad header key/value constants.
@@ -81,8 +81,16 @@ static NSString * const kOrientationBoth				= @"b";
 
 + (void)removeSharedInterstitialAdController:(MPInterstitialAdController *)controller
 {
-	NSMutableArray *sharedInterstitialAdControllers = [MPInterstitialAdController sharedInterstitialAdControllers];
+	NSMutableArray *sharedInterstitialAdControllers = 
+		[MPInterstitialAdController sharedInterstitialAdControllers];
 	[sharedInterstitialAdControllers removeObject:controller];
+}
+
++ (void)removeAllSharedInterstitialAdControllers
+{
+	NSMutableArray *sharedInterstitialAdControllers = 
+		[MPInterstitialAdController sharedInterstitialAdControllers];
+	[sharedInterstitialAdControllers removeAllObjects];
 }
 
 #pragma mark -
@@ -97,6 +105,15 @@ static NSString * const kOrientationBoth				= @"b";
 		_adUnitId = ID;
 		_closeButtonType = InterstitialCloseButtonTypeDefault;
 		_orientationType = InterstitialOrientationTypeBoth;
+		
+		_adView = [[MPAdView alloc] initWithAdUnitId:self.adUnitId size:CGSizeZero];
+		_adView.stretchesWebContentToFill = YES;
+		_adView.delegate = self;
+		
+		// Typically, we don't set an autoresizing mask for MPAdView, but in this case we always
+		// want it to occupy the full screen.
+		_adView.autoresizingMask = UIViewAutoresizingFlexibleWidth | 
+			UIViewAutoresizingFlexibleHeight;
 	}
 	return self;
 }
@@ -118,25 +135,15 @@ static NSString * const kOrientationBoth				= @"b";
 	self.view.backgroundColor = [UIColor blackColor];
 	self.view.frame = screenBounds;
 	self.view.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
-
-	_adView = [[MPAdView alloc] initWithAdUnitId:self.adUnitId size:screenBounds.size];
+	
 	_adView.frame = self.view.bounds;
-	_adView.stretchesWebContentToFill = YES;
-	_adView.delegate = self;
 	
-	// Typically, we don't set an autoresizing mask for MPAdView, but in this case we always
-	// want it to occupy the full screen.
-	_adView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
-
 	[self.view addSubview:_adView];
-	
 	[self layoutCloseButton];
 }
 
 - (void)viewWillAppear:(BOOL)animated
 {
-	// Triggers -loadView if it hasn't happened.
-	self.view;
 	[super viewWillAppear:animated];
 	
 	if ([self.parent respondsToSelector:@selector(interstitialWillAppear:)])
@@ -145,11 +152,8 @@ static NSString * const kOrientationBoth				= @"b";
 
 - (void)viewDidAppear:(BOOL)animated
 {
-	// Triggers -loadView if it hasn't happened.
-	self.view;
-	
-	[_adView adViewDidAppear];
 	[super viewDidAppear:animated];
+	[_adView adViewDidAppear];
 }
 
 #pragma mark -
@@ -172,14 +176,14 @@ static NSString * const kOrientationBoth				= @"b";
 		[self.closeButton addTarget:self 
 							 action:@selector(closeButtonPressed) 
 				   forControlEvents:UIControlEventTouchUpInside];
-		
 		[self setCloseButtonImageNamed:kCloseButtonXImageName];
-		CGFloat originx = self.view.frame.size.width;
-		originx -= self.closeButton.frame.size.width + kCloseButtonPadding;
+		
+		CGFloat originx = self.view.bounds.size.width;
+		originx -= self.closeButton.bounds.size.width + kCloseButtonPadding;
 		self.closeButton.frame = CGRectMake(originx, 
 											kCloseButtonPadding, 
-											self.closeButton.frame.size.width,
-											self.closeButton.frame.size.height);
+											self.closeButton.bounds.size.width,
+											self.closeButton.bounds.size.height);
 		
 		[self.view addSubview:self.closeButton];
 		[self.view bringSubviewToFront:self.closeButton];
@@ -219,14 +223,12 @@ static NSString * const kOrientationBoth				= @"b";
 
 - (void)loadAd
 {
-	// Triggers -loadView if it hasn't happened.
-	self.view;
 	_ready = NO;
 	[_adView loadAd];
 }
 
 - (void)show
-{	
+{
 	// Track the previous state of the status bar, so that we can restore it.
 	_statusBarWasHidden = [UIApplication sharedApplication].statusBarHidden;
 	[[UIApplication sharedApplication] setStatusBarHidden:YES];
@@ -314,16 +316,16 @@ static NSString * const kOrientationBoth				= @"b";
 
 #pragma mark -
 
-- (void)didReceiveMemoryWarning {
+- (void)didReceiveMemoryWarning 
+{
     [super didReceiveMemoryWarning];
-    
-    // Release any cached data, images, etc. that aren't in use.
 }
 
-- (void)viewDidUnload {
+- (void)viewDidUnload
+{
     [super viewDidUnload];
-    // Release any retained subviews of the main view.
-    // e.g. self.myOutlet = nil;
+	
+	self.closeButton = nil;
 }
 
 @end
