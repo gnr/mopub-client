@@ -26,6 +26,7 @@ static NSString * const kMoPubInAppHost				= @"inapp";
 static NSString * const kMoPubCustomHost			= @"custom";
 static NSString * const kMoPubInterfaceOrientationPortraitId	= @"p";
 static NSString * const kMoPubInterfaceOrientationLandscapeId	= @"l";
+static const CGFloat kMoPubRequestTimeoutInterval	= 10.0;
 
 // Ad header key/value constants.
 static NSString * const kClickthroughHeaderKey		= @"X-Clickthrough";
@@ -377,9 +378,10 @@ static NSString * const kAdTypeClear				= @"clear";
 	self.URL = URL;
 	MPLogDebug(@"Ad view (%p) calling loadAdWithURL: %@", self, URL);
 	
-	NSMutableURLRequest *request = [[[NSMutableURLRequest alloc] initWithURL:self.URL 
-																 cachePolicy:NSURLRequestUseProtocolCachePolicy 
-															 timeoutInterval:3.0] autorelease];
+	NSMutableURLRequest *request = [[[NSMutableURLRequest alloc] 
+									 initWithURL:self.URL 
+									 cachePolicy:NSURLRequestUseProtocolCachePolicy 
+									 timeoutInterval:kMoPubRequestTimeoutInterval] autorelease];
 	
 	// Set the user agent so that we know where the request is coming from. 
 	// This is important for targeting!
