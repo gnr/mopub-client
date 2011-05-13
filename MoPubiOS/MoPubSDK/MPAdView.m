@@ -341,7 +341,7 @@ static NSString * const kAdTypeClear				= @"clear";
 	// If the passed-in URL is nil, construct a URL from our initial parameters.
 	if (!URL)
 	{
-		NSString *urlString = [NSString stringWithFormat:@"http://%@/m/ad?v=3&udid=%@&q=%@&id=%@", 
+		NSString *urlString = [NSString stringWithFormat:@"http://%@/m/ad?v=4&udid=%@&q=%@&id=%@", 
 							   HOSTNAME,
 							   [[UIDevice currentDevice] hashedMoPubUDID],
 							   [self.keywords stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding],
