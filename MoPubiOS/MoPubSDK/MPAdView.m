@@ -575,6 +575,17 @@ static NSString * const kAdTypeClear				= @"clear";
 	// If the initial request to MoPub fails, replace the current ad content with a blank.
 	_isLoading = NO;
 	[self backFillWithNothing];
+	
+	// Retry in 60 seconds.
+	if (!self.autorefreshTimer || ![self.autorefreshTimer isValid])
+	{
+		self.autorefreshTimer = [MPTimer timerWithTimeInterval:60.0f 
+														target:_timerTarget 
+													  selector:@selector(postNotification) 
+													  userInfo:nil 
+													   repeats:NO];
+	}
+	
 	[self scheduleAutorefreshTimer];
 }
 
