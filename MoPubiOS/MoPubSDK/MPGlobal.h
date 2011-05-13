@@ -10,3 +10,4 @@
 #import <UIKit/UIKit.h>
 
 CGRect MPScreenBounds();
+CGFloat MPDeviceScaleFactor();

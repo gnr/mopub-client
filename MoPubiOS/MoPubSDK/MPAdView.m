@@ -24,6 +24,8 @@ static NSString * const kMoPubFinishLoadHost		= @"finishLoad";
 static NSString * const kMoPubFailLoadHost			= @"failLoad";
 static NSString * const kMoPubInAppHost				= @"inapp";
 static NSString * const kMoPubCustomHost			= @"custom";
+static NSString * const kMoPubInterfaceOrientationPortraitId	= @"p";
+static NSString * const kMoPubInterfaceOrientationLandscapeId	= @"l";
 
 // Ad header key/value constants.
 static NSString * const kClickthroughHeaderKey		= @"X-Clickthrough";
@@ -345,6 +347,21 @@ static NSString * const kAdTypeClear				= @"clear";
 							   [self.keywords stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding],
 							   [self.adUnitId stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]
 							   ];
+		
+		// Append orientation data.
+		UIInterfaceOrientation orientation = [UIApplication sharedApplication].statusBarOrientation;
+		NSString *orientString = UIInterfaceOrientationIsPortrait(orientation) ?
+			kMoPubInterfaceOrientationPortraitId : kMoPubInterfaceOrientationLandscapeId;
+		urlString = [urlString stringByAppendingFormat:@"&o=%@", orientString];
+		
+		// Append scale factor data.
+		urlString = [urlString stringByAppendingFormat:@"&sc=%.1f", MPDeviceScaleFactor()];
+		
+		// Append time zone data.
+		NSDateFormatter *formatter = [[[NSDateFormatter alloc] init] autorelease];
+		[formatter setDateFormat:@"Z"];
+		NSDate *today = [NSDate date];
+		urlString = [urlString stringByAppendingFormat:@"&z=%@", [formatter stringFromDate:today]];
 		
 		// Append location data if we have it.
 		if (self.location)
@@ -883,9 +900,7 @@ static NSString * const kAdTypeClear				= @"clear";
 					   selectorWithObjectString);
 		}
 	}
-	
 }
-
 
 # pragma mark -
 # pragma UIApplicationNotification responders

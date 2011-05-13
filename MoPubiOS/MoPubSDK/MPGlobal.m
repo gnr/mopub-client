@@ -22,3 +22,13 @@ CGRect MPScreenBounds()
 	
 	return bounds;
 }
+
+CGFloat MPDeviceScaleFactor()
+{
+	if ([[UIScreen mainScreen] respondsToSelector:@selector(displayLinkWithTarget:selector:)] &&
+		[[UIScreen mainScreen] respondsToSelector:@selector(scale)])
+	{
+		return [[UIScreen mainScreen] scale];
+	}
+	else return 1.0;
+}
