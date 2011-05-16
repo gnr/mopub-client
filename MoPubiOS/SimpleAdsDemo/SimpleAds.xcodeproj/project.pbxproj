@@ -57,6 +57,7 @@
 		A7936CF61381CD4F002E21AB /* MPMillennialAdapter.m in Sources */ = {isa = PBXBuildFile; fileRef = A7936CF51381CD4F002E21AB /* MPMillennialAdapter.m */; };
 		A7F12BB51373689E008ECC4E /* MPCloseButtonX.png in Resources */ = {isa = PBXBuildFile; fileRef = A7F12BB31373689E008ECC4E /* MPCloseButtonX.png */; };
 		A7F12BB61373689E008ECC4E /* MPCloseButtonX@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = A7F12BB41373689E008ECC4E /* MPCloseButtonX@2x.png */; };
+		A7424EE41381909900FED855 /* MPBaseInterstitialAdapter.m in Sources */ = {isa = PBXBuildFile; fileRef = A7424EE31381909900FED855 /* MPBaseInterstitialAdapter.m */; };
 		A8065E8B1326769E00C147DC /* MPTimer.m in Sources */ = {isa = PBXBuildFile; fileRef = A8065E8A1326769E00C147DC /* MPTimer.m */; };
 /* End PBXBuildFile section */
 
@@ -145,6 +146,8 @@
 		A7936CF51381CD4F002E21AB /* MPMillennialAdapter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPMillennialAdapter.m; sourceTree = "<group>"; };
 		A7F12BB31373689E008ECC4E /* MPCloseButtonX.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = MPCloseButtonX.png; sourceTree = "<group>"; };
 		A7F12BB41373689E008ECC4E /* MPCloseButtonX@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "MPCloseButtonX@2x.png"; sourceTree = "<group>"; };
+		A7424EE21381909900FED855 /* MPBaseInterstitialAdapter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPBaseInterstitialAdapter.h; sourceTree = "<group>"; };
+		A7424EE31381909900FED855 /* MPBaseInterstitialAdapter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPBaseInterstitialAdapter.m; sourceTree = "<group>"; };
 		A8065E891326769E00C147DC /* MPTimer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPTimer.h; sourceTree = "<group>"; };
 		A8065E8A1326769E00C147DC /* MPTimer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPTimer.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -315,6 +318,8 @@
 				3C83C64F1308146000CD306C /* MPAdView.m */,
 				A8065E891326769E00C147DC /* MPTimer.h */,
 				A8065E8A1326769E00C147DC /* MPTimer.m */,
+				A7424EE21381909900FED855 /* MPBaseInterstitialAdapter.h */,
+				A7424EE31381909900FED855 /* MPBaseInterstitialAdapter.m */,
 				3C83C6561308146000CD306C /* MPInterstitialAdController.h */,
 				3C83C6571308146000CD306C /* MPInterstitialAdController.m */,
 				3C83C64A1308146000CD306C /* MPAdBrowserController.h */,
@@ -461,6 +466,7 @@
 				A77155331373282E00069B34 /* MPGlobal.m in Sources */,
 				A7936CF11381CD3C002E21AB /* MPGoogleAdMobAdapter.m in Sources */,
 				A7936CF61381CD4F002E21AB /* MPMillennialAdapter.m in Sources */,
+				A7424EE41381909900FED855 /* MPBaseInterstitialAdapter.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
