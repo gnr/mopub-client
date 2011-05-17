@@ -30,8 +30,8 @@ static MPAdapterMap *sharedAdapterMap = nil;
 		_map = [[NSDictionary dictionaryWithObjectsAndKeys:
 				 @"MPIAdAdapter", @"iAd",
 				 @"MPGoogleAdSenseAdapter", @"adsense",
-				 @"MPGoogleAdMobAdapter", @"admob",
-				 @"MPMillennialAdapter", @"millennial",
+				 @"MPGoogleAdMobAdapter", @"admob_native",
+				 @"MPMillennialAdapter", @"millennial_native",
 				 @"MPCustomEventAdapter", @"custom",
 				 nil] retain];
 	}
