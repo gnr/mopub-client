@@ -75,7 +75,7 @@
 
 - (void)adViewWillLeaveApplication:(GADBannerView *)bannerView
 {
-	// TODO: add and test this.
+	[self.adView userWillLeaveApplicationFromAdapter:self];
 }
 
 @end

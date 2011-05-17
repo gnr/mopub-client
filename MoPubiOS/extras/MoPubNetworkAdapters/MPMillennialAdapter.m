@@ -40,7 +40,7 @@
 	self.mmAdView.refreshTimerEnabled = NO;
 	self.mmAdView.delegate = nil;
 	
-	self.mmAdView = [MMAdView adWithFrame:CGRectMake(0.0, 0.0, MM_SIZE_320x53.width, MM_SIZE_320x53.height) 
+	self.mmAdView = [MMAdView adWithFrame:(CGRect){{0.0, 0.0}, MM_SIZE_320x53} 
 									 type:MMBannerAdTop 
 									 apid:[hdrParams objectForKey:@"adUnitID"] 
 								 delegate:self
@@ -59,14 +59,12 @@
 
 - (void)adRequestSucceeded:(MMAdView *)adView
 {
-	NSLog(@"success");
 	[self.adView setAdContentView:adView];
 	[self.adView adapterDidFinishLoadingAd:self];
 }
 
 - (void)adRequestFailed:(MMAdView *)adView
 {
-	NSLog(@"fail");
 	[self.adView adapter:self didFailToLoadAdWithError:nil];
 }
 
