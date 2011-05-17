@@ -52,8 +52,15 @@
 - (void)adapter:(MPBaseAdapter *)adapter didFailToLoadAdWithError:(NSError *)error;
 
 /*
- * These callbacks notify you that user interacted (or stopped interacting) with the native ad.
+ * These callbacks notify you that the user interacted (or stopped interacting) with the native ad.
  */
 - (void)userActionWillBeginForAdapter:(MPBaseAdapter *)adapter;
 - (void)userActionDidEndForAdapter:(MPBaseAdapter *)adapter;
+
+/*
+ * This callback notifies you that user has tapped on an ad which will cause them to leave the 
+ * current application (e.g. the ad action opens the iTunes store, Mobile Safari, etc).
+ */
+- (void)userWillLeaveApplicationFromAdapter:(MPBaseAdapter *)adapter;
+
 @end

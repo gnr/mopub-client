@@ -729,11 +729,11 @@ static NSString * const kAdTypeClear				= @"clear";
 	[_currentAdapter release];
 	_currentAdapter = nil;
 	
-	// Start a new request using the fall-back URL.
-	if (!_adActionInProgress)
-		[self loadAdWithURL:self.failURL];
-	else
-		[self scheduleAutorefreshTimer];
+	// An adapter will sometimes send this message during a user action (example: user taps on an 
+	// iAd; iAd then does an internal refresh and fails). In this case, we schedule a new request
+	// to occur after the action ends. Otherwise, just start a new request using the fall-back URL.
+	if (_adActionInProgress) [self scheduleAutorefreshTimer];
+	else [self loadAdWithURL:self.failURL];
 }
 
 - (void)userActionWillBeginForAdapter:(MPBaseAdapter *)adapter
@@ -766,17 +766,22 @@ static NSString * const kAdTypeClear				= @"clear";
 		[self.delegate didDismissModalViewForAd:self];
 }
 
+- (void)userWillLeaveApplicationFromAdapter:(MPBaseAdapter *)adapter
+{
+	// TODO: Implement.
+}
+
 #pragma mark -
 #pragma mark Internal
 
 - (void)scheduleAutorefreshTimer
 {
-	if (!_adActionInProgress) [self.autorefreshTimer scheduleNow];
-	else 
+	if (_adActionInProgress) 
 	{
 		MPLogDebug(@"Ad action in progress: MPTimer will be scheduled after action ends.");
 		_autorefreshTimerNeedsScheduling = YES;
 	}
+	else [self.autorefreshTimer scheduleNow];
 }
 
 - (void)setScrollable:(BOOL)scrollable forView:(UIView *)view
@@ -878,8 +883,8 @@ static NSString * const kAdTypeClear				= @"clear";
 }
 
 - (void)customLinkClickedForSelectorString:(NSString *)selectorString 
-							withDataString:(NSString *)dataString{
-
+							withDataString:(NSString *)dataString
+{
 	if (!selectorString)
 	{
 		MPLogError(@"Custom selector requested, but no custom selector string was provided.",
@@ -925,9 +930,8 @@ static NSString * const kAdTypeClear				= @"clear";
 
 - (void)applicationWillEnterForeground
 {
-	if(_ignoresAutorefresh == NO) {
-		[self forceRefreshAd];
-	}
+	_autorefreshTimerNeedsScheduling = NO;
+	if (_ignoresAutorefresh == NO) [self forceRefreshAd];
 }
 
 @end
