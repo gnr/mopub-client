@@ -1,6 +1,6 @@
 //
 //  MPMillennialInterstitialAdapter.m
-//  TestRotation
+//  MoPub
 //
 //  Created by Nafis Jamal on 4/27/11.
 //  Copyright 2011 MoPub. All rights reserved.
@@ -14,26 +14,27 @@
 
 - (void)getAdWithParams:(NSDictionary *)params
 {	
-	NSData *headerData = [(NSString *)[params objectForKey:@"X-Nativeparams"] dataUsingEncoding:NSUTF8StringEncoding];
-	NSDictionary *headerParams = [[CJSONDeserializer deserializer] deserializeAsDictionary:headerData
-																					 error:NULL];	
-	mmInterstitialAdView = [[MMAdView interstitialWithType:MMFullScreenAdLaunch 
-												   apid:[headerParams objectForKey:@"adUnitID"]
-											   delegate:self
-												 loadAd:YES]
-							retain];
+	NSData *hdrData = [(NSString *)[params objectForKey:@"X-Nativeparams"] 
+					   dataUsingEncoding:NSUTF8StringEncoding];
+	NSDictionary *hdrParams = [[CJSONDeserializer deserializer] deserializeAsDictionary:hdrData
+																					 error:NULL];
+	
+	_mmInterstitialAdView = [[MMAdView interstitialWithType:MMFullScreenAdLaunch
+													   apid:[hdrParams objectForKey:@"adUnitID"]
+												   delegate:self
+													 loadAd:YES] retain];
 }
 
-
-- (void)dealloc{
-	mmInterstitialAdView.delegate = nil;
-	[mmInterstitialAdView release];
+- (void)dealloc
+{
+	_mmInterstitialAdView.delegate = nil;
+	[_mmInterstitialAdView release];
 	[super dealloc];
 }
 
-- (void)showInterstitialFromViewController:(UIViewController *)rootViewController
+- (void)showInterstitialFromViewController:(UIViewController *)controller
 {
-	//  no-op
+	// No-op: not supported.
 }
 
 # pragma mark - 
@@ -44,12 +45,12 @@
     return [NSDictionary dictionaryWithObjectsAndKeys:@"mopubsdk", @"vendor", nil];
 }
 
-- (void)adRequestSucceeded:(MMAdView *) adView
+- (void)adRequestSucceeded:(MMAdView *)adView
 {
 	[_interstitialAdController adapterDidFinishLoadingAd:self];
 }
 
-- (void)adRequestFailed:(MMAdView *) adView
+- (void)adRequestFailed:(MMAdView *)adView
 {
 	[_interstitialAdController adapter:self didFailToLoadAdWithError:nil];
 }
@@ -66,9 +67,8 @@
 
 - (void)adModalWasDismissed
 {
-	[_interstitialAdController interstitialDidDissappearForAdapter:self];
+	[_interstitialAdController interstitialWillDisappearForAdapter:self];
+	[_interstitialAdController interstitialDidDisappearForAdapter:self];
 }
-
-
 
 @end

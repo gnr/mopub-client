@@ -1,6 +1,6 @@
 //
 //  MPAdMobAdapter.h
-//  TestRotation
+//  MoPub
 //
 //  Created by Nafis Jamal on 4/26/11.
 //  Copyright 2011 MoPub. All rights reserved.
@@ -12,7 +12,7 @@
 
 @interface MPAdMobInterstitialAdapter : MPBaseInterstitialAdapter <GADInterstitialDelegate> 
 {
-	GADInterstitial *gAdInterstitial;
+	GADInterstitial *_gAdInterstitial;
 }
 
 @end

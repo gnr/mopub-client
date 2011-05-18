@@ -1,6 +1,6 @@
 //
 //  MPGlobal.m
-//  SimpleAds
+//  MoPub
 //
 //  Created by Andrew He on 5/5/11.
 //  Copyright 2011 MoPub, Inc. All rights reserved.

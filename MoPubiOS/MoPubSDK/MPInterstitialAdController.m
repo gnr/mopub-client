@@ -9,6 +9,7 @@
 #import "MPInterstitialAdController.h"
 #import "MPBaseInterstitialAdapter.h"
 #import "MPAdapterMap.h"
+#import "MPAdView+InterstitialPrivate.h"
 
 static const CGFloat kCloseButtonPadding				= 6.0;
 static NSString * const kCloseButtonXImageName			= @"MPCloseButtonX.png";
@@ -325,6 +326,7 @@ static NSString * const kOrientationBoth				= @"b";
 		_orientationType = InterstitialOrientationTypeBoth;
 	
 	NSString *adapterType = [params objectForKey:@"X-Fulladtype"];
+	if (!adapterType || [adapterType isEqualToString:@""]) return;
 	NSString *classString = [[MPAdapterMap sharedAdapterMap] classStringForAdapterType:adapterType];
 	Class cls = NSClassFromString(classString);
 	if (cls != nil)
@@ -332,7 +334,12 @@ static NSString * const kOrientationBoth				= @"b";
 		[self.currentAdapter unregisterDelegate];	
 		self.currentAdapter = (MPBaseInterstitialAdapter *)[[cls alloc] initWithInterstitialAdController:self];
 		[self.currentAdapter getAdWithParams:params];
-	}	
+	}
+	else 
+	{
+		// TODO: Generate error.
+		[self adapter:nil didFailToLoadAdWithError:nil];
+	}
 }
 
 - (void)adViewShouldClose:(MPAdView *)view
@@ -346,7 +353,7 @@ static NSString * const kOrientationBoth				= @"b";
 - (void)adapterDidFinishLoadingAd:(MPBaseInterstitialAdapter *)adapter
 {	
 	_ready = YES;
-	[_adView setIsLoading:NO];
+	_adView.isLoading = NO;
 	if ([self.parent respondsToSelector:@selector(interstitialDidLoadAd:)])
 		[self.parent interstitialDidLoadAd:self];
 }
@@ -354,38 +361,39 @@ static NSString * const kOrientationBoth				= @"b";
 - (void)adapter:(MPBaseInterstitialAdapter *)adapter didFailToLoadAdWithError:(NSError *)error
 {
 	_ready = NO;
-	MPLogError(@"Adapter (%p) failed to load ad. Error: %@", adapter, error);
+	MPLogError(@"Interstitial adapter (%p) failed to load ad. Error: %@", adapter, error);
 	
 	// Dispose of the current adapter, because we don't want it to try loading again.
-	[_currentAdapter unregisterDelegate];
-	[_currentAdapter release];
-	_currentAdapter = nil;
+	[self.currentAdapter unregisterDelegate];
+	self.currentAdapter = nil;
 	
 	[_adView adapter:nil didFailToLoadAdWithError:error];
 }
 
-- (void)interstitialWillAppearForAdapter:(MPBaseInterstitialAdapter *)adapter{
+- (void)interstitialWillAppearForAdapter:(MPBaseInterstitialAdapter *)adapter
+{
 	[_adView trackImpression];
-	if ([self.parent respondsToSelector:@selector(interstitialWillAppear:)]
+	if ([self.parent respondsToSelector:@selector(interstitialWillAppear:)])
 		[self.parent interstitialWillAppear:self];
 }
 
-- (void)interstitialDidAppearForAdapter:(MPBaseInterstitialAdapter *)adapter{
+- (void)interstitialDidAppearForAdapter:(MPBaseInterstitialAdapter *)adapter
+{
 	if ([self.parent respondsToSelector:@selector(interstitialDidAppear:)])
 		[self.parent interstitialDidAppear:self];
 }
 
-- (void)interstitialWillDissappearForAdapter:(MPBaseInterstitialAdapter *)adapter
+- (void)interstitialWillDisappearForAdapter:(MPBaseInterstitialAdapter *)adapter
 {
 	if ([self.parent respondsToSelector:@selector(interstitialWillDisappear:)])
 		[self.parent interstitialWillDisappear:self];
 }
-- (void)interstitialDidDissappearForAdapter:(MPBaseInterstitialAdapter *)adapter
+
+- (void)interstitialDidDisappearForAdapter:(MPBaseInterstitialAdapter *)adapter
 {
 	if ([self.parent respondsToSelector:@selector(interstitialDidDisappear:)])
 		[self.parent interstitialDidDisappear:self];
 }
-
 
 #pragma mark -
 

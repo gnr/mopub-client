@@ -1,6 +1,6 @@
 //
 //  MPAdMobAdapter.m
-//  TestRotation
+//  MoPub
 //
 //  Created by Nafis Jamal on 4/26/11.
 //  Copyright 2011 MoPub. All rights reserved.
@@ -15,49 +15,61 @@
 
 - (void)getAdWithParams:(NSDictionary *)params
 {	
-	NSData *headerData = [(NSString *)[params objectForKey:@"X-Nativeparams"] dataUsingEncoding:NSUTF8StringEncoding];
-	NSDictionary *headerParams = [[CJSONDeserializer deserializer] deserializeAsDictionary:headerData
-																					 error:NULL];	
-	gAdInterstitial = [[GADInterstitial alloc] init];
-	gAdInterstitial.adUnitID = [headerParams objectForKey:@"adUnitID"];
-	gAdInterstitial.delegate = self;
+	NSData *hdrData = [(NSString *)[params objectForKey:@"X-Nativeparams"] 
+					   dataUsingEncoding:NSUTF8StringEncoding];
+	NSDictionary *hdrParams = [[CJSONDeserializer deserializer] deserializeAsDictionary:hdrData
+																				  error:NULL];
+	
+	_gAdInterstitial = [[GADInterstitial alloc] init];
+	_gAdInterstitial.adUnitID = [hdrParams objectForKey:@"adUnitID"];
+	_gAdInterstitial.delegate = self;
+	
 	GADRequest *request = [GADRequest request];
-	request.testing = YES;
-	[gAdInterstitial loadRequest:request];
+	// Here, you can specify a list of devices that will receive test ads.
+	// See: http://code.google.com/mobile/ads/docs/ios/intermediate.html#testdevices
+	request.testDevices = [NSArray arrayWithObjects:GAD_SIMULATOR_ID, 
+						   // more UDIDs here,
+						   nil];
+	
+	[_gAdInterstitial loadRequest:request];
 }
 
-- (void)interstitialDidReceiveAd:(GADInterstitial *)interstitial{
+- (void)interstitialDidReceiveAd:(GADInterstitial *)interstitial
+{
 	[_interstitialAdController adapterDidFinishLoadingAd:self];
 }
 
-- (void)interstitial:(GADInterstitial *)interstitial didFailToReceiveAdWithError:(GADRequestError *)error{
+- (void)interstitial:(GADInterstitial *)interstitial 
+		didFailToReceiveAdWithError:(GADRequestError *)error
+{
 	[_interstitialAdController adapter:self didFailToLoadAdWithError:error];
 }
 
-- (void)showInterstitialFromViewController:(UIViewController *)rootViewController
+- (void)showInterstitialFromViewController:(UIViewController *)controller
 {
-	[gAdInterstitial presentFromRootViewController:rootViewController];
+	[_gAdInterstitial presentFromRootViewController:controller];
 }
-	
 
 - (void)interstitialWillPresentScreen:(GADInterstitial *)interstitial
 {
 	[_interstitialAdController interstitialWillAppearForAdapter:self];
+	[_interstitialAdController interstitialDidAppearForAdapter:self];
 }
 
 - (void)interstitialWillDismissScreen:(GADInterstitial *)ad
 {
-	[_interstitialAdController interstitialWillDissappearForAdapter:self];
+	[_interstitialAdController interstitialWillDisappearForAdapter:self];
 }
 
 - (void)interstitialDidDismissScreen:(GADInterstitial *)ad
 {
-	[_interstitialAdController interstitialDidDissappearForAdapter:self];
+	[_interstitialAdController interstitialDidDisappearForAdapter:self];
 }
 
-- (void)dealloc{
-	gAdInterstitial.delegate = nil;
-	[gAdInterstitial release];
+- (void)dealloc
+{
+	_gAdInterstitial.delegate = nil;
+	[_gAdInterstitial release];
 	[super dealloc];
 }
 

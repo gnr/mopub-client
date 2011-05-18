@@ -52,12 +52,11 @@
 		3CB4A0F2113F5E75000DB158 /* MainWindow.xib in Resources */ = {isa = PBXBuildFile; fileRef = 3CB4A0F0113F5E75000DB158 /* MainWindow.xib */; };
 		3CB4A0F3113F5E75000DB158 /* SimpleAdsViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 3CB4A0F1113F5E75000DB158 /* SimpleAdsViewController.xib */; };
 		3CC4D7791264DC6800212F16 /* SecondViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 3CC4D7771264DC6800212F16 /* SecondViewController.xib */; };
+		A7424EE41381909900FED855 /* MPBaseInterstitialAdapter.m in Sources */ = {isa = PBXBuildFile; fileRef = A7424EE31381909900FED855 /* MPBaseInterstitialAdapter.m */; };
 		A77155331373282E00069B34 /* MPGlobal.m in Sources */ = {isa = PBXBuildFile; fileRef = A77155321373282E00069B34 /* MPGlobal.m */; };
-		A7936CF11381CD3C002E21AB /* MPGoogleAdMobAdapter.m in Sources */ = {isa = PBXBuildFile; fileRef = A7936CF01381CD3C002E21AB /* MPGoogleAdMobAdapter.m */; };
-		A7936CF61381CD4F002E21AB /* MPMillennialAdapter.m in Sources */ = {isa = PBXBuildFile; fileRef = A7936CF51381CD4F002E21AB /* MPMillennialAdapter.m */; };
+		A7936B2F1381A0F0002E21AB /* MPInterstitialAdapter.m in Sources */ = {isa = PBXBuildFile; fileRef = A7936B2E1381A0F0002E21AB /* MPInterstitialAdapter.m */; };
 		A7F12BB51373689E008ECC4E /* MPCloseButtonX.png in Resources */ = {isa = PBXBuildFile; fileRef = A7F12BB31373689E008ECC4E /* MPCloseButtonX.png */; };
 		A7F12BB61373689E008ECC4E /* MPCloseButtonX@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = A7F12BB41373689E008ECC4E /* MPCloseButtonX@2x.png */; };
-		A7424EE41381909900FED855 /* MPBaseInterstitialAdapter.m in Sources */ = {isa = PBXBuildFile; fileRef = A7424EE31381909900FED855 /* MPBaseInterstitialAdapter.m */; };
 		A8065E8B1326769E00C147DC /* MPTimer.m in Sources */ = {isa = PBXBuildFile; fileRef = A8065E8A1326769E00C147DC /* MPTimer.m */; };
 /* End PBXBuildFile section */
 
@@ -112,8 +111,6 @@
 		3C83C65B1308146000CD306C /* MPStore.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPStore.m; sourceTree = "<group>"; };
 		3C83C7231308151700CD306C /* CoreLocation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreLocation.framework; path = System/Library/Frameworks/CoreLocation.framework; sourceTree = SDKROOT; };
 		3C83C7441308184D00CD306C /* iAd.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = iAd.framework; path = System/Library/Frameworks/iAd.framework; sourceTree = SDKROOT; };
-		3C8790E01344ED8600462D08 /* MPGoogleAdSenseAdapter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPGoogleAdSenseAdapter.h; sourceTree = "<group>"; };
-		3C8790E11344ED8600462D08 /* MPGoogleAdSenseAdapter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPGoogleAdSenseAdapter.m; sourceTree = "<group>"; };
 		3C8790E21344ED8600462D08 /* MPIAdAdapter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPIAdAdapter.h; sourceTree = "<group>"; };
 		3C8790E31344ED8600462D08 /* MPIAdAdapter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPIAdAdapter.m; sourceTree = "<group>"; };
 		3C94E561135757900078FE9E /* MPAdBrowserController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = MPAdBrowserController.xib; sourceTree = "<group>"; };
@@ -138,16 +135,14 @@
 		3CC4D7761264DC6800212F16 /* SecondViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SecondViewController.m; sourceTree = "<group>"; };
 		3CC4D7771264DC6800212F16 /* SecondViewController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = SecondViewController.xib; path = Classes/SecondViewController.xib; sourceTree = "<group>"; };
 		8D1107310486CEB800E47090 /* SimpleAds-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "SimpleAds-Info.plist"; plistStructureDefinitionIdentifier = "com.apple.xcode.plist.structure-definition.iphone.info-plist"; sourceTree = "<group>"; };
-		A77155311373282E00069B34 /* MPGlobal.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPGlobal.h; sourceTree = "<group>"; };
-		A77155321373282E00069B34 /* MPGlobal.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPGlobal.m; sourceTree = "<group>"; };
-		A7936CEF1381CD3C002E21AB /* MPGoogleAdMobAdapter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPGoogleAdMobAdapter.h; sourceTree = "<group>"; };
-		A7936CF01381CD3C002E21AB /* MPGoogleAdMobAdapter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPGoogleAdMobAdapter.m; sourceTree = "<group>"; };
-		A7936CF41381CD4F002E21AB /* MPMillennialAdapter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPMillennialAdapter.h; sourceTree = "<group>"; };
-		A7936CF51381CD4F002E21AB /* MPMillennialAdapter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPMillennialAdapter.m; sourceTree = "<group>"; };
-		A7F12BB31373689E008ECC4E /* MPCloseButtonX.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = MPCloseButtonX.png; sourceTree = "<group>"; };
-		A7F12BB41373689E008ECC4E /* MPCloseButtonX@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "MPCloseButtonX@2x.png"; sourceTree = "<group>"; };
 		A7424EE21381909900FED855 /* MPBaseInterstitialAdapter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPBaseInterstitialAdapter.h; sourceTree = "<group>"; };
 		A7424EE31381909900FED855 /* MPBaseInterstitialAdapter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPBaseInterstitialAdapter.m; sourceTree = "<group>"; };
+		A77155311373282E00069B34 /* MPGlobal.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPGlobal.h; sourceTree = "<group>"; };
+		A77155321373282E00069B34 /* MPGlobal.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPGlobal.m; sourceTree = "<group>"; };
+		A7936B2D1381A0F0002E21AB /* MPInterstitialAdapter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPInterstitialAdapter.h; sourceTree = "<group>"; };
+		A7936B2E1381A0F0002E21AB /* MPInterstitialAdapter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPInterstitialAdapter.m; sourceTree = "<group>"; };
+		A7F12BB31373689E008ECC4E /* MPCloseButtonX.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = MPCloseButtonX.png; sourceTree = "<group>"; };
+		A7F12BB41373689E008ECC4E /* MPCloseButtonX@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "MPCloseButtonX@2x.png"; sourceTree = "<group>"; };
 		A8065E891326769E00C147DC /* MPTimer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPTimer.h; sourceTree = "<group>"; };
 		A8065E8A1326769E00C147DC /* MPTimer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPTimer.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -320,6 +315,8 @@
 				A8065E8A1326769E00C147DC /* MPTimer.m */,
 				A7424EE21381909900FED855 /* MPBaseInterstitialAdapter.h */,
 				A7424EE31381909900FED855 /* MPBaseInterstitialAdapter.m */,
+				A7936B2D1381A0F0002E21AB /* MPInterstitialAdapter.h */,
+				A7936B2E1381A0F0002E21AB /* MPInterstitialAdapter.m */,
 				3C83C6561308146000CD306C /* MPInterstitialAdController.h */,
 				3C83C6571308146000CD306C /* MPInterstitialAdController.m */,
 				3C83C64A1308146000CD306C /* MPAdBrowserController.h */,
@@ -349,14 +346,8 @@
 		3C8790DF1344ED8600462D08 /* MoPubNetworkAdapters */ = {
 			isa = PBXGroup;
 			children = (
-				3C8790E01344ED8600462D08 /* MPGoogleAdSenseAdapter.h */,
-				3C8790E11344ED8600462D08 /* MPGoogleAdSenseAdapter.m */,
-				A7936CEF1381CD3C002E21AB /* MPGoogleAdMobAdapter.h */,
-				A7936CF01381CD3C002E21AB /* MPGoogleAdMobAdapter.m */,
 				3C8790E21344ED8600462D08 /* MPIAdAdapter.h */,
 				3C8790E31344ED8600462D08 /* MPIAdAdapter.m */,
-				A7936CF41381CD4F002E21AB /* MPMillennialAdapter.h */,
-				A7936CF51381CD4F002E21AB /* MPMillennialAdapter.m */,
 			);
 			name = MoPubNetworkAdapters;
 			path = ../extras/MoPubNetworkAdapters;
@@ -464,9 +455,8 @@
 				A8065E8B1326769E00C147DC /* MPTimer.m in Sources */,
 				3C8790E81344EF0800462D08 /* MPIAdAdapter.m in Sources */,
 				A77155331373282E00069B34 /* MPGlobal.m in Sources */,
-				A7936CF11381CD3C002E21AB /* MPGoogleAdMobAdapter.m in Sources */,
-				A7936CF61381CD4F002E21AB /* MPMillennialAdapter.m in Sources */,
 				A7424EE41381909900FED855 /* MPBaseInterstitialAdapter.m in Sources */,
+				A7936B2F1381A0F0002E21AB /* MPInterstitialAdapter.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -1,6 +1,6 @@
 //
 //  MPBaseInterstitialAdapter.m
-//  TestRotation
+//  MoPub
 //
 //  Created by Nafis Jamal on 4/27/11.
 //  Copyright 2011 MoPub. All rights reserved.
@@ -15,7 +15,9 @@
 - (id)initWithInterstitialAdController:(MPInterstitialAdController *)interstitialAdController
 {
 	if (self = [super init])
+	{
 		_interstitialAdController = interstitialAdController;
+	}
 	return self;
 }
 
@@ -40,7 +42,7 @@
 	[self doesNotRecognizeSelector:_cmd];
 }
 
-- (void)showInterstitialFromViewController:(UIViewController *)rootViewController
+- (void)showInterstitialFromViewController:(UIViewController *)controller
 {
 	[self doesNotRecognizeSelector:_cmd];
 }

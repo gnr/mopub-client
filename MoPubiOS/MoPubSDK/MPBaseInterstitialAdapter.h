@@ -1,16 +1,18 @@
 //
 //  MPBaseInterstitialAdapter.h
-//  TestRotation
+//  MoPub
 //
 //  Created by Nafis Jamal on 4/27/11.
 //  Copyright 2011 MoPub. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
+#import <UIKit/UIKit.h>
 
 @class MPInterstitialAdController;
 
-@interface MPBaseInterstitialAdapter : NSObject {
+@interface MPBaseInterstitialAdapter : NSObject 
+{
 	MPInterstitialAdController *_interstitialAdController;
 }
 
@@ -34,10 +36,9 @@
 - (void)getAdWithParams:(NSDictionary *)params;
 
 /*
- * TODO: NEEDS COMMENT
- *
+ * Presents the interstitial from the specified view controller.
  */
-- (void)showInterstitialFromViewController:(UIViewController *)rootViewController;
+- (void)showInterstitialFromViewController:(UIViewController *)controller;
 
 @end
 
@@ -48,8 +49,12 @@
  */
 - (void)adapterDidFinishLoadingAd:(MPBaseInterstitialAdapter *)adapter;
 - (void)adapter:(MPBaseInterstitialAdapter *)adapter didFailToLoadAdWithError:(NSError *)error;
+
+/*
+ *
+ */
 - (void)interstitialWillAppearForAdapter:(MPBaseInterstitialAdapter *)adapter;
 - (void)interstitialDidAppearForAdapter:(MPBaseInterstitialAdapter *)adapter;
-- (void)interstitialWillDissappearForAdapter:(MPBaseInterstitialAdapter *)adapter;
-- (void)interstitialDidDissappearForAdapter:(MPBaseInterstitialAdapter *)adapter;
+- (void)interstitialWillDisappearForAdapter:(MPBaseInterstitialAdapter *)adapter;
+- (void)interstitialDidDisappearForAdapter:(MPBaseInterstitialAdapter *)adapter;
 @end

@@ -1,6 +1,6 @@
 //
 //  MPMillennialInterstitialAdapter.h
-//  TestRotation
+//  MoPub
 //
 //  Created by Nafis Jamal on 4/27/11.
 //  Copyright 2011 MoPub. All rights reserved.
@@ -13,7 +13,7 @@
 
 @interface MPMillennialInterstitialAdapter : MPBaseInterstitialAdapter <MMAdDelegate>
 {
-	MMAdView *mmInterstitialAdView;
+	MMAdView *_mmInterstitialAdView;
 }
 
 @end
