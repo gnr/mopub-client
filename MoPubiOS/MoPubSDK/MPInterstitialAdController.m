@@ -23,6 +23,7 @@ static NSString * const kOrientationLandscapeOnly		= @"l";
 static NSString * const kOrientationBoth				= @"b";
 
 @interface MPInterstitialAdController (Internal)
+
 - (id)initWithAdUnitId:(NSString *)ID parentViewController:(UIViewController *)parent;
 - (void)setCloseButtonImageNamed:(NSString *)name;
 - (void)layoutCloseButton;
@@ -32,7 +33,6 @@ static NSString * const kOrientationBoth				= @"b";
 @property (nonatomic, retain) UIButton *closeButton;
 @property (nonatomic, retain) MPBaseInterstitialAdapter *currentAdapter;
 @end
-
 
 @implementation MPInterstitialAdController
 

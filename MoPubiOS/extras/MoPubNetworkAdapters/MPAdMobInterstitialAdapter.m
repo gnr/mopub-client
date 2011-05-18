@@ -14,7 +14,7 @@
 @implementation MPAdMobInterstitialAdapter
 
 - (void)getAdWithParams:(NSDictionary *)params
-{	
+{
 	NSData *hdrData = [(NSString *)[params objectForKey:@"X-Nativeparams"] 
 					   dataUsingEncoding:NSUTF8StringEncoding];
 	NSDictionary *hdrParams = [[CJSONDeserializer deserializer] deserializeAsDictionary:hdrData
