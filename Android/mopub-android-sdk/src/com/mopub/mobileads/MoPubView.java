@@ -32,6 +32,7 @@
 
 package com.mopub.mobileads;
 
+import android.app.Activity;
 import android.content.Context;
 import android.location.Location;
 import android.util.AttributeSet;
@@ -70,7 +71,9 @@ public class MoPubView extends FrameLayout {
     public static String AD_HANDLER = "/m/ad";
 
     private AdView mAdView;
-    private Object mAdSenseAdapter;
+    private Object mNativeAdapter;
+    private Activity mActivity;
+
     private OnAdWillLoadListener mOnAdWillLoadListener;
     private OnAdLoadedListener mOnAdLoadedListener;
     private OnAdFailedListener mOnAdFailedListener;
@@ -98,6 +101,8 @@ public class MoPubView extends FrameLayout {
 
         // The AdView doesn't need to be in the view hierarchy until an ad is loaded
         mAdView = new AdView(context, this);
+        
+        mActivity = (Activity) context;
     }
 
     public void loadAd() {
@@ -114,39 +119,30 @@ public class MoPubView extends FrameLayout {
         mAdView.loadFailUrl();
     }
 
-    public void loadAdSense(String params) {
-        try {
-            Class.forName("com.google.ads.GoogleAdView");
-        } catch (ClassNotFoundException e) {
-            Log.d("MoPub", "Couldn't find AdSense SDK. Trying next ad...");
+    public void loadNativeSDK(String type, String params) {
+        Class<?> adapterClass = BaseAdapter.classForAdapterType(type);
+        if (adapterClass == null) {
             loadFailUrl();
             return;
         }
 
+        Class<?>[] parameterTypes = new Class[2];
+        parameterTypes[0] = MoPubView.class;
+        parameterTypes[1] = String.class;
+
+        Object[] args = new Object[2];
+        args[0] = this;
+        args[1] = params;
+
         try {
-            Class<?> adapterClass
-                    = (Class<?>) Class.forName("com.mopub.mobileads.AdSenseAdapter");
-
-            Class<?>[] parameterTypes = new Class[2];
-            parameterTypes[0] = MoPubView.class;
-            parameterTypes[1] = String.class;
-
             Constructor<?> constructor = adapterClass.getConstructor(parameterTypes);
 
-            Object[] args = new Object[2];
-            args[0] = this;
-            args[1] = params;
-
-            mAdSenseAdapter = constructor.newInstance(args);
+            mNativeAdapter = constructor.newInstance(args);
 
             Method loadAdMethod = adapterClass.getMethod("loadAd", (Class[]) null);
-            loadAdMethod.invoke(mAdSenseAdapter, (Object[]) null);
-        } catch (ClassNotFoundException e) {
-            Log.d("MoPub", "Couldn't find AdSenseAdapter class.  Trying next ad...");
-            loadFailUrl();
-            return;
+            loadAdMethod.invoke(mNativeAdapter, (Object[]) null);
         } catch (Exception e) {
-            Log.d("MoPub", "Couldn't create AdSenseAdapter class.  Trying next ad...");
+            Log.d("MoPub", "Couldn't load native adapter. Trying next ad...");
             loadFailUrl();
             return;
         }
@@ -157,7 +153,7 @@ public class MoPubView extends FrameLayout {
             return;
         }
         mAdView.registerClick();
-        
+
         // Let any listeners know that an ad was clicked
         adClicked();
     }
@@ -232,6 +228,10 @@ public class MoPubView extends FrameLayout {
             return null;
         }
         return mAdView.getResponseString();
+    }
+
+    public Activity getActivity() {
+        return mActivity;
     }
 
     public void adWillLoad(String url) {

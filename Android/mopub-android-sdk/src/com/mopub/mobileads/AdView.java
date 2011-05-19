@@ -237,12 +237,12 @@ public class AdView extends WebView {
         }
 
         // Handle requests for native SDK ads
-        if (atHeader.getValue().toLowerCase().equals("adsense")) {
+        if (!atHeader.getValue().equals("html")) {
             Log.i("MoPub","Load AdSense ad");
             Header npHeader = mResponse.getFirstHeader("X-Nativeparams");
             if (npHeader != null) {
                 mIsLoading = false;
-                mMoPubView.loadAdSense(npHeader.getValue());
+                mMoPubView.loadNativeSDK(atHeader.getValue(), npHeader.getValue());
                 return;
             }
             else {
