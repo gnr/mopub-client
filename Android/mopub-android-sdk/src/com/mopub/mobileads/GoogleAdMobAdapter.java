@@ -52,7 +52,7 @@ public class GoogleAdMobAdapter extends BaseAdapter implements AdListener {
         mMoPubView = view;
         mParams = params;
     }
-    
+
     public void loadAd() {
         if (mMoPubView == null) {
             return;
@@ -75,7 +75,10 @@ public class GoogleAdMobAdapter extends BaseAdapter implements AdListener {
         mAdView.setAdListener(this);
 
         // Start loading the ad in the background.
-        mAdView.loadAd(new AdRequest());
+        // TODO: temporary testing
+        AdRequest request = new AdRequest();
+        request.addTestDevice(AdRequest.TEST_EMULATOR);
+        mAdView.loadAd(request);
     }
 
     @Override
@@ -85,6 +88,23 @@ public class GoogleAdMobAdapter extends BaseAdapter implements AdListener {
     @Override
     public void onFailedToReceiveAd(Ad ad, ErrorCode error) {
         Log.d("MoPub", "Google AdMob failed. Trying another"); 
+        switch (error) {
+        case INTERNAL_ERROR:
+            Log.d("MoPub", "Internal error");
+            break;
+        case INVALID_REQUEST:
+            Log.d("MoPub", "Invalid request");
+            break;
+        case NETWORK_ERROR:
+            Log.d("MoPub", "Network error");
+            break;
+        case NO_FILL:
+            Log.d("MoPub", "No fill");
+            break;
+        default:
+            Log.d("MoPub", "Unknown error");
+        }
+        Log.d("MoPub", "Errors: "+ErrorCode.values());
         if (mMoPubView != null) { 
             mMoPubView.loadFailUrl(); 
         } 

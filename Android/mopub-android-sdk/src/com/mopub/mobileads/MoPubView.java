@@ -42,9 +42,6 @@ import android.widget.FrameLayout;
 
 import org.apache.http.HttpResponse;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Method;
-
 public class MoPubView extends FrameLayout {
 
     public interface OnAdWillLoadListener {
@@ -67,11 +64,11 @@ public class MoPubView extends FrameLayout {
         public void OnAdClicked(MoPubView m);
     }
 
-    public static String HOST = "ads.mopub.com";
+    //public static String HOST = "ads.mopub.com";
+    public static String HOST = "10.0.2.2:8082";
     public static String AD_HANDLER = "/m/ad";
 
     private AdView mAdView;
-    private Object mNativeAdapter;
     private Activity mActivity;
 
     private OnAdWillLoadListener mOnAdWillLoadListener;
@@ -120,31 +117,11 @@ public class MoPubView extends FrameLayout {
     }
 
     public void loadNativeSDK(String type, String params) {
-        Class<?> adapterClass = BaseAdapter.classForAdapterType(type);
-        if (adapterClass == null) {
+        if (BaseAdapter.loadAdForAdapterType(this, params, type)) {
+            Log.i("MoPub", "Loading native adapter for type: "+type);
+        } else {
+            Log.i("MoPub", "Couldn't load native adapter. Trying next ad...");
             loadFailUrl();
-            return;
-        }
-
-        Class<?>[] parameterTypes = new Class[2];
-        parameterTypes[0] = MoPubView.class;
-        parameterTypes[1] = String.class;
-
-        Object[] args = new Object[2];
-        args[0] = this;
-        args[1] = params;
-
-        try {
-            Constructor<?> constructor = adapterClass.getConstructor(parameterTypes);
-
-            mNativeAdapter = constructor.newInstance(args);
-
-            Method loadAdMethod = adapterClass.getMethod("loadAd", (Class[]) null);
-            loadAdMethod.invoke(mNativeAdapter, (Object[]) null);
-        } catch (Exception e) {
-            Log.d("MoPub", "Couldn't load native adapter. Trying next ad...");
-            loadFailUrl();
-            return;
         }
     }
 
