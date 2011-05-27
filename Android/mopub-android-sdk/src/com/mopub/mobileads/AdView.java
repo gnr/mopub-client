@@ -64,9 +64,14 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.HashMap;
 
 public class AdView extends WebView {
-
+    
+    public static final String AD_ORIENTATION_PORTRAIT_ONLY      = "p";
+    public static final String AD_ORIENTATION_LANDSCAPE_ONLY     = "l";
+    public static final String AD_ORIENTATION_BOTH               = "b";
+    
     private String mAdUnitId;
     private String mKeywords;
     private String mUrl;
@@ -79,6 +84,7 @@ public class AdView extends WebView {
     private int mTimeout = -1; // HTTP connection timeout in msec
     private int mWidth;
     private int mHeight;
+    private String mAdOrientation;
 
     private MoPubView mMoPubView;
     private HttpResponse mResponse;
@@ -235,14 +241,24 @@ public class AdView extends WebView {
         else {
             mRefreshTime = 0;
         }
-
+        
+        Header orHeader = mResponse.getFirstHeader("X-Orientation");
+        mAdOrientation = (orHeader != null) ? orHeader.getValue() : null;
+        
         // Handle requests for native SDK ads
-        if (atHeader.getValue().toLowerCase().equals("adsense")) {
-            Log.i("MoPub","Load AdSense ad");
+        if (!atHeader.getValue().equals("html")) {
+            Log.i("MoPub","Loading native ad");
             Header npHeader = mResponse.getFirstHeader("X-Nativeparams");
             if (npHeader != null) {
                 mIsLoading = false;
-                mMoPubView.loadAdSense(npHeader.getValue());
+                
+                HashMap<String, String> paramsHash = new HashMap<String, String>();
+                paramsHash.put("X-Adtype", atHeader.getValue());
+                paramsHash.put("X-Nativeparams", npHeader.getValue());
+                Header ftHeader = mResponse.getFirstHeader("X-Fulladtype");
+                if (ftHeader != null) paramsHash.put("X-Fulladtype", ftHeader.getValue());
+                
+                mMoPubView.loadNativeSDK(paramsHash);
                 return;
             }
             else {
@@ -288,7 +304,7 @@ public class AdView extends WebView {
 
     private String generateAdUrl() {
         StringBuilder sz = new StringBuilder("http://"+MoPubView.HOST+MoPubView.AD_HANDLER);
-        sz.append("?v=2&id=" + mAdUnitId);
+        sz.append("?v=3&id=" + mAdUnitId);
         sz.append("&udid="+Secure.getString(getContext().getContentResolver(), Secure.ANDROID_ID));
 
         if (mKeywords != null) {
@@ -334,6 +350,11 @@ public class AdView extends WebView {
         Log.d("MoPub", "ad url: "+adUrl);
         mMoPubView.adWillLoad(adUrl);
         loadUrl(adUrl);
+    }
+    
+    protected void loadResponseString(String responseString) {
+        loadDataWithBaseURL("http://"+MoPubView.HOST+"/",
+                responseString,"text/html","utf-8", null);
     }
 
     @Override
@@ -467,6 +488,10 @@ public class AdView extends WebView {
 
     public int getAdHeight() {
         return mHeight;
+    }
+    
+    public String getAdOrientation() {
+        return mAdOrientation;
     }
 
     public String getClickthroughUrl() {

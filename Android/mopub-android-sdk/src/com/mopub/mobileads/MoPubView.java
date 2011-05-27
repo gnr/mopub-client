@@ -32,6 +32,7 @@
 
 package com.mopub.mobileads;
 
+import android.app.Activity;
 import android.content.Context;
 import android.location.Location;
 import android.util.AttributeSet;
@@ -41,8 +42,7 @@ import android.widget.FrameLayout;
 
 import org.apache.http.HttpResponse;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Method;
+import java.util.HashMap;
 
 public class MoPubView extends FrameLayout {
 
@@ -69,8 +69,10 @@ public class MoPubView extends FrameLayout {
     public static String HOST = "ads.mopub.com";
     public static String AD_HANDLER = "/m/ad";
 
-    private AdView mAdView;
-    private Object mAdSenseAdapter;
+    protected AdView mAdView;
+    private Activity mActivity;
+    protected BaseAdapter mAdapter;
+
     private OnAdWillLoadListener mOnAdWillLoadListener;
     private OnAdLoadedListener mOnAdLoadedListener;
     private OnAdFailedListener mOnAdFailedListener;
@@ -91,13 +93,15 @@ public class MoPubView extends FrameLayout {
         // if it's not accessible.
         if (WebViewDatabase.getInstance(context) == null) {
             Log.e("MoPub", "Disabling MoPub. Local cache file is inaccessbile so MoPub will " +
-                "fail if we try to create a WebView. Details of this Android bug found at:" +
-                "http://code.google.com/p/android/issues/detail?id=10789");
+                    "fail if we try to create a WebView. Details of this Android bug found at:" +
+            "http://code.google.com/p/android/issues/detail?id=10789");
             return;
         }
 
         // The AdView doesn't need to be in the view hierarchy until an ad is loaded
         mAdView = new AdView(context, this);
+
+        mActivity = (Activity) context;
     }
 
     public void loadAd() {
@@ -107,59 +111,42 @@ public class MoPubView extends FrameLayout {
         mAdView.loadAd();
     }
 
-    public void loadFailUrl() {
+    protected void loadFailUrl() {
         if (mAdView == null) {
             return;
         }
         mAdView.loadFailUrl();
     }
 
-    public void loadAdSense(String params) {
-        try {
-            Class.forName("com.google.ads.GoogleAdView");
-        } catch (ClassNotFoundException e) {
-            Log.d("MoPub", "Couldn't find AdSense SDK. Trying next ad...");
+    protected void loadNativeSDK(HashMap<String, String> paramsHash) {
+        if (mAdapter != null) mAdapter.invalidate();
+
+        String type = paramsHash.get("X-Adtype");
+        mAdapter = BaseAdapter.getAdapterForType(this, type, paramsHash);
+
+        if (mAdapter != null) {
+            Log.i("MoPub", "Loading native adapter for type: "+type);
+            mAdapter.loadAd();
+        } else {
+            Log.i("MoPub", "Couldn't load native adapter. Trying next ad...");
             loadFailUrl();
-            return;
-        }
-
-        try {
-            Class<?> adapterClass
-                    = (Class<?>) Class.forName("com.mopub.mobileads.AdSenseAdapter");
-
-            Class<?>[] parameterTypes = new Class[2];
-            parameterTypes[0] = MoPubView.class;
-            parameterTypes[1] = String.class;
-
-            Constructor<?> constructor = adapterClass.getConstructor(parameterTypes);
-
-            Object[] args = new Object[2];
-            args[0] = this;
-            args[1] = params;
-
-            mAdSenseAdapter = constructor.newInstance(args);
-
-            Method loadAdMethod = adapterClass.getMethod("loadAd", (Class[]) null);
-            loadAdMethod.invoke(mAdSenseAdapter, (Object[]) null);
-        } catch (ClassNotFoundException e) {
-            Log.d("MoPub", "Couldn't find AdSenseAdapter class.  Trying next ad...");
-            loadFailUrl();
-            return;
-        } catch (Exception e) {
-            Log.d("MoPub", "Couldn't create AdSenseAdapter class.  Trying next ad...");
-            loadFailUrl();
-            return;
         }
     }
 
-    public void registerClick() {
+    protected void registerClick() {
         if (mAdView == null) {
             return;
         }
         mAdView.registerClick();
-        
+
         // Let any listeners know that an ad was clicked
         adClicked();
+    }
+    
+    protected void loadHtmlString(String html) {
+        if (mAdView != null) {
+            mAdView.loadResponseString(html);
+        }
     }
 
     // Getters and Setters
@@ -234,33 +221,37 @@ public class MoPubView extends FrameLayout {
         return mAdView.getResponseString();
     }
 
-    public void adWillLoad(String url) {
+    public Activity getActivity() {
+        return mActivity;
+    }
+
+    protected void adWillLoad(String url) {
         Log.d("MoPub", "adWillLoad: "+url);
         if (mOnAdWillLoadListener != null) {
             mOnAdWillLoadListener.OnAdWillLoad(this, url);
         }
     }
 
-    public void adLoaded() {
+    protected void adLoaded() {
         Log.d("MoPub","adLoaded");
         if (mOnAdLoadedListener != null) {
             mOnAdLoadedListener.OnAdLoaded(this);
         }
     }
 
-    public void adFailed() {
+    protected void adFailed() {
         if (mOnAdFailedListener != null) {
             mOnAdFailedListener.OnAdFailed(this);
         }
     }
 
-    public void adClosed() {
+    protected void adClosed() {
         if (mOnAdClosedListener != null) {
             mOnAdClosedListener.OnAdClosed(this);
         }
     }
-    
-    public void adClicked() {
+
+    protected void adClicked() {
         if (mOnAdClickedListener != null) {
             mOnAdClickedListener.OnAdClicked(this);
         }

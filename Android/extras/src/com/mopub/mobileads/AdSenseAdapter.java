@@ -51,7 +51,7 @@ import com.google.ads.AdSenseSpec.AdType;
 
 import com.mopub.mobileads.MoPubView;
 
-public class AdSenseAdapter implements AdViewListener {
+public class AdSenseAdapter extends BaseAdapter implements AdViewListener {
 	private GoogleAdView 					mAdView;
 	private final WeakReference<MoPubView> 	mMoPubViewReference;
 	private String 							mParams;
