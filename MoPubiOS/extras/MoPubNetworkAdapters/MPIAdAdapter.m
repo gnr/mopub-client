@@ -12,6 +12,18 @@
 
 @implementation MPIAdAdapter
 
++ (ADBannerView *)sharedAdBannerView
+{
+	static ADBannerView *sharedAdBannerView;
+	
+	@synchronized(self)
+	{
+		if (!sharedAdBannerView)
+			sharedAdBannerView = [[ADBannerView alloc] initWithFrame:CGRectZero];
+	}
+	return sharedAdBannerView;
+}
+
 - (void)dealloc
 {
 	_adBannerView.delegate = nil;
@@ -31,7 +43,8 @@
 			[_adBannerView release];
 		}
 		
-		_adBannerView = [[cls alloc] initWithFrame:(CGRect){{0, 0}, size}];
+		_adBannerView = [[MPIAdAdapter sharedAdBannerView] retain];
+		_adBannerView.frame = (CGRect){{0, 0}, size};
 
 		UIInterfaceOrientation currentOrientation = [UIApplication sharedApplication].statusBarOrientation;
 		// iOS 4.2:

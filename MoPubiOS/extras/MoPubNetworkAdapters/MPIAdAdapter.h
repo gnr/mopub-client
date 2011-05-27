@@ -16,4 +16,6 @@
 	BOOL _hasReceivedFirstResponse;
 }
 
++ (ADBannerView *)sharedAdBannerView;
+
 @end
