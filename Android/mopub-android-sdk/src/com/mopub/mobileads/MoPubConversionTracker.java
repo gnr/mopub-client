@@ -71,7 +71,7 @@ public class MoPubConversionTracker {
     Runnable mTrackOpen = new Runnable() {
         public void run() {
             StringBuilder sz = new StringBuilder("http://"+TRACK_HOST+TRACK_HANDLER);
-            sz.append("?v=2&id=" + mPackageName);
+            sz.append("?v=3&id=" + mPackageName);
             sz.append("&udid="+Secure.getString(mContext.getContentResolver(), Secure.ANDROID_ID));
             String url = sz.toString();
             Log.d("MoPub", "Conversion track: "+url);

@@ -304,7 +304,7 @@ public class AdView extends WebView {
 
     private String generateAdUrl() {
         StringBuilder sz = new StringBuilder("http://"+MoPubView.HOST+MoPubView.AD_HANDLER);
-        sz.append("?v=2&id=" + mAdUnitId);
+        sz.append("?v=3&id=" + mAdUnitId);
         sz.append("&udid="+Secure.getString(getContext().getContentResolver(), Secure.ANDROID_ID));
 
         if (mKeywords != null) {
