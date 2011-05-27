@@ -44,8 +44,9 @@ import android.view.Gravity;
 import android.widget.FrameLayout;
 
 public class GoogleAdMobAdapter extends BaseAdapter implements AdListener {
+    
     private com.google.ads.AdView mAdView;
-    private final MoPubView mMoPubView;
+    private MoPubView mMoPubView;
     private String mParams;
 
     public GoogleAdMobAdapter(MoPubView view, String params) {
@@ -53,6 +54,7 @@ public class GoogleAdMobAdapter extends BaseAdapter implements AdListener {
         mParams = params;
     }
 
+    @Override
     public void loadAd() {
         if (mMoPubView == null) {
             return;
@@ -76,6 +78,11 @@ public class GoogleAdMobAdapter extends BaseAdapter implements AdListener {
 
         // Start loading the ad in the background.
         mAdView.loadAd(new AdRequest());
+    }
+
+    @Override
+    public void invalidate() {
+        mMoPubView = null;
     }
 
     @Override

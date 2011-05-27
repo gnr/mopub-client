@@ -105,7 +105,7 @@ public class MoPubConversionTracker {
             // If we made it here, the request has been tracked
             Log.d("MoPub", "Conversion track successful");
             SharedPreferences.Editor editor
-                    = mContext.getSharedPreferences("mopubSettings", 0).edit();
+            = mContext.getSharedPreferences("mopubSettings", 0).edit();
             editor.putBoolean(mPackageName+" tracked", true).commit();
         }
     };

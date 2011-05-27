@@ -32,11 +32,7 @@
 
 package com.mopub.mobileads;
 
-import android.app.Activity;
-import android.util.Log;
-import android.view.Gravity;
-import android.view.View;
-import android.widget.FrameLayout;
+import java.lang.ref.WeakReference;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -45,34 +41,27 @@ import org.json.JSONTokener;
 import com.millennialmedia.android.MMAdView;
 import com.millennialmedia.android.MMAdView.MMAdListener;
 import com.millennialmedia.android.MMAdViewSDK;
-import com.mopub.mobileads.MoPubView;
 
-import java.lang.ref.WeakReference;
+import android.app.Activity;
+import android.util.Log;
+import android.view.View;
 
-public class MillennialAdapter extends BaseAdapter implements MMAdListener {
+public class InterstitialMillennialAdapter extends InterstitialBaseAdapter implements MMAdListener {
 
-    private MMAdView 					mAdView;
-    private MoPubView					mMoPubView;
-    private String 						mParams;
+    private MMAdView    mAdView;
+    private String      mParams;
 
     // MMAdListener should use a WeakReference to the activity.
     // From: http://wiki.millennialmedia.com/index.php/Android#Listening_for_Ad_Events
-    private WeakReference<Activity>		mActivityReference;
+    private WeakReference<Activity> mActivityReference;
 
-    public MillennialAdapter(MoPubView view, String params) {
-        this.mMoPubView = view;
-        this.mActivityReference = new WeakReference<Activity>((Activity)view.getContext());
-        this.mParams = params;
-    }
+    public InterstitialMillennialAdapter(MoPubInterstitial interstitial, String params) {
+        super(interstitial);
+        mActivityReference = new WeakReference<Activity>(interstitial.getActivity());
+        mParams = params;
 
-    @Override
-    public void loadAd() {
-        Activity activity = mActivityReference.get();
-        if (mMoPubView == null || activity == null) {
-            return;
-        }
-
-        mAdView = new MMAdView(activity, "", MMAdView.BANNER_AD_TOP, MMAdView.REFRESH_INTERVAL_OFF);
+        mAdView = new MMAdView(mActivityReference.get(), "", MMAdView.FULLSCREEN_AD_TRANSITION, 
+                MMAdView.REFRESH_INTERVAL_OFF);
         mAdView.setId(MMAdViewSDK.DEFAULT_VIEWID);
 
         // The following parameters are required. Fail if they aren't set.
@@ -82,13 +71,21 @@ public class MillennialAdapter extends BaseAdapter implements MMAdListener {
             object = (JSONObject) new JSONTokener(mParams).nextValue(); 
             pubId = object.getString("adUnitID");
         } catch (JSONException e) { 
-            mMoPubView.adFailed(); 
+            mInterstitial.interstitialFailed();
             return; 
         }
 
         mAdView.setApid(pubId);
         mAdView.setListener(this);
-        Log.d("MoPub", "Loading Millennial ad...");
+    }
+
+    @Override
+    public void loadInterstitial() {
+        if (mInterstitial == null) {
+            return;
+        }
+
+        Log.d("MoPub", "Showing Millennial ad...");
 
         mAdView.setVisibility(View.INVISIBLE);
         mAdView.callForAd();
@@ -96,38 +93,46 @@ public class MillennialAdapter extends BaseAdapter implements MMAdListener {
 
     @Override
     public void invalidate() {
-        mMoPubView = null;
+        mInterstitial = null;
+    }
+
+    @Override
+    public void showInterstitial() {
+        // Not supported.
     }
 
     @Override
     public void MMAdFailed(MMAdView adview)	{
         Log.d("MoPub", "Millennial failed. Trying another");
-        if (mMoPubView != null) { 
-            mMoPubView.loadFailUrl(); 
+        if (mInterstitial != null) { 
+            mInterstitial.interstitialFailed(); 
         }
     }
 
     @Override
     public void MMAdReturned(MMAdView adview) {
-        Activity activity = mActivityReference.get();
-        if (activity != null) {
-            activity.runOnUiThread(new MMRunnable(mMoPubView, adview));
+        Log.d("MoPub", "Millennial returned an ad.");
+        if (mInterstitial != null) { 
+            Activity activity = mActivityReference.get();
+            if (activity != null) {
+                activity.runOnUiThread(new MMRunnable());
+            }
         }
     }
 
     @Override
     public void MMAdClickedToNewBrowser(MMAdView adview) {
         Log.d("MoPub", "Millennial clicked");
-        if (mMoPubView != null) { 
-            mMoPubView.registerClick(); 
+        if (mInterstitial != null) { 
+            mInterstitial.interstitialClicked(); 
         } 
     }
 
     @Override
     public void MMAdClickedToOverlay(MMAdView adview) {
         Log.d("MoPub", "Millennial clicked");
-        if (mMoPubView != null) { 
-            mMoPubView.registerClick(); 
+        if (mInterstitial != null) { 
+            mInterstitial.interstitialClicked(); 
         } 
     }
 
@@ -140,28 +145,11 @@ public class MillennialAdapter extends BaseAdapter implements MMAdListener {
     public void MMAdRequestIsCaching(MMAdView adview) {
         // Nothing needs to happen.
     }
-
-    private class MMRunnable implements Runnable {
-        private MoPubView mMoPubView;
-        private MMAdView mAdView;
-
-        public MMRunnable(MoPubView view, MMAdView adView) {
-            mMoPubView = view;
-            mAdView = adView;
-        }
-
+    
+    protected class MMRunnable implements Runnable {
         public void run() {
-            if (mMoPubView != null && mAdView != null) {
-                mMoPubView.removeAllViews();
-                mAdView.setVisibility(View.VISIBLE);
-                mAdView.setHorizontalScrollBarEnabled(false);
-                mAdView.setVerticalScrollBarEnabled(false);
-                FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(
-                        FrameLayout.LayoutParams.WRAP_CONTENT, 
-                        FrameLayout.LayoutParams.WRAP_CONTENT);
-                layoutParams.gravity = Gravity.CENTER_HORIZONTAL | Gravity.CENTER_VERTICAL;
-                mMoPubView.addView(mAdView, layoutParams);
-                mMoPubView.adLoaded(); 
+            if (mInterstitial != null) {
+                mInterstitial.interstitialLoaded();
             }
         }
     }

@@ -32,67 +32,71 @@
 
 package com.mopub.mobileads;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Method;
-
 import android.util.Log;
 
+import java.lang.reflect.Constructor;
+import java.util.HashMap;
+
 public abstract class BaseAdapter {
-
+    
     public abstract void loadAd();
-
-    public static Boolean loadAdForAdapterType(MoPubView view, String params, String type) {
-        Class<?> adapterClass = classForAdapterType(type);
-        if (adapterClass == null) {
-            return false;
+    public abstract void invalidate();
+    
+    private static final HashMap<String, String> sAdapterMap;
+    static {
+        sAdapterMap = new HashMap<String, String>();
+        sAdapterMap.put("admob_native", "com.mopub.mobileads.GoogleAdMobAdapter");
+        sAdapterMap.put("millennial_native", "com.mopub.mobileads.MillennialAdapter");
+        sAdapterMap.put("adsense", "com.mopub.mobileads.AdSenseAdapter");
+    }
+    
+    public static BaseAdapter getAdapterForType(MoPubView view, String type, 
+                                                HashMap<String, String> params) {
+        if (type == null) {
+            return null;
         }
-
+        
+        Class<?> adapterClass = classForAdapterType(type, params);
+        if (adapterClass == null) {
+            return null;
+        }
+    
         Class<?>[] parameterTypes = new Class[2];
         parameterTypes[0] = MoPubView.class;
         parameterTypes[1] = String.class;
-
+        
         Object[] args = new Object[2];
         args[0] = view;
-        args[1] = params;
-
+        args[1] = params.get("X-Nativeparams");
+    
         try {
             Constructor<?> constructor = adapterClass.getConstructor(parameterTypes);
-
-            Object nativeAdapter = constructor.newInstance(args);
-
-            Method loadAdMethod = adapterClass.getMethod("loadAd", (Class[]) null);
-            loadAdMethod.invoke(nativeAdapter, (Object[]) null);
-            return true;
+            BaseAdapter nativeAdapter = (BaseAdapter) constructor.newInstance(args);
+            return nativeAdapter;
         } catch (Exception e) {
             Log.d("MoPub", "Couldn't create native adapter for type: "+type);
-            return false;
+            return null;
         }
     }
-
-    private static String classStringForAdapterType(String type) {
-        if (type.equals("admob_native")) {
-            return "com.mopub.mobileads.GoogleAdMobAdapter";
-        }
-        if (type.equals("adsense")) {
-            return "com.mopub.mobileads.AdSenseAdapter";
-        }
-
-        return null;
+    
+    private static String classStringForAdapterType(String type, HashMap<String, String> params) {
+        return sAdapterMap.get(type);
     }
-
-    private static Class<?> classForAdapterType(String type) {
-        String className = classStringForAdapterType(type);
+    
+    private static Class<?> classForAdapterType(String type, HashMap<String, String> params) {
+        String className = classStringForAdapterType(type, params);
         if (className == null) {
             Log.d("MoPub", "Couldn't find a handler for this ad type: "+type+"."
                     + " MoPub for Android does not support it at this time.");
             return null;
         }
-
+    
         try {
             return (Class<?>) Class.forName(className);
         } catch (ClassNotFoundException e) {
             Log.d("MoPub", "Couldn't find "+className+ "class."
-                    + " Make sure the project includes the adapter library for "+className+" from the extras folder");
+                    + " Make sure the project includes the adapter library for "+className
+                    + " from the extras folder");
             return null;
         }
     }
