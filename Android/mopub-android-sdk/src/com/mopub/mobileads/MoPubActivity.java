@@ -43,7 +43,7 @@ public class MoPubActivity extends Activity {
     public static final int MOPUB_ACTIVITY_NO_AD = 1234;
 
     private MoPubView mMoPubView;
-    public RelativeLayout mLayout;
+    private RelativeLayout mLayout;
 
     /** Called when the activity is first created. */
     @Override

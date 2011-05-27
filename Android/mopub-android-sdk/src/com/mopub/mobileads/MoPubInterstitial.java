@@ -69,8 +69,8 @@ public class MoPubInterstitial {
 
             if (type != null && type.equals("interstitial")) {
                 Log.i("MoPub", "Loading native adapter for type: "+type);
-                InterstitialBaseAdapter adapter =
-                        InterstitialBaseAdapter.getAdapterForType(parent, type, paramsHash);
+                BaseInterstitialAdapter adapter =
+                        BaseInterstitialAdapter.getAdapterForType(parent, type, paramsHash);
                 if (adapter != null) {
                     adapter.loadInterstitial();
                     return;

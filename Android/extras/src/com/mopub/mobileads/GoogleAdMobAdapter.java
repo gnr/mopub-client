@@ -77,7 +77,10 @@ public class GoogleAdMobAdapter extends BaseAdapter implements AdListener {
         mAdView.setAdListener(this);
 
         // Start loading the ad in the background.
-        mAdView.loadAd(new AdRequest());
+        AdRequest request = new AdRequest();
+        // request.addTestDevice(AdRequest.TEST_EMULATOR);
+        // Uncomment the line above to enable test ads on the emulator.
+        mAdView.loadAd(request);
     }
 
     @Override
