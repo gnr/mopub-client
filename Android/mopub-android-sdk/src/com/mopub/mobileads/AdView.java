@@ -32,6 +32,20 @@
 
 package com.mopub.mobileads;
 
+import java.io.IOException;
+import java.io.InputStream;
+
+import org.apache.http.Header;
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.HttpStatus;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.params.BasicHttpParams;
+import org.apache.http.params.HttpConnectionParams;
+import org.apache.http.params.HttpParams;
+
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -48,22 +62,6 @@ import android.view.View;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.FrameLayout;
-
-import org.apache.http.Header;
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
-import org.apache.http.HttpStatus;
-import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.params.BasicHttpParams;
-import org.apache.http.params.HttpConnectionParams;
-import org.apache.http.params.HttpParams;
-
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 
 public class AdView extends WebView {
 
@@ -127,16 +125,29 @@ public class AdView extends WebView {
         new LoadUrlTask().execute(mUrl);
     }
 
-    private class LoadUrlTask extends AsyncTask<String, Void, HttpResponse> {
-        protected HttpResponse doInBackground(String... urls) {
-            return loadAdFromNetwork(urls[0]);
+    private class LoadUrlTask extends AsyncTask<String, Void, String> {
+    	private Exception error;
+    	
+        protected String doInBackground(String... urls) {
+        	String result = null;
+        	try {
+        		result = loadAdFromNetwork(urls[0]);
+        	} catch(Exception e) {
+        		this.error = e;
+        	}
+        	return result;
         }
-        protected void onPostExecute(HttpResponse response) {
-            handleAdFromNetwork(response);
+        protected void onPostExecute(String data) {
+        	if(error != null || (data != null && data.trim().length() == 0)) {
+        		pageFailed();
+        	} else if(data == null) {
+        		loadDataWithBaseURL("http://"+MoPubView.HOST+"/",
+                    data,"text/html","utf-8", null);
+        	}
         }
     }
 
-    private HttpResponse loadAdFromNetwork(String url) {
+    private String loadAdFromNetwork(String url) throws Exception {
         HttpParams httpParameters = new BasicHttpParams();
 
         if (mTimeout > 0) {
@@ -156,38 +167,17 @@ public class AdView extends WebView {
         HttpGet httpget = new HttpGet(url);
         httpget.addHeader("User-Agent", getSettings().getUserAgentString());
         DefaultHttpClient httpclient = new DefaultHttpClient(httpParameters);
-        try {
-            return httpclient.execute(httpget);
-        } catch (ClientProtocolException e) {
-            pageFailed();
-            return null;
-        } catch (IOException e) {
-            pageFailed();
-            return null;
-        }
-    }
-
-    private void handleAdFromNetwork(HttpResponse response) {
-        mResponse = response;
-        if (mResponse == null || mResponse.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
-            pageFailed();
-            return;
-        }
-
+        mResponse = httpclient.execute(httpget);
         HttpEntity entity = mResponse.getEntity();
-        if (entity == null || entity.getContentLength() == 0) {
-            pageFailed();
-            return;
-        }
-
         // Get the various header messages
         // If there is no ad, don't bother loading the data
         Header atHeader = mResponse.getFirstHeader("X-Adtype");
-        if (atHeader == null || atHeader.getValue().equals("clear")) {
-            pageFailed();
-            return;
+        if(mResponse.getStatusLine().getStatusCode() != HttpStatus.SC_OK || 
+        		entity == null || entity.getContentLength() == 0 || atHeader == null ||
+        		atHeader.getValue().equals("clear")) {
+        	throw new Exception("Ad Failed");
         }
-
+        
         // If we made it this far, an ad has been loaded
 
         // Redirect if we get an X-Launchpage header so that AdMob clicks work
@@ -235,55 +225,25 @@ public class AdView extends WebView {
         else {
             mRefreshTime = 0;
         }
-
-        // Handle requests for native SDK ads
         if (atHeader.getValue().toLowerCase().equals("adsense")) {
             Log.i("MoPub","Load AdSense ad");
             Header npHeader = mResponse.getFirstHeader("X-Nativeparams");
             if (npHeader != null) {
                 mIsLoading = false;
                 mMoPubView.loadAdSense(npHeader.getValue());
-                return;
+                return null;
             }
             else {
-                pageFailed();
-                return;
+                throw new Exception("Ad failed");
             }
         }
-
-        mResponseString = null;
-        StringBuilder sb = new StringBuilder();
-        InputStream is;
-        try {
-            is = entity.getContent();
-        } catch (IllegalStateException e1) {
-            pageFailed();
-            return;
-        } catch (IOException e1) {
-            pageFailed();
-            return;
+        InputStream is = entity.getContent();
+        StringBuffer out = new StringBuffer();
+        byte[] b = new byte[4096];
+        for (int n; (n = is.read(b)) != -1;) {
+            out.append(new String(b, 0, n));
         }
-
-        BufferedReader reader = new BufferedReader(new InputStreamReader(is));
-
-        String line;
-        try {
-            while ((line = reader.readLine()) != null) {
-                sb.append(line + "\n");
-            }
-        } catch (IOException e) {
-            pageFailed();
-            return;
-        } finally {
-            try {
-                is.close();
-            } catch (IOException e) {
-                // Ignore since at this point we have the data we need
-            }
-        }
-        mResponseString = sb.toString();
-        loadDataWithBaseURL("http://"+MoPubView.HOST+"/",
-                mResponseString,"text/html","utf-8", null);
+        return out.toString();
     }
 
     private String generateAdUrl() {
