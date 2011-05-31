@@ -12,20 +12,27 @@
 #import "MPLogging.h"
 
 #define MM_SIZE_320x53	CGSizeMake(320, 53)
+#define MM_SIZE_300x250 CGSizeMake(300, 250)
 
 @interface MPMillennialAdapter ()
 @property (nonatomic, retain) MMAdView *mmAdView;
+@property (nonatomic, assign) CGSize mmAdSize;
+@property (nonatomic, assign) MMAdType mmAdType;
+@property (nonatomic, copy) NSString * mmAdApid;
+- (void)setAdPropertiesFromNativeParams:(NSDictionary *)params;
+- (void)tearDownExistingAdView;
 @end
 
 
 @implementation MPMillennialAdapter
 @synthesize mmAdView = _mmAdView;
+@synthesize mmAdSize = _mmAdSize;
+@synthesize mmAdType = _mmAdType;
+@synthesize mmAdApid = _mmAdApid;
 
 - (void)dealloc
 {
-	_mmAdView.refreshTimerEnabled = NO;
-	_mmAdView.delegate = nil;
-	[_mmAdView release];
+	[self tearDownExistingAdView];
 	[super dealloc];
 }
 
@@ -35,18 +42,45 @@
 					   dataUsingEncoding:NSUTF8StringEncoding];
 	NSDictionary *hdrParams = [[CJSONDeserializer deserializer] deserializeAsDictionary:hdrData
 																				  error:NULL];
-	// Ensure proper tear-down of any existing MMAdView.
-	// See: http://wiki.millennialmedia.com/index.php/Apple_SDK#adWithFrame
-	self.mmAdView.refreshTimerEnabled = NO;
-	self.mmAdView.delegate = nil;
+	[self setAdPropertiesFromNativeParams:hdrParams];
+	[self tearDownExistingAdView];
 	
-	self.mmAdView = [MMAdView adWithFrame:(CGRect){{0.0, 0.0}, MM_SIZE_320x53} 
-									 type:MMBannerAdTop 
-									 apid:[hdrParams objectForKey:@"adUnitID"] 
+	self.mmAdView = [MMAdView adWithFrame:(CGRect){{0.0, 0.0}, self.mmAdSize} 
+									 type:self.mmAdType
+									 apid:self.mmAdApid
 								 delegate:self
 								   loadAd:NO
 							   startTimer:NO];
-	[_mmAdView refreshAd];
+	[self.mmAdView refreshAd];
+}
+
+- (void)setAdPropertiesFromNativeParams:(NSDictionary *)params
+{
+	CGFloat width = [(NSString *)[params objectForKey:@"adWidth"] floatValue];
+	CGFloat height = [(NSString *)[params objectForKey:@"adHeight"] floatValue];
+	if (width == 300.0 && height == 250.0)
+	{
+		self.mmAdSize = MM_SIZE_300x250;
+		self.mmAdType = MMBannerAdRectangle;
+	}
+	else
+	{
+		self.mmAdSize = MM_SIZE_320x53;
+		self.mmAdType = MMBannerAdTop;
+	}
+	
+	self.mmAdApid = [params objectForKey:@"adUnitID"];
+}
+
+/* 
+ * Safely tears down and releases this adapter's MMAdView, if it exists.
+ * Per: http://wiki.millennialmedia.com/index.php/Apple_SDK#adWithFrame
+ */
+- (void)tearDownExistingAdView
+{
+	self.mmAdView.refreshTimerEnabled = NO;
+	self.mmAdView.delegate = nil;
+	self.mmAdView = nil;
 }
 
 #pragma mark -

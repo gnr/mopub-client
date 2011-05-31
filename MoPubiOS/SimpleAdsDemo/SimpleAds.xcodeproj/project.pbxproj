@@ -167,8 +167,8 @@
 		080E96DDFE201D6D7F000001 /* Classes */ = {
 			isa = PBXGroup;
 			children = (
-				3CC4D7751264DC6700212F16 /* SecondViewController.h */,
 				3CC4D7761264DC6800212F16 /* SecondViewController.m */,
+				3CC4D7751264DC6700212F16 /* SecondViewController.h */,
 				1D3623240D0F684500981E51 /* SimpleAdsAppDelegate.h */,
 				1D3623250D0F684500981E51 /* SimpleAdsAppDelegate.m */,
 				28D7ACF60DDB3853001CB0EB /* SimpleAdsViewController.h */,
@@ -476,6 +476,7 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)\"",
+					"\"$(SRCROOT)/../../../../Downloads/MMSDK_4.2.4/MMSDK\"",
 				);
 				PRODUCT_NAME = MoPub;
 			};
@@ -493,6 +494,7 @@
 					"$(inherited)",
 					"\"$(SRCROOT)/Library\"",
 					"\"$(SRCROOT)\"",
+					"\"$(SRCROOT)/../../../../Downloads/MMSDK_4.2.4/MMSDK\"",
 				);
 				PRODUCT_NAME = MoPub;
 				VALIDATE_PRODUCT = YES;
@@ -526,6 +528,7 @@
 					"$(inherited)",
 					"\"$(SRCROOT)/Library\"",
 					"\"$(SRCROOT)\"",
+					"\"$(SRCROOT)/../../../../Downloads/MMSDK_4.2.4/MMSDK\"",
 				);
 				PRODUCT_NAME = MoPub;
 				VALIDATE_PRODUCT = YES;
