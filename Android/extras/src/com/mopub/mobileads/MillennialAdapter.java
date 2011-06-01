@@ -71,21 +71,26 @@ public class MillennialAdapter extends BaseAdapter implements MMAdListener {
         if (mMoPubView == null || activity == null) {
             return;
         }
-
-        mAdView = new MMAdView(activity, "", MMAdView.BANNER_AD_TOP, MMAdView.REFRESH_INTERVAL_OFF);
-        mAdView.setId(MMAdViewSDK.DEFAULT_VIEWID);
-
+        
         // The following parameters are required. Fail if they aren't set.
         JSONObject object; 
         String pubId;
+        double adWidth, adHeight;
         try { 
             object = (JSONObject) new JSONTokener(mParams).nextValue(); 
             pubId = object.getString("adUnitID");
+            adWidth = object.getDouble("adWidth");
+            adHeight = object.getDouble("adHeight");
         } catch (JSONException e) { 
             mMoPubView.adFailed(); 
             return; 
         }
 
+        String mmAdType = MMAdView.BANNER_AD_TOP;
+        if (adWidth == 300.0 && adHeight == 250.0) mmAdType = MMAdView.BANNER_AD_RECTANGLE;
+        
+        mAdView = new MMAdView(activity, "", mmAdType, MMAdView.REFRESH_INTERVAL_OFF);
+        mAdView.setId(MMAdViewSDK.DEFAULT_VIEWID);
         mAdView.setApid(pubId);
         mAdView.setListener(this);
         Log.d("MoPub", "Loading Millennial ad...");

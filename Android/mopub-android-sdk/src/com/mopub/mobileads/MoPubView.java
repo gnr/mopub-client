@@ -86,6 +86,9 @@ public class MoPubView extends FrameLayout {
     public MoPubView(Context context, AttributeSet attrs) {
         super(context, attrs);
 
+        setHorizontalScrollBarEnabled(false);
+        setVerticalScrollBarEnabled(false);
+        
         // There is a rare bug in Froyo/2.2 where creation of a WebView causes a
         // NullPointerException. (http://code.google.com/p/android/issues/detail?id=10789)
         // It happens when the WebView can't access the local file store to make a cache file.
