@@ -688,10 +688,14 @@ static NSString * const kAdTypeClear				= @"clear";
 #pragma mark -
 #pragma mark MPAdBrowserControllerDelegate
 
-- (void)dismissBrowserController:(MPAdBrowserController *)browserController
+- (void)dismissBrowserController:(MPAdBrowserController *)browserController{
+	[self dismissBrowserController:browserController animated:YES];
+}
+
+- (void)dismissBrowserController:(MPAdBrowserController *)browserController animated:(BOOL)animated
 {
 	_adActionInProgress = NO;
-	[[self.delegate viewControllerForPresentingModalView] dismissModalViewControllerAnimated:YES];
+	[[self.delegate viewControllerForPresentingModalView] dismissModalViewControllerAnimated:animated];
 	
 	if ([self.delegate respondsToSelector:@selector(didDismissModalViewForAd:)])
 		[self.delegate didDismissModalViewForAd:self];

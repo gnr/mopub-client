@@ -168,7 +168,7 @@ static NSArray *BROWSER_SCHEMES, *SPECIAL_HOSTS;
 	{
 		if ([SPECIAL_HOSTS containsObject:request.URL.host])
 		{
-			[self dismissModalViewControllerAnimated:NO];
+			[self.delegate dismissBrowserController:self animated:NO]; 
 			[[UIApplication sharedApplication] openURL:request.URL];
 			return NO;
 		}
@@ -182,7 +182,7 @@ static NSArray *BROWSER_SCHEMES, *SPECIAL_HOSTS;
 	{
 		if ([[UIApplication sharedApplication] canOpenURL:request.URL])
 		{
-			[self dismissModalViewControllerAnimated:NO];
+			[self.delegate dismissBrowserController:self animated:NO]; 
 			[[UIApplication sharedApplication] openURL:request.URL];
 			return NO;
 		}

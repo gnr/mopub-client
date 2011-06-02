@@ -57,4 +57,5 @@
 @protocol MPAdBrowserControllerDelegate <NSObject>
 @required
 - (void)dismissBrowserController:(MPAdBrowserController *)browserController;
+- (void)dismissBrowserController:(MPAdBrowserController *)browserController animated:(BOOL)animated;
 @end
