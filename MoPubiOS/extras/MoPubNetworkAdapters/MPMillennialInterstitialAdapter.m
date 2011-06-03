@@ -19,7 +19,7 @@
 	NSDictionary *hdrParams = [[CJSONDeserializer deserializer] deserializeAsDictionary:hdrData
 																					 error:NULL];
 	
-	_mmInterstitialAdView = [[MMAdView interstitialWithType:MMFullScreenAdLaunch
+	_mmInterstitialAdView = [[MMAdView interstitialWithType:MMFullScreenAdTransition
 													   apid:[hdrParams objectForKey:@"adUnitID"]
 												   delegate:self
 													 loadAd:YES] retain];

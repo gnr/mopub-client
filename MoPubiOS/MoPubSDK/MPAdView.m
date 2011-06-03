@@ -462,8 +462,8 @@ static NSString * const kAdTypeClear				= @"clear";
 	// Initialize data.
 	[_data setLength:0];
 	
-	if ([self.delegate respondsToSelector:@selector(adViewDidReceiveResponseParams:)])
-		[self.delegate adViewDidReceiveResponseParams:[(NSHTTPURLResponse*)response allHeaderFields]];
+	if ([self.delegate respondsToSelector:@selector(adView:didReceiveResponseParams:)])
+		[self.delegate adView:self didReceiveResponseParams:[(NSHTTPURLResponse*)response allHeaderFields]];
 	
 	// Parse response headers, set relevant URLs and booleans.
 	NSDictionary *headers = [(NSHTTPURLResponse *)response allHeaderFields];

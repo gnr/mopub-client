@@ -114,6 +114,7 @@ static NSString * const kOrientationBoth				= @"b";
 		
 		_adView = [[MPAdView alloc] initWithAdUnitId:self.adUnitId size:CGSizeZero];
 		_adView.stretchesWebContentToFill = YES;
+		_adView.ignoresAutorefresh = YES;
 		_adView.delegate = self;
 		
 		// Typically, we don't set an autoresizing mask for MPAdView, but in this case we always
@@ -153,15 +154,17 @@ static NSString * const kOrientationBoth				= @"b";
 - (void)viewWillAppear:(BOOL)animated
 {
 	[super viewWillAppear:animated];
-	
-	if ([self.parent respondsToSelector:@selector(interstitialWillAppear:)])
-		[self.parent interstitialWillAppear:self];
 }
 
 - (void)viewDidAppear:(BOOL)animated
 {
 	[super viewDidAppear:animated];
 	[_adView adViewDidAppear];
+}
+
+- (void)viewDidDisappear:(BOOL)animated
+{
+	[self interstitialDidDisappearForAdapter:nil];
 }
 
 #pragma mark -
@@ -226,6 +229,7 @@ static NSString * const kOrientationBoth				= @"b";
 	[[UIApplication sharedApplication] setStatusBarHidden:_statusBarWasHidden];
 	[self.navigationController setNavigationBarHidden:_navigationBarWasHidden animated:NO];
 	
+	[self interstitialWillDisappearForAdapter:nil];
 	[self.parent dismissInterstitial:self];
 }
 
@@ -304,7 +308,7 @@ static NSString * const kOrientationBoth				= @"b";
 		[self.parent willPresentModalViewForAd:view];
 }
 
-- (void)adViewDidReceiveResponseParams:(NSDictionary *)params
+- (void)adView:(MPAdView *)view didReceiveResponseParams:(NSDictionary *)params
 {
 	NSString *closeButtonChoice = [params objectForKey:kCloseButtonHeaderKey];
 	

@@ -264,7 +264,7 @@ typedef enum
  * (headers) from the MoPub server. See MPInterstitialAdController for an
  * example of how this should be used.
  */
-- (void)adViewDidReceiveResponseParams:(NSDictionary *)params;
+- (void)adView:(MPAdView *)view didReceiveResponseParams:(NSDictionary *)params;
 
 /*
  * This method is called when a mopub://close link is activated. Your implementation of this

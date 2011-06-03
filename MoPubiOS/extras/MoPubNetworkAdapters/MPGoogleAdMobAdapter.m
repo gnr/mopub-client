@@ -44,7 +44,8 @@
 	GADRequest *request = [GADRequest request];
 	// Here, you can specify a list of devices that will receive test ads.
 	// See: http://code.google.com/mobile/ads/docs/ios/intermediate.html#testdevices
-	request.testDevices = [NSArray arrayWithObjects:GAD_SIMULATOR_ID, 
+	request.testDevices = [NSArray arrayWithObjects:
+						   // GAD_SIMULATOR_ID, 
 						   // more UDIDs here,
 						   nil];
 	
