@@ -78,8 +78,9 @@ public class AdView extends WebView {
     private String mClickthroughUrl;
     private String mRedirectUrl;
     private String mFailUrl;
+    private String mImpressionUrl;
     private Location mLocation;
-    private Boolean mIsLoading = false;
+    private boolean mIsLoading = false;
     private long mRefreshTime = 0;
     private int mTimeout = -1; // HTTP connection timeout in msec
     private int mWidth;
@@ -219,6 +220,14 @@ public class AdView extends WebView {
         }
         else {
             mFailUrl = null;
+        }
+        
+        Header imHeader = mResponse.getFirstHeader("X-Imptracker");
+        if (imHeader != null) {
+            mImpressionUrl = imHeader.getValue();
+        }
+        else {
+            mImpressionUrl = null;
         }
 
         Header wHeader = mResponse.getFirstHeader("X-Width");
@@ -374,7 +383,27 @@ public class AdView extends WebView {
         }
     }
 
-    public void registerClick() {
+    protected void trackImpression() {
+        if (mImpressionUrl == null)
+            return;
+        
+        new Thread(new Runnable() {
+            public void run () {
+                DefaultHttpClient httpclient = new DefaultHttpClient();
+                HttpGet httpget = new HttpGet(mImpressionUrl);
+                httpget.addHeader("User-Agent", getSettings().getUserAgentString());
+                try {
+                    httpclient.execute(httpget);
+                } catch (ClientProtocolException e) {
+                    Log.i("MoPub", "Impression tracking failed: "+mImpressionUrl);
+                } catch (IOException e) {
+                    Log.i("MoPub", "Impression tracking failed: "+mImpressionUrl);
+                }
+            }
+        }).start();
+    }
+    
+    protected void registerClick() {
         if (mClickthroughUrl == null)
             return;
 

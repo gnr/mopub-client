@@ -48,8 +48,9 @@ import android.view.View;
 
 public class MillennialInterstitialAdapter extends BaseInterstitialAdapter implements MMAdListener {
 
-    private MMAdView    mAdView;
-    private String      mParams;
+    private MMAdView mAdView;
+    private String mParams;
+    private boolean mHasAlreadyRegisteredClick;
 
     // MMAdListener should use a WeakReference to the activity.
     // From: http://wiki.millennialmedia.com/index.php/Android#Listening_for_Ad_Events
@@ -59,10 +60,6 @@ public class MillennialInterstitialAdapter extends BaseInterstitialAdapter imple
         super(interstitial);
         mActivityReference = new WeakReference<Activity>(interstitial.getActivity());
         mParams = params;
-
-        mAdView = new MMAdView(mActivityReference.get(), "", MMAdView.FULLSCREEN_AD_TRANSITION, 
-                MMAdView.REFRESH_INTERVAL_OFF);
-        mAdView.setId(MMAdViewSDK.DEFAULT_VIEWID);
 
         // The following parameters are required. Fail if they aren't set.
         JSONObject object; 
@@ -75,7 +72,9 @@ public class MillennialInterstitialAdapter extends BaseInterstitialAdapter imple
             return; 
         }
 
-        mAdView.setApid(pubId);
+        mAdView = new MMAdView(mActivityReference.get(), pubId, MMAdView.FULLSCREEN_AD_TRANSITION, 
+                MMAdView.REFRESH_INTERVAL_OFF);
+        mAdView.setId(MMAdViewSDK.DEFAULT_VIEWID);
         mAdView.setListener(this);
     }
 
@@ -88,6 +87,7 @@ public class MillennialInterstitialAdapter extends BaseInterstitialAdapter imple
         Log.d("MoPub", "Showing Millennial ad...");
 
         mAdView.setVisibility(View.INVISIBLE);
+        mHasAlreadyRegisteredClick = false;
         mAdView.callForAd();
     }
 
@@ -103,7 +103,7 @@ public class MillennialInterstitialAdapter extends BaseInterstitialAdapter imple
 
     @Override
     public void MMAdFailed(MMAdView adview)	{
-        Log.d("MoPub", "Millennial failed. Trying another");
+        Log.d("MoPub", "Millennial interstitial failed. Trying another");
         if (mInterstitial != null) { 
             mInterstitial.interstitialFailed(); 
         }
@@ -111,7 +111,7 @@ public class MillennialInterstitialAdapter extends BaseInterstitialAdapter imple
 
     @Override
     public void MMAdReturned(MMAdView adview) {
-        Log.d("MoPub", "Millennial returned an ad.");
+        Log.d("MoPub", "Millennial interstitial returned an ad.");
         if (mInterstitial != null) { 
             Activity activity = mActivityReference.get();
             if (activity != null) {
@@ -122,23 +122,29 @@ public class MillennialInterstitialAdapter extends BaseInterstitialAdapter imple
 
     @Override
     public void MMAdClickedToNewBrowser(MMAdView adview) {
-        Log.d("MoPub", "Millennial clicked");
-        if (mInterstitial != null) { 
+        Log.d("MoPub", "Millennial interstitial clicked to new browser");
+        if (mInterstitial != null && !mHasAlreadyRegisteredClick) {
+            mHasAlreadyRegisteredClick = true;
             mInterstitial.interstitialClicked(); 
         } 
     }
 
     @Override
     public void MMAdClickedToOverlay(MMAdView adview) {
-        Log.d("MoPub", "Millennial clicked");
-        if (mInterstitial != null) { 
+        Log.d("MoPub", "Millennial interstitial clicked to overlay");
+        if (mInterstitial != null && !mHasAlreadyRegisteredClick) { 
+            mHasAlreadyRegisteredClick = true;
             mInterstitial.interstitialClicked(); 
         } 
     }
 
     @Override
     public void MMAdOverlayLaunched(MMAdView adview) {
-        // Nothing needs to happen.
+        Log.d("MoPub", "Millennial interstitial launched overlay");
+        if (mInterstitial != null && !mHasAlreadyRegisteredClick) { 
+            mHasAlreadyRegisteredClick = true;
+            mInterstitial.interstitialClicked(); 
+        } 
     }
 
     @Override

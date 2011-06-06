@@ -151,6 +151,11 @@ public class MoPubView extends FrameLayout {
             mAdView.loadResponseString(html);
         }
     }
+    
+    protected void trackNativeImpression() {
+        Log.d("MoPub", "Tracking impression for native adapter.");
+        mAdView.trackImpression();
+    }
 
     // Getters and Setters
 

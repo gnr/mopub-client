@@ -32,9 +32,6 @@
 
 package com.mopub.mobileads;
 
-import com.google.ads.*;
-import com.google.ads.AdRequest.ErrorCode;
-
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONTokener;
@@ -42,6 +39,12 @@ import org.json.JSONTokener;
 import android.util.Log;
 import android.view.Gravity;
 import android.widget.FrameLayout;
+
+import com.google.ads.Ad;
+import com.google.ads.AdListener;
+import com.google.ads.AdRequest;
+import com.google.ads.AdRequest.ErrorCode;
+import com.google.ads.AdSize;
 
 public class GoogleAdMobAdapter extends BaseAdapter implements AdListener {
     
@@ -102,10 +105,6 @@ public class GoogleAdMobAdapter extends BaseAdapter implements AdListener {
 
     @Override
     public void onLeaveApplication(Ad ad) {
-        Log.d("MoPub", "Google AdMob clicked"); 
-        if (mMoPubView != null) { 
-            mMoPubView.registerClick(); 
-        } 
     }
 
     @Override
@@ -122,11 +121,13 @@ public class GoogleAdMobAdapter extends BaseAdapter implements AdListener {
             Log.d("MoPub", "Google AdMob load succeeded. Showing ad..."); 
             mMoPubView.removeAllViews();
             FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(
-                    FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT);
-            layoutParams.gravity = Gravity.CENTER_HORIZONTAL | Gravity.CENTER_VERTICAL;
+                    FrameLayout.LayoutParams.FILL_PARENT, 
+                    FrameLayout.LayoutParams.FILL_PARENT);
+            layoutParams.gravity = Gravity.CENTER;
             mMoPubView.addView(mAdView, layoutParams);
 
             mMoPubView.adLoaded();
+            mMoPubView.trackNativeImpression();
         } 
     }
 }

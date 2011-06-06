@@ -40,8 +40,4 @@ public class InterstitialsTab extends Activity implements MoPubInterstitialListe
     public void OnInterstitialFailed() {
         Toast.makeText(this, "No ad available", Toast.LENGTH_SHORT).show();
     }
-
-    @Override
-    public void OnInterstitialClosed() {
-    }
 }

@@ -44,8 +44,9 @@ import com.google.ads.AdRequest.ErrorCode;
 public class GoogleAdMobInterstitialAdapter extends BaseInterstitialAdapter implements 
         AdListener {
 
-    private InterstitialAd 	mInterstitialAd;
-    private String 			mParams;
+    private InterstitialAd mInterstitialAd;
+    private String mParams;
+    private boolean mHasAlreadyRegisteredClick;
 
     public GoogleAdMobInterstitialAdapter(MoPubInterstitial interstitial, String params) {
         super(interstitial);
@@ -87,9 +88,7 @@ public class GoogleAdMobInterstitialAdapter extends BaseInterstitialAdapter impl
 
     @Override
     public void onDismissScreen(Ad arg0) {
-        if (mInterstitial != null) { 
-            mInterstitial.interstitialClosed(); 
-        }
+        // TODO: Forward this message.
     }
 
     @Override
@@ -102,12 +101,17 @@ public class GoogleAdMobInterstitialAdapter extends BaseInterstitialAdapter impl
 
     @Override
     public void onLeaveApplication(Ad arg0) {
-        // TODO: Forward this message.
+        // TODO: This only tracks clicks accurately if all clicks result in leaving the app.
+        Log.d("MoPub", "Google AdMob interstitial was clicked, leaving application");
+        if (mInterstitial != null && !mHasAlreadyRegisteredClick) { 
+            mHasAlreadyRegisteredClick = true;
+            mInterstitial.interstitialClicked(); 
+        }
     }
 
     @Override
     public void onPresentScreen(Ad arg0) {
-        // TODO: Forward this message.
+        // Not relevant for interstitials.
     }
 
     @Override

@@ -54,6 +54,10 @@ public class MillennialAdapter extends BaseAdapter implements MMAdListener {
     private MMAdView 					mAdView;
     private MoPubView					mMoPubView;
     private String 						mParams;
+    
+    // TODO: Temporary fix. MMAdView often calls MMAdReturned multiple times for a single 
+    // successful ad load, so we need a way to dedupe these calls.
+    private boolean                     mHasAlreadyRegisteredImpression;
 
     // MMAdListener should use a WeakReference to the activity.
     // From: http://wiki.millennialmedia.com/index.php/Android#Listening_for_Ad_Events
@@ -89,13 +93,13 @@ public class MillennialAdapter extends BaseAdapter implements MMAdListener {
         String mmAdType = MMAdView.BANNER_AD_TOP;
         if (adWidth == 300.0 && adHeight == 250.0) mmAdType = MMAdView.BANNER_AD_RECTANGLE;
         
-        mAdView = new MMAdView(activity, "", mmAdType, MMAdView.REFRESH_INTERVAL_OFF);
+        mAdView = new MMAdView(activity, pubId, mmAdType, MMAdView.REFRESH_INTERVAL_OFF);
         mAdView.setId(MMAdViewSDK.DEFAULT_VIEWID);
-        mAdView.setApid(pubId);
         mAdView.setListener(this);
         Log.d("MoPub", "Loading Millennial ad...");
 
         mAdView.setVisibility(View.INVISIBLE);
+        mHasAlreadyRegisteredImpression = false;
         mAdView.callForAd();
     }
 
@@ -114,6 +118,7 @@ public class MillennialAdapter extends BaseAdapter implements MMAdListener {
 
     @Override
     public void MMAdReturned(MMAdView adview) {
+        Log.d("MoPub", "Millennial returned ad");
         Activity activity = mActivityReference.get();
         if (activity != null) {
             activity.runOnUiThread(new MMRunnable(mMoPubView, adview));
@@ -162,11 +167,15 @@ public class MillennialAdapter extends BaseAdapter implements MMAdListener {
                 mAdView.setHorizontalScrollBarEnabled(false);
                 mAdView.setVerticalScrollBarEnabled(false);
                 FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(
-                        FrameLayout.LayoutParams.WRAP_CONTENT, 
-                        FrameLayout.LayoutParams.WRAP_CONTENT);
+                        FrameLayout.LayoutParams.FILL_PARENT, 
+                        FrameLayout.LayoutParams.FILL_PARENT);
                 layoutParams.gravity = Gravity.CENTER_HORIZONTAL | Gravity.CENTER_VERTICAL;
                 mMoPubView.addView(mAdView, layoutParams);
-                mMoPubView.adLoaded(); 
+                mMoPubView.adLoaded();
+                if (!mHasAlreadyRegisteredImpression) {
+                    mHasAlreadyRegisteredImpression = true;
+                    mMoPubView.trackNativeImpression();
+                }
             }
         }
     }
