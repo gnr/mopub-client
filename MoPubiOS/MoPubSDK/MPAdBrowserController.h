@@ -21,6 +21,8 @@
 	UIBarButtonItem *_doneButton;
 	UIActivityIndicatorView *_spinner;
 	UIBarButtonItem *_spinnerItem;
+	UIActionSheet *_actionSheet;
+	BOOL _actionSheetIsShowing;
 	NSURL *_URL;
 }
 
@@ -31,7 +33,6 @@
 @property (nonatomic,retain) IBOutlet UIBarButtonItem *safariButton;
 @property (nonatomic,retain) IBOutlet UIBarButtonItem *doneButton;
 @property (nonatomic,retain) IBOutlet UIBarButtonItem *spinnerItem;
-
 
 @property (nonatomic, assign) id<MPAdBrowserControllerDelegate> delegate;
 @property (nonatomic, copy) NSURL *URL;
@@ -57,4 +58,5 @@
 @protocol MPAdBrowserControllerDelegate <NSObject>
 @required
 - (void)dismissBrowserController:(MPAdBrowserController *)browserController;
+- (void)dismissBrowserController:(MPAdBrowserController *)browserController animated:(BOOL)animated;
 @end

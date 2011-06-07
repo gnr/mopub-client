@@ -121,6 +121,7 @@
 {
 	MPLogInfo(@"iAd Should Begin Banner Action");
 	[self.adView userActionWillBeginForAdapter:self];
+	if (willLeave) [self.adView userWillLeaveApplicationFromAdapter:self];
 	return YES;
 }
 

@@ -8,6 +8,7 @@
 
 #import <UIKit/UIKit.h>
 #import "MPAdView.h"
+#import "MPBaseInterstitialAdapter.h"
 
 enum 
 {
@@ -26,7 +27,7 @@ typedef NSUInteger InterstitialOrientationType;
 
 @protocol MPInterstitialAdControllerDelegate;
 
-@interface MPInterstitialAdController : UIViewController <MPAdViewDelegate>
+@interface MPInterstitialAdController : UIViewController <MPAdViewDelegate, MPBaseInterstitialAdapterDelegate>
 {
 	// Previous state of the status bar, before the interstitial appears.
 	BOOL _statusBarWasHidden;
@@ -46,9 +47,6 @@ typedef NSUInteger InterstitialOrientationType;
 	// The ad unit ID.
 	NSString *_adUnitId;
 	
-	// Size of the interstitial ad. Defaults to fill the entire screen.
-	CGSize _adSize;
-	
 	// Determines what kind of close button we want to display.
 	InterstitialCloseButtonType _closeButtonType;
 	
@@ -57,6 +55,8 @@ typedef NSUInteger InterstitialOrientationType;
 	
 	// Button used to dismiss the interstitial.
 	UIButton *_closeButton;
+	
+	MPBaseInterstitialAdapter *_currentAdapter;
 }
 
 @property (nonatomic, readonly, assign) BOOL ready;
@@ -114,5 +114,8 @@ typedef NSUInteger InterstitialOrientationType;
  * handle potential app interruptions (e.g. pause a game).
  */
 - (void)interstitialWillAppear:(MPInterstitialAdController *)interstitial;
+- (void)interstitialDidAppear:(MPInterstitialAdController *)interstitial;
+- (void)interstitialWillDisappear:(MPInterstitialAdController *)interstitial;
+- (void)interstitialDidDisappear:(MPInterstitialAdController *)interstitial;
 @end
 

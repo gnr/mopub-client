@@ -15,6 +15,34 @@
 #import <stdlib.h>
 #import <time.h>
 
+static NSString * const kTimerNotificationName		= @"Autorefresh";
+static NSString * const kAdAnimationId				= @"MPAdTransition";
+static NSString * const kErrorDomain				= @"mopub.com";
+static NSString * const kMoPubUrlScheme				= @"mopub";
+static NSString * const kMoPubCloseHost				= @"close";
+static NSString * const kMoPubFinishLoadHost		= @"finishLoad";
+static NSString * const kMoPubFailLoadHost			= @"failLoad";
+static NSString * const kMoPubInAppHost				= @"inapp";
+static NSString * const kMoPubCustomHost			= @"custom";
+static NSString * const kMoPubInterfaceOrientationPortraitId	= @"p";
+static NSString * const kMoPubInterfaceOrientationLandscapeId	= @"l";
+static const CGFloat kMoPubRequestTimeoutInterval	= 10.0;
+
+// Ad header key/value constants.
+static NSString * const kClickthroughHeaderKey		= @"X-Clickthrough";
+static NSString * const kLaunchpageHeaderKey		= @"X-Launchpage";
+static NSString * const kFailUrlHeaderKey			= @"X-Failurl";
+static NSString * const kImpressionTrackerHeaderKey	= @"X-Imptracker";
+static NSString * const kInterceptLinksHeaderKey	= @"X-Interceptlinks";
+static NSString * const kScrollableHeaderKey		= @"X-Scrollable";
+static NSString * const kWidthHeaderKey				= @"X-Width";
+static NSString * const kHeightHeaderKey			= @"X-Height";
+static NSString * const kRefreshTimeHeaderKey		= @"X-Refreshtime";
+static NSString * const kAnimationHeaderKey			= @"X-Animation";
+static NSString * const kAdTypeHeaderKey			= @"X-Adtype";
+static NSString * const kAdTypeHtml					= @"html";
+static NSString * const kAdTypeClear				= @"clear";
+
 @interface MPAdView (Internal)
 - (void)scheduleAutorefreshTimer;
 - (void)setScrollable:(BOOL)scrollable forView:(UIView *)view;
@@ -38,9 +66,8 @@
 @property (nonatomic, assign) BOOL shouldInterceptLinks;
 @property (nonatomic, assign) BOOL scrollable;
 @property (nonatomic, retain) MPTimer *autorefreshTimer;
+@property (nonatomic, assign) BOOL isLoading;
 @end
-
-static NSString * const kTimerNotificationName = @"Autorefresh";
 
 @implementation MPAdView
 
@@ -59,6 +86,7 @@ static NSString * const kTimerNotificationName = @"Autorefresh";
 @synthesize autorefreshTimer = _autorefreshTimer;
 @synthesize ignoresAutorefresh = _ignoresAutorefresh;
 @synthesize stretchesWebContentToFill = _stretchesWebContentToFill;
+@synthesize isLoading = _isLoading;
 
 #pragma mark -
 #pragma mark Lifecycle
@@ -153,10 +181,16 @@ static NSString * const kTimerNotificationName = @"Autorefresh";
 
 - (void)setAdContentView:(UIView *)view
 {
-	if (!view)
-		return;
-	
+	if (!view) return;
 	[view retain];
+	
+	if (_stretchesWebContentToFill && [view isKindOfClass:[UIWebView class]])
+	{
+		// Avoids a race condition: 
+		// 1) a webview is initialized with the ad view's bounds
+		// 2) ad view resizes its frame before webview gets set as the content view
+		view.frame = self.bounds;
+	}
 	
 	self.hidden = NO;
 	
@@ -176,7 +210,7 @@ static NSString * const kTimerNotificationName = @"Autorefresh";
 		view.alpha = 0.0;
 	MPLogDebug(@"Ad view (%p) is using animationType: %d", self, type);
 	
-	[UIView beginAnimations:@"MPAdTransition" context:view];
+	[UIView beginAnimations:kAdAnimationId context:view];
 	[UIView setAnimationDelegate:self];
 	[UIView setAnimationDidStopSelector:@selector(animationDidStop:finished:context:)];
 	[UIView setAnimationDuration:1.0];
@@ -310,12 +344,27 @@ static NSString * const kTimerNotificationName = @"Autorefresh";
 	// If the passed-in URL is nil, construct a URL from our initial parameters.
 	if (!URL)
 	{
-		NSString *urlString = [NSString stringWithFormat:@"http://%@/m/ad?v=3&udid=%@&q=%@&id=%@", 
+		NSString *urlString = [NSString stringWithFormat:@"http://%@/m/ad?v=4&udid=%@&q=%@&id=%@", 
 							   HOSTNAME,
 							   [[UIDevice currentDevice] hashedMoPubUDID],
 							   [self.keywords stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding],
 							   [self.adUnitId stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]
 							   ];
+		
+		// Append orientation data.
+		UIInterfaceOrientation orientation = [UIApplication sharedApplication].statusBarOrientation;
+		NSString *orientString = UIInterfaceOrientationIsPortrait(orientation) ?
+			kMoPubInterfaceOrientationPortraitId : kMoPubInterfaceOrientationLandscapeId;
+		urlString = [urlString stringByAppendingFormat:@"&o=%@", orientString];
+		
+		// Append scale factor data.
+		urlString = [urlString stringByAppendingFormat:@"&sc=%.1f", MPDeviceScaleFactor()];
+		
+		// Append time zone data.
+		NSDateFormatter *formatter = [[[NSDateFormatter alloc] init] autorelease];
+		[formatter setDateFormat:@"Z"];
+		NSDate *today = [NSDate date];
+		urlString = [urlString stringByAppendingFormat:@"&z=%@", [formatter stringFromDate:today]];
 		
 		// Append location data if we have it.
 		if (self.location)
@@ -331,9 +380,10 @@ static NSString * const kTimerNotificationName = @"Autorefresh";
 	self.URL = URL;
 	MPLogDebug(@"Ad view (%p) calling loadAdWithURL: %@", self, URL);
 	
-	NSMutableURLRequest *request = [[[NSMutableURLRequest alloc] initWithURL:self.URL 
-																 cachePolicy:NSURLRequestUseProtocolCachePolicy 
-															 timeoutInterval:3.0] autorelease];
+	NSMutableURLRequest *request = [[[NSMutableURLRequest alloc] 
+									 initWithURL:self.URL 
+									 cachePolicy:NSURLRequestUseProtocolCachePolicy 
+									 timeoutInterval:kMoPubRequestTimeoutInterval] autorelease];
 	
 	// Set the user agent so that we know where the request is coming from. 
 	// This is important for targeting!
@@ -399,7 +449,7 @@ static NSString * const kTimerNotificationName = @"Autorefresh";
 																		  NSLocalizedString(@"Server returned status code %d",@""),
 																		  statusCode]
 																  forKey:NSLocalizedDescriptionKey];
-			NSError *statusError = [NSError errorWithDomain:@"mopub.com"
+			NSError *statusError = [NSError errorWithDomain:kErrorDomain
 													   code:statusCode
 												   userInfo:errorInfo];
 			[self connection:connection didFailWithError:statusError];
@@ -412,37 +462,37 @@ static NSString * const kTimerNotificationName = @"Autorefresh";
 	// Initialize data.
 	[_data setLength:0];
 	
-	if ([self.delegate respondsToSelector:@selector(adViewDidReceiveResponseParams:)])
-		[self.delegate adViewDidReceiveResponseParams:[(NSHTTPURLResponse*)response allHeaderFields]];
+	if ([self.delegate respondsToSelector:@selector(adView:didReceiveResponseParams:)])
+		[self.delegate adView:self didReceiveResponseParams:[(NSHTTPURLResponse*)response allHeaderFields]];
 	
 	// Parse response headers, set relevant URLs and booleans.
 	NSDictionary *headers = [(NSHTTPURLResponse *)response allHeaderFields];
 	NSString *urlString = nil;
 	
-	urlString = [headers objectForKey:@"X-Clickthrough"];
+	urlString = [headers objectForKey:kClickthroughHeaderKey];
 	self.clickURL = urlString ? [NSURL URLWithString:urlString] : nil;
 	
-	urlString = [headers objectForKey:@"X-Launchpage"];
+	urlString = [headers objectForKey:kLaunchpageHeaderKey];
 	self.interceptURL = urlString ? [NSURL URLWithString:urlString] : nil;
 	
-	urlString = [headers objectForKey:@"X-Failurl"];
+	urlString = [headers objectForKey:kFailUrlHeaderKey];
 	self.failURL = urlString ? [NSURL URLWithString:urlString] : nil;
 	
-	urlString = [headers objectForKey:@"X-Imptracker"];
+	urlString = [headers objectForKey:kImpressionTrackerHeaderKey];
 	self.impTrackerURL = urlString ? [NSURL URLWithString:urlString] : nil;
 	
-	NSString *shouldInterceptLinksString = [headers objectForKey:@"X-Interceptlinks"];
+	NSString *shouldInterceptLinksString = [headers objectForKey:kInterceptLinksHeaderKey];
 	if (shouldInterceptLinksString)
 		self.shouldInterceptLinks = [shouldInterceptLinksString boolValue];
 	
-	NSString *scrollableString = [headers objectForKey:@"X-Scrollable"];
+	NSString *scrollableString = [headers objectForKey:kScrollableHeaderKey];
 	if (scrollableString)
 		self.scrollable = [scrollableString boolValue];
 	
-	NSString *widthString = [headers objectForKey:@"X-Width"];
-	NSString *heightString = [headers objectForKey:@"X-Height"];
+	NSString *widthString = [headers objectForKey:kWidthHeaderKey];
+	NSString *heightString = [headers objectForKey:kHeightHeaderKey];
 	
-	// Try to get the creative size from the server or otherwise use the original container's size
+	// Try to get the creative size from the server or otherwise use the original container's size.
 	if (widthString && heightString)
 		self.creativeSize = CGSizeMake([widthString floatValue], [heightString floatValue]);
 	else
@@ -450,7 +500,7 @@ static NSString * const kTimerNotificationName = @"Autorefresh";
 	
 	// Create the autorefresh timer, which will be scheduled either when the ad appears,
 	// or if it fails to load.
-	NSString *refreshString = [headers objectForKey:@"X-Refreshtime"];
+	NSString *refreshString = [headers objectForKey:kRefreshTimeHeaderKey];
 	if (refreshString && !self.ignoresAutorefresh)
 	{
 		NSTimeInterval interval = [refreshString doubleValue];
@@ -462,31 +512,32 @@ static NSString * const kTimerNotificationName = @"Autorefresh";
 													   repeats:NO];
 	}
 	
-	NSString *animationString = [headers objectForKey:@"X-Animation"];
+	NSString *animationString = [headers objectForKey:kAnimationHeaderKey];
 	if (animationString)
 		_animationType = [animationString intValue];
 	
 	// Determine ad type.
 	NSString *typeHeader = [[(NSHTTPURLResponse *)response allHeaderFields] 
-								objectForKey:@"X-Adtype"];
+								objectForKey:kAdTypeHeaderKey];
 	
 	// Dispose of the last adapter stored in _previousAdapter.
 	[_previousAdapter unregisterDelegate];
 	[_previousAdapter release];
 	_previousAdapter = nil;
 	
-	if (!typeHeader || [typeHeader isEqualToString:@"html"])
+	if (!typeHeader || [typeHeader isEqualToString:kAdTypeHtml])
 	{
 		// HTML ad, so just return. connectionDidFinishLoading: will take care of the rest.
 		return;
 	}
-	else if ([typeHeader isEqualToString:@"clear"])
+	else if ([typeHeader isEqualToString:kAdTypeClear])
 	{
 		// Show a blank.
 		MPLogInfo(@"*** CLEAR ***");
 		[connection cancel];
 		_isLoading = NO;
 		[self backFillWithNothing];
+		[self scheduleAutorefreshTimer];
 		return;
 	}
 	
@@ -522,18 +573,21 @@ static NSString * const kTimerNotificationName = @"Autorefresh";
 
 - (void)connection:(NSURLConnection *)connection didFailWithError:(NSError *)error
 {
-	MPLogError(@"Ad view (%p) failed to get a valid response from MoPub server. Error: %@", self, error);
+	MPLogError(@"Ad view (%p) failed to get a valid response from MoPub server. Error: %@", 
+			   self, error);
 	
 	// If the initial request to MoPub fails, replace the current ad content with a blank.
 	_isLoading = NO;
 	[self backFillWithNothing];
 	
-	if(self.autorefreshTimer == nil) {
-		self.autorefreshTimer = [MPTimer timerWithTimeInterval:60.0f
+	// Retry in 60 seconds.
+	if (self.autorefreshTimer == nil || ![self.autorefreshTimer isValid])
+	{
+		self.autorefreshTimer = [MPTimer timerWithTimeInterval:60.0f 
 														target:_timerTarget 
 													  selector:@selector(postNotification) 
 													  userInfo:nil 
-													   repeats:NO];		
+													   repeats:NO];
 	}
 	
 	[self scheduleAutorefreshTimer];
@@ -562,14 +616,14 @@ static NSString * const kTimerNotificationName = @"Autorefresh";
 	NSURL *URL = [request URL];
 	
 	// Handle the custom mopub:// scheme.
-	if ([[URL scheme] isEqualToString:@"mopub"])
+	if ([[URL scheme] isEqualToString:kMoPubUrlScheme])
 	{
 		NSString *host = [URL host];
-		if ([host isEqualToString:@"close"])
+		if ([host isEqualToString:kMoPubCloseHost])
 		{
 			[self didCloseAd:nil];
 		}
-		else if ([host isEqualToString:@"finishLoad"])
+		else if ([host isEqualToString:kMoPubFinishLoadHost])
 		{
 			_isLoading = NO;
 			
@@ -580,7 +634,7 @@ static NSString * const kTimerNotificationName = @"Autorefresh";
 			if ([self.delegate respondsToSelector:@selector(adViewDidLoadAd:)]) 
 				[self.delegate adViewDidLoadAd:self];
 		}
-		else if ([host isEqualToString:@"failLoad"])
+		else if ([host isEqualToString:kMoPubFailLoadHost])
 		{
 			_isLoading = NO;
 			
@@ -592,14 +646,14 @@ static NSString * const kTimerNotificationName = @"Autorefresh";
 			// Start a new request using the fall-back URL.
 			[self loadAdWithURL:self.failURL];
 		}
-		else if ([host isEqualToString:@"inapp"])
+		else if ([host isEqualToString:kMoPubInAppHost])
 		{
 			[self trackClick];
 			NSDictionary *queryDict = [self dictionaryFromQueryString:[URL query]];
 			[_store initiatePurchaseForProductIdentifier:[queryDict objectForKey:@"id"] 
 												quantity:[[queryDict objectForKey:@"num"] intValue]];
 		}
-		else if ([host isEqualToString:@"custom"]){
+		else if ([host isEqualToString:kMoPubCustomHost]){
 			[self trackClick];
 			NSDictionary *queryDict = [self dictionaryFromQueryString:[URL query]];
 			[self customLinkClickedForSelectorString:[queryDict objectForKey:@"fnc"]
@@ -634,10 +688,14 @@ static NSString * const kTimerNotificationName = @"Autorefresh";
 #pragma mark -
 #pragma mark MPAdBrowserControllerDelegate
 
-- (void)dismissBrowserController:(MPAdBrowserController *)browserController
+- (void)dismissBrowserController:(MPAdBrowserController *)browserController{
+	[self dismissBrowserController:browserController animated:YES];
+}
+
+- (void)dismissBrowserController:(MPAdBrowserController *)browserController animated:(BOOL)animated
 {
 	_adActionInProgress = NO;
-	[[self.delegate viewControllerForPresentingModalView] dismissModalViewControllerAnimated:YES];
+	[[self.delegate viewControllerForPresentingModalView] dismissModalViewControllerAnimated:animated];
 	
 	if ([self.delegate respondsToSelector:@selector(didDismissModalViewForAd:)])
 		[self.delegate didDismissModalViewForAd:self];
@@ -667,7 +725,7 @@ static NSString * const kTimerNotificationName = @"Autorefresh";
 - (void)adapter:(MPBaseAdapter *)adapter didFailToLoadAdWithError:(NSError *)error
 {
 	// Ignore fail messages from the previous adapter.
-	if (adapter == _previousAdapter) return;
+	if (_previousAdapter && adapter == _previousAdapter) return;
 	
 	_isLoading = NO;
 	MPLogError(@"Adapter (%p) failed to load ad. Error: %@", adapter, error);
@@ -677,11 +735,11 @@ static NSString * const kTimerNotificationName = @"Autorefresh";
 	[_currentAdapter release];
 	_currentAdapter = nil;
 	
-	// Start a new request using the fall-back URL.
-	if (!_adActionInProgress)
-		[self loadAdWithURL:self.failURL];
-	else
-		[self scheduleAutorefreshTimer];
+	// An adapter will sometimes send this message during a user action (example: user taps on an 
+	// iAd; iAd then does an internal refresh and fails). In this case, we schedule a new request
+	// to occur after the action ends. Otherwise, just start a new request using the fall-back URL.
+	if (_adActionInProgress) [self scheduleAutorefreshTimer];
+	else [self loadAdWithURL:self.failURL];
 }
 
 - (void)userActionWillBeginForAdapter:(MPBaseAdapter *)adapter
@@ -714,17 +772,22 @@ static NSString * const kTimerNotificationName = @"Autorefresh";
 		[self.delegate didDismissModalViewForAd:self];
 }
 
+- (void)userWillLeaveApplicationFromAdapter:(MPBaseAdapter *)adapter
+{
+	// TODO: Implement.
+}
+
 #pragma mark -
 #pragma mark Internal
 
 - (void)scheduleAutorefreshTimer
 {
-	if (!_adActionInProgress) [self.autorefreshTimer scheduleNow];
-	else 
+	if (_adActionInProgress) 
 	{
 		MPLogDebug(@"Ad action in progress: MPTimer will be scheduled after action ends.");
 		_autorefreshTimerNeedsScheduling = YES;
 	}
+	else [self.autorefreshTimer scheduleNow];
 }
 
 - (void)setScrollable:(BOOL)scrollable forView:(UIView *)view
@@ -753,7 +816,7 @@ static NSString * const kTimerNotificationName = @"Autorefresh";
 
 - (UIWebView *)makeAdWebViewWithFrame:(CGRect)frame
 {
-	UIWebView *webView = [[UIWebView alloc] initWithFrame:CGRectMake(0, 0, frame.size.width, frame.size.height)];
+	UIWebView *webView = [[UIWebView alloc] initWithFrame:frame];
 	if (self.stretchesWebContentToFill)
 		webView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
 	webView.backgroundColor = [UIColor clearColor];
@@ -781,7 +844,7 @@ static NSString * const kTimerNotificationName = @"Autorefresh";
 	// Present ad browser.
 	MPAdBrowserController *browserController = [[MPAdBrowserController alloc] initWithURL:desiredURL 
 																				 delegate:self];
-	[[self.delegate viewControllerForPresentingModalView] presentModalViewController:browserController 
+	[[self.delegate viewControllerForPresentingModalView] presentModalViewController:browserController 			
 																			animated:YES];
 	[browserController release];
 }
@@ -826,8 +889,8 @@ static NSString * const kTimerNotificationName = @"Autorefresh";
 }
 
 - (void)customLinkClickedForSelectorString:(NSString *)selectorString 
-							withDataString:(NSString *)dataString{
-
+							withDataString:(NSString *)dataString
+{
 	if (!selectorString)
 	{
 		MPLogError(@"Custom selector requested, but no custom selector string was provided.",
@@ -861,9 +924,7 @@ static NSString * const kTimerNotificationName = @"Autorefresh";
 					   selectorWithObjectString);
 		}
 	}
-	
 }
-
 
 # pragma mark -
 # pragma UIApplicationNotification responders
@@ -875,15 +936,11 @@ static NSString * const kTimerNotificationName = @"Autorefresh";
 
 - (void)applicationWillEnterForeground
 {
-	if(_ignoresAutorefresh == NO) {
-		[self forceRefreshAd];
-	}
+	_autorefreshTimerNeedsScheduling = NO;
+	if (_ignoresAutorefresh == NO) [self forceRefreshAd];
 }
 
-
 @end
-
-
 
 #pragma mark -
 #pragma mark Categories
@@ -893,7 +950,8 @@ static NSString * const kTimerNotificationName = @"Autorefresh";
 - (NSString *)hashedMoPubUDID 
 {
 	NSString *result = nil;
-	NSString *udid = [NSString stringWithFormat:@"mopub-%@", [[UIDevice currentDevice] uniqueIdentifier]];
+	NSString *udid = [NSString stringWithFormat:@"mopub-%@", 
+					  [[UIDevice currentDevice] uniqueIdentifier]];
 	
 	if (udid) 
 	{
@@ -921,11 +979,12 @@ static NSString * const kTimerNotificationName = @"Autorefresh";
 
 - (NSString *)URLEncodedString
 {
-	NSString *result = (NSString *)CFURLCreateStringByAddingPercentEscapes(NULL,
-																		   (CFStringRef)self,
-																		   NULL,
-																		   (CFStringRef)@"!*'();:@&=+$,/?%#[]<>",
-																		   kCFStringEncodingUTF8);
+	NSString *result = (NSString *)CFURLCreateStringByAddingPercentEscapes(
+															NULL,
+															(CFStringRef)self,
+															NULL,
+															(CFStringRef)@"!*'();:@&=+$,/?%#[]<>",
+															kCFStringEncodingUTF8);
 	return result;
 }
 

@@ -13,6 +13,7 @@
 #import "MPStore.h"
 #import "MPConstants.h"
 #import "MPLogging.h"
+#import "MPGlobal.h"
 
 typedef enum
 {
@@ -100,7 +101,11 @@ typedef enum
 	// Impression-tracking URL.
 	NSURL *_impTrackerURL;
 	
-	// Size of the creative from the ad server. 
+	// Stores the initial size of the ad view.
+	CGSize _originalSize;
+	
+	// Stores the size of the ad creative (handed down from the server). If the server does not
+	// pass back size information, this value will be equal to _originalSize.
 	CGSize _creativeSize;
 	
 	// Handle to the shared store object that manages in-app purchases from ads.
@@ -135,9 +140,6 @@ typedef enum
 	// Specifies the transition used for bringing an ad into view. You can specify an
 	// animation type for any ad unit using the MoPub web interface.
 	MPAdAnimationType _animationType;
-	
-	// Stores the initial size of the ad view.
-	CGSize _originalSize;
 	
 	// Whether webviews added to this ad view should automatically stretch to the
 	// ad view's full size. Typically only set to YES for interstitial ads.
@@ -262,7 +264,7 @@ typedef enum
  * (headers) from the MoPub server. See MPInterstitialAdController for an
  * example of how this should be used.
  */
-- (void)adViewDidReceiveResponseParams:(NSDictionary *)params;
+- (void)adView:(MPAdView *)view didReceiveResponseParams:(NSDictionary *)params;
 
 /*
  * This method is called when a mopub://close link is activated. Your implementation of this

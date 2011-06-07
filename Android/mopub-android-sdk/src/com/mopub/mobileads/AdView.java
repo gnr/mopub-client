@@ -64,21 +64,28 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.HashMap;
 
 public class AdView extends WebView {
-
+    
+    public static final String AD_ORIENTATION_PORTRAIT_ONLY      = "p";
+    public static final String AD_ORIENTATION_LANDSCAPE_ONLY     = "l";
+    public static final String AD_ORIENTATION_BOTH               = "b";
+    
     private String mAdUnitId;
     private String mKeywords;
     private String mUrl;
     private String mClickthroughUrl;
     private String mRedirectUrl;
     private String mFailUrl;
+    private String mImpressionUrl;
     private Location mLocation;
-    private Boolean mIsLoading = false;
+    private boolean mIsLoading = false;
     private long mRefreshTime = 0;
     private int mTimeout = -1; // HTTP connection timeout in msec
     private int mWidth;
     private int mHeight;
+    private String mAdOrientation;
 
     private MoPubView mMoPubView;
     private HttpResponse mResponse;
@@ -149,6 +156,10 @@ public class AdView extends WebView {
             HttpConnectionParams.setSoTimeout(httpParameters, timeoutSocket);
         }
 
+        // Set the buffer size to avoid OutOfMemoryError exceptions on certain HTC devices.
+        // http://stackoverflow.com/questions/5358014/android-httpclient-oom-on-4g-lte-htc-thunderbolt
+        HttpConnectionParams.setSocketBufferSize(httpParameters, 8192);
+
         HttpGet httpget = new HttpGet(url);
         httpget.addHeader("User-Agent", getSettings().getUserAgentString());
         DefaultHttpClient httpclient = new DefaultHttpClient(httpParameters);
@@ -210,6 +221,14 @@ public class AdView extends WebView {
         else {
             mFailUrl = null;
         }
+        
+        Header imHeader = mResponse.getFirstHeader("X-Imptracker");
+        if (imHeader != null) {
+            mImpressionUrl = imHeader.getValue();
+        }
+        else {
+            mImpressionUrl = null;
+        }
 
         Header wHeader = mResponse.getFirstHeader("X-Width");
         Header hHeader = mResponse.getFirstHeader("X-Height");
@@ -231,14 +250,24 @@ public class AdView extends WebView {
         else {
             mRefreshTime = 0;
         }
-
+        
+        Header orHeader = mResponse.getFirstHeader("X-Orientation");
+        mAdOrientation = (orHeader != null) ? orHeader.getValue() : null;
+        
         // Handle requests for native SDK ads
-        if (atHeader.getValue().toLowerCase().equals("adsense")) {
-            Log.i("MoPub","Load AdSense ad");
+        if (!atHeader.getValue().equals("html")) {
+            Log.i("MoPub","Loading native ad");
             Header npHeader = mResponse.getFirstHeader("X-Nativeparams");
             if (npHeader != null) {
                 mIsLoading = false;
-                mMoPubView.loadAdSense(npHeader.getValue());
+                
+                HashMap<String, String> paramsHash = new HashMap<String, String>();
+                paramsHash.put("X-Adtype", atHeader.getValue());
+                paramsHash.put("X-Nativeparams", npHeader.getValue());
+                Header ftHeader = mResponse.getFirstHeader("X-Fulladtype");
+                if (ftHeader != null) paramsHash.put("X-Fulladtype", ftHeader.getValue());
+                
+                mMoPubView.loadNativeSDK(paramsHash);
                 return;
             }
             else {
@@ -284,7 +313,7 @@ public class AdView extends WebView {
 
     private String generateAdUrl() {
         StringBuilder sz = new StringBuilder("http://"+MoPubView.HOST+MoPubView.AD_HANDLER);
-        sz.append("?v=2&id=" + mAdUnitId);
+        sz.append("?v=3&id=" + mAdUnitId);
         sz.append("&udid="+Secure.getString(getContext().getContentResolver(), Secure.ANDROID_ID));
 
         if (mKeywords != null) {
@@ -331,6 +360,11 @@ public class AdView extends WebView {
         mMoPubView.adWillLoad(adUrl);
         loadUrl(adUrl);
     }
+    
+    protected void loadResponseString(String responseString) {
+        loadDataWithBaseURL("http://"+MoPubView.HOST+"/",
+                responseString,"text/html","utf-8", null);
+    }
 
     @Override
     public void reload() {
@@ -349,7 +383,27 @@ public class AdView extends WebView {
         }
     }
 
-    public void registerClick() {
+    protected void trackImpression() {
+        if (mImpressionUrl == null)
+            return;
+        
+        new Thread(new Runnable() {
+            public void run () {
+                DefaultHttpClient httpclient = new DefaultHttpClient();
+                HttpGet httpget = new HttpGet(mImpressionUrl);
+                httpget.addHeader("User-Agent", getSettings().getUserAgentString());
+                try {
+                    httpclient.execute(httpget);
+                } catch (ClientProtocolException e) {
+                    Log.i("MoPub", "Impression tracking failed: "+mImpressionUrl);
+                } catch (IOException e) {
+                    Log.i("MoPub", "Impression tracking failed: "+mImpressionUrl);
+                }
+            }
+        }).start();
+    }
+    
+    protected void registerClick() {
         if (mClickthroughUrl == null)
             return;
 
@@ -464,6 +518,10 @@ public class AdView extends WebView {
     public int getAdHeight() {
         return mHeight;
     }
+    
+    public String getAdOrientation() {
+        return mAdOrientation;
+    }
 
     public String getClickthroughUrl() {
         return mClickthroughUrl;
@@ -508,6 +566,7 @@ public class AdView extends WebView {
             }
 
             Log.d("MoPub", "click url: "+uri);
+            mMoPubView.adClicked();
 
             // and fire off a system wide intent
             view.getContext().startActivity(new Intent(android.content.Intent.ACTION_VIEW, Uri.parse(uri)));

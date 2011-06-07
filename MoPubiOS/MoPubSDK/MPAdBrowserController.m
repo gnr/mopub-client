@@ -9,6 +9,11 @@
 #import "MPAdBrowserController.h"
 #import "MPLogging.h"
 
+@interface MPAdBrowserController ()
+@property (nonatomic, retain) UIActionSheet *actionSheet;
+- (void)dismissActionSheet;
+@end
+
 @implementation MPAdBrowserController
 
 @synthesize webView = _webView;
@@ -18,7 +23,7 @@
 @synthesize safariButton = _safariButton;
 @synthesize doneButton = _doneButton;
 @synthesize spinnerItem = _spinnerItem;
-
+@synthesize actionSheet = _actionSheet;
 @synthesize delegate = _delegate;
 @synthesize URL = _URL;
 
@@ -28,15 +33,15 @@ static NSArray *BROWSER_SCHEMES, *SPECIAL_HOSTS;
 {
 	// Schemes that should be handled by the in-app browser.
 	BROWSER_SCHEMES = [[NSArray arrayWithObjects:
-					   @"http",
-					   @"https",
-					   nil] retain];
+						@"http",
+						@"https",
+						nil] retain];
 	
 	// Hosts that should be handled by the OS.
 	SPECIAL_HOSTS = [[NSArray arrayWithObjects:
-					 @"phobos.apple.com",
-					 @"maps.google.com",
-					 nil] retain];
+					  @"phobos.apple.com",
+					  @"maps.google.com",
+					  nil] retain];
 }
 
 #pragma mark -
@@ -52,8 +57,9 @@ static NSArray *BROWSER_SCHEMES, *SPECIAL_HOSTS;
 		
 		_webView = [[UIWebView alloc] initWithFrame:CGRectZero];
 		_webView.autoresizingMask = UIViewAutoresizingFlexibleWidth | 
-			UIViewAutoresizingFlexibleHeight;
+		UIViewAutoresizingFlexibleHeight;
 		_webView.delegate = self;
+		_webView.scalesPageToFit = YES;
 		
 		_spinner = [[UIActivityIndicatorView alloc] initWithFrame:CGRectZero];
 		[_spinner sizeToFit];
@@ -80,7 +86,7 @@ static NSArray *BROWSER_SCHEMES, *SPECIAL_HOSTS;
 
 - (void)viewDidLoad{
 	[super viewDidLoad];
-
+	
 	// Set up toolbar buttons
 	self.backButton.image = [self backArrowImage];
 	self.backButton.title = nil;
@@ -107,16 +113,19 @@ static NSArray *BROWSER_SCHEMES, *SPECIAL_HOSTS;
 
 - (IBAction)refresh 
 {
+	[self dismissActionSheet];
 	[_webView reload];
 }
 
 - (IBAction)done 
 {
+	[self dismissActionSheet];
 	[self.delegate dismissBrowserController:self];
 }
 
 - (IBAction)back 
 {
+	[self dismissActionSheet];
 	[_webView goBack];
 	_backButton.enabled = _webView.canGoBack;
 	_forwardButton.enabled = _webView.canGoForward;
@@ -124,6 +133,7 @@ static NSArray *BROWSER_SCHEMES, *SPECIAL_HOSTS;
 
 - (IBAction)forward 
 {
+	[self dismissActionSheet];
 	[_webView goForward];
 	_backButton.enabled = _webView.canGoBack;
 	_forwardButton.enabled = _webView.canGoForward;
@@ -131,25 +141,47 @@ static NSArray *BROWSER_SCHEMES, *SPECIAL_HOSTS;
 
 - (IBAction)safari
 {
-	UIActionSheet *actionSheet = [[UIActionSheet alloc] initWithTitle:nil
-															 delegate:self 
-													cancelButtonTitle:@"Cancel" 
-											   destructiveButtonTitle:nil 
-													otherButtonTitles:@"Open in Safari", nil];
-	[actionSheet showInView:self.view];
-	[actionSheet release];
+	if (_actionSheetIsShowing)
+	{
+		[self dismissActionSheet];
+	}
+	else 
+	{
+		self.actionSheet = [[UIActionSheet alloc] initWithTitle:nil
+													   delegate:self 
+											  cancelButtonTitle:@"Cancel" 
+										 destructiveButtonTitle:nil 
+											  otherButtonTitles:@"Open in Safari", nil];
+		[self.actionSheet showFromBarButtonItem:self.safariButton animated:YES];
+	}
+}	
+
+- (void)dismissActionSheet
+{
+	[self.actionSheet dismissWithClickedButtonIndex:0 animated:YES];
+	
 }
 
 #pragma mark -
 #pragma mark UIActionSheetDelegate
 
 - (void)actionSheet:(UIActionSheet *)actionSheet clickedButtonAtIndex:(NSInteger)buttonIndex 
-{
+{	
 	if (buttonIndex == 0) 
 	{
 		// Open in Safari.
 		[[UIApplication sharedApplication] openURL:_webView.request.URL];
 	}
+}
+
+- (void)actionSheet:(UIActionSheet *)actionSheet didDismissWithButtonIndex:(NSInteger)buttonIndex
+{
+	_actionSheetIsShowing = NO;
+}
+
+- (void)didPresentActionSheet:(UIActionSheet *)actionSheet
+{
+	_actionSheetIsShowing = YES;
 }
 
 #pragma mark -
@@ -168,7 +200,7 @@ static NSArray *BROWSER_SCHEMES, *SPECIAL_HOSTS;
 	{
 		if ([SPECIAL_HOSTS containsObject:request.URL.host])
 		{
-			[self dismissModalViewControllerAnimated:NO];
+			[self.delegate dismissBrowserController:self animated:NO]; 
 			[[UIApplication sharedApplication] openURL:request.URL];
 			return NO;
 		}
@@ -182,7 +214,7 @@ static NSArray *BROWSER_SCHEMES, *SPECIAL_HOSTS;
 	{
 		if ([[UIApplication sharedApplication] canOpenURL:request.URL])
 		{
-			[self dismissModalViewControllerAnimated:NO];
+			[self.delegate dismissBrowserController:self animated:NO]; 
 			[[UIApplication sharedApplication] openURL:request.URL];
 			return NO;
 		}
@@ -208,13 +240,8 @@ static NSArray *BROWSER_SCHEMES, *SPECIAL_HOSTS;
 
 - (void)webView:(UIWebView *)webView didFailLoadWithError:(NSError *)error 
 {
-	UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Could not load page." 
-													message:[error localizedDescription] 
-												   delegate:self 
-										  cancelButtonTitle:@"OK" 
-										  otherButtonTitles:nil];
-	[alert show];
-	[alert release];
+	MPLogError(@"Ad browser %@ experienced an error: %@.", self, [error localizedDescription]);
+	[self webViewDidFinishLoad:webView];
 }
 
 #pragma mark -
