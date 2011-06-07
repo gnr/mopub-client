@@ -46,6 +46,7 @@
 
 - (void)invalidate
 {
+	MPLogDebug(@"Invalidating MPTimer (%p).", self);	
 	[self.timer invalidate];
 }
 
