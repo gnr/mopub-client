@@ -94,7 +94,7 @@
 - (void)adRequestSucceeded:(MMAdView *)adView
 {
 	[self.adView setAdContentView:adView];
-	[self.adView adapterDidFinishLoadingAd:self];
+	[self.adView adapterDidFinishLoadingAd:self shouldTrackImpression:YES];
 }
 
 - (void)adRequestFailed:(MMAdView *)adView

@@ -27,6 +27,7 @@ static NSString * const kMoPubCustomHost			= @"custom";
 static NSString * const kMoPubInterfaceOrientationPortraitId	= @"p";
 static NSString * const kMoPubInterfaceOrientationLandscapeId	= @"l";
 static const CGFloat kMoPubRequestTimeoutInterval	= 10.0;
+static const CGFloat kMoPubRequestRetryInterval     = 60.0;
 
 // Ad header key/value constants.
 static NSString * const kClickthroughHeaderKey		= @"X-Clickthrough";
@@ -56,6 +57,7 @@ static NSString * const kAdTypeClear				= @"clear";
 - (void)applicationWillEnterForeground;
 - (void)customLinkClickedForSelectorString:(NSString *)selectorString 
 							withDataString:(NSString *)dataString;
+- (void)replaceCurrentAdapterWithAdapter:(MPBaseAdapter *)newAdapter;
 @end
 
 @interface MPAdView ()
@@ -520,18 +522,17 @@ static NSString * const kAdTypeClear				= @"clear";
 	NSString *typeHeader = [[(NSHTTPURLResponse *)response allHeaderFields] 
 								objectForKey:kAdTypeHeaderKey];
 	
-	// Dispose of the last adapter stored in _previousAdapter.
-	[_previousAdapter unregisterDelegate];
-	[_previousAdapter release];
-	_previousAdapter = nil;
-	
 	if (!typeHeader || [typeHeader isEqualToString:kAdTypeHtml])
 	{
+		[self replaceCurrentAdapterWithAdapter:nil];
+		
 		// HTML ad, so just return. connectionDidFinishLoading: will take care of the rest.
 		return;
 	}
 	else if ([typeHeader isEqualToString:kAdTypeClear])
 	{
+		[self replaceCurrentAdapterWithAdapter:nil];
+		
 		// Show a blank.
 		MPLogInfo(@"*** CLEAR ***");
 		[connection cancel];
@@ -546,9 +547,8 @@ static NSString * const kAdTypeClear				= @"clear";
 	Class cls = NSClassFromString(classString);
 	if (cls != nil)
 	{
-		// Create a new adapter and update _previousAdapter.
-		_previousAdapter = _currentAdapter;
-		_currentAdapter = (MPBaseAdapter *)[[cls alloc] initWithAdView:self];
+		MPBaseAdapter *newAdapter = (MPBaseAdapter *)[[cls alloc] initWithAdView:self];
+		[self replaceCurrentAdapterWithAdapter:newAdapter];
 		
 		[connection cancel];
 		
@@ -559,11 +559,23 @@ static NSString * const kAdTypeClear				= @"clear";
 	// Else: no adapter for the specified ad type, so just fail over.
 	else 
 	{
+		[self replaceCurrentAdapterWithAdapter:nil];
+		
 		[connection cancel];
 		_isLoading = NO;
 		
 		[self loadAdWithURL:self.failURL];
 	}
+}
+
+- (void)replaceCurrentAdapterWithAdapter:(MPBaseAdapter *)newAdapter
+{
+	// Dispose of the last adapter stored in _previousAdapter.
+	[_previousAdapter unregisterDelegate];
+	[_previousAdapter release];
+	
+	_previousAdapter = _currentAdapter;
+	_currentAdapter = newAdapter;
 }
 
 - (void)connection:(NSURLConnection *)connection didReceiveData:(NSData *)d
@@ -583,7 +595,7 @@ static NSString * const kAdTypeClear				= @"clear";
 	// Retry in 60 seconds.
 	if (!self.autorefreshTimer || ![self.autorefreshTimer isValid])
 	{
-		self.autorefreshTimer = [MPTimer timerWithTimeInterval:60.0f 
+		self.autorefreshTimer = [MPTimer timerWithTimeInterval:kMoPubRequestRetryInterval 
 														target:_timerTarget 
 													  selector:@selector(postNotification) 
 													  userInfo:nil 
@@ -712,10 +724,11 @@ static NSString * const kAdTypeClear				= @"clear";
 #pragma mark -
 #pragma mark MPAdapterDelegate
 
-- (void)adapterDidFinishLoadingAd:(MPBaseAdapter *)adapter
+- (void)adapterDidFinishLoadingAd:(MPBaseAdapter *)adapter shouldTrackImpression:(BOOL)shouldTrack
 {	
 	_isLoading = NO;
-	[self trackImpression];
+	
+	if (shouldTrack) [self trackImpression];
 	[self scheduleAutorefreshTimer];
 	
 	if ([self.delegate respondsToSelector:@selector(adViewDidLoadAd:)])
@@ -782,12 +795,23 @@ static NSString * const kAdTypeClear				= @"clear";
 
 - (void)scheduleAutorefreshTimer
 {
-	if (_adActionInProgress) 
+	if (_adActionInProgress)
 	{
 		MPLogDebug(@"Ad action in progress: MPTimer will be scheduled after action ends.");
 		_autorefreshTimerNeedsScheduling = YES;
 	}
-	else [self.autorefreshTimer scheduleNow];
+	else if ([self.autorefreshTimer isScheduled])
+	{
+		MPLogDebug(@"Tried to schedule the autorefresh timer, but it was already scheduled.");
+	}
+	else if (self.autorefreshTimer == nil)
+	{
+		MPLogDebug(@"Tried to schedule the autorefresh timer, but it was nil.");
+	}
+	else
+	{
+		[self.autorefreshTimer scheduleNow];
+	}
 }
 
 - (void)setScrollable:(BOOL)scrollable forView:(UIView *)view
