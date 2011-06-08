@@ -10,6 +10,11 @@
 #import "MPAdView.h"
 #import "MPLogging.h"
 
+@interface MPIAdAdapter ()
+- (void)releaseBannerViewDelegateSafely;
+- (void)setBannerViewContentSizeIdentifierForOrientation:(UIInterfaceOrientation)orientation;
+@end
+
 @implementation MPIAdAdapter
 
 + (ADBannerView *)sharedAdBannerView
@@ -19,66 +24,74 @@
 	@synchronized(self)
 	{
 		if (!sharedAdBannerView)
+		{
 			sharedAdBannerView = [[ADBannerView alloc] initWithFrame:CGRectZero];
+		}
 	}
 	return sharedAdBannerView;
 }
 
 - (void)dealloc
 {
-	_adBannerView.delegate = nil;
-	[_adBannerView release];
+	[self releaseBannerViewDelegateSafely];
 	[super dealloc];
+}
+
+- (void)releaseBannerViewDelegateSafely
+{
+	if (_adBannerView.delegate == self) _adBannerView.delegate = nil;
+	[_adBannerView release];
 }
 
 - (void)getAdWithParams:(NSDictionary *)params
 {
 	Class cls = NSClassFromString(@"ADBannerView");
 	if (cls != nil) {
-		CGSize size = self.adView.bounds.size;
-		
-		if (_adBannerView)
-		{
-			_adBannerView.delegate = nil;
-			[_adBannerView release];
-		}
+		if (_adBannerView) [self releaseBannerViewDelegateSafely];
 		
 		_adBannerView = [[MPIAdAdapter sharedAdBannerView] retain];
+		
+		CGSize size = self.adView.bounds.size;
 		_adBannerView.frame = (CGRect){{0, 0}, size};
-
-		UIInterfaceOrientation currentOrientation = [UIApplication sharedApplication].statusBarOrientation;
-		// iOS 4.2:
-		if (&ADBannerContentSizeIdentifierPortrait != nil)
-		{
-			_adBannerView.requiredContentSizeIdentifiers = [NSSet setWithObjects:
-															ADBannerContentSizeIdentifierPortrait, 
-															ADBannerContentSizeIdentifierLandscape, 
-															nil];
-			if (UIInterfaceOrientationIsLandscape(currentOrientation))
-				_adBannerView.currentContentSizeIdentifier = ADBannerContentSizeIdentifierLandscape;
-			else
-				_adBannerView.currentContentSizeIdentifier = ADBannerContentSizeIdentifierPortrait;
-		}
-		// Prior to iOS 4.2:
-		else
-		{
-			_adBannerView.requiredContentSizeIdentifiers = [NSSet setWithObjects:
-															ADBannerContentSizeIdentifier320x50, 
-															ADBannerContentSizeIdentifier480x32, 
-															nil];
-			if (UIInterfaceOrientationIsLandscape(currentOrientation))
-				_adBannerView.currentContentSizeIdentifier = ADBannerContentSizeIdentifier480x32;
-			else
-				_adBannerView.currentContentSizeIdentifier = ADBannerContentSizeIdentifier320x50;
-			
-		}
-			
 		_adBannerView.delegate = self;
+
+		UIInterfaceOrientation currentOrientation = 
+				[UIApplication sharedApplication].statusBarOrientation;
+		[self setBannerViewContentSizeIdentifierForOrientation:currentOrientation];
 	} 
 	else 
 	{
 		// iAd not supported in iOS versions before 4.0.
 		[self bannerView:nil didFailToReceiveAdWithError:nil];
+	}
+}
+
+- (void)setBannerViewContentSizeIdentifierForOrientation:(UIInterfaceOrientation)orientation
+{
+	// iOS 4.2:
+	if (&ADBannerContentSizeIdentifierPortrait != nil)
+	{
+		_adBannerView.requiredContentSizeIdentifiers = [NSSet setWithObjects:
+														ADBannerContentSizeIdentifierPortrait, 
+														ADBannerContentSizeIdentifierLandscape, 
+														nil];
+		if (UIInterfaceOrientationIsLandscape(orientation))
+			_adBannerView.currentContentSizeIdentifier = ADBannerContentSizeIdentifierLandscape;
+		else
+			_adBannerView.currentContentSizeIdentifier = ADBannerContentSizeIdentifierPortrait;
+	}
+	// Prior to iOS 4.2:
+	else
+	{
+		_adBannerView.requiredContentSizeIdentifiers = [NSSet setWithObjects:
+														ADBannerContentSizeIdentifier320x50, 
+														ADBannerContentSizeIdentifier480x32, 
+														nil];
+		if (UIInterfaceOrientationIsLandscape(orientation))
+			_adBannerView.currentContentSizeIdentifier = ADBannerContentSizeIdentifier480x32;
+		else
+			_adBannerView.currentContentSizeIdentifier = ADBannerContentSizeIdentifier320x50;
+		
 	}
 }
 
@@ -91,13 +104,13 @@
 	{
 		// Tests for iOS >= 4.2.
 		_adBannerView.currentContentSizeIdentifier = (&ADBannerContentSizeIdentifierLandscape) ? 
-			ADBannerContentSizeIdentifierLandscape : ADBannerContentSizeIdentifier480x32;
+		ADBannerContentSizeIdentifierLandscape : ADBannerContentSizeIdentifier480x32;
 	}
 	else
 	{
 		// Tests for iOS >= 4.2.
 		_adBannerView.currentContentSizeIdentifier = (&ADBannerContentSizeIdentifierPortrait) ?
-			ADBannerContentSizeIdentifierPortrait : ADBannerContentSizeIdentifier320x50;
+		ADBannerContentSizeIdentifierPortrait : ADBannerContentSizeIdentifier320x50;
 	}
 	
 	// Prevent this view from automatically positioning itself in the center of its superview.
