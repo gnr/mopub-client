@@ -54,7 +54,7 @@
 - (void)adViewDidReceiveAd:(GADBannerView *)bannerView
 {
 	[self.adView setAdContentView:bannerView];
-	[self.adView adapterDidFinishLoadingAd:self];
+	[self.adView adapterDidFinishLoadingAd:self shouldTrackImpression:YES];
 }
 
 - (void)adView:(GADBannerView *)bannerView

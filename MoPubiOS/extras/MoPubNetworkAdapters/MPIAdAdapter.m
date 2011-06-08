@@ -11,6 +11,7 @@
 #import "MPLogging.h"
 
 @interface MPIAdAdapter ()
++ (ADBannerView *)sharedAdBannerView;
 - (void)releaseBannerViewDelegateSafely;
 - (void)setBannerViewContentSizeIdentifierForOrientation:(UIInterfaceOrientation)orientation;
 @end
@@ -46,7 +47,8 @@
 - (void)getAdWithParams:(NSDictionary *)params
 {
 	Class cls = NSClassFromString(@"ADBannerView");
-	if (cls != nil) {
+	if (cls != nil) 
+	{
 		if (_adBannerView) [self releaseBannerViewDelegateSafely];
 		
 		_adBannerView = [[MPIAdAdapter sharedAdBannerView] retain];
@@ -58,6 +60,13 @@
 		UIInterfaceOrientation currentOrientation = 
 				[UIApplication sharedApplication].statusBarOrientation;
 		[self setBannerViewContentSizeIdentifierForOrientation:currentOrientation];
+		
+		if ([_adBannerView isBannerLoaded])
+		{
+			MPLogInfo(@"iAd banner has previously loaded an ad, so just show it.");
+			[self.adView setAdContentView:_adBannerView];
+			[self.adView adapterDidFinishLoadingAd:self shouldTrackImpression:NO];
+		}
 	} 
 	else 
 	{
@@ -125,8 +134,7 @@
 
 - (void)bannerView:(ADBannerView *)banner didFailToReceiveAdWithError:(NSError *)error
 {
-	MPLogInfo(@"iAd Failed To Receive Ad");
-	_hasReceivedFirstResponse = YES;
+	MPLogInfo(@"iAd failed in trying to load or refresh an ad.");
 
 	// Edge case: This method schedules the banner view to be deallocated. If this method
 	// was called due to a failed internal iAd refresh, there is a chance the user could
@@ -139,13 +147,13 @@
 
 - (void)bannerViewActionDidFinish:(ADBannerView *)banner
 {
-	MPLogInfo(@"iAd Finished Executing Banner Action");
+	MPLogInfo(@"iAd finished executing banner action.");
 	[self.adView userActionDidEndForAdapter:self];
 }
 
 - (BOOL)bannerViewActionShouldBegin:(ADBannerView *)banner willLeaveApplication:(BOOL)willLeave
 {
-	MPLogInfo(@"iAd Should Begin Banner Action");
+	MPLogInfo(@"iAd should begin banner action.");
 	[self.adView userActionWillBeginForAdapter:self];
 	if (willLeave) [self.adView userWillLeaveApplicationFromAdapter:self];
 	return YES;
@@ -153,19 +161,9 @@
 
 - (void)bannerViewDidLoadAd:(ADBannerView *)banner
 {
-	// ADBannerView has its own internal timer for refreshing ads, so this callback may happen
-	// multiple times. We should only set the ad content view once -- the first time an iAd loads.
-	if (!_hasReceivedFirstResponse)
-	{
-		MPLogInfo(@"iAd Load Succeeded");
-		_hasReceivedFirstResponse = YES;
-		[self.adView setAdContentView:_adBannerView];
-		[self.adView adapterDidFinishLoadingAd:self];
-	}
-	else 
-	{
-		MPLogInfo(@"iAd Internal Refresh Succeeded");
-	}
+	MPLogInfo(@"iAd has successfully loaded a new ad.");
+	[self.adView setAdContentView:_adBannerView];
+	[self.adView adapterDidFinishLoadingAd:self shouldTrackImpression:YES];
 }
 
 @end
