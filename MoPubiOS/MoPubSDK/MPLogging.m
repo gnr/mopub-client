@@ -10,6 +10,11 @@
 
 static MPLogLevel MPLOG_LEVEL = MPLogLevelInfo;
 
+MPLogLevel MPLogGetLevel()
+{
+	return MPLOG_LEVEL;
+}
+
 void MPLogSetLevel(MPLogLevel level)
 {
 	MPLOG_LEVEL = level;

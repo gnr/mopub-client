@@ -45,6 +45,8 @@ static NSString * const kAdTypeHtml					= @"html";
 static NSString * const kAdTypeClear				= @"clear";
 
 @interface MPAdView (Internal)
+- (void)registerForApplicationStateTransitionNotifications;
+- (void)destroyWebviewPool;
 - (void)scheduleAutorefreshTimer;
 - (void)setScrollable:(BOOL)scrollable forView:(UIView *)view;
 - (UIWebView *)makeAdWebViewWithFrame:(CGRect)frame;
@@ -58,6 +60,13 @@ static NSString * const kAdTypeClear				= @"clear";
 - (void)customLinkClickedForSelectorString:(NSString *)selectorString 
 							withDataString:(NSString *)dataString;
 - (void)replaceCurrentAdapterWithAdapter:(MPBaseAdapter *)newAdapter;
+- (NSURL *)serverRequestUrl;
+- (NSString *)orientationQueryStringComponent;
+- (NSString *)scaleFactorQueryStringComponent;
+- (NSString *)timeZoneQueryStringComponent;
+- (NSString *)locationQueryStringComponent;
+- (NSURLRequest *)serverRequestObjectForUrl:(NSURL *)url;
+- (NSString *)userAgentString;
 @end
 
 @interface MPAdView ()
@@ -115,23 +124,7 @@ static NSString * const kAdTypeClear				= @"clear";
 		_animationType = MPAdAnimationTypeNone;
 		_originalSize = size;
 		_webviewPool = [[NSMutableSet set] retain];
-		
-		// iOS version > 4.0: Register for relevant application state transition notifications.
-		if (&UIApplicationDidEnterBackgroundNotification != nil)
-		{
-			[[NSNotificationCenter defaultCenter] addObserver:self 
-													 selector:@selector(applicationDidEnterBackground) 
-														 name:UIApplicationDidEnterBackgroundNotification 
-													   object:[UIApplication sharedApplication]];
-		}		
-		if (&UIApplicationWillEnterForegroundNotification != nil)
-		{
-			[[NSNotificationCenter defaultCenter] addObserver:self 
-													 selector:@selector(applicationWillEnterForeground)
-														 name:UIApplicationWillEnterForegroundNotification 
-													   object:[UIApplication sharedApplication]];
-		}
-		
+		[self registerForApplicationStateTransitionNotifications];
 		_timerTarget = [[MPTimerTarget alloc] initWithNotificationName:kTimerNotificationName];
 		[[NSNotificationCenter defaultCenter] addObserver:self
 												 selector:@selector(forceRefreshAd)
@@ -139,6 +132,25 @@ static NSString * const kAdTypeClear				= @"clear";
 												   object:_timerTarget];
     }
     return self;
+}
+
+- (void)registerForApplicationStateTransitionNotifications
+{
+	// iOS version > 4.0: Register for relevant application state transition notifications.
+	if (&UIApplicationDidEnterBackgroundNotification != nil)
+	{
+		[[NSNotificationCenter defaultCenter] addObserver:self 
+												 selector:@selector(applicationDidEnterBackground) 
+													 name:UIApplicationDidEnterBackgroundNotification 
+												   object:[UIApplication sharedApplication]];
+	}		
+	if (&UIApplicationWillEnterForegroundNotification != nil)
+	{
+		[[NSNotificationCenter defaultCenter] addObserver:self 
+												 selector:@selector(applicationWillEnterForeground)
+													 name:UIApplicationWillEnterForegroundNotification 
+												   object:[UIApplication sharedApplication]];
+	}
 }
 
 - (void)dealloc 
@@ -151,12 +163,7 @@ static NSString * const kAdTypeClear				= @"clear";
 		[_adContentView performSelector:@selector(setDelegate:) withObject:nil];
 	[_adContentView release];
 	
-	for (UIWebView *webview in _webviewPool)
-	{
-		[webview setDelegate:nil];
-		[webview stopLoading];
-	}
-	[_webviewPool release];
+	[self destroyWebviewPool];
 	
 	[_currentAdapter unregisterDelegate];
 	[_currentAdapter release];
@@ -177,6 +184,16 @@ static NSString * const kAdTypeClear				= @"clear";
 	[_autorefreshTimer release];
 	[_timerTarget release];
     [super dealloc];
+}
+
+- (void)destroyWebviewPool
+{
+	for (UIWebView *webview in _webviewPool)
+	{
+		[webview setDelegate:nil];
+		[webview stopLoading];
+	}
+	[_webviewPool release];
 }
 
 #pragma mark -
@@ -335,77 +352,111 @@ static NSString * const kAdTypeClear				= @"clear";
 
 - (void)loadAdWithURL:(NSURL *)URL
 {
-	// If this ad view is already loading a request, don't proceed; instead, wait
-	// for the previous load to finish.
 	if (_isLoading) 
 	{
-		MPLogWarn(@"Ad view (%p) is already loading an ad, wait to finish.", self);
+		MPLogWarn(@"Ad view (%p) already loading an ad. Wait for previous load to finish.", self);
 		return;
 	}
 	
-	// If the passed-in URL is nil, construct a URL from our initial parameters.
-	if (!URL)
+	self.URL = (URL) ? URL : [self serverRequestUrl];
+	MPLogDebug(@"Ad view (%p) loading ad with MoPub server URL: %@", self, self.URL);
+	
+	NSURLRequest *request = [self serverRequestObjectForUrl:self.URL];
+	[_conn release];
+	_conn = [[NSURLConnection connectionWithRequest:request delegate:self] retain];
+	_isLoading = YES;
+	
+	MPLogInfo(@"Ad view (%p) fired initial ad request.", self);
+}
+
+- (NSURL *)serverRequestUrl
+{
+	NSString *urlString = [NSString stringWithFormat:@"http://%@/m/ad?v=4&udid=%@&q=%@&id=%@", 
+						   HOSTNAME,
+						   [[UIDevice currentDevice] hashedMoPubUDID],
+						   [self.keywords stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding],
+						   [self.adUnitId stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]
+						   ];
+	
+	urlString = [urlString stringByAppendingString:[self orientationQueryStringComponent]];
+	urlString = [urlString stringByAppendingString:[self scaleFactorQueryStringComponent]];
+	urlString = [urlString stringByAppendingString:[self timeZoneQueryStringComponent]];
+	urlString = [urlString stringByAppendingString:[self locationQueryStringComponent]];
+	
+	return [NSURL URLWithString:urlString];
+}
+
+- (NSString *)orientationQueryStringComponent
+{
+	UIInterfaceOrientation orientation = [UIApplication sharedApplication].statusBarOrientation;
+	NSString *orientString = UIInterfaceOrientationIsPortrait(orientation) ?
+		kMoPubInterfaceOrientationPortraitId : kMoPubInterfaceOrientationLandscapeId;
+	return [NSString stringWithFormat:@"&o=%@", orientString];
+}
+													
+- (NSString *)scaleFactorQueryStringComponent
+{
+	return [NSString stringWithFormat:@"&sc=%.1f", MPDeviceScaleFactor()];
+}
+
+- (NSString *)timeZoneQueryStringComponent
+{
+	static NSDateFormatter *formatter;
+	@synchronized(self)
 	{
-		NSString *urlString = [NSString stringWithFormat:@"http://%@/m/ad?v=4&udid=%@&q=%@&id=%@", 
-							   HOSTNAME,
-							   [[UIDevice currentDevice] hashedMoPubUDID],
-							   [self.keywords stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding],
-							   [self.adUnitId stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]
-							   ];
-		
-		// Append orientation data.
-		UIInterfaceOrientation orientation = [UIApplication sharedApplication].statusBarOrientation;
-		NSString *orientString = UIInterfaceOrientationIsPortrait(orientation) ?
-			kMoPubInterfaceOrientationPortraitId : kMoPubInterfaceOrientationLandscapeId;
-		urlString = [urlString stringByAppendingFormat:@"&o=%@", orientString];
-		
-		// Append scale factor data.
-		urlString = [urlString stringByAppendingFormat:@"&sc=%.1f", MPDeviceScaleFactor()];
-		
-		// Append time zone data.
-		NSDateFormatter *formatter = [[[NSDateFormatter alloc] init] autorelease];
-		[formatter setDateFormat:@"Z"];
-		NSDate *today = [NSDate date];
-		urlString = [urlString stringByAppendingFormat:@"&z=%@", [formatter stringFromDate:today]];
-		
-		// Append location data if we have it.
-		if (self.location)
-		{
-			urlString = [urlString stringByAppendingFormat:@"&ll=%f,%f",
-						 self.location.coordinate.latitude,
-						 self.location.coordinate.longitude];
-		}
-		
-		URL = [NSURL URLWithString:urlString];
+		if (!formatter) formatter = [[NSDateFormatter alloc] init];
 	}
-	
-	self.URL = URL;
-	MPLogDebug(@"Ad view (%p) calling loadAdWithURL: %@", self, URL);
-	
+	[formatter setDateFormat:@"Z"];
+	NSDate *today = [NSDate date];
+	return [NSString stringWithFormat:@"&z=%@", [formatter stringFromDate:today]];
+}
+
+- (NSString *)locationQueryStringComponent
+{
+	NSString *result = @"";
+	if (self.location)
+	{
+		result = [result stringByAppendingFormat:
+				  @"&ll=%f,%f",
+				  self.location.coordinate.latitude,
+				  self.location.coordinate.longitude];
+	}
+	return result;
+}
+
+- (NSURLRequest *)serverRequestObjectForUrl:(NSURL *)url
+{
 	NSMutableURLRequest *request = [[[NSMutableURLRequest alloc] 
-									 initWithURL:self.URL 
+									 initWithURL:url
 									 cachePolicy:NSURLRequestUseProtocolCachePolicy 
 									 timeoutInterval:kMoPubRequestTimeoutInterval] autorelease];
 	
-	// Set the user agent so that we know where the request is coming from. 
-	// This is important for targeting!
+	// Set the user agent so that we know where the request is coming from (for targeting).
 	if ([request respondsToSelector:@selector(setValue:forHTTPHeaderField:)]) 
 	{
-		NSString *systemVersion = [[UIDevice currentDevice] systemVersion];
-		NSString *systemName = [[UIDevice currentDevice] systemName];
-		NSString *model = [[UIDevice currentDevice] model];
-		NSString *bundleName = [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleName"];
-		NSString *appVersion = [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleVersion"];			
-		NSString *userAgentString = [NSString stringWithFormat:@"%@/%@ (%@; U; CPU %@ %@ like Mac OS X; %@)",
-									 bundleName, appVersion, model,
-									 systemName, systemVersion, [[NSLocale currentLocale] localeIdentifier]];
+		NSString *userAgentString = [self userAgentString];
 		[request setValue:userAgentString forHTTPHeaderField:@"User-Agent"];
-	}		
+	}			
 	
-	[_conn release];
-	_conn = [[NSURLConnection connectionWithRequest:request delegate:self] retain];
-	MPLogInfo(@"Ad view (%p) fired initial ad request.", self);
-	_isLoading = YES;
+	return request;
+}
+
+- (NSString *)userAgentString
+{
+	NSString *systemVersion = [[UIDevice currentDevice] systemVersion];
+	NSString *systemName = [[UIDevice currentDevice] systemName];
+	NSString *model = [[UIDevice currentDevice] model];
+	NSString *bundleName = [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleName"];
+	NSString *appVersion = [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleVersion"];			
+	return [NSString stringWithFormat:
+			@"%@/%@ (%@; U; CPU %@ %@ like Mac OS X; %@)",
+			bundleName, 
+			appVersion, 
+			model,
+			systemName, 
+			systemVersion, 
+			[[NSLocale currentLocale] localeIdentifier]
+			];
 }
 
 - (void)didCloseAd:(id)sender
@@ -422,6 +473,9 @@ static NSString * const kAdTypeClear				= @"clear";
 	if ([_adContentView isKindOfClass:[UIWebView class]])
 		[(UIWebView *)_adContentView stringByEvaluatingJavaScriptFromString:@"webviewDidAppear();"];
 }
+
+# pragma mark -
+# pragma mark Custom Events
 
 - (void)customEventDidLoadAd
 {
@@ -614,9 +668,12 @@ static NSString * const kAdTypeClear				= @"clear";
 	[webview loadData:_data MIMEType:@"text/html" textEncodingName:@"utf-8" baseURL:self.URL];
 	
 	// Print out the response, for debugging.
-	NSString *response = [[NSString alloc] initWithData:_data encoding:NSUTF8StringEncoding];
-	MPLogTrace(@"Ad view (%p) loaded HTML content: %@", self, response);
-	[response release];
+	if (MPLogGetLevel() <= MPLogLevelTrace)
+	{
+		NSString *response = [[NSString alloc] initWithData:_data encoding:NSUTF8StringEncoding];
+		MPLogTrace(@"Ad view (%p) loaded HTML content: %@", self, response);
+		[response release];
+	}
 }
 
 #pragma mark -
