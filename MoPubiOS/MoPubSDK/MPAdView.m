@@ -49,6 +49,7 @@ static NSString * const kAdTypeClear				= @"clear";
 - (void)destroyWebviewPool;
 - (void)scheduleAutorefreshTimer;
 - (void)setScrollable:(BOOL)scrollable forView:(UIView *)view;
+- (void)animateTransitionToAdView:(UIView *)view;
 - (UIWebView *)makeAdWebViewWithFrame:(CGRect)frame;
 - (void)adLinkClicked:(NSURL *)URL;
 - (void)backFillWithNothing;
@@ -214,19 +215,23 @@ static NSString * const kAdTypeClear				= @"clear";
 	self.hidden = NO;
 	
 	// We don't necessarily know where this view came from, so make sure its scrollability
-	// corresponds to our value of _scrollable.
-	[self setScrollable:_scrollable forView:view];
+	// corresponds to our value of self.scrollable.
+	[self setScrollable:self.scrollable forView:view];
 	
+	[self animateTransitionToAdView:view];
+}
+
+- (void)animateTransitionToAdView:(UIView *)view
+{
 	MPAdAnimationType type = (_animationType == MPAdAnimationTypeRandom) ? 
 		(random() % (MPAdAnimationTypeCount - 2)) + 2 : _animationType;
 	
 	// Special case: if there's currently no ad content view, certain transitions will
 	// look strange (e.g. CurlUp / CurlDown). We'll just omit the transition.
-	if (!_adContentView)
-		type = MPAdAnimationTypeNone;
+	if (!_adContentView) type = MPAdAnimationTypeNone;
 	
-	if (type == MPAdAnimationTypeFade)
-		view.alpha = 0.0;
+	if (type == MPAdAnimationTypeFade) view.alpha = 0.0;
+	
 	MPLogDebug(@"Ad view (%p) is using animationType: %d", self, type);
 	
 	[UIView beginAnimations:kAdAnimationId context:view];
@@ -276,30 +281,30 @@ static NSString * const kAdTypeClear				= @"clear";
 - (void)animationDidStop:(NSString *)animationID finished:(NSNumber *)finished 
 				 context:(void *)context
 {
-	// context is the view that we just added to the view hierarchy (i.e. the view 
-	// passed to -setAdContentView:).
-	UIView *view = (UIView *)context;
-	
-	// Remove the old _adContentView from the view hierarchy, but first confirm that it's
-	// not the same as view; otherwise, we'll be left with no content view.
-	if (_adContentView != view)
+	if ([animationID isEqualToString:kAdAnimationId])
 	{
-		[_adContentView removeFromSuperview];
+		UIView *viewAddedToHierarchy = (UIView *)context;
 		
-		// Additionally, do webview-related cleanup if the old _adContentView was a webview.
-		if ([_adContentView isKindOfClass:[UIWebView class]])
+		// Remove the old ad content view from the view hierarchy, but first confirm that it's
+		// not the same as the new view; otherwise, we'll be left with no content view.
+		if (_adContentView != viewAddedToHierarchy)
 		{
-			[(UIWebView *)_adContentView setDelegate:nil];
-			[(UIWebView *)_adContentView stopLoading];
-			[_webviewPool removeObject:_adContentView];
+			[_adContentView removeFromSuperview];
+			
+			// Additionally, do webview-related cleanup if the old _adContentView was a webview.
+			if ([_adContentView isKindOfClass:[UIWebView class]])
+			{
+				[(UIWebView *)_adContentView setDelegate:nil];
+				[(UIWebView *)_adContentView stopLoading];
+				[_webviewPool removeObject:_adContentView];
+			}
 		}
+		
+		// Release _adContentView, since -setAdContentView: retained it.
+		[_adContentView release];
+		
+		_adContentView = viewAddedToHierarchy;
 	}
-	
-	// Release _adContentView regardless of whether it was the same as view, since 
-	// -setAdContentView: retained it.
-	[_adContentView release];
-	
-	_adContentView = view;
 }
 
 - (CGSize)adContentViewSize
