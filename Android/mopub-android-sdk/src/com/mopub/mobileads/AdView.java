@@ -72,6 +72,8 @@ public class AdView extends WebView {
     public static final String AD_ORIENTATION_LANDSCAPE_ONLY     = "l";
     public static final String AD_ORIENTATION_BOTH               = "b";
     
+    public static final String EXTRA_AD_CLICK_DATA = "com.mopub.intent.extra.AD_CLICK_DATA";
+    
     private String mAdUnitId;
     private String mKeywords;
     private String mUrl;
@@ -554,6 +556,19 @@ public class AdView extends WebView {
                 }
                 else if (url.equals("mopub://failLoad")) {
                     ((AdView)view).loadFailUrl();
+                }
+                else if (url.startsWith("mopub://custom")) {
+                    Uri uri = Uri.parse(url);
+                    String actionIntent = uri.getQueryParameter("fnc");
+                    String adData = uri.getQueryParameter("data");
+                    
+                    mMoPubView.adClicked();
+                    
+                    Intent i = new Intent(actionIntent);
+                    if(adData != null) {
+                        i.putExtra(EXTRA_AD_CLICK_DATA, adData);
+                    }
+                    view.getContext().startActivity(i);
                 }
                 return true;
             }
