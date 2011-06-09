@@ -137,7 +137,7 @@ static NSDictionary *GADHeaderAttrMap = nil;
           withResults:(NSDictionary *)results
 {
 	[self.adView setAdContentView:adController.view];
-	[self.adView adapterDidFinishLoadingAd:self];
+	[self.adView adapterDidFinishLoadingAd:self shouldTrackImpression:YES];
 }
 
 - (void)loadFailed:(GADAdViewController *)adController

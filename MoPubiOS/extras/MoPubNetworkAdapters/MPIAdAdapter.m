@@ -10,62 +10,97 @@
 #import "MPAdView.h"
 #import "MPLogging.h"
 
+@interface MPIAdAdapter ()
++ (ADBannerView *)sharedAdBannerView;
+- (void)releaseBannerViewDelegateSafely;
+- (void)setBannerViewContentSizeIdentifierForOrientation:(UIInterfaceOrientation)orientation;
+@end
+
 @implementation MPIAdAdapter
+
++ (ADBannerView *)sharedAdBannerView
+{
+	static ADBannerView *sharedAdBannerView;
+	
+	@synchronized(self)
+	{
+		if (!sharedAdBannerView)
+		{
+			sharedAdBannerView = [[ADBannerView alloc] initWithFrame:CGRectZero];
+		}
+	}
+	return sharedAdBannerView;
+}
 
 - (void)dealloc
 {
-	_adBannerView.delegate = nil;
-	[_adBannerView release];
+	[self releaseBannerViewDelegateSafely];
 	[super dealloc];
+}
+
+- (void)releaseBannerViewDelegateSafely
+{
+	if (_adBannerView.delegate == self) _adBannerView.delegate = nil;
+	[_adBannerView release];
 }
 
 - (void)getAdWithParams:(NSDictionary *)params
 {
 	Class cls = NSClassFromString(@"ADBannerView");
-	if (cls != nil) {
+	if (cls != nil) 
+	{
+		if (_adBannerView) [self releaseBannerViewDelegateSafely];
+		
+		_adBannerView = [[MPIAdAdapter sharedAdBannerView] retain];
+		
 		CGSize size = self.adView.bounds.size;
-		
-		if (_adBannerView)
-		{
-			_adBannerView.delegate = nil;
-			[_adBannerView release];
-		}
-		
-		_adBannerView = [[cls alloc] initWithFrame:(CGRect){{0, 0}, size}];
-		
-		UIInterfaceOrientation currentOrientation = [UIApplication sharedApplication].statusBarOrientation;
-		// iOS 4.2:
-		if (&ADBannerContentSizeIdentifierPortrait != nil)
-		{
-			_adBannerView.requiredContentSizeIdentifiers = [NSSet setWithObjects:
-															ADBannerContentSizeIdentifierPortrait, 
-															ADBannerContentSizeIdentifierLandscape, 
-															nil];
-			if (UIInterfaceOrientationIsLandscape(currentOrientation))
-				_adBannerView.currentContentSizeIdentifier = ADBannerContentSizeIdentifierLandscape;
-			else
-				_adBannerView.currentContentSizeIdentifier = ADBannerContentSizeIdentifierPortrait;
-		}
-		// Prior to iOS 4.2:
-		else
-		{
-			_adBannerView.requiredContentSizeIdentifiers = [NSSet setWithObjects:
-															ADBannerContentSizeIdentifier320x50, 
-															ADBannerContentSizeIdentifier480x32, 
-															nil];
-			if (UIInterfaceOrientationIsLandscape(currentOrientation))
-				_adBannerView.currentContentSizeIdentifier = ADBannerContentSizeIdentifier480x32;
-			else
-				_adBannerView.currentContentSizeIdentifier = ADBannerContentSizeIdentifier320x50;
-			
-		}
-			
+		_adBannerView.frame = (CGRect){{0, 0}, size};
 		_adBannerView.delegate = self;
+
+		UIInterfaceOrientation currentOrientation = 
+				[UIApplication sharedApplication].statusBarOrientation;
+		[self setBannerViewContentSizeIdentifierForOrientation:currentOrientation];
+		
+		if ([_adBannerView isBannerLoaded])
+		{
+			MPLogInfo(@"iAd banner has previously loaded an ad, so just show it.");
+			[self.adView setAdContentView:_adBannerView];
+			[self.adView adapterDidFinishLoadingAd:self shouldTrackImpression:NO];
+		}
 	} 
 	else 
 	{
 		// iAd not supported in iOS versions before 4.0.
 		[self bannerView:nil didFailToReceiveAdWithError:nil];
+	}
+}
+
+- (void)setBannerViewContentSizeIdentifierForOrientation:(UIInterfaceOrientation)orientation
+{
+	// iOS 4.2:
+	if (&ADBannerContentSizeIdentifierPortrait != nil)
+	{
+		_adBannerView.requiredContentSizeIdentifiers = [NSSet setWithObjects:
+														ADBannerContentSizeIdentifierPortrait, 
+														ADBannerContentSizeIdentifierLandscape, 
+														nil];
+		if (UIInterfaceOrientationIsLandscape(orientation))
+			_adBannerView.currentContentSizeIdentifier = ADBannerContentSizeIdentifierLandscape;
+		else
+			_adBannerView.currentContentSizeIdentifier = ADBannerContentSizeIdentifierPortrait;
+	}
+	// Prior to iOS 4.2:
+	else
+	{
+		_adBannerView.requiredContentSizeIdentifiers = [NSSet setWithObjects:
+														ADBannerContentSizeIdentifier320x50, 
+														ADBannerContentSizeIdentifier480x32, 
+														nil];
+		if (UIInterfaceOrientationIsLandscape(orientation))
+			_adBannerView.currentContentSizeIdentifier = ADBannerContentSizeIdentifier480x32;
+		else
+			_adBannerView.currentContentSizeIdentifier = ADBannerContentSizeIdentifier320x50;
+		
 	}
 }
 
@@ -78,13 +113,13 @@
 	{
 		// Tests for iOS >= 4.2.
 		_adBannerView.currentContentSizeIdentifier = (&ADBannerContentSizeIdentifierLandscape) ? 
-			ADBannerContentSizeIdentifierLandscape : ADBannerContentSizeIdentifier480x32;
+		ADBannerContentSizeIdentifierLandscape : ADBannerContentSizeIdentifier480x32;
 	}
 	else
 	{
 		// Tests for iOS >= 4.2.
 		_adBannerView.currentContentSizeIdentifier = (&ADBannerContentSizeIdentifierPortrait) ?
-			ADBannerContentSizeIdentifierPortrait : ADBannerContentSizeIdentifier320x50;
+		ADBannerContentSizeIdentifierPortrait : ADBannerContentSizeIdentifier320x50;
 	}
 	
 	// Prevent this view from automatically positioning itself in the center of its superview.
@@ -99,8 +134,7 @@
 
 - (void)bannerView:(ADBannerView *)banner didFailToReceiveAdWithError:(NSError *)error
 {
-	MPLogInfo(@"iAd Failed To Receive Ad");
-	_hasReceivedFirstResponse = YES;
+	MPLogInfo(@"iAd failed in trying to load or refresh an ad.");
 
 	// Edge case: This method schedules the banner view to be deallocated. If this method
 	// was called due to a failed internal iAd refresh, there is a chance the user could
@@ -113,13 +147,13 @@
 
 - (void)bannerViewActionDidFinish:(ADBannerView *)banner
 {
-	MPLogInfo(@"iAd Finished Executing Banner Action");
+	MPLogInfo(@"iAd finished executing banner action.");
 	[self.adView userActionDidEndForAdapter:self];
 }
 
 - (BOOL)bannerViewActionShouldBegin:(ADBannerView *)banner willLeaveApplication:(BOOL)willLeave
 {
-	MPLogInfo(@"iAd Should Begin Banner Action");
+	MPLogInfo(@"iAd should begin banner action.");
 	[self.adView userActionWillBeginForAdapter:self];
 	if (willLeave) [self.adView userWillLeaveApplicationFromAdapter:self];
 	return YES;
@@ -127,19 +161,9 @@
 
 - (void)bannerViewDidLoadAd:(ADBannerView *)banner
 {
-	// ADBannerView has its own internal timer for refreshing ads, so this callback may happen
-	// multiple times. We should only set the ad content view once -- the first time an iAd loads.
-	if (!_hasReceivedFirstResponse)
-	{
-		MPLogInfo(@"iAd Load Succeeded");
-		_hasReceivedFirstResponse = YES;
-		[self.adView setAdContentView:_adBannerView];
-		[self.adView adapterDidFinishLoadingAd:self];
-	}
-	else 
-	{
-		MPLogInfo(@"iAd Internal Refresh Succeeded");
-	}
+	MPLogInfo(@"iAd has successfully loaded a new ad.");
+	[self.adView setAdContentView:_adBannerView];
+	[self.adView adapterDidFinishLoadingAd:self shouldTrackImpression:YES];
 }
 
 @end

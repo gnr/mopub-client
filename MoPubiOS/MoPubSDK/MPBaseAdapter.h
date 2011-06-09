@@ -48,7 +48,7 @@
 /*
  * These callbacks notify you that the adapter (un)successfully loaded an ad.
  */
-- (void)adapterDidFinishLoadingAd:(MPBaseAdapter *)adapter;
+- (void)adapterDidFinishLoadingAd:(MPBaseAdapter *)adapter shouldTrackImpression:(BOOL)shouldTrack;
 - (void)adapter:(MPBaseAdapter *)adapter didFailToLoadAdWithError:(NSError *)error;
 
 /*

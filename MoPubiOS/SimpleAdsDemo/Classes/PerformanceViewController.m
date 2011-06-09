@@ -25,7 +25,7 @@
 	[self outputLine:[NSString stringWithFormat:@"Calling MoPub with %@", _adView.URL]];
 }
 
-- (void)adViewDidReceiveResponseParams:(NSDictionary *)params{
+- (void)adView:(MPAdView *)adView didReceiveResponseParams:(NSDictionary *)params{
 	[self outputLine:[NSString stringWithFormat:@"Server response received: %@", params]];
 }
 

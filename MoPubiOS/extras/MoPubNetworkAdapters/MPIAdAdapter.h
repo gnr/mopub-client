@@ -13,7 +13,6 @@
 @interface MPIAdAdapter : MPBaseAdapter <ADBannerViewDelegate> 
 {
 	ADBannerView *_adBannerView;
-	BOOL _hasReceivedFirstResponse;
 }
 
 @end
