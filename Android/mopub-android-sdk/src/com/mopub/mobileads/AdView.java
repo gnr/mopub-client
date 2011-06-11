@@ -32,6 +32,7 @@
 
 package com.mopub.mobileads;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -64,6 +65,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.lang.reflect.Method;
 import java.util.HashMap;
 
 public class AdView extends WebView {
@@ -263,8 +265,15 @@ public class AdView extends WebView {
         Header orHeader = mResponse.getFirstHeader("X-Orientation");
         mAdOrientation = (orHeader != null) ? orHeader.getValue() : null;
         
+        if (atHeader.getValue().equals("custom")) {
+            Log.i("MoPub", "Performing custom event");
+            Header cmHeader = mResponse.getFirstHeader("X-Customselector");
+            mIsLoading = false;
+            performCustomEventFromHeader(cmHeader);
+            return;
+        }
         // Handle requests for native SDK ads
-        if (!atHeader.getValue().equals("html")) {
+        else if (!atHeader.getValue().equals("html")) {
             Log.i("MoPub","Loading native ad");
             Header npHeader = mResponse.getFirstHeader("X-Nativeparams");
             if (npHeader != null) {
@@ -318,6 +327,33 @@ public class AdView extends WebView {
         mResponseString = sb.toString();
         loadDataWithBaseURL("http://"+MoPubView.HOST+"/",
                 mResponseString,"text/html","utf-8", null);
+    }
+    
+    private void performCustomEventFromHeader(Header methodHeader) {
+        if (methodHeader == null) {
+            Log.i("MoPub", "Couldn't call custom method because the server did not specify one.");
+            mMoPubView.adFailed();
+            return;
+        }
+        
+        String methodName = methodHeader.getValue();
+        Log.i("MoPub", "Trying to call method named " + methodName);
+        
+        Class<? extends Activity> c;
+        Method method;
+        Activity userActivity = mMoPubView.getActivity();
+        try {
+            c = userActivity.getClass();
+            method = c.getMethod(methodName, MoPubView.class);
+            method.invoke(userActivity, mMoPubView);
+        } catch (NoSuchMethodException e) {
+            Log.d("MoPub", "Couldn't perform custom method named " + methodName +
+                    "(MoPubView view) because your activity class has no such method");
+            return;
+        } catch (Exception e) {
+            Log.d("MoPub", "Couldn't perform custom method named " + methodName);
+            return;
+        }
     }
 
     private String generateAdUrl() {
