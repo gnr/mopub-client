@@ -71,6 +71,7 @@ public class AdView extends WebView {
     public static final String AD_ORIENTATION_PORTRAIT_ONLY      = "p";
     public static final String AD_ORIENTATION_LANDSCAPE_ONLY     = "l";
     public static final String AD_ORIENTATION_BOTH               = "b";
+    public static final long MINIMUM_REFRESH_TIME_MILLISECONDS = 10000;
     
     private String mAdUnitId;
     private String mKeywords;
@@ -80,7 +81,8 @@ public class AdView extends WebView {
     private String mFailUrl;
     private String mImpressionUrl;
     private Location mLocation;
-    private boolean mIsLoading = false;
+    private boolean mIsLoading;
+    private boolean mAutorefreshEnabled;
     private long mRefreshTime = 0;
     private int mTimeout = -1; // HTTP connection timeout in msec
     private int mWidth;
@@ -95,7 +97,11 @@ public class AdView extends WebView {
         super(context);
 
         mMoPubView = view;
+        mAutorefreshEnabled = true;
 
+        setVerticalScrollBarEnabled(false);
+        setHorizontalScrollBarEnabled(false);
+        
         getSettings().setJavaScriptEnabled(true);
         getSettings().setPluginsEnabled(true);
 
@@ -246,6 +252,9 @@ public class AdView extends WebView {
         Header rtHeader = mResponse.getFirstHeader("X-Refreshtime");
         if (rtHeader != null) {
             mRefreshTime = Long.valueOf(rtHeader.getValue()) * 1000;
+            if (mRefreshTime < MINIMUM_REFRESH_TIME_MILLISECONDS) {
+                mRefreshTime = MINIMUM_REFRESH_TIME_MILLISECONDS;
+            }
         }
         else {
             mRefreshTime = 0;
@@ -426,7 +435,7 @@ public class AdView extends WebView {
     private void pageFinished() {
         Log.i("MoPub","pageFinished");
         mIsLoading = false;
-        scheduleRefreshTimer();
+        if (mAutorefreshEnabled) scheduleRefreshTimer();
         mMoPubView.removeAllViews();
         FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(
                 FrameLayout.LayoutParams.WRAP_CONTENT,
@@ -440,24 +449,12 @@ public class AdView extends WebView {
     private void pageFailed() {
         Log.i("MoPub", "pageFailed");
         mIsLoading = false;
-        scheduleRefreshTimer();
+        if (mAutorefreshEnabled) scheduleRefreshTimer();
         mMoPubView.adFailed();
     }
 
     private void pageClosed() {
         mMoPubView.adClosed();
-    }
-
-    @Override
-    protected void onWindowVisibilityChanged(int visibility) {
-        if (visibility == VISIBLE) {
-            Log.d("MoPub","Ad Unit ("+mAdUnitId+") going visible: enabling refresh");
-            scheduleRefreshTimer();
-        }
-        else {
-            Log.d("MoPub","Ad Unit ("+mAdUnitId+") going invisible: disabling refresh");
-            cancelRefreshTimer();
-        }
     }
 
     private Handler mRefreshHandler = new Handler();
@@ -467,7 +464,7 @@ public class AdView extends WebView {
         }
     };
 
-    private void scheduleRefreshTimer() {
+    protected void scheduleRefreshTimer() {
         // Cancel any previously scheduled refreshes.
         cancelRefreshTimer();
         if (mRefreshTime <= 0) {
@@ -477,7 +474,7 @@ public class AdView extends WebView {
         mRefreshHandler.postDelayed(mRefreshRunnable, mRefreshTime);
     }
 
-    private void cancelRefreshTimer() {
+    protected void cancelRefreshTimer() {
         mRefreshHandler.removeCallbacks(mRefreshRunnable);
     }
 
@@ -537,6 +534,15 @@ public class AdView extends WebView {
 
     public String getResponseString() {
         return mResponseString;
+    }
+    
+    public void setAutorefreshEnabled(boolean enabled) {
+        mAutorefreshEnabled = enabled;
+        if (!mAutorefreshEnabled) cancelRefreshTimer();
+    }
+    
+    public boolean getAutorefreshEnabled() {
+        return mAutorefreshEnabled;
     }
 
     private class AdWebViewClient extends WebViewClient {
