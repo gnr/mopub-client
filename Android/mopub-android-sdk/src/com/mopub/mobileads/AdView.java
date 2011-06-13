@@ -32,6 +32,7 @@
 
 package com.mopub.mobileads;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -64,6 +65,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.lang.reflect.Method;
 import java.util.HashMap;
 
 public class AdView extends WebView {
@@ -71,6 +73,7 @@ public class AdView extends WebView {
     public static final String AD_ORIENTATION_PORTRAIT_ONLY      = "p";
     public static final String AD_ORIENTATION_LANDSCAPE_ONLY     = "l";
     public static final String AD_ORIENTATION_BOTH               = "b";
+    public static final long MINIMUM_REFRESH_TIME_MILLISECONDS = 10000;
     
     public static final String EXTRA_AD_CLICK_DATA = "com.mopub.intent.extra.AD_CLICK_DATA";
     
@@ -82,7 +85,8 @@ public class AdView extends WebView {
     private String mFailUrl;
     private String mImpressionUrl;
     private Location mLocation;
-    private boolean mIsLoading = false;
+    private boolean mIsLoading;
+    private boolean mAutorefreshEnabled;
     private long mRefreshTime = 0;
     private int mTimeout = -1; // HTTP connection timeout in msec
     private int mWidth;
@@ -97,7 +101,11 @@ public class AdView extends WebView {
         super(context);
 
         mMoPubView = view;
+        mAutorefreshEnabled = true;
 
+        setVerticalScrollBarEnabled(false);
+        setHorizontalScrollBarEnabled(false);
+        
         getSettings().setJavaScriptEnabled(true);
         getSettings().setPluginsEnabled(true);
 
@@ -248,6 +256,9 @@ public class AdView extends WebView {
         Header rtHeader = mResponse.getFirstHeader("X-Refreshtime");
         if (rtHeader != null) {
             mRefreshTime = Long.valueOf(rtHeader.getValue()) * 1000;
+            if (mRefreshTime < MINIMUM_REFRESH_TIME_MILLISECONDS) {
+                mRefreshTime = MINIMUM_REFRESH_TIME_MILLISECONDS;
+            }
         }
         else {
             mRefreshTime = 0;
@@ -256,8 +267,15 @@ public class AdView extends WebView {
         Header orHeader = mResponse.getFirstHeader("X-Orientation");
         mAdOrientation = (orHeader != null) ? orHeader.getValue() : null;
         
+        if (atHeader.getValue().equals("custom")) {
+            Log.i("MoPub", "Performing custom event");
+            Header cmHeader = mResponse.getFirstHeader("X-Customselector");
+            mIsLoading = false;
+            performCustomEventFromHeader(cmHeader);
+            return;
+        }
         // Handle requests for native SDK ads
-        if (!atHeader.getValue().equals("html")) {
+        else if (!atHeader.getValue().equals("html")) {
             Log.i("MoPub","Loading native ad");
             Header npHeader = mResponse.getFirstHeader("X-Nativeparams");
             if (npHeader != null) {
@@ -311,6 +329,33 @@ public class AdView extends WebView {
         mResponseString = sb.toString();
         loadDataWithBaseURL("http://"+MoPubView.HOST+"/",
                 mResponseString,"text/html","utf-8", null);
+    }
+    
+    private void performCustomEventFromHeader(Header methodHeader) {
+        if (methodHeader == null) {
+            Log.i("MoPub", "Couldn't call custom method because the server did not specify one.");
+            mMoPubView.adFailed();
+            return;
+        }
+        
+        String methodName = methodHeader.getValue();
+        Log.i("MoPub", "Trying to call method named " + methodName);
+        
+        Class<? extends Activity> c;
+        Method method;
+        Activity userActivity = mMoPubView.getActivity();
+        try {
+            c = userActivity.getClass();
+            method = c.getMethod(methodName, MoPubView.class);
+            method.invoke(userActivity, mMoPubView);
+        } catch (NoSuchMethodException e) {
+            Log.d("MoPub", "Couldn't perform custom method named " + methodName +
+                    "(MoPubView view) because your activity class has no such method");
+            return;
+        } catch (Exception e) {
+            Log.d("MoPub", "Couldn't perform custom method named " + methodName);
+            return;
+        }
     }
 
     private String generateAdUrl() {
@@ -428,7 +473,7 @@ public class AdView extends WebView {
     private void pageFinished() {
         Log.i("MoPub","pageFinished");
         mIsLoading = false;
-        scheduleRefreshTimer();
+        if (mAutorefreshEnabled) scheduleRefreshTimer();
         mMoPubView.removeAllViews();
         FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(
                 FrameLayout.LayoutParams.WRAP_CONTENT,
@@ -442,24 +487,12 @@ public class AdView extends WebView {
     private void pageFailed() {
         Log.i("MoPub", "pageFailed");
         mIsLoading = false;
-        scheduleRefreshTimer();
+        if (mAutorefreshEnabled) scheduleRefreshTimer();
         mMoPubView.adFailed();
     }
 
     private void pageClosed() {
         mMoPubView.adClosed();
-    }
-
-    @Override
-    protected void onWindowVisibilityChanged(int visibility) {
-        if (visibility == VISIBLE) {
-            Log.d("MoPub","Ad Unit ("+mAdUnitId+") going visible: enabling refresh");
-            scheduleRefreshTimer();
-        }
-        else {
-            Log.d("MoPub","Ad Unit ("+mAdUnitId+") going invisible: disabling refresh");
-            cancelRefreshTimer();
-        }
     }
 
     private Handler mRefreshHandler = new Handler();
@@ -469,7 +502,7 @@ public class AdView extends WebView {
         }
     };
 
-    private void scheduleRefreshTimer() {
+    protected void scheduleRefreshTimer() {
         // Cancel any previously scheduled refreshes.
         cancelRefreshTimer();
         if (mRefreshTime <= 0) {
@@ -479,7 +512,7 @@ public class AdView extends WebView {
         mRefreshHandler.postDelayed(mRefreshRunnable, mRefreshTime);
     }
 
-    private void cancelRefreshTimer() {
+    protected void cancelRefreshTimer() {
         mRefreshHandler.removeCallbacks(mRefreshRunnable);
     }
 
@@ -539,6 +572,15 @@ public class AdView extends WebView {
 
     public String getResponseString() {
         return mResponseString;
+    }
+    
+    public void setAutorefreshEnabled(boolean enabled) {
+        mAutorefreshEnabled = enabled;
+        if (!mAutorefreshEnabled) cancelRefreshTimer();
+    }
+    
+    public boolean getAutorefreshEnabled() {
+        return mAutorefreshEnabled;
     }
 
     private class AdWebViewClient extends WebViewClient {
