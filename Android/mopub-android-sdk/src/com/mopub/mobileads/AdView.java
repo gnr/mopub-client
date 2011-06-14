@@ -203,7 +203,14 @@ public class AdView extends WebView {
             return;
         }
 
+
         // If we made it this far, an ad has been loaded
+        
+        // Get the network header message
+        Header netHeader = mResponse.getFirstHeader("X-Networktype");
+        if (netHeader != null && !netHeader.getValue().equals("")){
+        	Log.i("MoPub","Fetching Ad Network type: "+netHeader.getValue());
+        }
 
         // Redirect if we get an X-Launchpage header so that AdMob clicks work
         Header rdHeader = mResponse.getFirstHeader("X-Launchpage");
