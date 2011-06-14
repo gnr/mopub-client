@@ -41,6 +41,7 @@ static NSString * const kHeightHeaderKey			= @"X-Height";
 static NSString * const kRefreshTimeHeaderKey		= @"X-Refreshtime";
 static NSString * const kAnimationHeaderKey			= @"X-Animation";
 static NSString * const kAdTypeHeaderKey			= @"X-Adtype";
+static NSString * const kNetworkTypeHeaderKey		= @"X-Networktype";
 static NSString * const kAdTypeHtml					= @"html";
 static NSString * const kAdTypeClear				= @"clear";
 
@@ -577,10 +578,18 @@ static NSString * const kAdTypeClear				= @"clear";
 	if (animationString)
 		_animationType = [animationString intValue];
 	
+	// Log if the ad is from an ad network
+	NSString *networkTypeHeader = [[(NSHTTPURLResponse *)response allHeaderFields] 
+								   objectForKey:kNetworkTypeHeaderKey];
+	if (networkTypeHeader && ![networkTypeHeader isEqualToString:@""])
+	{
+		MPLogInfo(@"Fetching Ad Network Type: %@",networkTypeHeader);
+	}
+	
 	// Determine ad type.
 	NSString *typeHeader = [[(NSHTTPURLResponse *)response allHeaderFields] 
 								objectForKey:kAdTypeHeaderKey];
-	
+		
 	if (!typeHeader || [typeHeader isEqualToString:kAdTypeHtml])
 	{
 		[self replaceCurrentAdapterWithAdapter:nil];
