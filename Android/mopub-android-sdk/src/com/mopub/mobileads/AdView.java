@@ -171,7 +171,7 @@ public class AdView extends WebView {
         }
         
         public void execute() {
-            AdView.this.mMoPubView.loadNativeSDK(mParamsHash);
+            mMoPubView.loadNativeSDK(mParamsHash);
         }
     }
     
@@ -183,7 +183,8 @@ public class AdView extends WebView {
         }
         
         public void execute() {
-            AdView.this.loadDataWithBaseURL("http://"+MoPubView.HOST+"/", 
+            mResponseString = mData;
+            loadDataWithBaseURL("http://"+MoPubView.HOST+"/", 
                     mData, "text/html", "utf-8", null);
         }
     }
