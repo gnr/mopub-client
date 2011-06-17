@@ -46,4 +46,11 @@ public class BannersTab extends Activity {
             }
         });
     }
+    
+    @Override
+    protected void onDestroy() {
+        mBanner.destroy();
+        mMRectBanner.destroy();
+        super.onDestroy();
+    }
 }
