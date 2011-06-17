@@ -95,7 +95,7 @@ public class AdView extends WebView {
 
     public AdView(Context context, MoPubView view) {
         super(context);
-
+        
         mMoPubView = view;
         mAutorefreshEnabled = true;
 
@@ -138,6 +138,13 @@ public class AdView extends WebView {
         mUrl = url;
         mIsLoading = true;
         new LoadUrlTask().execute(mUrl);
+    }
+    
+    /*
+     * Stops refreshing ads.
+     */
+    protected void cleanup() {
+        setAutorefreshEnabled(false);
     }
     
     private abstract interface LoadUrlTaskResult {
@@ -580,7 +587,9 @@ public class AdView extends WebView {
     
     public void setAutorefreshEnabled(boolean enabled) {
         mAutorefreshEnabled = enabled;
+        
         if (!mAutorefreshEnabled) cancelRefreshTimer();
+        else scheduleRefreshTimer();
     }
     
     public boolean getAutorefreshEnabled() {
