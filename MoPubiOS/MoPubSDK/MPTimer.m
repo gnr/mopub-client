@@ -55,24 +55,37 @@
 	return CFRunLoopContainsTimer(runLoopRef, (CFRunLoopTimerRef)self.timer, kCFRunLoopDefaultMode);
 }
 
-- (void)scheduleNow
+- (BOOL)scheduleNow
 {
 	if (![self.timer isValid])
 	{
 		MPLogWarn(@"Could not schedule invalidated MPTimer (%p).", self);
-		return;
+		return NO;
 	}
 	
 	MPLogDebug(@"Scheduled MPTimer (%p).", self);
 	[[NSRunLoop currentRunLoop] addTimer:self.timer forMode:NSDefaultRunLoopMode];
+	return YES;
 }
 
-- (void)pause
+- (BOOL)pause
 {
+	if (_isPaused)
+	{
+		MPLogWarn(@"No-op: tried to pause an MPTimer (%p) that was already paused.", self);
+		return NO;
+	}
+	
 	if (![self.timer isValid])
 	{
 		MPLogWarn(@"Cannot pause invalidated MPTimer (%p).", self);
-		return;
+		return NO;
+	}
+	
+	if (![self isScheduled])
+	{
+		MPLogWarn(@"No-op: tried to pause an MPTimer (%p) that was never scheduled.", self);
+		return NO;
 	}
 	
 	NSDate *fireDate = [self.timer fireDate];
@@ -89,20 +102,22 @@
 	// Pause the timer by setting its fire date far into the future.
 	[self.timer setFireDate:[NSDate distantFuture]];
 	_isPaused = YES;
+	
+	return YES;
 }
 
-- (void)resume
+- (BOOL)resume
 {
 	if (![self.timer isValid])
 	{
 		MPLogWarn(@"Cannot resume invalidated MPTimer (%p).", self);
-		return;
+		return NO;
 	}
 	
 	if (!_isPaused)
 	{
 		MPLogWarn(@"No-op: tried to resume an MPTimer (%p) that was never paused.", self);
-		return;
+		return NO;
 	}
 	
 	MPLogDebug(@"Resumed MPTimer (%p), should fire in %.1f seconds.", self, _secondsLeft);
@@ -115,6 +130,7 @@
 		[[NSRunLoop currentRunLoop] addTimer:self.timer forMode:NSDefaultRunLoopMode];
 	
 	_isPaused = NO;
+	return YES;
 }
 
 @end
