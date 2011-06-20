@@ -64,6 +64,7 @@ import org.apache.http.params.HttpParams;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Method;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 public class AdView extends WebView {
@@ -370,6 +371,51 @@ public class AdView extends WebView {
         }
     }
 
+    public void loadAd() {
+        if (mAdUnitId == null) {
+            throw new RuntimeException("AdUnitId isn't set in com.mopub.mobileads.AdView");
+        }
+
+        // Get the last location if one hasn't been provided through setLocation()
+        // This leaves mLocation = null if no providers are available
+        if (mLocation == null) mLocation = lastKnownLocation();
+
+        String adUrl = generateAdUrl();
+        Log.d("MoPub", "ad url: "+adUrl);
+        mMoPubView.adWillLoad(adUrl);
+        loadUrl(adUrl);
+    }
+    
+    private Location lastKnownLocation() {
+        LocationManager lm 
+                = (LocationManager) getContext().getSystemService(Context.LOCATION_SERVICE);
+        Location gpsLocation = null;
+        try {
+            gpsLocation = lm.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+        } catch (SecurityException e) {
+            Log.d("MoPub", "Failed to retrieve location: access appears to be disabled.");
+        } catch (IllegalArgumentException e) {
+            Log.d("MoPub", "Failed to retrieve location: device has no GPS provider.");
+        }
+        
+        Location networkLocation = null;
+        try {
+            networkLocation = lm.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+        } catch (SecurityException e) {
+            Log.d("MoPub", "Failed to retrieve location: access appears to be disabled.");
+        } catch (IllegalArgumentException e) {
+            Log.d("MoPub", "Failed to retrieve location: device has no network provider.");
+        }
+        
+        if (gpsLocation != null && networkLocation != null) {
+            if (gpsLocation.getTime() > networkLocation.getTime()) return gpsLocation;
+            else return networkLocation;
+        }
+        else if (gpsLocation != null) return gpsLocation;
+        else if (networkLocation != null) return networkLocation;
+        else return null;
+    }
+    
     private String generateAdUrl() {
         StringBuilder sz = new StringBuilder("http://"+MoPubView.HOST+MoPubView.AD_HANDLER);
         sz.append("?v=3&id=" + mAdUnitId);
@@ -381,49 +427,14 @@ public class AdView extends WebView {
         if (mLocation != null) {
             sz.append("&ll=" + mLocation.getLatitude() + "," + mLocation.getLongitude());
         }
+        sz.append("&z=" + timeZoneOffsetString());
         return sz.toString();
     }
-
-    public void loadAd() {
-        if (mAdUnitId == null) {
-            throw new RuntimeException("AdUnitId isn't set in com.mopub.mobileads.AdView");
-        }
-
-        // Get the last location if one hasn't been provided through setLocation()
-        // This leaves mLocation = null if no providers are available
-        if (mLocation == null) {
-            LocationManager lm 
-                    = (LocationManager) getContext().getSystemService(Context.LOCATION_SERVICE);
-            try {
-                mLocation = lm.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-            } catch (SecurityException e) {
-                Log.d("MoPub", "Failed to retrieve location: access appears to be disabled.");
-            } catch (IllegalArgumentException e) {
-                Log.d("MoPub", "Failed to retrieve location: device has no GPS provider.");
-            }
-            
-            
-            Location loc_network = null;
-            try {
-                loc_network= lm.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
-            } catch (SecurityException e) {
-                Log.d("MoPub", "Failed to retrieve location: access appears to be disabled.");
-            } catch (IllegalArgumentException e) {
-                Log.d("MoPub", "Failed to retrieve location: device has no network provider.");
-            }
-
-            if (mLocation == null) {
-                mLocation = loc_network;
-            }
-            else if (loc_network != null && loc_network.getTime() > mLocation.getTime()) {
-                mLocation = loc_network;
-            }
-        }
-
-        String adUrl = generateAdUrl();
-        Log.d("MoPub", "ad url: "+adUrl);
-        mMoPubView.adWillLoad(adUrl);
-        loadUrl(adUrl);
+    
+    private String timeZoneOffsetString() {
+        SimpleDateFormat format = new SimpleDateFormat("Z");
+        format.setTimeZone(TimeZone.getTimeZone("UTC"));
+        return format.format(new Date());
     }
     
     protected void loadResponseString(String responseString) {
@@ -489,7 +500,7 @@ public class AdView extends WebView {
     }
 
     private void pageFinished() {
-        Log.i("MoPub","pageFinished");
+        Log.i("MoPub", "Ad successfully loaded.");
         mIsLoading = false;
         if (mAutorefreshEnabled) scheduleRefreshTimer();
         mMoPubView.removeAllViews();
@@ -503,7 +514,7 @@ public class AdView extends WebView {
     }
 
     private void pageFailed() {
-        Log.i("MoPub", "pageFailed");
+        Log.i("MoPub", "Ad failed to load.");
         mIsLoading = false;
         if (mAutorefreshEnabled) scheduleRefreshTimer();
         mMoPubView.adFailed();
