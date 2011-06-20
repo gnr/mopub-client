@@ -72,6 +72,8 @@ import org.apache.http.protocol.HttpContext;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Method;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -248,17 +250,37 @@ public class AdView extends WebView {
     private String generateAdUrl() {
         StringBuilder sz = new StringBuilder("http://" + MoPubView.HOST + MoPubView.AD_HANDLER);
         sz.append("?v=3&id=" + mAdUnitId);
-        sz.append("&udid=" + Secure.getString(getContext().getContentResolver(), Secure.ANDROID_ID));
+        
+        String udid = Secure.getString(getContext().getContentResolver(), Secure.ANDROID_ID);
+        sz.append("&udid=" + md5("mopub-" + udid));
 
         if (mKeywords != null) {
             sz.append("&q=" + Uri.encode(mKeywords));
         }
+        
         if (mLocation != null) {
             sz.append("&ll=" + mLocation.getLatitude() + "," + mLocation.getLongitude());
         }
+        
         sz.append("&z=" + getTimeZoneOffsetString());
         
         return sz.toString();
+    }
+    
+    private String md5(String s) {
+        try { 
+            MessageDigest digest = MessageDigest.getInstance("MD5");
+            digest.update(s.getBytes());
+            byte messageDigest[] = digest.digest();
+            
+            StringBuffer hexString = new StringBuffer();
+            for (int i = 0; i < messageDigest.length; i++) {
+                hexString.append(Integer.toHexString(0xFF & messageDigest[i]));
+            }
+            return hexString.toString();
+        } catch (NoSuchAlgorithmException e) {
+            return "";
+        }
     }
     
     private String getTimeZoneOffsetString() {
