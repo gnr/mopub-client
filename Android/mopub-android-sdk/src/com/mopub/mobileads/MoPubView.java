@@ -300,14 +300,14 @@ public class MoPubView extends FrameLayout {
     }
 
     protected void adWillLoad(String url) {
-        Log.d("MoPub", "adWillLoad: "+url);
+        Log.d("MoPub", "adWillLoad: " + url);
         if (mOnAdWillLoadListener != null) {
             mOnAdWillLoadListener.OnAdWillLoad(this, url);
         }
     }
 
     protected void adLoaded() {
-        Log.d("MoPub","adLoaded");
+        Log.d("MoPub", "adLoaded");
         if (mOnAdLoadedListener != null) {
             mOnAdLoadedListener.OnAdLoaded(this);
         }
