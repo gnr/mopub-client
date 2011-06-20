@@ -111,21 +111,12 @@ public class AdView extends WebView {
 
         setVerticalScrollBarEnabled(false);
         setHorizontalScrollBarEnabled(false);
-        disableWebViewScrolling();
         
         getSettings().setJavaScriptEnabled(true);
         getSettings().setPluginsEnabled(true);
 
         setBackgroundColor(Color.TRANSPARENT);
         setWebViewClient(new AdWebViewClient());
-    }
-    
-    private void disableWebViewScrolling() {
-        setOnTouchListener(new View.OnTouchListener() {
-            public boolean onTouch(View v, MotionEvent event) {
-                return (event.getAction() == MotionEvent.ACTION_MOVE);
-            }
-        });
     }
     
     private class AdWebViewClient extends WebViewClient {
@@ -252,7 +243,8 @@ public class AdView extends WebView {
         sz.append("?v=3&id=" + mAdUnitId);
         
         String udid = Secure.getString(getContext().getContentResolver(), Secure.ANDROID_ID);
-        sz.append("&udid=" + md5("mopub-" + udid));
+        String udidDigest = (udid == null) ? "" : md5("mopub-" + udid);
+        sz.append("&udid=" + udidDigest);
 
         if (mKeywords != null) {
             sz.append("&q=" + Uri.encode(mKeywords));
@@ -497,6 +489,12 @@ public class AdView extends WebView {
         Header imHeader = response.getFirstHeader("X-Imptracker");
         if (imHeader != null) mImpressionUrl = imHeader.getValue();
         else mImpressionUrl = null;
+        
+        // Set the webview's scrollability.
+        Header scHeader = response.getFirstHeader("X-Scrollable");
+        boolean enabled = false;
+        if (scHeader != null) enabled = scHeader.getValue().equals("1");
+        setWebViewScrollingEnabled(enabled);
 
         // Set the width and height.
         Header wHeader = response.getFirstHeader("X-Width");
@@ -523,6 +521,18 @@ public class AdView extends WebView {
         // Set the allowed orientations for this ad.
         Header orHeader = response.getFirstHeader("X-Orientation");
         mAdOrientation = (orHeader != null) ? orHeader.getValue() : null;
+    }
+    
+    private void setWebViewScrollingEnabled(boolean enabled) {
+        if (enabled) {
+            setOnTouchListener(null);
+        } else {
+            setOnTouchListener(new View.OnTouchListener() {
+                public boolean onTouch(View v, MotionEvent event) {
+                    return (event.getAction() == MotionEvent.ACTION_MOVE);
+                }
+            });
+        }
     }
     
     /*
