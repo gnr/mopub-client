@@ -291,7 +291,7 @@ public class AdView extends WebView {
     
     private String generateAdUrl() {
         StringBuilder sz = new StringBuilder("http://" + MoPubView.HOST + MoPubView.AD_HANDLER);
-        sz.append("?v=3&id=" + mAdUnitId);
+        sz.append("?v=4&id=" + mAdUnitId);
         
         String udid = Secure.getString(getContext().getContentResolver(), Secure.ANDROID_ID);
         String udidDigest = (udid == null) ? "" : md5("mopub-" + udid);

@@ -380,7 +380,7 @@ static NSString * userAgentString;
 
 - (NSURL *)serverRequestUrl
 {
-	NSString *urlString = [NSString stringWithFormat:@"http://%@/m/ad?v=4&udid=%@&q=%@&id=%@", 
+	NSString *urlString = [NSString stringWithFormat:@"http://%@/m/ad?v=5&udid=%@&q=%@&id=%@", 
 						   HOSTNAME,
 						   [[UIDevice currentDevice] hashedMoPubUDID],
 						   [self.keywords stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding],
