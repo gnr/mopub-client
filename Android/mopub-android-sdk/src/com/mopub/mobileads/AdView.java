@@ -87,6 +87,7 @@ public class AdView extends WebView {
     public static final String DEVICE_ORIENTATION_LANDSCAPE = "l";
     public static final String DEVICE_ORIENTATION_SQUARE = "s";
     public static final String DEVICE_ORIENTATION_UNKNOWN = "u";
+    public static final String EXTRA_AD_CLICK_DATA = "com.mopub.intent.extra.AD_CLICK_DATA";
     public static final long MINIMUM_REFRESH_TIME_MILLISECONDS = 10000;
     
     private String mAdUnitId;
@@ -105,7 +106,6 @@ public class AdView extends WebView {
     private int mHeight;
     private String mAdOrientation;
 
-    private Activity mActivity;
     private MoPubView mMoPubView;
     private HttpResponse mResponse;
     private String mResponseString;
@@ -113,7 +113,6 @@ public class AdView extends WebView {
     public AdView(Context context, MoPubView view) {
         super(context);
         
-        mActivity = (Activity) context;
         mMoPubView = view;
         mAutorefreshEnabled = true;
 
@@ -131,16 +130,21 @@ public class AdView extends WebView {
         @Override
         public boolean shouldOverrideUrlLoading(WebView view, String url) {
             Log.d("MoPub", "Ad view is loading " + url);
-
+            AdView adView = (AdView) view;
+           
             // Handle the special mopub:// scheme calls.
             if (url.startsWith("mopub://")) {
-                if (url.equals("mopub://finishLoad")) ((AdView)view).pageFinished();
-                else if (url.equals("mopub://close")) ((AdView)view).pageClosed();
-                else if (url.equals("mopub://failLoad")) ((AdView)view).loadFailUrl();
+                Uri uri = Uri.parse(url);
+                String host = uri.getHost();
+                
+                if (host.equals("finishLoad")) adView.pageFinished();
+                else if (host.equals("close")) adView.pageClosed();
+                else if (host.equals("failLoad")) adView.loadFailUrl();
+                else if (host.equals("custom")) adView.handleCustomIntentFromUri(uri);
                 return true;
             }
 
-            String clickthroughUrl = ((AdView)view).getClickthroughUrl();
+            String clickthroughUrl = adView.getClickthroughUrl();
             if (clickthroughUrl != null) url = clickthroughUrl + "&r=" + Uri.encode(url);
             Log.d("MoPub", "Click URL: " + url);
             mMoPubView.adClicked();
@@ -158,6 +162,45 @@ public class AdView extends WebView {
                 view.stopLoading();
                 view.getContext().startActivity(actionIntent);
             }
+        }
+    }
+    
+    private void pageFinished() {
+        Log.i("MoPub", "Ad successfully loaded.");
+        mIsLoading = false;
+        if (mAutorefreshEnabled) scheduleRefreshTimer();
+        mMoPubView.removeAllViews();
+        FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(
+                FrameLayout.LayoutParams.WRAP_CONTENT,
+                FrameLayout.LayoutParams.WRAP_CONTENT,
+                Gravity.CENTER);
+        mMoPubView.addView(this, layoutParams);
+
+        mMoPubView.adLoaded();
+    }
+
+    private void pageFailed() {
+        Log.i("MoPub", "Ad failed to load.");
+        mIsLoading = false;
+        if (mAutorefreshEnabled) scheduleRefreshTimer();
+        mMoPubView.adFailed();
+    }
+
+    private void pageClosed() {
+        mMoPubView.adClosed();
+    }
+    
+    private void handleCustomIntentFromUri(Uri uri) {
+        mMoPubView.adClicked();
+        String action = uri.getQueryParameter("fnc");
+        String adData = uri.getQueryParameter("data");
+        Intent customIntent = new Intent(action);
+        if (adData != null) customIntent.putExtra(EXTRA_AD_CLICK_DATA, adData);
+        try {
+            getContext().startActivity(customIntent);
+        } catch (ActivityNotFoundException e) {
+            Log.w("MoPub", "Could not handle custom intent: " + action +
+                    ". Is your intent spelled correctly?");
         }
     }
     
@@ -276,7 +319,8 @@ public class AdView extends WebView {
         sz.append("&o=" + orString);
         
         DisplayMetrics metrics = new DisplayMetrics();
-        mActivity.getWindowManager().getDefaultDisplay().getMetrics(metrics);
+        Activity activity = (Activity) getContext();
+        activity.getWindowManager().getDefaultDisplay().getMetrics(metrics);
         sz.append("&sc_a=" + metrics.density);
       
         return sz.toString();
@@ -621,31 +665,6 @@ public class AdView extends WebView {
                 }
             }
         }).start();
-    }
-
-    private void pageFinished() {
-        Log.i("MoPub", "Ad successfully loaded.");
-        mIsLoading = false;
-        if (mAutorefreshEnabled) scheduleRefreshTimer();
-        mMoPubView.removeAllViews();
-        FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(
-                FrameLayout.LayoutParams.WRAP_CONTENT,
-                FrameLayout.LayoutParams.WRAP_CONTENT,
-                Gravity.CENTER);
-        mMoPubView.addView(this, layoutParams);
-
-        mMoPubView.adLoaded();
-    }
-
-    private void pageFailed() {
-        Log.i("MoPub", "Ad failed to load.");
-        mIsLoading = false;
-        if (mAutorefreshEnabled) scheduleRefreshTimer();
-        mMoPubView.adFailed();
-    }
-
-    private void pageClosed() {
-        mMoPubView.adClosed();
     }
 
     private Handler mRefreshHandler = new Handler();
