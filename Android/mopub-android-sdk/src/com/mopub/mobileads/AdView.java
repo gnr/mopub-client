@@ -36,6 +36,7 @@ import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.location.Location;
@@ -44,6 +45,7 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Handler;
 import android.provider.Settings.Secure;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.MotionEvent;
@@ -78,9 +80,13 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 
 public class AdView extends WebView {
-    public static final String AD_ORIENTATION_PORTRAIT_ONLY      = "p";
-    public static final String AD_ORIENTATION_LANDSCAPE_ONLY     = "l";
-    public static final String AD_ORIENTATION_BOTH               = "b";
+    public static final String AD_ORIENTATION_PORTRAIT_ONLY = "p";
+    public static final String AD_ORIENTATION_LANDSCAPE_ONLY = "l";
+    public static final String AD_ORIENTATION_BOTH = "b";
+    public static final String DEVICE_ORIENTATION_PORTRAIT = "p";
+    public static final String DEVICE_ORIENTATION_LANDSCAPE = "l";
+    public static final String DEVICE_ORIENTATION_SQUARE = "s";
+    public static final String DEVICE_ORIENTATION_UNKNOWN = "u";
     public static final long MINIMUM_REFRESH_TIME_MILLISECONDS = 10000;
     
     private String mAdUnitId;
@@ -99,6 +105,7 @@ public class AdView extends WebView {
     private int mHeight;
     private String mAdOrientation;
 
+    private Activity mActivity;
     private MoPubView mMoPubView;
     private HttpResponse mResponse;
     private String mResponseString;
@@ -106,6 +113,7 @@ public class AdView extends WebView {
     public AdView(Context context, MoPubView view) {
         super(context);
         
+        mActivity = (Activity) context;
         mMoPubView = view;
         mAutorefreshEnabled = true;
 
@@ -256,6 +264,21 @@ public class AdView extends WebView {
         
         sz.append("&z=" + getTimeZoneOffsetString());
         
+        int orientation = getResources().getConfiguration().orientation;
+        String orString = "u";
+        if (orientation == Configuration.ORIENTATION_PORTRAIT) {
+            orString = DEVICE_ORIENTATION_PORTRAIT;
+        } else if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            orString = DEVICE_ORIENTATION_LANDSCAPE;
+        } else if (orientation == Configuration.ORIENTATION_SQUARE) {
+            orString = DEVICE_ORIENTATION_SQUARE;
+        }
+        sz.append("&o=" + orString);
+        
+        DisplayMetrics metrics = new DisplayMetrics();
+        mActivity.getWindowManager().getDefaultDisplay().getMetrics(metrics);
+        sz.append("&sc_a=" + metrics.density);
+      
         return sz.toString();
     }
     
@@ -277,7 +300,7 @@ public class AdView extends WebView {
     
     private String getTimeZoneOffsetString() {
         SimpleDateFormat format = new SimpleDateFormat("Z");
-        format.setTimeZone(TimeZone.getTimeZone("UTC"));
+        format.setTimeZone(TimeZone.getDefault());
         return format.format(new Date());
     }
     
