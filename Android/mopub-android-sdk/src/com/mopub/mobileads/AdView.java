@@ -89,9 +89,7 @@ public class AdView extends WebView {
     public static final String DEVICE_ORIENTATION_UNKNOWN = "u";
     public static final String EXTRA_AD_CLICK_DATA = "com.mopub.intent.extra.AD_CLICK_DATA";
     public static final long MINIMUM_REFRESH_TIME_MILLISECONDS = 10000;
-    
-    public static final String EXTRA_AD_CLICK_DATA = "com.mopub.intent.extra.AD_CLICK_DATA";
-    
+        
     private String mAdUnitId;
     private String mKeywords;
     private String mUrl;
