@@ -1,4 +1,4 @@
-package com.mopub.mobileads.simpleadsdemo;
+package com.mopub.simpleadsdemo;
 
 import com.mopub.mobileads.R;
 
