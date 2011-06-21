@@ -2,4 +2,5 @@
 *.pyc
 build
 Android/mopub-android-sdk/bin
+Android/mopub-android-simpleadsdemo/bin
 *~

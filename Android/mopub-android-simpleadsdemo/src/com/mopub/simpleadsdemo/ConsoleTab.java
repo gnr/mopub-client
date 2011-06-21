@@ -81,13 +81,23 @@ public class ConsoleTab extends Activity {
     private void printHeaders(MoPubView a) {
         outputLine("Server response received: {");
         HttpResponse response = a.getResponse();
-        StatusLine sl = response.getStatusLine();
-        outputLine("  Status code: "+sl.getStatusCode()+" "+sl.getReasonPhrase());
-        HeaderIterator hi = response.headerIterator();
-        while (hi.hasNext()) {
-            Header h = hi.nextHeader();
-            outputLine("  \""+h.getName()+"\" = \""+h.getValue()+"\";");
+        if (response != null) {
+            StatusLine sl = response.getStatusLine();
+            if (sl != null) {
+                outputLine("  Status code: "+sl.getStatusCode()+" "+sl.getReasonPhrase());
+                HeaderIterator hi = response.headerIterator();
+                while (hi.hasNext()) {
+                    Header h = hi.nextHeader();
+                    outputLine("  \""+h.getName()+"\" = \""+h.getValue()+"\";");
+                }
+                outputLine("}");
+            }
         }
-        outputLine("}");
+    }
+    
+    @Override
+    protected void onDestroy() {
+        mBanner.destroy();
+        super.onDestroy();
     }
 }
