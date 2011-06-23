@@ -107,7 +107,7 @@ static NSString * userAgentString;
 + (void)initialize
 {
 	UIWebView *webview = [[UIWebView alloc] init];
-	userAgentString = [webview stringByEvaluatingJavaScriptFromString:@"navigator.userAgent"];
+	userAgentString = [[webview stringByEvaluatingJavaScriptFromString:@"navigator.userAgent"] copy];
 	[webview release];
 	srandom(time(NULL));
 }
