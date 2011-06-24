@@ -44,7 +44,7 @@ typedef enum
 @interface UIDevice (MPAdditions)
 
 /* 
- * Produces MD5 hash of a UDID.
+ * Produces SHA-1 hash of a UDID.
  */
 - (NSString *)hashedMoPubUDID;
 

@@ -1034,22 +1034,20 @@ static NSString * userAgentString;
 	
 	if (udid) 
 	{
-		unsigned char digest[16];
+		unsigned char digest[20];
 		NSData *data = [udid dataUsingEncoding:NSASCIIStringEncoding];
-		CC_MD5([data bytes], [data length], digest);
+		CC_SHA1([data bytes], [data length], digest);
 		
-		result = [NSString stringWithFormat:@"%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x",
-				  digest[0], digest[1], 
-				  digest[2], digest[3],
-				  digest[4], digest[5],
-				  digest[6], digest[7],
-				  digest[8], digest[9],
-				  digest[10], digest[11],
-				  digest[12], digest[13],
-				  digest[14], digest[15]];
-		result = [result uppercaseString];
+		NSMutableString *output = [NSMutableString stringWithCapacity:CC_SHA1_DIGEST_LENGTH * 2];
+		
+		for(int i = 0; i < CC_SHA1_DIGEST_LENGTH; i++) 
+		{
+			[output appendFormat:@"%02x", digest[i]];
+		}
+		
+		result = [output uppercaseString];
 	}
-	return [NSString stringWithFormat:@"md5:%@", result];
+	return [NSString stringWithFormat:@"sha1:%@", result];
 }
 
 @end

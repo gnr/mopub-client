@@ -302,8 +302,8 @@ public class AdView extends WebView {
         sz.append("?v=4&id=" + mAdUnitId);
         
         String udid = Secure.getString(getContext().getContentResolver(), Secure.ANDROID_ID);
-        String udidDigest = (udid == null) ? "" : md5("mopub-" + udid);
-        sz.append("&udid=" + udidDigest);
+        String udidDigest = (udid == null) ? "" : sha1("mopub-" + udid);
+        sz.append("&udid=sha1:" + udidDigest);
 
         if (mKeywords != null) {
             sz.append("&q=" + Uri.encode(mKeywords));
@@ -334,9 +334,9 @@ public class AdView extends WebView {
         return sz.toString();
     }
     
-    private String md5(String s) {
+    private String sha1(String s) {
         try { 
-            MessageDigest digest = MessageDigest.getInstance("MD5");
+            MessageDigest digest = MessageDigest.getInstance("SHA-1");
             digest.update(s.getBytes());
             byte messageDigest[] = digest.digest();
             
