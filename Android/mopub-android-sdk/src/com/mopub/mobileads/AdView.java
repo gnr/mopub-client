@@ -243,7 +243,7 @@ public class AdView extends WebView {
 
         @Override
         protected void onPostExecute(String uri) {
-            if (uri == null) uri = "about:blank";
+            if (uri == null || uri.equals("")) uri = "about:blank";
             Intent actionIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(uri));
             try {
                 getContext().startActivity(actionIntent);
