@@ -137,7 +137,6 @@ public class AdView extends WebView {
     private class AdWebViewClient extends WebViewClient {
         @Override
         public boolean shouldOverrideUrlLoading(WebView view, String url) {
-            Log.d("MoPub", "Ad view is loading " + url);
             AdView adView = (AdView) view;
            
             // Handle the special mopub:// scheme calls.
@@ -166,9 +165,8 @@ public class AdView extends WebView {
             // If the URL being loaded shares the redirectUrl prefix, open it in the browser.
             String redirectUrl = ((AdView)view).getRedirectUrl();
             if (redirectUrl != null && url.startsWith(redirectUrl)) {
-                Intent actionIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
                 view.stopLoading();
-                view.getContext().startActivity(actionIntent);
+                showBrowserAfterFollowingRedirectsForUrl(url);
             }
         }
     }
@@ -221,23 +219,28 @@ public class AdView extends WebView {
         protected String doInBackground(String... urls) {
             HttpClient httpclient = getAdViewHttpClient();
             HttpContext ctx = new BasicHttpContext();
-            HttpGet httpget = new HttpGet(urls[0]);
+            String startingUrl = urls[0];
+            HttpGet httpget = new HttpGet(startingUrl);
             httpget.addHeader("User-Agent", getSettings().getUserAgentString());
-            
+
             try {
                 httpclient.execute(httpget, ctx);
             } catch (Exception e) {
-                Log.d("MoPub", "Couldn't load click URL.");
-                return null;
+                Log.d("MoPub", "Handling exception: " + e.getLocalizedMessage());
+                return startingUrl;
             }
-            
-            HttpHost host = (HttpHost) ctx.getAttribute(ExecutionContext.HTTP_TARGET_HOST);
-            HttpUriRequest req = (HttpUriRequest) ctx.getAttribute(ExecutionContext.HTTP_REQUEST);
-            String finalUri = host.toURI() + req.getURI();
+
+            HttpHost host = (HttpHost) ctx
+                    .getAttribute(ExecutionContext.HTTP_TARGET_HOST);
+            HttpUriRequest req = (HttpUriRequest) ctx
+                    .getAttribute(ExecutionContext.HTTP_REQUEST);
+            String finalUri = "";
+            if (host != null) finalUri += host.toURI();
+            if (req != null) finalUri += req.getURI();
             Log.d("MoPub", "Final URI to show in browser: " + finalUri);
             return finalUri;
         }
-        
+
         @Override
         protected void onPostExecute(String uri) {
             if (uri == null) uri = "about:blank";
@@ -245,6 +248,15 @@ public class AdView extends WebView {
             try {
                 getContext().startActivity(actionIntent);
             } catch (ActivityNotFoundException e) {
+                String action = actionIntent.getAction();
+                if (action.startsWith("market://")) {
+                    Log.w("MoPub", "Could not handle market action: " + action
+                            + ". Perhaps you're running in the emulator, which does not have "
+                            + "the Android Market?");
+                } else {
+                    Log.w("MoPub", "Could not handle intent action: " + action);
+                }
+                
                 getContext().startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("about:blank")));
             }
         }
