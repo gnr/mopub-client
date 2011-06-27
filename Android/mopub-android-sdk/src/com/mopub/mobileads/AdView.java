@@ -56,24 +56,22 @@ import android.widget.FrameLayout;
 
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
-import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
-import org.apache.http.protocol.BasicHttpContext;
-import org.apache.http.protocol.ExecutionContext;
-import org.apache.http.protocol.HttpContext;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Method;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.text.SimpleDateFormat;
@@ -153,7 +151,7 @@ public class AdView extends WebView {
 
             String clickthroughUrl = adView.getClickthroughUrl();
             if (clickthroughUrl != null) url = clickthroughUrl + "&r=" + Uri.encode(url);
-            Log.d("MoPub", "Click URL: " + url);
+            Log.d("MoPub", "Ad clicked. Click URL: " + url);
             mMoPubView.adClicked();
 
             showBrowserAfterFollowingRedirectsForUrl(url);
@@ -217,33 +215,75 @@ public class AdView extends WebView {
     private class LoadClickedUrlTask extends AsyncTask<String, Void, String> {
         @Override
         protected String doInBackground(String... urls) {
-            HttpClient httpclient = getAdViewHttpClient();
-            HttpContext ctx = new BasicHttpContext();
             String startingUrl = urls[0];
-            HttpGet httpget = new HttpGet(startingUrl);
-            httpget.addHeader("User-Agent", getSettings().getUserAgentString());
-
+            URL url = null;
             try {
-                httpclient.execute(httpget, ctx);
-            } catch (Exception e) {
-                Log.d("MoPub", "Handling exception: " + e.getLocalizedMessage());
-                return startingUrl;
+                url = new URL(startingUrl);
+            } catch (MalformedURLException e) {
+                // If starting URL is a market URL, just return it.
+                return (startingUrl.startsWith("market://")) ? startingUrl : "";
             }
-
-            HttpHost host = (HttpHost) ctx
-                    .getAttribute(ExecutionContext.HTTP_TARGET_HOST);
-            HttpUriRequest req = (HttpUriRequest) ctx
-                    .getAttribute(ExecutionContext.HTTP_REQUEST);
-            String finalUri = "";
-            if (host != null) finalUri += host.toURI();
-            if (req != null) finalUri += req.getURI();
-            Log.d("MoPub", "Final URI to show in browser: " + finalUri);
-            return finalUri;
+            
+            // Find the target URL, manually following redirects if necessary. We can't use 
+            // HttpClient for this since the target may not be a supported URL (e.g. a market URL).
+            int statusCode = -1;
+            HttpURLConnection connection = null;
+            String nextLocation = url.toString();
+            
+            // Keep track of where we've been to detect redirect cycles.
+            Set<String> redirectLocations = new HashSet<String>();
+            redirectLocations.add(nextLocation);
+            
+            try {
+                do {
+                    connection = (HttpURLConnection) url.openConnection();
+                    connection.setRequestProperty("User-Agent", mUserAgent);
+                    connection.setInstanceFollowRedirects(false);
+                    
+                    statusCode = connection.getResponseCode();
+                    if (statusCode == HttpStatus.SC_OK) {
+                        // Successfully reached the end of redirects: nextLocation is our target.
+                        connection.disconnect();
+                        break;
+                    } else {
+                        // Depending on statusCode, we'll either continue to redirect, or error
+                        // out (in which case nextLocation will probably be null).
+                        nextLocation = connection.getHeaderField("location");
+                        connection.disconnect();
+                        
+                        // Check for redirect cycle.
+                        if (!redirectLocations.add(nextLocation)) {
+                            Log.d("MoPub", "Click redirect cycle detected -- will show blank.");
+                            return "";
+                        }
+                            
+                        url = new URL(nextLocation);
+                    }
+                }
+                while (isStatusCodeForRedirection(statusCode));
+            } catch (IOException e) {
+                // Might result from nextLocation being a market URL. If so, return that URL.
+                if (nextLocation != null) {
+                    return (nextLocation.startsWith("market://")) ? nextLocation : "";
+                } else return "";
+            } finally {
+                if (connection != null) connection.disconnect();
+            }
+            
+            return nextLocation;
+        }
+        
+        private boolean isStatusCodeForRedirection(int statusCode) {
+            return (statusCode == HttpStatus.SC_MOVED_TEMPORARILY ||
+                    statusCode == HttpStatus.SC_MOVED_PERMANENTLY ||
+                    statusCode == HttpStatus.SC_TEMPORARY_REDIRECT ||
+                    statusCode == HttpStatus.SC_SEE_OTHER);
         }
 
         @Override
         protected void onPostExecute(String uri) {
             if (uri == null || uri.equals("")) uri = "about:blank";
+            Log.d("MoPub", "Final URI to show in browser: " + uri);
             Intent actionIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(uri));
             try {
                 getContext().startActivity(actionIntent);
