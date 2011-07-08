@@ -155,7 +155,7 @@ public class AdSenseAdapter extends BaseAdapter implements AdViewListener {
 			layoutParams.gravity = Gravity.CENTER_HORIZONTAL | Gravity.CENTER_VERTICAL;
 			view.addView(mAdView, layoutParams);
 			
-			view.adLoaded(); 
+			view.nativeAdLoaded(); 
 		} 
 	}
 

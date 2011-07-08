@@ -126,7 +126,7 @@ public class GoogleAdMobAdapter extends BaseAdapter implements AdListener {
             layoutParams.gravity = Gravity.CENTER;
             mMoPubView.addView(mAdView, layoutParams);
 
-            mMoPubView.adLoaded();
+            mMoPubView.nativeAdLoaded();
             mMoPubView.trackNativeImpression();
         } 
     }

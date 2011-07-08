@@ -51,7 +51,7 @@ import java.lang.ref.WeakReference;
 
 public class MillennialAdapter extends BaseAdapter implements MMAdListener {
 
-    private MMAdView 					mAdView;
+    private MMAdView 					mMillennialAdView;
     private MoPubView					mMoPubView;
     private String 						mParams;
     
@@ -93,14 +93,14 @@ public class MillennialAdapter extends BaseAdapter implements MMAdListener {
         String mmAdType = MMAdView.BANNER_AD_TOP;
         if (adWidth == 300.0 && adHeight == 250.0) mmAdType = MMAdView.BANNER_AD_RECTANGLE;
         
-        mAdView = new MMAdView(activity, pubId, mmAdType, MMAdView.REFRESH_INTERVAL_OFF);
-        mAdView.setId(MMAdViewSDK.DEFAULT_VIEWID);
-        mAdView.setListener(this);
+        mMillennialAdView = new MMAdView(activity, pubId, mmAdType, MMAdView.REFRESH_INTERVAL_OFF);
+        mMillennialAdView.setId(MMAdViewSDK.DEFAULT_VIEWID);
+        mMillennialAdView.setListener(this);
         Log.d("MoPub", "Loading Millennial ad...");
 
-        mAdView.setVisibility(View.INVISIBLE);
+        mMillennialAdView.setVisibility(View.INVISIBLE);
         mHasAlreadyRegisteredImpression = false;
-        mAdView.callForAd();
+        mMillennialAdView.callForAd();
     }
 
     @Override
@@ -120,7 +120,7 @@ public class MillennialAdapter extends BaseAdapter implements MMAdListener {
     public void MMAdReturned(MMAdView adview) {
         Log.d("MoPub", "Millennial returned ad");
         Activity activity = mActivityReference.get();
-        if (activity != null) {
+        if (activity != null && mMoPubView != null) {
             activity.runOnUiThread(new MMRunnable(mMoPubView, adview));
         }
     }
@@ -153,25 +153,25 @@ public class MillennialAdapter extends BaseAdapter implements MMAdListener {
 
     private class MMRunnable implements Runnable {
         private MoPubView mMoPubView;
-        private MMAdView mAdView;
+        private MMAdView mMMAdView;
 
         public MMRunnable(MoPubView view, MMAdView adView) {
             mMoPubView = view;
-            mAdView = adView;
+            mMMAdView = adView;
         }
 
         public void run() {
-            if (mMoPubView != null && mAdView != null) {
+            if (mMoPubView != null && mMMAdView != null) {
                 mMoPubView.removeAllViews();
-                mAdView.setVisibility(View.VISIBLE);
-                mAdView.setHorizontalScrollBarEnabled(false);
-                mAdView.setVerticalScrollBarEnabled(false);
+                mMMAdView.setVisibility(View.VISIBLE);
+                mMMAdView.setHorizontalScrollBarEnabled(false);
+                mMMAdView.setVerticalScrollBarEnabled(false);
                 FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(
                         FrameLayout.LayoutParams.FILL_PARENT, 
                         FrameLayout.LayoutParams.FILL_PARENT);
                 layoutParams.gravity = Gravity.CENTER_HORIZONTAL | Gravity.CENTER_VERTICAL;
-                mMoPubView.addView(mAdView, layoutParams);
-                mMoPubView.adLoaded();
+                mMoPubView.addView(mMMAdView, layoutParams);
+                mMoPubView.nativeAdLoaded();
                 if (!mHasAlreadyRegisteredImpression) {
                     mHasAlreadyRegisteredImpression = true;
                     mMoPubView.trackNativeImpression();
