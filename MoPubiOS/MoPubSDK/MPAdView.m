@@ -611,6 +611,8 @@ static NSString * userAgentString;
 	// Else: no adapter for the specified ad type, so just fail over.
 	else 
 	{
+		MPLogWarn(@"Couldn't find the native ad adapter named %@. Have you forgotten to add"
+				  @" %@.h/.m to your project?", classString, classString);
 		[self replaceCurrentAdapterWithAdapter:nil];
 		
 		[connection cancel];
