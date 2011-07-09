@@ -135,6 +135,7 @@ static NSString * userAgentString;
 												 selector:@selector(forceRefreshAd)
 													 name:kTimerNotificationName
 												   object:_timerTarget];
+		_allowedNativeAdOrientation = MPNativeAdOrientationAny;
     }
     return self;
 }
@@ -462,6 +463,21 @@ static NSString * userAgentString;
 {
 	if ([_adContentView isKindOfClass:[UIWebView class]])
 		[(UIWebView *)_adContentView stringByEvaluatingJavaScriptFromString:@"webviewDidAppear();"];
+}
+
+- (void)lockNativeAdsToOrientation:(MPNativeAdOrientation)orientation
+{
+	_allowedNativeAdOrientation = orientation;
+}
+
+- (void)unlockNativeAdsOrientation
+{
+	_allowedNativeAdOrientation = MPNativeAdOrientationAny;
+}
+
+- (MPNativeAdOrientation)allowedNativeAdsOrientation
+{
+	return _allowedNativeAdOrientation;
 }
 
 # pragma mark -

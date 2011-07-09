@@ -28,6 +28,13 @@ typedef enum
 	MPAdAnimationTypeCount
 } MPAdAnimationType;
 
+typedef enum
+{
+	MPNativeAdOrientationAny,
+	MPNativeAdOrientationPortrait,
+	MPNativeAdOrientationLandscape
+} MPNativeAdOrientation;
+
 @protocol MPAdViewDelegate;
 @class MPTimer;
 @class MPTimerTarget;
@@ -144,6 +151,8 @@ typedef enum
 	// Whether webviews added to this ad view should automatically stretch to the
 	// ad view's full size. Typically only set to YES for interstitial ads.
 	BOOL _stretchesWebContentToFill;
+	
+	MPNativeAdOrientation _allowedNativeAdOrientation;
 }
 
 @property (nonatomic, assign) id<MPAdViewDelegate> delegate;
@@ -229,6 +238,20 @@ typedef enum
  * You must call this method if you implement custom events.
  */
 - (void)customEventDidFailToLoadAd;
+
+/*
+ * Forces native ad networks to only use ads sized for the specified orientation. For instance, 
+ * if you call this with UIInterfaceOrientationPortrait, native networks (e.g. iAd) will never 
+ * return ads sized for the landscape orientation.
+ */
+- (void)lockNativeAdsToOrientation:(MPNativeAdOrientation)orientation;
+
+/*
+ * Allows native ad networks to use ads sized for any orientation. See -lockNativeAdsToOrientation:.
+ */
+- (void)unlockNativeAdsOrientation;
+
+- (MPNativeAdOrientation)allowedNativeAdsOrientation;
 
 @end
 

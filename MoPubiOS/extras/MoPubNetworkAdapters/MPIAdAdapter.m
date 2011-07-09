@@ -57,9 +57,23 @@
 		_adBannerView.frame = (CGRect){{0, 0}, size};
 		_adBannerView.delegate = self;
 
+		MPNativeAdOrientation allowedOrientation = [self.adView allowedNativeAdsOrientation];
 		UIInterfaceOrientation currentOrientation = 
-				[UIApplication sharedApplication].statusBarOrientation;
-		[self setBannerViewContentSizeIdentifierForOrientation:currentOrientation];
+			[UIApplication sharedApplication].statusBarOrientation;
+		switch (allowedOrientation)
+		{
+			case MPNativeAdOrientationPortrait:
+				[self setBannerViewContentSizeIdentifierForOrientation:
+					UIInterfaceOrientationPortrait];
+				break;
+			case MPNativeAdOrientationLandscape:
+				[self setBannerViewContentSizeIdentifierForOrientation:
+					UIInterfaceOrientationLandscapeLeft];
+				break;
+			default:
+				[self setBannerViewContentSizeIdentifierForOrientation:currentOrientation];
+				break;
+		}
 		
 		if ([_adBannerView isBannerLoaded])
 		{
@@ -109,17 +123,20 @@
 	if (!_adBannerView) 
 		return;
 	
-	if (UIInterfaceOrientationIsLandscape(newOrientation))
+	MPNativeAdOrientation allowedOrientation = [self.adView allowedNativeAdsOrientation];
+	switch (allowedOrientation)
 	{
-		// Tests for iOS >= 4.2.
-		_adBannerView.currentContentSizeIdentifier = (&ADBannerContentSizeIdentifierLandscape) ? 
-		ADBannerContentSizeIdentifierLandscape : ADBannerContentSizeIdentifier480x32;
-	}
-	else
-	{
-		// Tests for iOS >= 4.2.
-		_adBannerView.currentContentSizeIdentifier = (&ADBannerContentSizeIdentifierPortrait) ?
-		ADBannerContentSizeIdentifierPortrait : ADBannerContentSizeIdentifier320x50;
+		case MPNativeAdOrientationPortrait:
+			[self setBannerViewContentSizeIdentifierForOrientation:
+				UIInterfaceOrientationPortrait];
+			break;
+		case MPNativeAdOrientationLandscape:
+			[self setBannerViewContentSizeIdentifierForOrientation:
+				UIInterfaceOrientationLandscapeLeft];
+			break;
+		default:
+			[self setBannerViewContentSizeIdentifierForOrientation:newOrientation];
+			break;
 	}
 	
 	// Prevent this view from automatically positioning itself in the center of its superview.
