@@ -148,6 +148,19 @@ public class AdView extends WebView {
                 else if (host.equals("custom")) adView.handleCustomIntentFromUri(uri);
                 return true;
             }
+            // Handle other phone intents.
+            else if (url.startsWith("tel:") || url.startsWith("voicemail:") ||
+                    url.startsWith("sms:") || url.startsWith("mailto:") ||
+                    url.startsWith("geo:") || url.startsWith("google.streetview:")) { 
+                Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url)); 
+                try {
+                    getContext().startActivity(intent);
+                } catch (ActivityNotFoundException e) {
+                    Log.w("MoPub", "Could not handle intent with URI: " + url +
+                        ". Is this intent unsupported on your phone?");
+                }
+                return true;
+            }
 
             String clickthroughUrl = adView.getClickthroughUrl();
             if (clickthroughUrl != null) url = clickthroughUrl + "&r=" + Uri.encode(url);
