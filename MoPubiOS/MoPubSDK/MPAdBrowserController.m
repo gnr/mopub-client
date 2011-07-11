@@ -81,6 +81,7 @@ static NSArray *BROWSER_SCHEMES, *SPECIAL_HOSTS;
 	[_doneButton release];
 	[_spinner release];
 	[_spinnerItem release];
+	[_actionSheet release];
 	[super dealloc];
 }
 
@@ -147,11 +148,11 @@ static NSArray *BROWSER_SCHEMES, *SPECIAL_HOSTS;
 	}
 	else 
 	{
-		self.actionSheet = [[UIActionSheet alloc] initWithTitle:nil
+		self.actionSheet = [[[UIActionSheet alloc] initWithTitle:nil
 													   delegate:self 
 											  cancelButtonTitle:@"Cancel" 
 										 destructiveButtonTitle:nil 
-											  otherButtonTitles:@"Open in Safari", nil];
+											  otherButtonTitles:@"Open in Safari", nil] autorelease];
 		[self.actionSheet showFromBarButtonItem:self.safariButton animated:YES];
 	}
 }	

@@ -336,7 +336,8 @@ static NSString * const kOrientationBoth				= @"b";
 	if (cls != nil)
 	{
 		[self.currentAdapter unregisterDelegate];	
-		self.currentAdapter = (MPBaseInterstitialAdapter *)[[cls alloc] initWithInterstitialAdController:self];
+		self.currentAdapter = [(MPBaseInterstitialAdapter *)
+							   [[cls alloc] initWithInterstitialAdController:self] autorelease];
 		[self.currentAdapter getAdWithParams:params];
 	}
 	else 
