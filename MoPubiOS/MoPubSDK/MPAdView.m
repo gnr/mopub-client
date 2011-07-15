@@ -773,7 +773,7 @@ static NSString * userAgentString;
 #pragma mark -
 #pragma mark MPAdBrowserControllerDelegate
 
-- (void)dismissBrowserController:(MPAdBrowserController *)browserController{
+- (void)dismissBrowserController:(MPAdBrowserController *)browserController {
 	[self dismissBrowserController:browserController animated:YES];
 }
 
