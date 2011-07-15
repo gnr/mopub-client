@@ -152,13 +152,6 @@
 - (void)bannerView:(ADBannerView *)banner didFailToReceiveAdWithError:(NSError *)error
 {
 	MPLogInfo(@"iAd failed in trying to load or refresh an ad.");
-
-	// Edge case: This method schedules the banner view to be deallocated. If this method
-	// was called due to a failed internal iAd refresh, there is a chance the user could
-	// initiate a banner action, only to have the banner view be deallocated during that action.
-	// So, just don't allow the user to interact with the iAd.
-	[_adBannerView setUserInteractionEnabled:NO];
-	
 	[self.adView adapter:self didFailToLoadAdWithError:error];
 }
 
