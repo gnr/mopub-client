@@ -367,8 +367,8 @@ public class AdView extends WebView {
         sz.append("?v=4&id=" + mAdUnitId);
         
         String udid = Secure.getString(getContext().getContentResolver(), Secure.ANDROID_ID);
-        String udidDigest = (udid == null) ? "" : sha1("mopub-" + udid);
-        sz.append("&udid=sha1:" + udidDigest);
+        String udidDigest = (udid == null) ? "" : sha1(udid);
+        sz.append("&udid=sha:" + udidDigest);
 
         if (mKeywords != null) {
             sz.append("&q=" + Uri.encode(mKeywords));
@@ -381,7 +381,7 @@ public class AdView extends WebView {
         sz.append("&z=" + getTimeZoneOffsetString());
         
         int orientation = getResources().getConfiguration().orientation;
-        String orString = "u";
+        String orString = DEVICE_ORIENTATION_UNKNOWN;
         if (orientation == Configuration.ORIENTATION_PORTRAIT) {
             orString = DEVICE_ORIENTATION_PORTRAIT;
         } else if (orientation == Configuration.ORIENTATION_LANDSCAPE) {

@@ -1047,8 +1047,7 @@ static NSString * userAgentString;
 - (NSString *)hashedMoPubUDID 
 {
 	NSString *result = nil;
-	NSString *udid = [NSString stringWithFormat:@"mopub-%@", 
-					  [[UIDevice currentDevice] uniqueIdentifier]];
+	NSString *udid = [NSString stringWithFormat:@"%@", [[UIDevice currentDevice] uniqueIdentifier]];
 	
 	if (udid) 
 	{
@@ -1065,7 +1064,7 @@ static NSString * userAgentString;
 		
 		result = [output uppercaseString];
 	}
-	return [NSString stringWithFormat:@"sha1:%@", result];
+	return [NSString stringWithFormat:@"sha:%@", result];
 }
 
 @end
