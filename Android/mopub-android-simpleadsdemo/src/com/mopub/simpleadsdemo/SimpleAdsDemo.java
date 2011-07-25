@@ -34,7 +34,7 @@ package com.mopub.simpleadsdemo;
 
 import com.mopub.mobileads.MoPubConversionTracker;
 import com.mopub.mobileads.MoPubActivity;
-import com.mopub.mobileads.R;
+import com.mopub.simpleadsdemo.R;
 
 import android.app.TabActivity;
 import android.content.Intent;

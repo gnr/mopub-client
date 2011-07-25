@@ -1,6 +1,6 @@
 package com.mopub.simpleadsdemo;
 
-import com.mopub.mobileads.R;
+import com.mopub.simpleadsdemo.R;
 
 import android.app.Activity;
 import android.content.Intent;

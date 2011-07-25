@@ -2,7 +2,7 @@ package com.mopub.simpleadsdemo;
 
 import com.mopub.mobileads.MoPubInterstitial;
 import com.mopub.mobileads.MoPubInterstitial.MoPubInterstitialListener;
-import com.mopub.mobileads.R;
+import com.mopub.simpleadsdemo.R;
 
 import android.app.Activity;
 import android.os.Bundle;
@@ -34,11 +34,9 @@ public class InterstitialsTab extends Activity implements MoPubInterstitialListe
         interstitial.showAd();
     }
 
-    @Override
     public void OnInterstitialLoaded() {
     }
 
-    @Override
     public void OnInterstitialFailed() {
         Toast.makeText(this, "No ad available", Toast.LENGTH_SHORT).show();
     }

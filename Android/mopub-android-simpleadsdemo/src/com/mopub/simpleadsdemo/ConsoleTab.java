@@ -1,7 +1,7 @@
 package com.mopub.simpleadsdemo;
 
 import com.mopub.mobileads.MoPubView;
-import com.mopub.mobileads.R;
+import com.mopub.simpleadsdemo.R;
 import com.mopub.mobileads.MoPubView.OnAdFailedListener;
 import com.mopub.mobileads.MoPubView.OnAdLoadedListener;
 import com.mopub.mobileads.MoPubView.OnAdWillLoadListener;
