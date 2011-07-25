@@ -1,17 +1,17 @@
 //
-//  MPAdMobAdapter.m
+//  MPGoogleAdMobInterstitialAdapter.m
 //  MoPub
 //
 //  Created by Nafis Jamal on 4/26/11.
 //  Copyright 2011 MoPub. All rights reserved.
 //
 
-#import "MPAdMobInterstitialAdapter.h"
+#import "MPGoogleAdMobInterstitialAdapter.h"
 #import "CJSONDeserializer.h"
 #import "MPInterstitialAdController.h"
 #import "MPLogging.h"
 
-@implementation MPAdMobInterstitialAdapter
+@implementation MPGoogleAdMobInterstitialAdapter
 
 - (void)getAdWithParams:(NSDictionary *)params
 {
@@ -27,7 +27,8 @@
 	GADRequest *request = [GADRequest request];
 	// Here, you can specify a list of devices that will receive test ads.
 	// See: http://code.google.com/mobile/ads/docs/ios/intermediate.html#testdevices
-	request.testDevices = [NSArray arrayWithObjects:GAD_SIMULATOR_ID, 
+	request.testDevices = [NSArray arrayWithObjects:
+						   GAD_SIMULATOR_ID, 
 						   // more UDIDs here,
 						   nil];
 	

@@ -11,6 +11,13 @@
 #import "MPAdView.h"
 #import "MPLogging.h"
 
+@interface MPGoogleAdMobAdapter ()
+
+- (void)setAdPropertiesFromNativeParams:(NSDictionary *)params;
+
+@end
+
+
 @implementation MPGoogleAdMobAdapter
 
 - (id)initWithAdView:(MPAdView *)adView
@@ -38,7 +45,7 @@
 	NSDictionary *hdrParams = [[CJSONDeserializer deserializer] deserializeAsDictionary:hdrData
 																				  error:NULL];
 	
-	_adBannerView.adUnitID = [hdrParams objectForKey:@"adUnitID"];
+	[self setAdPropertiesFromNativeParams:hdrParams];
 	_adBannerView.rootViewController = [self.adView.delegate viewControllerForPresentingModalView];
 	
 	GADRequest *request = [GADRequest request];
@@ -51,6 +58,17 @@
 	
 	[_adBannerView loadRequest:request];
 }
+
+- (void)setAdPropertiesFromNativeParams:(NSDictionary *)params
+{
+	CGFloat width = [(NSString *)[params objectForKey:@"adWidth"] floatValue];
+	CGFloat height = [(NSString *)[params objectForKey:@"adHeight"] floatValue];
+	_adBannerView.frame = CGRectMake(0, 0, width, height);
+	_adBannerView.adUnitID = [params objectForKey:@"adUnitID"];
+}
+
+#pragma mark -
+#pragma mark GADBannerViewDelegate methods
 
 - (void)adViewDidReceiveAd:(GADBannerView *)bannerView
 {
