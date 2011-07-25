@@ -20,17 +20,7 @@ void MPLogSetLevel(MPLogLevel level)
 	MPLOG_LEVEL = level;
 }
 
-// TODO: Deprecate.
-void MPLog(NSString *format, ...)
-{
-	format = [NSString stringWithFormat:@"MOPUB: %@", format];
-    va_list args;
-    va_start(args, format);
-    NSLogv(format, args);
-    va_end(args);
-}
-
-void MPLogTrace(NSString *format, ...)
+void _MPLogTrace(NSString *format, ...)
 {
 	if (MPLOG_LEVEL <= MPLogLevelTrace)
     {
@@ -42,7 +32,7 @@ void MPLogTrace(NSString *format, ...)
     }
 }
 
-void MPLogDebug(NSString *format, ...)
+void _MPLogDebug(NSString *format, ...)
 {
 	if (MPLOG_LEVEL <= MPLogLevelDebug)
     {
@@ -54,7 +44,7 @@ void MPLogDebug(NSString *format, ...)
     }
 }
 
-void MPLogWarn(NSString *format, ...)
+void _MPLogWarn(NSString *format, ...)
 {
 	if (MPLOG_LEVEL <= MPLogLevelWarn)
     {
@@ -66,7 +56,7 @@ void MPLogWarn(NSString *format, ...)
     }
 }
 
-void MPLogInfo(NSString *format, ...)
+void _MPLogInfo(NSString *format, ...)
 {
 	if (MPLOG_LEVEL <= MPLogLevelInfo)
     {
@@ -78,7 +68,7 @@ void MPLogInfo(NSString *format, ...)
     }
 }
 
-void MPLogError(NSString *format, ...)
+void _MPLogError(NSString *format, ...)
 {
 	if (MPLOG_LEVEL <= MPLogLevelError)
     {
@@ -90,7 +80,7 @@ void MPLogError(NSString *format, ...)
     }
 }
 
-void MPLogFatal(NSString *format, ...)
+void _MPLogFatal(NSString *format, ...)
 {
 	if (MPLOG_LEVEL <= MPLogLevelFatal)
     {
