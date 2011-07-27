@@ -22,7 +22,7 @@ typedef enum
 	MPLogLevelOff		= 70
 } MPLogLevel;
 
-MPLogLevel MPLogGetLevel();
+MPLogLevel MPLogGetLevel(void);
 void MPLogSetLevel(MPLogLevel level);
 void _MPLogTrace(NSString *format, ...);
 void _MPLogDebug(NSString *format, ...);

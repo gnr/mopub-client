@@ -12,9 +12,13 @@
 #import "CJSONDeserializer.h"
 
 @interface MPMillennialInterstitialAdapter ()
+
 + (MMAdView *)sharedMMAdViewForAPID:(NSString *)apid;
 - (void)releaseMMAdViewSafely;
+
 @end
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
 
 @implementation MPMillennialInterstitialAdapter
 

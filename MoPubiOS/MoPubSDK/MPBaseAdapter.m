@@ -7,29 +7,29 @@
 //
 
 #import "MPBaseAdapter.h"
-#import "MPAdView.h"
 #import "MPLogging.h"
 
 @implementation MPBaseAdapter
 
-@synthesize adView = _adView;
+@synthesize delegate = _delegate;
 
-- (id)initWithAdView:(MPAdView *)adView
+- (id)initWithAdapterDelegate:(id<MPAdapterDelegate>)delegate
 {
-	if (self = [super init])
-		_adView = adView;
+	if (self = [super init]) {
+		_delegate = delegate;
+	}
 	return self;
 }
 
 - (void)dealloc
 {
-	_adView = nil;
+	[self unregisterDelegate];
 	[super dealloc];
 }
 
 - (void)unregisterDelegate
 {
-	_adView = nil;
+	_delegate = nil;
 }
 
 - (void)getAd

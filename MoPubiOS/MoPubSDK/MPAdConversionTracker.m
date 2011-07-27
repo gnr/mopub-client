@@ -7,7 +7,9 @@
 //
 
 #import "MPAdConversionTracker.h"
-#import "MPAdView.h"
+#import "MPConstants.h"
+#import "MPGlobal.h"
+#import "MPLogging.h"
 
 @interface MPAdConversionTracker (Internal)
 - (void)reportApplicationOpenSynchronous:(NSString *)appID;
@@ -47,9 +49,9 @@
 	// The existence of mopubAppOpen.log tells us whether we have already reported this app open.
 	if (![fileManager fileExistsAtPath:appOpenLogPath]) 
 	{
-		NSString *appOpenUrlString = [NSString stringWithFormat:@"http://%@/m/open?v=3&udid=%@&id=%@",
+		NSString *appOpenUrlString = [NSString stringWithFormat:@"http://%@/m/open?v=6&udid=%@&id=%@",
 									  HOSTNAME,
-									  [[UIDevice currentDevice] hashedMoPubUDID],
+									  MPHashedUDID(),
 									  appID 
 									  ];
 		MPLogInfo(@"Reporting application did launch for the first time to MoPub: %@", appOpenUrlString);

@@ -15,14 +15,18 @@
 #define MM_SIZE_300x250 CGSizeMake(300, 250)
 
 @interface MPMillennialAdapter ()
+
 @property (nonatomic, retain) MMAdView *mmAdView;
 @property (nonatomic, assign) CGSize mmAdSize;
 @property (nonatomic, assign) MMAdType mmAdType;
 @property (nonatomic, copy) NSString * mmAdApid;
+
 - (void)setAdPropertiesFromNativeParams:(NSDictionary *)params;
 - (void)tearDownExistingAdView;
+
 @end
 
+////////////////////////////////////////////////////////////////////////////////////////////////////
 
 @implementation MPMillennialAdapter
 @synthesize mmAdView = _mmAdView;
@@ -93,28 +97,27 @@
 
 - (void)adRequestSucceeded:(MMAdView *)adView
 {
-	[self.adView setAdContentView:adView];
-	[self.adView adapterDidFinishLoadingAd:self shouldTrackImpression:YES];
+	[self.delegate adapter:self didFinishLoadingAd:adView shouldTrackImpression:YES];
 }
 
 - (void)adRequestFailed:(MMAdView *)adView
 {
-	[self.adView adapter:self didFailToLoadAdWithError:nil];
+	[self.delegate adapter:self didFailToLoadAdWithError:nil];
 }
 
 - (void)adWasTapped:(MMAdView *)adView
 {
-	[self.adView userActionWillBeginForAdapter:self];
+	[self.delegate userActionWillBeginForAdapter:self];
 }
 
 - (void)applicationWillTerminateFromAd
 {
-	[self.adView userWillLeaveApplicationFromAdapter:self];
+	[self.delegate userWillLeaveApplicationFromAdapter:self];
 }
 
 - (void)adModalWasDismissed
 {
-	[self.adView userActionDidEndForAdapter:self];
+	[self.delegate userActionDidEndForAdapter:self];
 }
 
 @end
