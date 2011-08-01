@@ -9,6 +9,7 @@
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
 
+UIInterfaceOrientation MPInterfaceOrientation(void);
 CGRect MPScreenBounds(void);
 CGFloat MPDeviceScaleFactor(void);
 NSString *MPHashedUDID(void);

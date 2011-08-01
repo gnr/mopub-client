@@ -9,12 +9,16 @@
 #import "MPGlobal.h"
 #import <CommonCrypto/CommonDigest.h>
 
+UIInterfaceOrientation MPInterfaceOrientation()
+{
+	return [UIApplication sharedApplication].statusBarOrientation;
+}
+
 CGRect MPScreenBounds()
 {
 	CGRect bounds = [UIScreen mainScreen].bounds;
 	
-	UIInterfaceOrientation orientation = [UIApplication sharedApplication].statusBarOrientation;
-	if (UIInterfaceOrientationIsLandscape(orientation))
+	if (UIInterfaceOrientationIsLandscape(MPInterfaceOrientation()))
 	{
 		CGFloat width = bounds.size.width;
 		bounds.size.width = bounds.size.height;
