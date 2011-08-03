@@ -278,6 +278,19 @@ public class MoPubView extends FrameLayout {
         }
         return mAdView.getResponseString();
     }
+    
+    public String getClickthroughUrl() {
+        if (mAdView == null) {
+            return null;
+        }
+        return mAdView.getClickthroughUrl();
+    }
+    
+    public void setClickthroughUrl(String url) {
+        if (mAdView != null) {
+            mAdView.setClickthroughUrl(url);
+        }
+    }
 
     public Activity getActivity() {
         return mActivity;

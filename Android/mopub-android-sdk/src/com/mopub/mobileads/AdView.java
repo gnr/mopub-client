@@ -139,7 +139,7 @@ public class AdView extends WebView {
         @Override
         public boolean shouldOverrideUrlLoading(WebView view, String url) {
             AdView adView = (AdView) view;
-           
+            
             // Handle the special mopub:// scheme calls.
             if (url.startsWith("mopub://")) {
                 Uri uri = Uri.parse(url);
@@ -165,8 +165,7 @@ public class AdView extends WebView {
                 return true;
             }
 
-            String clickthroughUrl = adView.getClickthroughUrl();
-            if (clickthroughUrl != null) url = clickthroughUrl + "&r=" + Uri.encode(url);
+            url = urlWithClickTrackingRedirect(adView, url);
             Log.d("MoPub", "Ad clicked. Click URL: " + url);
             mMoPubView.adClicked();
 
@@ -177,10 +176,21 @@ public class AdView extends WebView {
         @Override
         public void onPageStarted(WebView view, String url, Bitmap favicon) {
             // If the URL being loaded shares the redirectUrl prefix, open it in the browser.
-            String redirectUrl = ((AdView)view).getRedirectUrl();
+            AdView adView = (AdView) view;
+            String redirectUrl = adView.getRedirectUrl();
             if (redirectUrl != null && url.startsWith(redirectUrl)) {
+                url = urlWithClickTrackingRedirect(adView, url);
                 view.stopLoading();
                 showBrowserAfterFollowingRedirectsForUrl(url);
+            }
+        }
+        
+        private String urlWithClickTrackingRedirect(AdView adView, String url) {
+            String clickthroughUrl = adView.getClickthroughUrl();
+            if (clickthroughUrl == null) return url;
+            else {
+                String encodedUrl = Uri.encode(url);
+                return clickthroughUrl + "&r=" + encodedUrl;
             }
         }
     }
@@ -835,6 +845,10 @@ public class AdView extends WebView {
 
     public String getClickthroughUrl() {
         return mClickthroughUrl;
+    }
+    
+    public void setClickthroughUrl(String url) {
+        mClickthroughUrl = url;
     }
 
     public String getRedirectUrl() {

@@ -54,6 +54,7 @@ public class MoPubActivity extends Activity {
 
         String adUnitId = getIntent().getStringExtra("com.mopub.mobileads.AdUnitId");
         String keywords = getIntent().getStringExtra("com.mopub.mobileads.Keywords");
+        String clickthroughUrl = getIntent().getStringExtra("com.mopub.mobileads.ClickthroughUrl");
         String source = getIntent().getStringExtra("com.mopub.mobileads.Source");
         int timeout = getIntent().getIntExtra("com.mopub.mobileads.Timeout", 0);
 
@@ -64,9 +65,10 @@ public class MoPubActivity extends Activity {
 
         mMoPubView = new MoPubView(this);
         mMoPubView.setAdUnitId(adUnitId);
+        mMoPubView.setKeywords(keywords);
+        mMoPubView.setClickthroughUrl(clickthroughUrl);
+        mMoPubView.setTimeout(timeout);
         
-        if (keywords != null) mMoPubView.setKeywords(keywords);
-        if (timeout > 0) mMoPubView.setTimeout(timeout);
         if (source != null) {
             source = sourceWithImpressionTrackingDisabled(source);
             mMoPubView.loadHtmlString(source);

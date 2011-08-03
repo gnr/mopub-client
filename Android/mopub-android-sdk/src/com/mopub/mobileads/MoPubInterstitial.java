@@ -102,6 +102,8 @@ public class MoPubInterstitial {
                     Intent i = new Intent(mActivity, MoPubActivity.class);
                     i.putExtra("com.mopub.mobileads.AdUnitId", mAdUnitId);
                     i.putExtra("com.mopub.mobileads.Source", responseString);
+                    i.putExtra("com.mopub.mobileads.ClickthroughUrl",
+                            mInterstitialView.getClickthroughUrl());
                     mActivity.startActivity(i);
                 }
             }

@@ -94,7 +94,7 @@ public abstract class BaseAdapter {
         try {
             return (Class<?>) Class.forName(className);
         } catch (ClassNotFoundException e) {
-            Log.d("MoPub", "Couldn't find "+className+ "class."
+            Log.d("MoPub", "Couldn't find "+className+ " class."
                     + " Make sure the project includes the adapter library for "+className
                     + " from the extras folder");
             return null;
