@@ -107,7 +107,7 @@ public class AdView extends WebView {
     private int mHeight;
     private String mAdOrientation;
 
-    private MoPubView mMoPubView;
+    protected MoPubView mMoPubView;
     private HttpResponse mResponse;
     private String mResponseString;
     private String mUserAgent;
@@ -784,6 +784,10 @@ public class AdView extends WebView {
         }).start();
     }
 
+    protected void adAppeared() {
+        this.loadUrl("javascript:webviewDidAppear();");
+    }
+    
     private Handler mRefreshHandler = new Handler();
     private Runnable mRefreshRunnable = new Runnable() {
         public void run() {

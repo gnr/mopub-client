@@ -12,5 +12,12 @@ public final class R {
     }
     public static final class drawable {
         public static final int closebutton=0x7f020000;
+        public static final int default_video_poster=0x7f020001;
+    }
+    public static final class id {
+        public static final int progress_indicator=0x7f040000;
+    }
+    public static final class layout {
+        public static final int video_loading_progress=0x7f030000;
     }
 }

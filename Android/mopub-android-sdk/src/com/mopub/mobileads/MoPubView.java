@@ -38,6 +38,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.location.Location;
+import android.os.Build;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.webkit.WebViewDatabase;
@@ -45,6 +46,8 @@ import android.widget.FrameLayout;
 
 import org.apache.http.HttpResponse;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 
 public class MoPubView extends FrameLayout {
@@ -118,13 +121,54 @@ public class MoPubView extends FrameLayout {
                     "http://code.google.com/p/android/issues/detail?id=10789");
             return;
         }
-
-        // The AdView doesn't need to be in the view hierarchy until an ad is loaded
-        mAdView = new AdView(context, this);
         
+        initVersionDependentAdView(context);
         registerScreenStateBroadcastReceiver();
 
         mActivity = (Activity) context;
+    }
+    
+    private void initVersionDependentAdView(Context context) {
+        int sdkVersion = (new Integer(Build.VERSION.SDK)).intValue();
+        if (sdkVersion < Build.VERSION_CODES.ECLAIR_MR1) {
+            mAdView = new AdView(context, this);
+        } else {
+            // On Android 2.1 (Eclair) and up, try to load our HTML5-enabled AdView class.
+            Class<?> HTML5AdViewClass = null;
+            try {
+                HTML5AdViewClass = (Class<?>) Class.forName("com.mopub.mobileads.HTML5AdView");
+            } catch (ClassNotFoundException e) {
+                mAdView = new AdView(context, this);
+                return;
+            } 
+
+            Class<?>[] parameterTypes = new Class[2];
+            parameterTypes[0] = Context.class;
+            parameterTypes[1] = MoPubView.class;
+
+            Object[] args = new Object[2];
+            args[0] = context;
+            args[1] = this;
+
+            try {
+                Constructor<?> constructor = HTML5AdViewClass.getConstructor(parameterTypes);
+                mAdView = (AdView) constructor.newInstance(args);
+            } catch (SecurityException e) {
+                Log.e("MoPub", "Could not load HTML5AdView.");
+            } catch (NoSuchMethodException e) {
+                Log.e("MoPub", "Could not load HTML5AdView.");
+            } catch (IllegalArgumentException e) {
+                Log.e("MoPub", "Could not load HTML5AdView.");
+            } catch (InstantiationException e) {
+                Log.e("MoPub", "Could not load HTML5AdView.");
+            } catch (IllegalAccessException e) {
+                Log.e("MoPub", "Could not load HTML5AdView.");
+            } catch (InvocationTargetException e) {
+                Log.e("MoPub", "Could not load HTML5AdView.");
+            }
+
+            if (mAdView == null) mAdView = new AdView(context, this);
+        }
     }
 
     private void registerScreenStateBroadcastReceiver() {
@@ -349,6 +393,12 @@ public class MoPubView extends FrameLayout {
             mAdView.scheduleRefreshTimerIfEnabled();
         }
         adLoaded();
+    }
+    
+    protected void adAppeared() {
+        if (mAdView != null) {
+            mAdView.adAppeared();
+        }
     }
 
     public void setOnAdWillLoadListener(OnAdWillLoadListener listener) {

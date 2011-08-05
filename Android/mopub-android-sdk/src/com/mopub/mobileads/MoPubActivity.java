@@ -32,14 +32,17 @@
 
 package com.mopub.mobileads;
 
+import com.mopub.mobileads.MoPubView.OnAdLoadedListener;
+
 import android.app.Activity;
+import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.RelativeLayout;
 
-public class MoPubActivity extends Activity {
+public class MoPubActivity extends Activity implements OnAdLoadedListener {
     public static final int MOPUB_ACTIVITY_NO_AD = 1234;
 
     private MoPubView mMoPubView;
@@ -68,6 +71,7 @@ public class MoPubActivity extends Activity {
         mMoPubView.setKeywords(keywords);
         mMoPubView.setClickthroughUrl(clickthroughUrl);
         mMoPubView.setTimeout(timeout);
+        mMoPubView.setOnAdLoadedListener(this);
         
         if (source != null) {
             source = sourceWithImpressionTrackingDisabled(source);
@@ -99,5 +103,10 @@ public class MoPubActivity extends Activity {
     private String sourceWithImpressionTrackingDisabled(String source) {
         // TODO: Temporary fix. Disables impression tracking by renaming the pixel tracker's URL.
         return source.replaceAll("http://ads.mopub.com/m/imp", "mopub://null");
+    }
+
+    @Override
+    public void OnAdLoaded(MoPubView m) {
+        m.adAppeared();
     }
 }
