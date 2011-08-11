@@ -82,6 +82,7 @@ NSString * const kAdTypeClear = @"clear";
 - (void)trackImpression;
 - (void)setAdContentView:(UIView *)view;
 - (void)rotateToOrientation:(UIInterfaceOrientation)orientation;
+- (void)fireOrientationChangedEventInWebview:(UIWebView *)webview;
 - (NSDictionary *)dictionaryFromQueryString:(NSString *)query;
 - (void)customLinkClickedForSelectorString:(NSString *)selectorString 
 							withDataString:(NSString *)dataString;
@@ -350,7 +351,34 @@ NSString * const kAdTypeClear = @"clear";
 
 - (void)rotateToOrientation:(UIInterfaceOrientation)orientation
 {
-	[self.currentAdapter rotateToOrientation:orientation];
+	if (self.currentAdapter) {
+		[self.currentAdapter rotateToOrientation:orientation];
+	} else if ([self.adView.adContentView isKindOfClass:[UIWebView class]]) {
+		[self fireOrientationChangedEventInWebview:(UIWebView *)self.adView.adContentView];
+	}
+}
+
+- (void)fireOrientationChangedEventInWebview:(UIWebView *)webview
+{
+	UIInterfaceOrientation orientation = [[UIApplication sharedApplication] statusBarOrientation];
+	int angle = -1;
+	switch (orientation)
+	{
+		case UIDeviceOrientationPortrait: angle = 0; break;
+		case UIDeviceOrientationLandscapeLeft: angle = 90; break;
+		case UIDeviceOrientationLandscapeRight: angle = -90; break;
+		case UIDeviceOrientationPortraitUpsideDown: angle = 180; break;
+		default: break;
+	}
+	
+	if (angle == -1) return;
+	
+	NSString *js = [NSString stringWithFormat:
+					@"window.__defineGetter__('orientation',function(){return %d;});"
+					@"(function(){ var evt = document.createEvent('Events');"
+					@"evt.initEvent('orientationchange', true, true); window.dispatchEvent(evt);})();",
+					angle];
+	[webview stringByEvaluatingJavaScriptFromString:js];
 }
 
 - (void)customEventDidLoadAd
@@ -429,6 +457,16 @@ NSString * const kAdTypeClear = @"clear";
 	[[self viewControllerForPresentingModalView] presentModalViewController:browserController 			
 																   animated:YES];
 	[browserController release];
+}
+
+- (void)replaceCurrentAdapterWithAdapter:(MPBaseAdapter *)newAdapter
+{
+	// Dispose of the last adapter stored in _previousAdapter.
+	[_previousAdapter unregisterDelegate];
+	[_previousAdapter release];
+	
+	_previousAdapter = _currentAdapter;
+	_currentAdapter = newAdapter;
 }
 
 #pragma mark -
@@ -590,16 +628,6 @@ NSString * const kAdTypeClear = @"clear";
 		
 		[self loadAdWithURL:self.failURL];
 	}	
-}
-
-- (void)replaceCurrentAdapterWithAdapter:(MPBaseAdapter *)newAdapter
-{
-	// Dispose of the last adapter stored in _previousAdapter.
-	[_previousAdapter unregisterDelegate];
-	[_previousAdapter release];
-	
-	_previousAdapter = _currentAdapter;
-	_currentAdapter = newAdapter;
 }
 
 - (void)connection:(NSURLConnection *)connection didReceiveData:(NSData *)d

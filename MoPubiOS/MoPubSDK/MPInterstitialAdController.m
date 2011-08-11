@@ -273,10 +273,11 @@ static NSString * const kOrientationBoth				= @"b";
 	else return YES;
 }
 
-- (void)willAnimateRotationToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation 
-										 duration:(NSTimeInterval)duration
-{
-	[super willAnimateRotationToInterfaceOrientation:toInterfaceOrientation duration:duration];
+- (void)didRotateFromInterfaceOrientation:(UIInterfaceOrientation)fromInterfaceOrientation {
+	[super didRotateFromInterfaceOrientation:fromInterfaceOrientation];
+	
+	// Forward the orientation event to the ad view, passing in our current orientation.
+	[_adView rotateToOrientation:self.interfaceOrientation];
 }
 
 #pragma mark -
