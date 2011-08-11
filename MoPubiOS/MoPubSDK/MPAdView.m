@@ -7,108 +7,44 @@
 //
 
 #import "MPAdView.h"
-#import "MPBaseAdapter.h"
-#import "MPAdapterMap.h"
-#import "MPTimer.h"
-#import "CJSONDeserializer.h"
-#import <CommonCrypto/CommonDigest.h>
+#import "MPAdManager+MPAdViewFriend.h"
 #import <stdlib.h>
 #import <time.h>
 
-static NSString * const kTimerNotificationName		= @"Autorefresh";
-static NSString * const kAdAnimationId				= @"MPAdTransition";
-static NSString * const kErrorDomain				= @"mopub.com";
-static NSString * const kMoPubUrlScheme				= @"mopub";
-static NSString * const kMoPubCloseHost				= @"close";
-static NSString * const kMoPubFinishLoadHost		= @"finishLoad";
-static NSString * const kMoPubFailLoadHost			= @"failLoad";
-static NSString * const kMoPubInAppHost				= @"inapp";
-static NSString * const kMoPubCustomHost			= @"custom";
-static NSString * const kMoPubInterfaceOrientationPortraitId	= @"p";
-static NSString * const kMoPubInterfaceOrientationLandscapeId	= @"l";
-static const CGFloat kMoPubRequestTimeoutInterval	= 10.0;
-static const CGFloat kMoPubRequestRetryInterval     = 60.0;
-
-// Ad header key/value constants.
-static NSString * const kClickthroughHeaderKey		= @"X-Clickthrough";
-static NSString * const kLaunchpageHeaderKey		= @"X-Launchpage";
-static NSString * const kFailUrlHeaderKey			= @"X-Failurl";
-static NSString * const kImpressionTrackerHeaderKey	= @"X-Imptracker";
-static NSString * const kInterceptLinksHeaderKey	= @"X-Interceptlinks";
-static NSString * const kScrollableHeaderKey		= @"X-Scrollable";
-static NSString * const kWidthHeaderKey				= @"X-Width";
-static NSString * const kHeightHeaderKey			= @"X-Height";
-static NSString * const kRefreshTimeHeaderKey		= @"X-Refreshtime";
-static NSString * const kAnimationHeaderKey			= @"X-Animation";
-static NSString * const kAdTypeHeaderKey			= @"X-Adtype";
-static NSString * const kNetworkTypeHeaderKey		= @"X-Networktype";
-static NSString * const kAdTypeHtml					= @"html";
-static NSString * const kAdTypeClear				= @"clear";
-static NSString * userAgentString;
-
-@interface MPAdView (Internal)
-- (void)registerForApplicationStateTransitionNotifications;
-- (void)destroyWebviewPool;
-- (void)scheduleAutorefreshTimer;
-- (void)setScrollable:(BOOL)scrollable forView:(UIView *)view;
-- (void)animateTransitionToAdView:(UIView *)view;
-- (UIWebView *)makeAdWebViewWithFrame:(CGRect)frame;
-- (void)adLinkClicked:(NSURL *)URL;
-- (void)backFillWithNothing;
-- (void)trackClick;
-- (void)trackImpression;
-- (NSDictionary *)dictionaryFromQueryString:(NSString *)query;
-- (void)applicationDidEnterBackground;
-- (void)applicationWillEnterForeground;
-- (void)customLinkClickedForSelectorString:(NSString *)selectorString 
-							withDataString:(NSString *)dataString;
-- (void)replaceCurrentAdapterWithAdapter:(MPBaseAdapter *)newAdapter;
-- (NSURL *)serverRequestUrl;
-- (NSString *)orientationQueryStringComponent;
-- (NSString *)scaleFactorQueryStringComponent;
-- (NSString *)timeZoneQueryStringComponent;
-- (NSString *)locationQueryStringComponent;
-- (NSURLRequest *)serverRequestObjectForUrl:(NSURL *)url;
-@end
+static NSString * const kAdAnimationId = @"MPAdTransition";
 
 @interface MPAdView ()
-@property (nonatomic, copy) NSURL *clickURL;
-@property (nonatomic, copy) NSURL *interceptURL;
-@property (nonatomic, copy) NSURL *failURL;
-@property (nonatomic, copy) NSURL *impTrackerURL;
-@property (nonatomic, assign) BOOL shouldInterceptLinks;
-@property (nonatomic, assign) BOOL scrollable;
-@property (nonatomic, retain) MPTimer *autorefreshTimer;
-@property (nonatomic, assign) BOOL isLoading;
+
+@property (nonatomic, retain) MPAdManager *adManager;
+@property (nonatomic, retain) UIView *adContentView;
+@property (nonatomic, assign) CGSize originalSize;
+
+- (void)setScrollable:(BOOL)scrollable forView:(UIView *)view;
+- (void)animateTransitionToAdView:(UIView *)view;
+- (void)backFillWithNothing;
+- (void)animationDidStop:(NSString *)animationID finished:(NSNumber *)finished 
+				 context:(void *)context;
+
 @end
 
 @implementation MPAdView
-
-@synthesize delegate = _delegate;
-@synthesize adUnitId = _adUnitId;
-@synthesize URL = _URL;
-@synthesize clickURL = _clickURL;
-@synthesize interceptURL = _interceptURL;
-@synthesize failURL = _failURL;
-@synthesize impTrackerURL = _impTrackerURL;
-@synthesize creativeSize = _creativeSize;
-@synthesize keywords = _keywords;
 @synthesize location = _location;
-@synthesize shouldInterceptLinks = _shouldInterceptLinks;
+@synthesize adManager = _adManager;
+@synthesize adUnitId = _adUnitId;
+@synthesize keywords = _keywords;
+@synthesize delegate = _delegate;
+@synthesize adContentView = _adContentView;
+@synthesize creativeSize = _creativeSize;
+@synthesize originalSize = _originalSize;
 @synthesize scrollable = _scrollable;
-@synthesize autorefreshTimer = _autorefreshTimer;
-@synthesize ignoresAutorefresh = _ignoresAutorefresh;
 @synthesize stretchesWebContentToFill = _stretchesWebContentToFill;
-@synthesize isLoading = _isLoading;
+@synthesize animationType = _animationType;
 
 #pragma mark -
 #pragma mark Lifecycle
 
 + (void)initialize
 {
-	UIWebView *webview = [[UIWebView alloc] init];
-	userAgentString = [[webview stringByEvaluatingJavaScriptFromString:@"navigator.userAgent"] copy];
-	[webview release];
 	srandom(time(NULL));
 }
 
@@ -116,52 +52,23 @@ static NSString * userAgentString;
 {   
 	CGRect f = (CGRect){{0, 0}, size};
     if (self = [super initWithFrame:f]) 
-	{
+	{	
 		self.backgroundColor = [UIColor clearColor];
 		self.clipsToBounds = YES;
-		_adUnitId = (adUnitId) ? [adUnitId copy] : DEFAULT_PUB_ID;
-		_data = [[NSMutableData data] retain];
-		_shouldInterceptLinks = YES;
 		_scrollable = NO;
-		_isLoading = NO;
-		_ignoresAutorefresh = NO;
-		_store = [MPStore sharedStore];
 		_animationType = MPAdAnimationTypeNone;
 		_originalSize = size;
-		_webviewPool = [[NSMutableSet set] retain];
-		[self registerForApplicationStateTransitionNotifications];
-		_timerTarget = [[MPTimerTarget alloc] initWithNotificationName:kTimerNotificationName];
-		[[NSNotificationCenter defaultCenter] addObserver:self
-												 selector:@selector(forceRefreshAd)
-													 name:kTimerNotificationName
-												   object:_timerTarget];
+		_adManager = [[MPAdManager alloc] initWithAdView:self];
+		_adManager.adUnitId = _adUnitId = (adUnitId) ? [adUnitId copy] : DEFAULT_PUB_ID;
 		_allowedNativeAdOrientation = MPNativeAdOrientationAny;
     }
     return self;
 }
 
-- (void)registerForApplicationStateTransitionNotifications
-{
-	// iOS version > 4.0: Register for relevant application state transition notifications.
-	if (&UIApplicationDidEnterBackgroundNotification != nil)
-	{
-		[[NSNotificationCenter defaultCenter] addObserver:self 
-												 selector:@selector(applicationDidEnterBackground) 
-													 name:UIApplicationDidEnterBackgroundNotification 
-												   object:[UIApplication sharedApplication]];
-	}		
-	if (&UIApplicationWillEnterForegroundNotification != nil)
-	{
-		[[NSNotificationCenter defaultCenter] addObserver:self 
-												 selector:@selector(applicationWillEnterForeground)
-													 name:UIApplicationWillEnterForegroundNotification 
-												   object:[UIApplication sharedApplication]];
-	}
-}
-
 - (void)dealloc 
 {
 	_delegate = nil;
+	[_adUnitId release];
 	[[NSNotificationCenter defaultCenter] removeObserver:self];	
 	
 	// If our content has a delegate, set its delegate to nil.
@@ -169,44 +76,34 @@ static NSString * userAgentString;
 		[_adContentView performSelector:@selector(setDelegate:) withObject:nil];
 	[_adContentView release];
 	
-	[self destroyWebviewPool];
-	
-	[_currentAdapter unregisterDelegate];
-	[_currentAdapter release];
-	[_previousAdapter unregisterDelegate];
-	[_previousAdapter release];
-	[_adUnitId release];
-	[_conn cancel];
-	[_conn release];
-	[_data release];
-	[_URL release];
-	[_clickURL release];
-	[_interceptURL release];
-	[_failURL release];
-	[_impTrackerURL release];
-	[_keywords release];
+	_adManager.adView = nil;
+	[_adManager release];
 	[_location release];
-	[_autorefreshTimer invalidate];
-	[_autorefreshTimer release];
-	[_timerTarget release];
     [super dealloc];
-}
-
-- (void)destroyWebviewPool
-{
-	for (UIWebView *webview in _webviewPool)
-	{
-		[webview setDelegate:nil];
-		[webview stopLoading];
-	}
-	[_webviewPool release];
 }
 
 #pragma mark -
 
+- (void)setAdUnitId:(NSString *)adUnitId {
+	if (_adUnitId != adUnitId) {
+		[_adUnitId release];
+		_adUnitId = [adUnitId copy];
+	}
+	_adManager.adUnitId = _adUnitId;
+}
+
+- (NSString *)keywords {
+	return _adManager.keywords;
+}
+
+- (void)setKeywords:(NSString *)keywords {
+	_adManager.keywords = keywords; 
+}
+
 - (void)setAdContentView:(UIView *)view
 {
 	if (!view) return;
+	
 	[view retain];
 	
 	if (_stretchesWebContentToFill && [view isKindOfClass:[UIWebView class]])
@@ -226,6 +123,30 @@ static NSString * userAgentString;
 	[self animateTransitionToAdView:view];
 }
 
+- (void)setScrollable:(BOOL)scrollable forView:(UIView *)view
+{
+	// For webviews, find all subviews that are UIScrollViews or subclasses
+	// and set their scrolling and bounce.
+	if ([view isKindOfClass:[UIWebView class]])
+	{
+		UIScrollView *scrollView = nil;
+		for (UIView *v in view.subviews)
+		{
+			if ([v isKindOfClass:[UIScrollView class]])
+			{
+				scrollView = (UIScrollView *)v;
+				scrollView.scrollEnabled = scrollable;
+				scrollView.bounces = scrollable;
+			}
+		}
+	}
+	// For normal UIScrollView subclasses, use the provided setter.
+	else if ([view isKindOfClass:[UIScrollView class]])
+	{
+		[(UIScrollView *)view setScrollEnabled:scrollable];
+	}
+}
+
 - (void)animateTransitionToAdView:(UIView *)view
 {
 	MPAdAnimationType type = (_animationType == MPAdAnimationTypeRandom) ? 
@@ -234,53 +155,55 @@ static NSString * userAgentString;
 	// Special case: if there's currently no ad content view, certain transitions will
 	// look strange (e.g. CurlUp / CurlDown). We'll just omit the transition.
 	if (!_adContentView) type = MPAdAnimationTypeNone;
-	
+    if (type == MPAdAnimationTypeNone) {
+        [self addSubview:view];
+        [self animationDidStop:kAdAnimationId finished:[NSNumber numberWithBool:YES] context:view];
+        return;
+    } 
 	if (type == MPAdAnimationTypeFade) view.alpha = 0.0;
 	
 	MPLogDebug(@"Ad view (%p) is using animationType: %d", self, type);
 	
-	[UIView beginAnimations:kAdAnimationId context:view];
-	[UIView setAnimationDelegate:self];
-	[UIView setAnimationDidStopSelector:@selector(animationDidStop:finished:context:)];
-	[UIView setAnimationDuration:1.0];
-	
-	switch (type)
-	{
-		case MPAdAnimationTypeFlipFromLeft:
-			[self addSubview:view];
-			[UIView setAnimationTransition:UIViewAnimationTransitionFlipFromLeft 
-								   forView:self 
-									 cache:YES];
-			break;
-		case MPAdAnimationTypeFlipFromRight:
-			[self addSubview:view];
-			[UIView setAnimationTransition:UIViewAnimationTransitionFlipFromRight
-								   forView:self 
-									 cache:YES];
-			break;
-		case MPAdAnimationTypeCurlUp:
-			[self addSubview:view];
-			[UIView setAnimationTransition:UIViewAnimationTransitionCurlUp
-								   forView:self 
-									 cache:YES];
-			break;
-		case MPAdAnimationTypeCurlDown:
-			[self addSubview:view];
-			[UIView setAnimationTransition:UIViewAnimationTransitionCurlDown
-								   forView:self 
-									 cache:YES];
-			break;
-		case MPAdAnimationTypeFade:
-			[UIView setAnimationCurve:UIViewAnimationCurveLinear];
-			[self addSubview:view];
-			view.alpha = 1.0;
-			break;
-		default:
-			[self addSubview:view];
-			break;
-	}
-	
-	[UIView commitAnimations];
+    [UIView beginAnimations:kAdAnimationId context:view];
+    [UIView setAnimationDelegate:self];
+    [UIView setAnimationDidStopSelector:@selector(animationDidStop:finished:context:)];
+    [UIView setAnimationDuration:1.0];
+    
+    switch (type)
+    {
+        case MPAdAnimationTypeFlipFromLeft:
+            [self addSubview:view];
+            [UIView setAnimationTransition:UIViewAnimationTransitionFlipFromLeft 
+                                   forView:self 
+                                     cache:YES];
+            break;
+        case MPAdAnimationTypeFlipFromRight:
+            [self addSubview:view];
+            [UIView setAnimationTransition:UIViewAnimationTransitionFlipFromRight
+                                   forView:self 
+                                     cache:YES];
+            break;
+        case MPAdAnimationTypeCurlUp:
+            [self addSubview:view];
+            [UIView setAnimationTransition:UIViewAnimationTransitionCurlUp
+                                   forView:self 
+                                     cache:YES];
+            break;
+        case MPAdAnimationTypeCurlDown:
+            [self addSubview:view];
+            [UIView setAnimationTransition:UIViewAnimationTransitionCurlDown
+                                   forView:self 
+                                     cache:YES];
+            break;
+        case MPAdAnimationTypeFade:
+            [UIView setAnimationCurve:UIViewAnimationCurveLinear];
+            [self addSubview:view];
+            view.alpha = 1.0;
+            break;
+        default:
+            break;
+    }
+    [UIView commitAnimations];
 }
 
 - (void)animationDidStop:(NSString *)animationID finished:(NSNumber *)finished 
@@ -299,9 +222,10 @@ static NSString * userAgentString;
 			// Additionally, do webview-related cleanup if the old _adContentView was a webview.
 			if ([_adContentView isKindOfClass:[UIWebView class]])
 			{
-				[(UIWebView *)_adContentView setDelegate:nil];
-				[(UIWebView *)_adContentView stopLoading];
-				[_webviewPool removeObject:_adContentView];
+				UIWebView *webView = (UIWebView *)_adContentView;
+				[webView setDelegate:nil];
+				[webView stopLoading];
+				[_adManager removeWebviewFromPool:webView];
 			}
 		}
 		
@@ -317,137 +241,29 @@ static NSString * userAgentString;
 	return (!_adContentView) ? _originalSize : _adContentView.bounds.size;
 }
 
-- (void)setIgnoresAutorefresh:(BOOL)ignoresAutorefresh
-{
-	_ignoresAutorefresh = ignoresAutorefresh;
-	
-	if (_ignoresAutorefresh) 
-	{
-		MPLogInfo(@"Ad view (%p) is now ignoring autorefresh.", self);
-		if ([self.autorefreshTimer isScheduled]) [self.autorefreshTimer pause];
-	}
-	else 
-	{
-		MPLogInfo(@"Ad view (%p) is no longer ignoring autorefresh.", self);
-		if ([self.autorefreshTimer isScheduled]) [self.autorefreshTimer resume];
-	}
-}
-
 - (void)rotateToOrientation:(UIInterfaceOrientation)newOrientation
 {
-	// Pass along this notification to the adapter, so that it can handle the orientation change.
-	[_currentAdapter rotateToOrientation:newOrientation];
+	[_adManager rotateToOrientation:newOrientation];
 }
 
 - (void)loadAd
 {
-	[self loadAdWithURL:nil];
+	[_adManager loadAdWithURL:nil];
 }
 
 - (void)refreshAd
 {
-	[self.autorefreshTimer invalidate];
-	[self loadAdWithURL:nil];
+	[_adManager refreshAd];
 }
 
 - (void)forceRefreshAd
 {
-	// Cancel any existing request to the ad server.
-	[_conn cancel];
-	
-	_isLoading = NO;
-	[self.autorefreshTimer invalidate];
-	[self loadAdWithURL:nil];
+	[_adManager forceRefreshAd];
 }
 
 - (void)loadAdWithURL:(NSURL *)URL
 {
-	if (_isLoading) 
-	{
-		MPLogWarn(@"Ad view (%p) already loading an ad. Wait for previous load to finish.", self);
-		return;
-	}
-	
-	self.URL = (URL) ? URL : [self serverRequestUrl];
-	MPLogDebug(@"Ad view (%p) loading ad with MoPub server URL: %@", self, self.URL);
-	
-	NSURLRequest *request = [self serverRequestObjectForUrl:self.URL];
-	[_conn release];
-	_conn = [[NSURLConnection connectionWithRequest:request delegate:self] retain];
-	_isLoading = YES;
-	
-	MPLogInfo(@"Ad view (%p) fired initial ad request.", self);
-}
-
-- (NSURL *)serverRequestUrl
-{
-	NSString *urlString = [NSString stringWithFormat:@"http://%@/m/ad?v=5&udid=%@&q=%@&id=%@", 
-						   HOSTNAME,
-						   [[UIDevice currentDevice] hashedMoPubUDID],
-						   [self.keywords stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding],
-						   [self.adUnitId stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]
-						   ];
-	
-	urlString = [urlString stringByAppendingString:[self orientationQueryStringComponent]];
-	urlString = [urlString stringByAppendingString:[self scaleFactorQueryStringComponent]];
-	urlString = [urlString stringByAppendingString:[self timeZoneQueryStringComponent]];
-	urlString = [urlString stringByAppendingString:[self locationQueryStringComponent]];
-	
-	return [NSURL URLWithString:urlString];
-}
-
-- (NSString *)orientationQueryStringComponent
-{
-	UIInterfaceOrientation orientation = [UIApplication sharedApplication].statusBarOrientation;
-	NSString *orientString = UIInterfaceOrientationIsPortrait(orientation) ?
-		kMoPubInterfaceOrientationPortraitId : kMoPubInterfaceOrientationLandscapeId;
-	return [NSString stringWithFormat:@"&o=%@", orientString];
-}
-													
-- (NSString *)scaleFactorQueryStringComponent
-{
-	return [NSString stringWithFormat:@"&sc=%.1f", MPDeviceScaleFactor()];
-}
-
-- (NSString *)timeZoneQueryStringComponent
-{
-	static NSDateFormatter *formatter;
-	@synchronized(self)
-	{
-		if (!formatter) formatter = [[NSDateFormatter alloc] init];
-	}
-	[formatter setDateFormat:@"Z"];
-	NSDate *today = [NSDate date];
-	return [NSString stringWithFormat:@"&z=%@", [formatter stringFromDate:today]];
-}
-
-- (NSString *)locationQueryStringComponent
-{
-	NSString *result = @"";
-	if (self.location)
-	{
-		result = [result stringByAppendingFormat:
-				  @"&ll=%f,%f",
-				  self.location.coordinate.latitude,
-				  self.location.coordinate.longitude];
-	}
-	return result;
-}
-
-- (NSURLRequest *)serverRequestObjectForUrl:(NSURL *)url
-{
-	NSMutableURLRequest *request = [[[NSMutableURLRequest alloc] 
-									 initWithURL:url
-									 cachePolicy:NSURLRequestUseProtocolCachePolicy 
-									 timeoutInterval:kMoPubRequestTimeoutInterval] autorelease];
-	
-	// Set the user agent so that we know where the request is coming from (for targeting).
-	if ([request respondsToSelector:@selector(setValue:forHTTPHeaderField:)]) 
-	{
-		[request setValue:userAgentString forHTTPHeaderField:@"User-Agent"];
-	}			
-	
-	return request;
+	[_adManager loadAdWithURL:URL];
 }
 
 - (void)didCloseAd:(id)sender
@@ -480,6 +296,7 @@ static NSString * userAgentString;
 	return _allowedNativeAdOrientation;
 }
 
+<<<<<<< HEAD
 # pragma mark -
 # pragma mark Custom Events
 
@@ -946,6 +763,8 @@ static NSString * userAgentString;
 	[browserController release];
 }
 
+=======
+>>>>>>> 298b4e259b9fa0396d22c790319bf325f51dcb80
 - (void)backFillWithNothing
 {
 	// Make the ad view disappear.
@@ -957,131 +776,18 @@ static NSString * userAgentString;
 		[self.delegate adViewDidFailToLoadAd:self];
 }
 
-- (void)trackClick
-{
-	NSURLRequest *clickURLRequest = [NSURLRequest requestWithURL:self.clickURL];
-	[NSURLConnection connectionWithRequest:clickURLRequest delegate:nil];
-	MPLogDebug(@"Ad view (%p) tracking click %@", self, self.clickURL);
-}
-
-- (void)trackImpression
-{
-	NSURLRequest *impTrackerURLRequest = [NSURLRequest requestWithURL:self.impTrackerURL];
-	[NSURLConnection connectionWithRequest:impTrackerURLRequest delegate:nil];
-	MPLogDebug(@"Ad view (%p) tracking impression %@", self, self.impTrackerURL);
-}
-
-- (NSDictionary *)dictionaryFromQueryString:(NSString *)query
-{
-	NSMutableDictionary *queryDict = [[NSMutableDictionary alloc] initWithCapacity:1];
-	NSArray *queryElements = [query componentsSeparatedByString:@"&"];
-	for (NSString *element in queryElements) {
-		NSArray *keyVal = [element componentsSeparatedByString:@"="];
-		NSString *key = [keyVal objectAtIndex:0];
-		NSString *value = [keyVal lastObject];
-		[queryDict setObject:[value stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding] 
-					  forKey:key];
-	}
-	return [queryDict autorelease];
-}
-
-- (void)customLinkClickedForSelectorString:(NSString *)selectorString 
-							withDataString:(NSString *)dataString
-{
-	if (!selectorString)
-	{
-		MPLogError(@"Custom selector requested, but no custom selector string was provided.",
-				   selectorString);
-	}
-	
-	SEL selector = NSSelectorFromString(selectorString);
-	
-	// First, try calling the no-object selector.
-	if ([self.delegate respondsToSelector:selector])
-	{
-		[self.delegate performSelector:selector];
-	}
-	// Then, try calling the selector passing in the ad view.
-	else 
-	{
-		NSString *selectorWithObjectString = [NSString stringWithFormat:@"%@:", selectorString];
-		SEL selectorWithObject = NSSelectorFromString(selectorWithObjectString);
-		
-		if ([self.delegate respondsToSelector:selectorWithObject])
-		{
-			NSData *data = [dataString dataUsingEncoding:NSUTF8StringEncoding];
-			NSDictionary *dataDictionary = [[CJSONDeserializer deserializer] deserializeAsDictionary:data
-																							   error:NULL];
-			[self.delegate performSelector:selectorWithObject withObject:dataDictionary];
-		}
-		else
-		{
-			MPLogError(@"Ad view delegate does not implement custom selectors %@ or %@.",
-					   selectorString,
-					   selectorWithObjectString);
-		}
-	}
-}
-
 # pragma mark -
-# pragma UIApplicationNotification responders
+# pragma mark Custom Events
 
-- (void)applicationDidEnterBackground
+- (void)customEventDidLoadAd
 {
-	[self.autorefreshTimer pause];
+	[_adManager customEventDidLoadAd];
+
 }
 
-- (void)applicationWillEnterForeground
+- (void)customEventDidFailToLoadAd
 {
-	_autorefreshTimerNeedsScheduling = NO;
-	if (_ignoresAutorefresh == NO) [self forceRefreshAd];
-}
-
-@end
-
-#pragma mark -
-#pragma mark Categories
-
-@implementation UIDevice (MPAdditions)
-
-- (NSString *)hashedMoPubUDID 
-{
-	NSString *result = nil;
-	NSString *udid = [NSString stringWithFormat:@"mopub-%@", 
-					  [[UIDevice currentDevice] uniqueIdentifier]];
-	
-	if (udid) 
-	{
-		unsigned char digest[20];
-		NSData *data = [udid dataUsingEncoding:NSASCIIStringEncoding];
-		CC_SHA1([data bytes], [data length], digest);
-		
-		NSMutableString *output = [NSMutableString stringWithCapacity:CC_SHA1_DIGEST_LENGTH * 2];
-		
-		for(int i = 0; i < CC_SHA1_DIGEST_LENGTH; i++) 
-		{
-			[output appendFormat:@"%02x", digest[i]];
-		}
-		
-		result = [output uppercaseString];
-	}
-	return [NSString stringWithFormat:@"sha1:%@", result];
+	[_adManager customEventDidFailToLoadAd];
 }
 
 @end
-
-@implementation NSString (MPAdditions)
-
-- (NSString *)URLEncodedString
-{
-	NSString *result = (NSString *)CFURLCreateStringByAddingPercentEscapes(
-															NULL,
-															(CFStringRef)self,
-															NULL,
-															(CFStringRef)@"!*'();:@&=+$,/?%#[]<>",
-															kCFStringEncodingUTF8);
-	return result;
-}
-
-@end
-

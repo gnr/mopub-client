@@ -8,21 +8,18 @@
 
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
+#import "MPAdView.h"
 
-@class MPAdView;
+@protocol MPAdapterDelegate;
 
 @interface MPBaseAdapter : NSObject 
 {
-	// Reference to the parent MPAdView.
-	MPAdView *_adView;
+	id<MPAdapterDelegate> _delegate;
 }
 
-@property (nonatomic, readonly) MPAdView *adView;
+@property (nonatomic, readonly) id<MPAdapterDelegate> delegate;
 
-/*
- * Creates an adapter with a reference to an MPAdView.
- */
-- (id)initWithAdView:(MPAdView *)adView;
+- (id)initWithAdapterDelegate:(id<MPAdapterDelegate>)delegate;
 
 /*
  * Sets the adapter's delegate to nil.
@@ -43,13 +40,23 @@
 
 @end
 
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
 @protocol MPAdapterDelegate
+
 @required
+
+- (MPAdView *)adView;
+- (CGSize)maximumAdSize;
+- (UIViewController *)viewControllerForPresentingModalView;
+- (MPNativeAdOrientation)allowedNativeAdsOrientation;
+
 /*
  * These callbacks notify you that the adapter (un)successfully loaded an ad.
  */
-- (void)adapterDidFinishLoadingAd:(MPBaseAdapter *)adapter shouldTrackImpression:(BOOL)shouldTrack;
 - (void)adapter:(MPBaseAdapter *)adapter didFailToLoadAdWithError:(NSError *)error;
+- (void)adapter:(MPBaseAdapter *)adapter didFinishLoadingAd:(UIView *)ad 
+		shouldTrackImpression:(BOOL)shouldTrack;
 
 /*
  * These callbacks notify you that the user interacted (or stopped interacting) with the native ad.

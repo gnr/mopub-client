@@ -8,6 +8,8 @@
 
 #import "PerformanceViewController.h"
 #import "MPAdView.h"
+#import "MPAdView+MPInterstitialAdControllerFriend.h"
+#import "MPAdManager+MPAdViewFriend.h"
 
 @implementation PerformanceViewController
 
@@ -22,21 +24,17 @@
 }
 
 -(void)adViewDidLoadAd:(MPAdView *)_adView{
-	[self outputLine:[NSString stringWithFormat:@"Calling MoPub with %@", _adView.URL]];
+	[self outputLine:@"Ad was loaded. Success."];
+	[self outputLine:[NSString stringWithFormat:@"Calling MoPub with %@", _adView.adManager.URL]];
 }
 
 - (void)adView:(MPAdView *)adView didReceiveResponseParams:(NSDictionary *)params{
 	[self outputLine:[NSString stringWithFormat:@"Server response received: %@", params]];
 }
 
-//- (void)adControllerDidLoadAd:(AdController *)_adView{
-//	[self outputLine:@"Ad was loaded. Success."];
-//	[self outputLine:[NSString stringWithFormat:@"Payload (%d octets) = %@", [a_adViewd.data length], [[NSString alloc] initWithData:_adView.data encoding:NSUTF8StringEncoding]]];
-//}
-
 - (void)adViewDidFailToLoadAd:(MPAdView *)_adView{
 	[self outputLine:@"Ad did not load."];
-//	[self outputLine:[NSString stringWithFormat:@"Payload (%d octets) = %@", [_adView.data length], [[NSString alloc] initWithData:_adView.data encoding:NSUTF8StringEncoding]]];
+	[self outputLine:[NSString stringWithFormat:@"Payload (%d octets) = %@", [_adView.adManager.data length], [[NSString alloc] initWithData:_adView.adManager.data encoding:NSUTF8StringEncoding]]];
 }
 
 - (IBAction) refreshAd {

@@ -1,5 +1,5 @@
 //
-//  MPAdMobAdapter.h
+//  MPGoogleAdMobInterstitialAdapter.h
 //  MoPub
 //
 //  Created by Nafis Jamal on 4/26/11.
@@ -10,7 +10,7 @@
 #import "GADInterstitial.h"
 #import "MPBaseInterstitialAdapter.h"
 
-@interface MPAdMobInterstitialAdapter : MPBaseInterstitialAdapter <GADInterstitialDelegate> 
+@interface MPGoogleAdMobInterstitialAdapter : MPBaseInterstitialAdapter <GADInterstitialDelegate> 
 {
 	GADInterstitial *_gAdInterstitial;
 }

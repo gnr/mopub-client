@@ -7,18 +7,25 @@
 //
 
 #import "MPGoogleAdMobAdapter.h"
-#import "CJSONDeserializer.h"
-#import "MPAdView.h"
+#import "MPAdManager.h"
 #import "MPLogging.h"
+#import "CJSONDeserializer.h"
+
+@interface MPGoogleAdMobAdapter ()
+
+- (void)setAdPropertiesFromNativeParams:(NSDictionary *)params;
+
+@end
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
 
 @implementation MPGoogleAdMobAdapter
 
-- (id)initWithAdView:(MPAdView *)adView
+- (id)initWithAdapterDelegate:(id<MPAdapterDelegate>)delegate
 {
-	if (self = [super initWithAdView:adView])
+	if (self = [super initWithAdapterDelegate:delegate])
 	{
-		CGRect frame = CGRectMake(0.0, 0.0, GAD_SIZE_320x50.width, GAD_SIZE_320x50.height);
-		_adBannerView = [[GADBannerView alloc] initWithFrame:frame];
+		_adBannerView = [[GADBannerView alloc] initWithFrame:CGRectZero];
 		_adBannerView.delegate = self;
 	}
 	return self;
@@ -38,45 +45,59 @@
 	NSDictionary *hdrParams = [[CJSONDeserializer deserializer] deserializeAsDictionary:hdrData
 																				  error:NULL];
 	
-	_adBannerView.adUnitID = [hdrParams objectForKey:@"adUnitID"];
-	_adBannerView.rootViewController = [self.adView.delegate viewControllerForPresentingModalView];
+	[self setAdPropertiesFromNativeParams:hdrParams];
+	_adBannerView.rootViewController = [self.delegate viewControllerForPresentingModalView];
 	
 	GADRequest *request = [GADRequest request];
 	// Here, you can specify a list of devices that will receive test ads.
 	// See: http://code.google.com/mobile/ads/docs/ios/intermediate.html#testdevices
 	request.testDevices = [NSArray arrayWithObjects:
-						   // GAD_SIMULATOR_ID, 
+						   GAD_SIMULATOR_ID, 
 						   // more UDIDs here,
 						   nil];
 	
 	[_adBannerView loadRequest:request];
 }
 
+- (void)setAdPropertiesFromNativeParams:(NSDictionary *)params
+{
+	CGFloat width = [(NSString *)[params objectForKey:@"adWidth"] floatValue];
+	CGFloat height = [(NSString *)[params objectForKey:@"adHeight"] floatValue];
+	if (width < GAD_SIZE_320x50.width && height < GAD_SIZE_320x50.height) {
+		width = GAD_SIZE_320x50.width;
+		height = GAD_SIZE_320x50.height;
+	}
+	_adBannerView.frame = CGRectMake(0, 0, width, height);
+	_adBannerView.adUnitID = [params objectForKey:@"adUnitID"];
+}
+
+#pragma mark -
+#pragma mark GADBannerViewDelegate methods
+
 - (void)adViewDidReceiveAd:(GADBannerView *)bannerView
 {
-	[self.adView setAdContentView:bannerView];
-	[self.adView adapterDidFinishLoadingAd:self shouldTrackImpression:YES];
+	[self.delegate adapter:self didFinishLoadingAd:bannerView shouldTrackImpression:YES];
 }
 
 - (void)adView:(GADBannerView *)bannerView
 		didFailToReceiveAdWithError:(GADRequestError *)error
 {
-	[self.adView adapter:self didFailToLoadAdWithError:nil];
+	[self.delegate adapter:self didFailToLoadAdWithError:nil];
 }
 
 - (void)adViewWillPresentScreen:(GADBannerView *)bannerView
 {
-	[self.adView userActionWillBeginForAdapter:self];
+	[self.delegate userActionWillBeginForAdapter:self];
 }
 
 - (void)adViewDidDismissScreen:(GADBannerView *)bannerView
 {
-	[self.adView userActionDidEndForAdapter:self];
+	[self.delegate userActionDidEndForAdapter:self];
 }
 
 - (void)adViewWillLeaveApplication:(GADBannerView *)bannerView
 {
-	[self.adView userWillLeaveApplicationFromAdapter:self];
+	[self.delegate userWillLeaveApplicationFromAdapter:self];
 }
 
 @end

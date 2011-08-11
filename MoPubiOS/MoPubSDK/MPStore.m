@@ -7,8 +7,9 @@
 //
 
 #import "MPStore.h"
-#import "MPAdView.h"
+#import "MPLogging.h"
 #import "MPConstants.h"
+#import "MPGlobal.h"
 
 @interface MPStore (Internal)
 
@@ -78,7 +79,7 @@
 	NSString *receiptString = [[[NSString alloc] initWithData:transaction.transactionReceipt 
 													 encoding:NSUTF8StringEncoding] autorelease];
 	NSString *postBody = [NSString stringWithFormat:@"udid=%@&receipt=%@", 
-						  [[UIDevice currentDevice] hashedMoPubUDID],
+						  MPHashedUDID(),
 						  [receiptString URLEncodedString]];
 	NSString *msgLength = [NSString stringWithFormat:@"%d", [postBody length]];
 	[request addValue:msgLength forHTTPHeaderField:@"Content-Length"];
