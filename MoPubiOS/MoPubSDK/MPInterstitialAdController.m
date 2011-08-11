@@ -262,6 +262,10 @@ static NSString * const kOrientationBoth				= @"b";
 	}
 }
 
+- (NSArray *)locationDescriptionPair {
+	return [_adView locationDescriptionPair];
+}
+
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation 
 {
 	if (_orientationType == InterstitialOrientationTypePortrait)

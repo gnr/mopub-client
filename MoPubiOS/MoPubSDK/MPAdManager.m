@@ -274,31 +274,14 @@ NSString * const kAdTypeClear = @"clear";
 
 - (NSString *)locationQueryStringComponent
 {
-	static NSNumberFormatter *formatter = nil;
 	NSString *result = @"";
 	
-	if ([self.adView.delegate respondsToSelector:@selector(geolocationEnabled)] &&
-		![self.adView.delegate geolocationEnabled]) {
-		return result;
-	}
-	
-	if (self.adView.location)
-	{	
-		float lat = self.adView.location.coordinate.latitude;
-		float lon = self.adView.location.coordinate.longitude;
-		
-		if ([self.adView.delegate respondsToSelector:@selector(geolocationPrecision)]) {
-			@synchronized(self) {
-				if (!formatter) formatter = [[NSNumberFormatter alloc] init];
-			}
-			[formatter setMaximumFractionDigits:[self.adView.delegate geolocationPrecision]];
-			result = [result stringByAppendingFormat:
-					  @"&ll=%@,%@",
-					  [formatter stringFromNumber:[NSNumber numberWithFloat:lat]],
-					  [formatter stringFromNumber:[NSNumber numberWithFloat:lon]]];
-		} else {
-			result = [result stringByAppendingFormat:@"&ll=%f,%f", lat, lon];
-		}
+	NSArray *locationPair = [self.adView locationDescriptionPair];
+	if ([locationPair count] == 2) {
+		result = [result stringByAppendingFormat:
+				  @"&ll=%@,%@",
+				  [locationPair objectAtIndex:0],
+				  [locationPair objectAtIndex:1]];
 	}
 	
 	return result;

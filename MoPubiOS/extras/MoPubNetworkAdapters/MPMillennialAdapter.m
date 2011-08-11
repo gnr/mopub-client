@@ -92,7 +92,16 @@
 
 - (NSDictionary *)requestData 
 {
-	return [NSDictionary dictionaryWithObjectsAndKeys:@"mopubsdk", @"vendor", nil];
+	NSMutableDictionary *params = [NSMutableDictionary dictionaryWithObjectsAndKeys:
+								   @"mopubsdk", @"vendor", nil];
+	
+	NSArray *locationPair = [[self.delegate adView] locationDescriptionPair];
+	if ([locationPair count] == 2) {
+		[params setObject:[locationPair objectAtIndex:0] forKey:@"lat"];
+		[params setObject:[locationPair objectAtIndex:1] forKey:@"lon"];
+	}
+	
+	return params;
 }
 
 - (void)adRequestSucceeded:(MMAdView *)adView

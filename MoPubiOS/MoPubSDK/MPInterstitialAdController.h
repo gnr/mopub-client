@@ -91,6 +91,11 @@ typedef NSUInteger InterstitialOrientationType;
  */
 - (void)show;
 
+/*
+ * Returns the result of -locationDescriptionPair on the embedded ad view.
+ */
+- (NSArray *)locationDescriptionPair;
+
 @end
 
 @protocol MPInterstitialAdControllerDelegate <MPAdViewDelegate>

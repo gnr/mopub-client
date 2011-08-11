@@ -11,6 +11,8 @@
 #import <stdlib.h>
 #import <time.h>
 
+#define kDefaultLocationPrecision 6
+
 static NSString * const kAdAnimationId = @"MPAdTransition";
 
 @interface MPAdView ()
@@ -18,7 +20,9 @@ static NSString * const kAdAnimationId = @"MPAdTransition";
 @property (nonatomic, retain) MPAdManager *adManager;
 @property (nonatomic, retain) UIView *adContentView;
 @property (nonatomic, assign) CGSize originalSize;
+@property (nonatomic, retain) NSArray *locationDescriptionPair;
 
+- (void)updateLocationDescriptionPair;
 - (void)setScrollable:(BOOL)scrollable forView:(UIView *)view;
 - (void)animateTransitionToAdView:(UIView *)view;
 - (void)backFillWithNothing;
@@ -38,6 +42,9 @@ static NSString * const kAdAnimationId = @"MPAdTransition";
 @synthesize originalSize = _originalSize;
 @synthesize scrollable = _scrollable;
 @synthesize stretchesWebContentToFill = _stretchesWebContentToFill;
+@synthesize locationEnabled = _locationEnabled;
+@synthesize	locationPrecision = _locationPrecision;
+@synthesize locationDescriptionPair = _locationDescriptionPair;
 @synthesize animationType = _animationType;
 
 #pragma mark -
@@ -56,6 +63,8 @@ static NSString * const kAdAnimationId = @"MPAdTransition";
 		self.backgroundColor = [UIColor clearColor];
 		self.clipsToBounds = YES;
 		_scrollable = NO;
+		_locationEnabled = YES;
+		_locationPrecision = kDefaultLocationPrecision;
 		_animationType = MPAdAnimationTypeNone;
 		_originalSize = size;
 		_adManager = [[MPAdManager alloc] initWithAdView:self];
@@ -79,6 +88,7 @@ static NSString * const kAdAnimationId = @"MPAdTransition";
 	_adManager.adView = nil;
 	[_adManager release];
 	[_location release];
+	[_locationDescriptionPair release];
     [super dealloc];
 }
 
@@ -98,6 +108,47 @@ static NSString * const kAdAnimationId = @"MPAdTransition";
 
 - (void)setKeywords:(NSString *)keywords {
 	_adManager.keywords = keywords; 
+}
+
+- (void)setLocation:(CLLocation *)location {
+	if (_location != location) {
+		[_location release];
+		_location = [location copy];
+		[self updateLocationDescriptionPair];
+	}
+}
+
+- (void)setLocationEnabled:(BOOL)enabled {
+	_locationEnabled = enabled;
+	[self updateLocationDescriptionPair];
+}
+
+- (void)setLocationPrecision:(NSUInteger)precision {
+	_locationPrecision = precision;
+	[self updateLocationDescriptionPair];
+}
+
+- (void)updateLocationDescriptionPair {
+	static NSNumberFormatter *formatter = nil;
+	
+	if (!self.location || !self.locationEnabled) {
+		self.locationDescriptionPair = nil;
+		return;
+	}
+	
+	float lat = self.location.coordinate.latitude;
+	float lon = self.location.coordinate.longitude;
+	
+	if (!formatter) { formatter = [[NSNumberFormatter alloc] init]; }
+	[formatter setMaximumFractionDigits:self.locationPrecision];
+	self.locationDescriptionPair = [NSArray arrayWithObjects:
+			[formatter stringFromNumber:[NSNumber numberWithFloat:lat]],
+			[formatter stringFromNumber:[NSNumber numberWithFloat:lon]],
+			nil];
+}
+
+- (NSArray *)locationDescriptionPair {
+	return _locationDescriptionPair;
 }
 
 - (void)setAdContentView:(UIView *)view
@@ -313,7 +364,6 @@ static NSString * const kAdAnimationId = @"MPAdTransition";
 - (void)customEventDidLoadAd
 {
 	[_adManager customEventDidLoadAd];
-
 }
 
 - (void)customEventDidFailToLoadAd
