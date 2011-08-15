@@ -35,7 +35,6 @@ package com.mopub.mobileads;
 import com.mopub.mobileads.MoPubView.OnAdLoadedListener;
 
 import android.app.Activity;
-import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.view.Window;

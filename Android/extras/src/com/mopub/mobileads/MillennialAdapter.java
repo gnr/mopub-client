@@ -33,6 +33,7 @@
 package com.mopub.mobileads;
 
 import android.app.Activity;
+import android.location.Location;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
@@ -97,6 +98,9 @@ public class MillennialAdapter extends BaseAdapter implements MMAdListener {
         mMillennialAdView.setId(MMAdViewSDK.DEFAULT_VIEWID);
         mMillennialAdView.setListener(this);
         Log.d("MoPub", "Loading Millennial ad...");
+        
+        Location location = mMoPubView.getLocation();
+        if (location != null) mMillennialAdView.updateUserLocation(location);
 
         mMillennialAdView.setVisibility(View.INVISIBLE);
         mHasAlreadyRegisteredImpression = false;
