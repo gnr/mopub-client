@@ -363,18 +363,18 @@ public class AdView extends WebView {
         try {
             gpsLocation = lm.getLastKnownLocation(LocationManager.GPS_PROVIDER);
         } catch (SecurityException e) {
-            Log.d("MoPub", "Failed to retrieve location: access appears to be disabled.");
+            Log.d("MoPub", "Failed to retrieve GPS location: access appears to be disabled.");
         } catch (IllegalArgumentException e) {
-            Log.d("MoPub", "Failed to retrieve location: device has no GPS provider.");
+            Log.d("MoPub", "Failed to retrieve GPS location: device has no GPS provider.");
         }
         
         Location networkLocation = null;
         try {
             networkLocation = lm.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
         } catch (SecurityException e) {
-            Log.d("MoPub", "Failed to retrieve location: access appears to be disabled.");
+            Log.d("MoPub", "Failed to retrieve network location: access appears to be disabled.");
         } catch (IllegalArgumentException e) {
-            Log.d("MoPub", "Failed to retrieve location: device has no network provider.");
+            Log.d("MoPub", "Failed to retrieve network location: device has no network provider.");
         }
         
         if (gpsLocation == null && networkLocation == null) {

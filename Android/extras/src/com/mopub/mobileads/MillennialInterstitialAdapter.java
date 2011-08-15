@@ -43,6 +43,7 @@ import com.millennialmedia.android.MMAdView.MMAdListener;
 import com.millennialmedia.android.MMAdViewSDK;
 
 import android.app.Activity;
+import android.location.Location;
 import android.util.Log;
 import android.view.View;
 
@@ -80,12 +81,13 @@ public class MillennialInterstitialAdapter extends BaseInterstitialAdapter imple
 
     @Override
     public void loadInterstitial() {
-        if (mInterstitial == null) {
-            return;
-        }
-
+        if (mInterstitial == null) return;
+        
         Log.d("MoPub", "Showing Millennial ad...");
 
+        Location location = mInterstitial.getLocation();
+        if (location != null) mAdView.updateUserLocation(location);
+        
         mAdView.setVisibility(View.INVISIBLE);
         mHasAlreadyRegisteredClick = false;
         mAdView.callForAd();
