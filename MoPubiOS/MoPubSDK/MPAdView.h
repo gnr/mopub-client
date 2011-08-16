@@ -48,7 +48,7 @@ typedef enum
 	
 	// Location data which may be used for targeting.
 	CLLocation *_location;
-		
+	
 	// Subview that represents the actual ad content. Set via -setAdContentView.
 	UIView *_adContentView;
 	
@@ -61,10 +61,20 @@ typedef enum
 	
 	// Whether scrolling is enabled for the ad view.
 	BOOL _scrollable;
-			
+	
 	// Whether webviews added to this ad view should automatically stretch to the
 	// ad view's full size. Typically only set to YES for interstitial ads.
 	BOOL _stretchesWebContentToFill;
+	
+	// Whether location data should be sent with MoPub ad requests.
+	BOOL _locationEnabled;
+	
+	// The number of decimal digits to include in location data sent with MoPub ad requests.
+	NSUInteger _locationPrecision;
+	
+	// Pair of strings representing latitude and longitude, taking into account the values of 
+	// _locationEnabled and _locationPrecision.
+	NSArray *_locationDescriptionPair;
 	
 	// Specifies the transition used for bringing an ad into view. You can specify an
 	// animation type for any ad unit using the MoPub web interface.
@@ -80,6 +90,8 @@ typedef enum
 @property (nonatomic, assign) CGSize creativeSize;
 @property (nonatomic, assign) BOOL scrollable;
 @property (nonatomic, assign) BOOL stretchesWebContentToFill;
+@property (nonatomic, assign) BOOL locationEnabled;
+@property (nonatomic, assign) NSUInteger locationPrecision;
 @property (nonatomic, assign) MPAdAnimationType animationType;
 
 /*
@@ -93,6 +105,13 @@ typedef enum
  * to avoid clipping or border issues.
  */
 - (CGSize)adContentViewSize;
+
+/*
+ * Returns an array of two strings representing location coordinates (possibly truncated) as long as
+ * a location has been set and locationEnabled is set to YES. If these conditions are not met, this 
+ * method will return nil.
+ */
+- (NSArray *)locationDescriptionPair;
 
 /*
  * Loads a new ad using a default URL constructed from the ad unit ID.
@@ -212,18 +231,5 @@ typedef enum
  * method should remove the ad view from the screen (see MPInterstitialAdController for an example).
  */
 - (void)adViewShouldClose:(MPAdView *)view;
-
-/*
- * This method should be implemented if you wish to limit the precision of the geographical
- * coordinates sent to the MoPub server. Return the number of digits after the decimal place
- * you wish us to use.
- */
-- (int)geolocationPrecision;
-
-/*
- * This method should be implemented to return NO if you desire not to send any geographical
- * coordinates to the MoPub server.
- */
-- (BOOL)geolocationEnabled;
 
 @end
