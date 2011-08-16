@@ -162,7 +162,10 @@ static NSString * const kOrientationBoth				= @"b";
 
 - (void)viewDidDisappear:(BOOL)animated
 {
-	[self interstitialDidDisappearForAdapter:nil];
+	// -viewDidDisappear: is called when the interstitial is dismissed and when presenting a modal
+	// view such as the ad browser. We only want to send a "did disappear" message to the delegate
+	// for the first case -- when the interstitial has actually been dismissed.
+	if (!self.modalViewController) [self interstitialDidDisappearForAdapter:nil];
 }
 
 #pragma mark -
