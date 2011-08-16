@@ -10,7 +10,7 @@
 
 #define MP_DEBUG_MODE				1
 
-#define HOSTNAME					@"ads.mopub.com"
+#define HOSTNAME					@"localhost:8081"//ads.mopub.com"
 #define DEFAULT_PUB_ID				@"agltb3B1Yi1pbmNyDAsSBFNpdGUYkaoMDA"
 
 // Sizing constants.

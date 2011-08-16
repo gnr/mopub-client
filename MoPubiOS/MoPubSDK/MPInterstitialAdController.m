@@ -107,13 +107,13 @@ static NSString * const kOrientationBoth				= @"b";
 {
 	if (self = [super init])
 	{
-		_ready = NO;
 		_parent = parent;
 		_adUnitId = ID;
 		_closeButtonType = InterstitialCloseButtonTypeDefault;
 		_orientationType = InterstitialOrientationTypeBoth;
 		
-		_adView = [[MPAdView alloc] initWithAdUnitId:self.adUnitId size:CGSizeZero];
+		CGRect bounds = [UIScreen mainScreen].bounds;
+		_adView = [[MPAdView alloc] initWithAdUnitId:self.adUnitId size:bounds.size];
 		_adView.stretchesWebContentToFill = YES;
 		_adView.adManager.ignoresAutorefresh = YES;
 		_adView.delegate = self;
@@ -139,16 +139,13 @@ static NSString * const kOrientationBoth				= @"b";
 
 - (void)loadView 
 {
-	CGRect screenBounds = MPScreenBounds();
-	
 	self.view = [[[UIView alloc] initWithFrame:CGRectZero] autorelease];
 	self.view.backgroundColor = [UIColor blackColor];
-	self.view.frame = screenBounds;
+	self.view.frame = [UIScreen mainScreen].bounds;
 	self.view.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
 	
-	_adView.frame = self.view.bounds;
-	
 	[self.view addSubview:_adView];
+	
 	[self layoutCloseButton];
 }
 
@@ -310,8 +307,18 @@ static NSString * const kOrientationBoth				= @"b";
 
 - (void)willPresentModalViewForAd:(MPAdView *)view
 {
+	_isPresentingModalView = YES;
+	
 	if ([self.parent respondsToSelector:@selector(willPresentModalViewForAd:)])
 		[self.parent willPresentModalViewForAd:view];
+}
+
+- (void)didDismissModalViewForAd:(MPAdView *)view
+{
+	_isPresentingModalView = NO;
+	
+	if ([self.parent respondsToSelector:@selector(didDismissModalViewForAd:)])
+		[self.parent didDismissModalViewForAd:view];
 }
 
 - (void)adView:(MPAdView *)view didReceiveResponseParams:(NSDictionary *)params

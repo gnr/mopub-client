@@ -356,12 +356,21 @@ NSString * const kAdTypeClear = @"clear";
 	
 	if (angle == -1) return;
 	
-	NSString *js = [NSString stringWithFormat:
+	// UIWebView doesn't seem to fire the 'orientationchange' event upon rotation, so we do it here.
+	NSString *orientationEventScript = [NSString stringWithFormat:
 					@"window.__defineGetter__('orientation',function(){return %d;});"
 					@"(function(){ var evt = document.createEvent('Events');"
 					@"evt.initEvent('orientationchange', true, true); window.dispatchEvent(evt);})();",
 					angle];
-	[webview stringByEvaluatingJavaScriptFromString:js];
+	[webview stringByEvaluatingJavaScriptFromString:orientationEventScript];
+	
+	// If the UIWebView is rotated off-screen (which may happen with interstitials), its content 
+	// appears to render at the wrong position. We compensate by setting the viewport meta tag's 
+	// 'width' attribute to be the size of the webview.
+	NSString *viewportUpdateScript = [NSString stringWithFormat:
+					  @"document.querySelector('meta[name=viewport]').setAttribute('content', 'width=%f;', false);",
+					  webview.frame.size.width];
+	[webview stringByEvaluatingJavaScriptFromString:viewportUpdateScript];
 }
 
 - (void)customEventDidLoadAd
