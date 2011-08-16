@@ -57,8 +57,6 @@ typedef NSUInteger InterstitialOrientationType;
 	UIButton *_closeButton;
 	
 	MPBaseInterstitialAdapter *_currentAdapter;
-	
-	BOOL _isPresentingModalView;
 }
 
 @property (nonatomic, readonly, assign) BOOL ready;

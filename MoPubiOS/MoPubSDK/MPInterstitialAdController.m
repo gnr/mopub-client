@@ -338,16 +338,12 @@ static NSString * const kOrientationBoth				= @"b";
 
 - (void)willPresentModalViewForAd:(MPAdView *)view
 {
-	_isPresentingModalView = YES;
-	
 	if ([self.parent respondsToSelector:@selector(willPresentModalViewForAd:)])
 		[self.parent willPresentModalViewForAd:view];
 }
 
 - (void)didDismissModalViewForAd:(MPAdView *)view
 {
-	_isPresentingModalView = NO;
-	
 	if ([self.parent respondsToSelector:@selector(didDismissModalViewForAd:)])
 		[self.parent didDismissModalViewForAd:view];
 }
