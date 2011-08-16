@@ -106,8 +106,8 @@ static NSString * const kAdAnimationId = @"MPAdTransition";
 	return _adManager.keywords;
 }
 
-- (void)setKeywords:(NSString *)keywords {
-	_adManager.keywords = keywords; 
+- (void)setKeywords:(NSString *)words {
+	_adManager.keywords = words; 
 }
 
 - (void)setLocation:(CLLocation *)location {
