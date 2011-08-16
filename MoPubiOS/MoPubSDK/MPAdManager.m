@@ -82,6 +82,7 @@ NSString * const kAdTypeClear = @"clear";
 - (void)trackImpression;
 - (void)setAdContentView:(UIView *)view;
 - (void)rotateToOrientation:(UIInterfaceOrientation)orientation;
+- (void)fireOrientationChangedEventInWebview:(UIWebView *)webview;
 - (NSDictionary *)dictionaryFromQueryString:(NSString *)query;
 - (void)customLinkClickedForSelectorString:(NSString *)selectorString 
 							withDataString:(NSString *)dataString;
@@ -273,31 +274,14 @@ NSString * const kAdTypeClear = @"clear";
 
 - (NSString *)locationQueryStringComponent
 {
-	static NSNumberFormatter *formatter = nil;
 	NSString *result = @"";
 	
-	if ([self.adView.delegate respondsToSelector:@selector(geolocationEnabled)] &&
-		![self.adView.delegate geolocationEnabled]) {
-		return result;
-	}
-	
-	if (self.adView.location)
-	{	
-		float lat = self.adView.location.coordinate.latitude;
-		float lon = self.adView.location.coordinate.longitude;
-		
-		if ([self.adView.delegate respondsToSelector:@selector(geolocationPrecision)]) {
-			@synchronized(self) {
-				if (!formatter) formatter = [[NSNumberFormatter alloc] init];
-			}
-			[formatter setMaximumFractionDigits:[self.adView.delegate geolocationPrecision]];
-			result = [result stringByAppendingFormat:
-					  @"&ll=%@,%@",
-					  [formatter stringFromNumber:[NSNumber numberWithFloat:lat]],
-					  [formatter stringFromNumber:[NSNumber numberWithFloat:lon]]];
-		} else {
-			result = [result stringByAppendingFormat:@"&ll=%f,%f", lat, lon];
-		}
+	NSArray *locationPair = [self.adView locationDescriptionPair];
+	if ([locationPair count] == 2) {
+		result = [result stringByAppendingFormat:
+				  @"&ll=%@,%@",
+				  [locationPair objectAtIndex:0],
+				  [locationPair objectAtIndex:1]];
 	}
 	
 	return result;
@@ -350,7 +334,43 @@ NSString * const kAdTypeClear = @"clear";
 
 - (void)rotateToOrientation:(UIInterfaceOrientation)orientation
 {
-	[self.currentAdapter rotateToOrientation:orientation];
+	if (self.currentAdapter) {
+		[self.currentAdapter rotateToOrientation:orientation];
+	} else if ([self.adView.adContentView isKindOfClass:[UIWebView class]]) {
+		[self fireOrientationChangedEventInWebview:(UIWebView *)self.adView.adContentView];
+	}
+}
+
+- (void)fireOrientationChangedEventInWebview:(UIWebView *)webview
+{
+	UIInterfaceOrientation orientation = [[UIApplication sharedApplication] statusBarOrientation];
+	int angle = -1;
+	switch (orientation)
+	{
+		case UIDeviceOrientationPortrait: angle = 0; break;
+		case UIDeviceOrientationLandscapeLeft: angle = 90; break;
+		case UIDeviceOrientationLandscapeRight: angle = -90; break;
+		case UIDeviceOrientationPortraitUpsideDown: angle = 180; break;
+		default: break;
+	}
+	
+	if (angle == -1) return;
+	
+	// UIWebView doesn't seem to fire the 'orientationchange' event upon rotation, so we do it here.
+	NSString *orientationEventScript = [NSString stringWithFormat:
+					@"window.__defineGetter__('orientation',function(){return %d;});"
+					@"(function(){ var evt = document.createEvent('Events');"
+					@"evt.initEvent('orientationchange', true, true); window.dispatchEvent(evt);})();",
+					angle];
+	[webview stringByEvaluatingJavaScriptFromString:orientationEventScript];
+	
+	// If the UIWebView is rotated off-screen (which may happen with interstitials), its content 
+	// appears to render at the wrong position. We compensate by setting the viewport meta tag's 
+	// 'width' attribute to be the size of the webview.
+	NSString *viewportUpdateScript = [NSString stringWithFormat:
+					  @"document.querySelector('meta[name=viewport]').setAttribute('content', 'width=%f;', false);",
+					  webview.frame.size.width];
+	[webview stringByEvaluatingJavaScriptFromString:viewportUpdateScript];
 }
 
 - (void)customEventDidLoadAd
@@ -429,6 +449,16 @@ NSString * const kAdTypeClear = @"clear";
 	[[self viewControllerForPresentingModalView] presentModalViewController:browserController 			
 																   animated:YES];
 	[browserController release];
+}
+
+- (void)replaceCurrentAdapterWithAdapter:(MPBaseAdapter *)newAdapter
+{
+	// Dispose of the last adapter stored in _previousAdapter.
+	[_previousAdapter unregisterDelegate];
+	[_previousAdapter release];
+	
+	_previousAdapter = _currentAdapter;
+	_currentAdapter = newAdapter;
 }
 
 #pragma mark -
@@ -590,16 +620,6 @@ NSString * const kAdTypeClear = @"clear";
 		
 		[self loadAdWithURL:self.failURL];
 	}	
-}
-
-- (void)replaceCurrentAdapterWithAdapter:(MPBaseAdapter *)newAdapter
-{
-	// Dispose of the last adapter stored in _previousAdapter.
-	[_previousAdapter unregisterDelegate];
-	[_previousAdapter release];
-	
-	_previousAdapter = _currentAdapter;
-	_currentAdapter = newAdapter;
 }
 
 - (void)connection:(NSURLConnection *)connection didReceiveData:(NSData *)d

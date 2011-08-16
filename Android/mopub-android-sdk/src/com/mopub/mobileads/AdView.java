@@ -107,7 +107,7 @@ public class AdView extends WebView {
     private int mHeight;
     private String mAdOrientation;
 
-    private MoPubView mMoPubView;
+    protected MoPubView mMoPubView;
     private HttpResponse mResponse;
     private String mResponseString;
     private String mUserAgent;
@@ -139,7 +139,7 @@ public class AdView extends WebView {
         @Override
         public boolean shouldOverrideUrlLoading(WebView view, String url) {
             AdView adView = (AdView) view;
-           
+            
             // Handle the special mopub:// scheme calls.
             if (url.startsWith("mopub://")) {
                 Uri uri = Uri.parse(url);
@@ -165,8 +165,7 @@ public class AdView extends WebView {
                 return true;
             }
 
-            String clickthroughUrl = adView.getClickthroughUrl();
-            if (clickthroughUrl != null) url = clickthroughUrl + "&r=" + Uri.encode(url);
+            url = urlWithClickTrackingRedirect(adView, url);
             Log.d("MoPub", "Ad clicked. Click URL: " + url);
             mMoPubView.adClicked();
 
@@ -177,10 +176,21 @@ public class AdView extends WebView {
         @Override
         public void onPageStarted(WebView view, String url, Bitmap favicon) {
             // If the URL being loaded shares the redirectUrl prefix, open it in the browser.
-            String redirectUrl = ((AdView)view).getRedirectUrl();
+            AdView adView = (AdView) view;
+            String redirectUrl = adView.getRedirectUrl();
             if (redirectUrl != null && url.startsWith(redirectUrl)) {
+                url = urlWithClickTrackingRedirect(adView, url);
                 view.stopLoading();
                 showBrowserAfterFollowingRedirectsForUrl(url);
+            }
+        }
+        
+        private String urlWithClickTrackingRedirect(AdView adView, String url) {
+            String clickthroughUrl = adView.getClickthroughUrl();
+            if (clickthroughUrl == null) return url;
+            else {
+                String encodedUrl = Uri.encode(url);
+                return clickthroughUrl + "&r=" + encodedUrl;
             }
         }
     }
@@ -353,18 +363,18 @@ public class AdView extends WebView {
         try {
             gpsLocation = lm.getLastKnownLocation(LocationManager.GPS_PROVIDER);
         } catch (SecurityException e) {
-            Log.d("MoPub", "Failed to retrieve location: access appears to be disabled.");
+            Log.d("MoPub", "Failed to retrieve GPS location: access appears to be disabled.");
         } catch (IllegalArgumentException e) {
-            Log.d("MoPub", "Failed to retrieve location: device has no GPS provider.");
+            Log.d("MoPub", "Failed to retrieve GPS location: device has no GPS provider.");
         }
         
         Location networkLocation = null;
         try {
             networkLocation = lm.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
         } catch (SecurityException e) {
-            Log.d("MoPub", "Failed to retrieve location: access appears to be disabled.");
+            Log.d("MoPub", "Failed to retrieve network location: access appears to be disabled.");
         } catch (IllegalArgumentException e) {
-            Log.d("MoPub", "Failed to retrieve location: device has no network provider.");
+            Log.d("MoPub", "Failed to retrieve network location: device has no network provider.");
         }
         
         if (gpsLocation == null && networkLocation == null) {
@@ -774,6 +784,10 @@ public class AdView extends WebView {
         }).start();
     }
 
+    protected void adAppeared() {
+        this.loadUrl("javascript:webviewDidAppear();");
+    }
+    
     private Handler mRefreshHandler = new Handler();
     private Runnable mRefreshRunnable = new Runnable() {
         public void run() {
@@ -835,6 +849,10 @@ public class AdView extends WebView {
 
     public String getClickthroughUrl() {
         return mClickthroughUrl;
+    }
+    
+    public void setClickthroughUrl(String url) {
+        mClickthroughUrl = url;
     }
 
     public String getRedirectUrl() {

@@ -11,6 +11,8 @@
 #import "MPInterstitialAdController.h"
 #import "MPLogging.h"
 
+#define kLocationAccuracyMeters 100
+
 @implementation MPGoogleAdMobInterstitialAdapter
 
 - (void)getAdWithParams:(NSDictionary *)params
@@ -25,6 +27,14 @@
 	_gAdInterstitial.delegate = self;
 	
 	GADRequest *request = [GADRequest request];
+	
+	NSArray *locationPair = [self.interstitialAdController locationDescriptionPair];
+	if ([locationPair count] == 2) {
+		[request setLocationWithLatitude:[[locationPair objectAtIndex:0] floatValue] 
+							   longitude:[[locationPair objectAtIndex:1] floatValue]
+								accuracy:kLocationAccuracyMeters];
+	}
+	
 	// Here, you can specify a list of devices that will receive test ads.
 	// See: http://code.google.com/mobile/ads/docs/ios/intermediate.html#testdevices
 	request.testDevices = [NSArray arrayWithObjects:

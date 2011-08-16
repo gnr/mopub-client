@@ -42,6 +42,10 @@ static NSString * const kOrientationBoth				= @"b";
 @synthesize adUnitId = _adUnitId;
 @synthesize closeButton = _closeButton;
 @synthesize currentAdapter = _currentAdapter;
+@synthesize keywords;
+@synthesize location;
+@synthesize locationEnabled;
+@synthesize locationPrecision;
 
 #pragma mark -
 #pragma mark Class methods
@@ -107,13 +111,13 @@ static NSString * const kOrientationBoth				= @"b";
 {
 	if (self = [super init])
 	{
-		_ready = NO;
 		_parent = parent;
 		_adUnitId = ID;
 		_closeButtonType = InterstitialCloseButtonTypeDefault;
 		_orientationType = InterstitialOrientationTypeBoth;
 		
-		_adView = [[MPAdView alloc] initWithAdUnitId:self.adUnitId size:CGSizeZero];
+		CGRect bounds = [UIScreen mainScreen].bounds;
+		_adView = [[MPAdView alloc] initWithAdUnitId:self.adUnitId size:bounds.size];
 		_adView.stretchesWebContentToFill = YES;
 		_adView.adManager.ignoresAutorefresh = YES;
 		_adView.delegate = self;
@@ -139,16 +143,13 @@ static NSString * const kOrientationBoth				= @"b";
 
 - (void)loadView 
 {
-	CGRect screenBounds = MPScreenBounds();
-	
 	self.view = [[[UIView alloc] initWithFrame:CGRectZero] autorelease];
 	self.view.backgroundColor = [UIColor blackColor];
-	self.view.frame = screenBounds;
+	self.view.frame = [UIScreen mainScreen].bounds;
 	self.view.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
 	
-	_adView.frame = self.view.bounds;
-	
 	[self.view addSubview:_adView];
+	
 	[self layoutCloseButton];
 }
 
@@ -165,7 +166,10 @@ static NSString * const kOrientationBoth				= @"b";
 
 - (void)viewDidDisappear:(BOOL)animated
 {
-	[self interstitialDidDisappearForAdapter:nil];
+	// -viewDidDisappear: is called when the interstitial is dismissed and when presenting a modal
+	// view such as the ad browser. We only want to send a "did disappear" message to the delegate
+	// for the first case -- when the interstitial has actually been dismissed.
+	if (!self.modalViewController) [self interstitialDidDisappearForAdapter:nil];
 }
 
 #pragma mark -
@@ -214,14 +218,38 @@ static NSString * const kOrientationBoth				= @"b";
 
 #pragma mark -
 
-- (void)setKeywords:(NSString *)keywords
+- (void)setKeywords:(NSString *)words
 {
-	_adView.keywords = keywords;
+	_adView.keywords = words;
 }
 
 - (NSString *)keywords
 {
 	return _adView.keywords;
+}
+
+- (void)setLocation:(CLLocation *)loc {
+	_adView.location = loc;
+}
+
+- (CLLocation *)location {
+	return _adView.location;
+}
+
+- (void)setLocationEnabled:(BOOL)enabled {
+	_adView.locationEnabled = enabled;
+}
+
+- (BOOL)locationEnabled {
+	return _adView.locationEnabled;
+}
+
+- (void)setLocationPrecision:(NSUInteger)precision {
+	_adView.locationPrecision = precision;
+}
+
+- (NSUInteger)locationPrecision {
+	return _adView.locationPrecision;
 }
 
 - (void)closeButtonPressed
@@ -262,6 +290,10 @@ static NSString * const kOrientationBoth				= @"b";
 	}
 }
 
+- (NSArray *)locationDescriptionPair {
+	return [_adView locationDescriptionPair];
+}
+
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation 
 {
 	if (_orientationType == InterstitialOrientationTypePortrait)
@@ -273,10 +305,11 @@ static NSString * const kOrientationBoth				= @"b";
 	else return YES;
 }
 
-- (void)willAnimateRotationToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation 
-										 duration:(NSTimeInterval)duration
-{
-	[super willAnimateRotationToInterfaceOrientation:toInterfaceOrientation duration:duration];
+- (void)didRotateFromInterfaceOrientation:(UIInterfaceOrientation)fromInterfaceOrientation {
+	[super didRotateFromInterfaceOrientation:fromInterfaceOrientation];
+	
+	// Forward the orientation event to the ad view, passing in our current orientation.
+	[_adView rotateToOrientation:self.interfaceOrientation];
 }
 
 #pragma mark -
@@ -307,6 +340,12 @@ static NSString * const kOrientationBoth				= @"b";
 {
 	if ([self.parent respondsToSelector:@selector(willPresentModalViewForAd:)])
 		[self.parent willPresentModalViewForAd:view];
+}
+
+- (void)didDismissModalViewForAd:(MPAdView *)view
+{
+	if ([self.parent respondsToSelector:@selector(didDismissModalViewForAd:)])
+		[self.parent didDismissModalViewForAd:view];
 }
 
 - (void)adView:(MPAdView *)view didReceiveResponseParams:(NSDictionary *)params

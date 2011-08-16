@@ -11,6 +11,8 @@
 #import "MPLogging.h"
 #import "CJSONDeserializer.h"
 
+#define kLocationAccuracyMeters	100
+
 @interface MPGoogleAdMobAdapter ()
 
 - (void)setAdPropertiesFromNativeParams:(NSDictionary *)params;
@@ -49,6 +51,14 @@
 	_adBannerView.rootViewController = [self.delegate viewControllerForPresentingModalView];
 	
 	GADRequest *request = [GADRequest request];
+	
+	NSArray *locationPair = [[self.delegate adView] locationDescriptionPair];
+	if ([locationPair count] == 2) {
+		[request setLocationWithLatitude:[[locationPair objectAtIndex:0] floatValue] 
+							   longitude:[[locationPair objectAtIndex:1] floatValue]
+								accuracy:kLocationAccuracyMeters];
+	}
+	
 	// Here, you can specify a list of devices that will receive test ads.
 	// See: http://code.google.com/mobile/ads/docs/ios/intermediate.html#testdevices
 	request.testDevices = [NSArray arrayWithObjects:

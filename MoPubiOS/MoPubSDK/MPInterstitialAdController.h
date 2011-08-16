@@ -62,6 +62,10 @@ typedef NSUInteger InterstitialOrientationType;
 @property (nonatomic, readonly, assign) BOOL ready;
 @property (nonatomic, assign) UIViewController<MPInterstitialAdControllerDelegate> *parent;
 @property (nonatomic, copy) NSString *adUnitId;
+@property (nonatomic, copy) NSString *keywords;
+@property (nonatomic, copy) CLLocation *location;
+@property (nonatomic, assign) BOOL locationEnabled;
+@property (nonatomic, assign) NSUInteger locationPrecision;
 
 /*
  * A shared pool of interstitial ads.
@@ -90,6 +94,11 @@ typedef NSUInteger InterstitialOrientationType;
  * Display the interstitial modally.
  */
 - (void)show;
+
+/*
+ * Returns the result of -locationDescriptionPair on the embedded ad view.
+ */
+- (NSArray *)locationDescriptionPair;
 
 @end
 

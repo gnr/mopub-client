@@ -36,6 +36,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 
+import android.location.Location;
 import android.util.Log;
 import android.view.Gravity;
 import android.widget.FrameLayout;
@@ -83,6 +84,10 @@ public class GoogleAdMobAdapter extends BaseAdapter implements AdListener {
         AdRequest request = new AdRequest();
         // request.addTestDevice(AdRequest.TEST_EMULATOR);
         // Uncomment the line above to enable test ads on the emulator.
+        
+        Location location = mMoPubView.getLocation();
+        if (location != null) request.setLocation(location);
+        
         mAdView.loadAd(request);
     }
 

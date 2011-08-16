@@ -32,6 +32,8 @@
 
 package com.mopub.mobileads;
 
+import com.mopub.mobileads.MoPubView.OnAdLoadedListener;
+
 import android.app.Activity;
 import android.content.res.Configuration;
 import android.os.Bundle;
@@ -39,7 +41,7 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.RelativeLayout;
 
-public class MoPubActivity extends Activity {
+public class MoPubActivity extends Activity implements OnAdLoadedListener {
     public static final int MOPUB_ACTIVITY_NO_AD = 1234;
 
     private MoPubView mMoPubView;
@@ -54,6 +56,7 @@ public class MoPubActivity extends Activity {
 
         String adUnitId = getIntent().getStringExtra("com.mopub.mobileads.AdUnitId");
         String keywords = getIntent().getStringExtra("com.mopub.mobileads.Keywords");
+        String clickthroughUrl = getIntent().getStringExtra("com.mopub.mobileads.ClickthroughUrl");
         String source = getIntent().getStringExtra("com.mopub.mobileads.Source");
         int timeout = getIntent().getIntExtra("com.mopub.mobileads.Timeout", 0);
 
@@ -64,9 +67,11 @@ public class MoPubActivity extends Activity {
 
         mMoPubView = new MoPubView(this);
         mMoPubView.setAdUnitId(adUnitId);
+        mMoPubView.setKeywords(keywords);
+        mMoPubView.setClickthroughUrl(clickthroughUrl);
+        mMoPubView.setTimeout(timeout);
+        mMoPubView.setOnAdLoadedListener(this);
         
-        if (keywords != null) mMoPubView.setKeywords(keywords);
-        if (timeout > 0) mMoPubView.setTimeout(timeout);
         if (source != null) {
             source = sourceWithImpressionTrackingDisabled(source);
             mMoPubView.loadHtmlString(source);
@@ -97,5 +102,10 @@ public class MoPubActivity extends Activity {
     private String sourceWithImpressionTrackingDisabled(String source) {
         // TODO: Temporary fix. Disables impression tracking by renaming the pixel tracker's URL.
         return source.replaceAll("http://ads.mopub.com/m/imp", "mopub://null");
+    }
+
+    @Override
+    public void OnAdLoaded(MoPubView m) {
+        m.adAppeared();
     }
 }

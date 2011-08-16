@@ -34,12 +34,14 @@ package com.mopub.mobileads;
 
 import java.util.HashMap;
 
+import com.mopub.mobileads.MoPubView.LocationAwareness;
 import com.mopub.mobileads.MoPubView.OnAdFailedListener;
 import com.mopub.mobileads.MoPubView.OnAdLoadedListener;
 
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.location.Location;
 import android.util.Log;
 
 public class MoPubInterstitial {
@@ -101,7 +103,10 @@ public class MoPubInterstitial {
                     String responseString = mInterstitialView.getResponseString();
                     Intent i = new Intent(mActivity, MoPubActivity.class);
                     i.putExtra("com.mopub.mobileads.AdUnitId", mAdUnitId);
+                    i.putExtra("com.mopub.mobileads.Keywords", mInterstitialView.getKeywords());
                     i.putExtra("com.mopub.mobileads.Source", responseString);
+                    i.putExtra("com.mopub.mobileads.ClickthroughUrl",
+                            mInterstitialView.getClickthroughUrl());
                     mActivity.startActivity(i);
                 }
             }
@@ -139,6 +144,10 @@ public class MoPubInterstitial {
         return mListener;
     }
     
+    public Location getLocation() {
+        return mInterstitialView.getLocation();
+    }
+    
     protected void interstitialLoaded() {
         mInterstitialView.trackImpression();
         if (mListener != null) mListener.OnInterstitialLoaded();
@@ -154,5 +163,21 @@ public class MoPubInterstitial {
     
     public void destroy() {
         mInterstitialView.destroy();
+    }
+    
+    public void setLocationAwareness(LocationAwareness awareness) {
+        mInterstitialView.setLocationAwareness(awareness);
+    }
+
+    public LocationAwareness getLocationAwareness() {
+        return mInterstitialView.getLocationAwareness();
+    }
+
+    public void setLocationPrecision(int precision) {
+        mInterstitialView.setLocationPrecision(precision);
+    }
+
+    public int getLocationPrecision() {
+        return mInterstitialView.getLocationPrecision();
     }
 }

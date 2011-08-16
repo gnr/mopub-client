@@ -32,6 +32,7 @@
 
 package com.mopub.mobileads;
 
+import android.location.Location;
 import android.util.Log;
 
 import org.json.JSONException;
@@ -70,9 +71,15 @@ public class GoogleAdMobInterstitialAdapter extends BaseInterstitialAdapter impl
 
     @Override
     public void loadInterstitial() {
+        if (mInterstitial == null) return;
+        
         AdRequest adRequest = new AdRequest();
         // adRequest.addTestDevice(AdRequest.TEST_EMULATOR);
         // Uncomment the line above to enable test ads on the emulator.
+        
+        Location location = mInterstitial.getLocation();
+        if (location != null) adRequest.setLocation(location);
+        
         mInterstitialAd.loadAd(adRequest);
     }
 
