@@ -123,6 +123,8 @@ typedef enum
  */
 - (void)loadAdWithURL:(NSURL *)URL;
 
+- (void)setIgnoresAutorefresh:(BOOL)ignoresAutorefresh;
+
 /*
  * Tells the ad view to get another ad using its current URL. Note: if the ad view
  * is already loading an ad, this call does nothing; use -forceRefreshAd instead

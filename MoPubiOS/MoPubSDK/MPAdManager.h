@@ -112,4 +112,6 @@ extern NSString * const kAdTypeClear;
 
 @property (nonatomic, readonly) MPAdView *adView;
 
+@property (nonatomic, assign) BOOL ignoresAutorefresh;
+
 @end

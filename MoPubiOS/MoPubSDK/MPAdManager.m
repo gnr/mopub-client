@@ -55,7 +55,6 @@ NSString * const kAdTypeClear = @"clear";
 @property (nonatomic, copy) NSURL *impTrackerURL;
 @property (nonatomic, assign) BOOL shouldInterceptLinks;
 @property (nonatomic, assign) BOOL isLoading;
-@property (nonatomic, assign) BOOL ignoresAutorefresh;
 @property (nonatomic, assign) BOOL adActionInProgress;
 @property (nonatomic, assign) BOOL autorefreshTimerNeedsScheduling;	
 @property (nonatomic, retain) MPTimer *autorefreshTimer;

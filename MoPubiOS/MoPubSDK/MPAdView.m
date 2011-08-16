@@ -317,6 +317,10 @@ static NSString * const kAdAnimationId = @"MPAdTransition";
 	[_adManager loadAdWithURL:URL];
 }
 
+- (void)setIgnoresAutorefresh:(BOOL)ignoresAutorefresh {
+	[_adManager setIgnoresAutorefresh:ignoresAutorefresh];
+}
+
 - (void)didCloseAd:(id)sender
 {
 	if ([_adContentView isKindOfClass:[UIWebView class]])
