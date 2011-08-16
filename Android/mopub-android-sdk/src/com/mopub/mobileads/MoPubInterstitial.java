@@ -34,6 +34,7 @@ package com.mopub.mobileads;
 
 import java.util.HashMap;
 
+import com.mopub.mobileads.MoPubView.LocationAwareness;
 import com.mopub.mobileads.MoPubView.OnAdFailedListener;
 import com.mopub.mobileads.MoPubView.OnAdLoadedListener;
 
@@ -162,5 +163,21 @@ public class MoPubInterstitial {
     
     public void destroy() {
         mInterstitialView.destroy();
+    }
+    
+    public void setLocationAwareness(LocationAwareness awareness) {
+        mInterstitialView.setLocationAwareness(awareness);
+    }
+
+    public LocationAwareness getLocationAwareness() {
+        return mInterstitialView.getLocationAwareness();
+    }
+
+    public void setLocationPrecision(int precision) {
+        mInterstitialView.setLocationPrecision(precision);
+    }
+
+    public int getLocationPrecision() {
+        return mInterstitialView.getLocationPrecision();
     }
 }

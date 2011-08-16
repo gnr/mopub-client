@@ -35,7 +35,7 @@ static NSString * const kAdAnimationId = @"MPAdTransition";
 @synthesize location = _location;
 @synthesize adManager = _adManager;
 @synthesize adUnitId = _adUnitId;
-@synthesize keywords = _keywords;
+@synthesize keywords;
 @synthesize delegate = _delegate;
 @synthesize adContentView = _adContentView;
 @synthesize creativeSize = _creativeSize;
@@ -106,8 +106,8 @@ static NSString * const kAdAnimationId = @"MPAdTransition";
 	return _adManager.keywords;
 }
 
-- (void)setKeywords:(NSString *)keywords {
-	_adManager.keywords = keywords; 
+- (void)setKeywords:(NSString *)words {
+	_adManager.keywords = words; 
 }
 
 - (void)setLocation:(CLLocation *)location {

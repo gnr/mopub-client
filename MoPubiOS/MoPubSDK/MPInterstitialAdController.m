@@ -42,6 +42,10 @@ static NSString * const kOrientationBoth				= @"b";
 @synthesize adUnitId = _adUnitId;
 @synthesize closeButton = _closeButton;
 @synthesize currentAdapter = _currentAdapter;
+@synthesize keywords;
+@synthesize location;
+@synthesize locationEnabled;
+@synthesize locationPrecision;
 
 #pragma mark -
 #pragma mark Class methods
@@ -214,14 +218,38 @@ static NSString * const kOrientationBoth				= @"b";
 
 #pragma mark -
 
-- (void)setKeywords:(NSString *)keywords
+- (void)setKeywords:(NSString *)words
 {
-	_adView.keywords = keywords;
+	_adView.keywords = words;
 }
 
 - (NSString *)keywords
 {
 	return _adView.keywords;
+}
+
+- (void)setLocation:(CLLocation *)loc {
+	_adView.location = loc;
+}
+
+- (CLLocation *)location {
+	return _adView.location;
+}
+
+- (void)setLocationEnabled:(BOOL)enabled {
+	_adView.locationEnabled = enabled;
+}
+
+- (BOOL)locationEnabled {
+	return _adView.locationEnabled;
+}
+
+- (void)setLocationPrecision:(NSUInteger)precision {
+	_adView.locationPrecision = precision;
+}
+
+- (NSUInteger)locationPrecision {
+	return _adView.locationPrecision;
 }
 
 - (void)closeButtonPressed

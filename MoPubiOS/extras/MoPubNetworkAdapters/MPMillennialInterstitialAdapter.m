@@ -7,6 +7,7 @@
 //
 
 #import "MPMillennialInterstitialAdapter.h"
+#import "MPInterstitialAdController.h"
 #import "MMAdView.h"
 #import "MPLogging.h"
 #import "CJSONDeserializer.h"
