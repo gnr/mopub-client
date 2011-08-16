@@ -62,6 +62,8 @@ typedef NSUInteger InterstitialOrientationType;
 @property (nonatomic, readonly, assign) BOOL ready;
 @property (nonatomic, assign) UIViewController<MPInterstitialAdControllerDelegate> *parent;
 @property (nonatomic, copy) NSString *adUnitId;
+@property (nonatomic) BOOL locationEnabled;
+@property (nonatomic) NSUInteger locationPrecision;
 
 /*
  * A shared pool of interstitial ads.
