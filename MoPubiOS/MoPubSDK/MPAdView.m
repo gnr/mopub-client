@@ -41,11 +41,11 @@ static NSString * const kAdAnimationId = @"MPAdTransition";
 @synthesize creativeSize = _creativeSize;
 @synthesize originalSize = _originalSize;
 @synthesize scrollable = _scrollable;
-@synthesize stretchesWebContentToFill = _stretchesWebContentToFill;
 @synthesize locationEnabled = _locationEnabled;
 @synthesize	locationPrecision = _locationPrecision;
 @synthesize locationDescriptionPair = _locationDescriptionPair;
 @synthesize animationType = _animationType;
+@synthesize ignoresAutorefresh = _ignoresAutorefresh;
 
 #pragma mark -
 #pragma mark Lifecycle
@@ -62,14 +62,13 @@ static NSString * const kAdAnimationId = @"MPAdTransition";
 	{	
 		self.backgroundColor = [UIColor clearColor];
 		self.clipsToBounds = YES;
-		_scrollable = NO;
 		_locationEnabled = YES;
 		_locationPrecision = kDefaultLocationPrecision;
 		_animationType = MPAdAnimationTypeNone;
 		_originalSize = size;
-		_adManager = [[MPAdManager alloc] initWithAdView:self];
-		_adManager.adUnitId = _adUnitId = (adUnitId) ? [adUnitId copy] : DEFAULT_PUB_ID;
 		_allowedNativeAdOrientation = MPNativeAdOrientationAny;
+		_adUnitId = (adUnitId) ? [adUnitId copy] : DEFAULT_PUB_ID;
+		_adManager = [[MPAdManager alloc] initWithAdView:self];
     }
     return self;
 }
@@ -151,19 +150,15 @@ static NSString * const kAdAnimationId = @"MPAdTransition";
 	return _locationDescriptionPair;
 }
 
+- (void)setIgnoresAutorefresh:(BOOL)ignoresAutorefresh {
+	_ignoresAutorefresh = ignoresAutorefresh;
+	_adManager.ignoresAutorefresh = ignoresAutorefresh;
+}
+
 - (void)setAdContentView:(UIView *)view
 {
 	if (!view) return;
-	
 	[view retain];
-	
-	if (_stretchesWebContentToFill && [view isKindOfClass:[UIWebView class]])
-	{
-		// Avoids a race condition: 
-		// 1) a webview is initialized with the ad view's bounds
-		// 2) ad view resizes its frame before webview gets set as the content view
-		view.frame = self.bounds;
-	}
 	
 	self.hidden = NO;
 	
@@ -369,6 +364,43 @@ static NSString * const kAdAnimationId = @"MPAdTransition";
 - (void)customEventDidFailToLoadAd
 {
 	[_adManager customEventDidFailToLoadAd];
+}
+
+@end
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+@implementation MPInterstitialAdView
+
+- (id)initWithAdUnitId:(NSString *)adUnitId size:(CGSize)size 
+{   
+    if (self = [super initWithAdUnitId:adUnitId size:size]) 
+	{
+		_adManager = [[MPInterstitialAdManager alloc] initWithAdView:self];
+    }
+    return self;
+}
+
+- (void)setAdContentView:(UIView *)view
+{
+	if (!view) return;
+	[view retain];
+	
+	if ([view isKindOfClass:[UIWebView class]])
+	{
+		// Avoids a race condition: 
+		// 1) a webview is initialized with the ad view's bounds
+		// 2) ad view resizes its frame before the webview gets set as the content view
+		view.frame = self.bounds;
+	}
+	
+	self.hidden = NO;
+	
+	// We don't necessarily know where this view came from, so make sure its scrollability
+	// corresponds to our value of self.scrollable.
+	[self setScrollable:self.scrollable forView:view];
+	
+	[self animateTransitionToAdView:view];
 }
 
 @end

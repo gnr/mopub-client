@@ -39,7 +39,7 @@ typedef NSUInteger InterstitialOrientationType;
 	BOOL _ready;
 	
 	// Underlying ad view used for the interstitial.
-	MPAdView *_adView;
+	MPInterstitialAdView *_adView;
 	
 	// Reference to the view controller that is presenting this interstitial.
 	UIViewController<MPInterstitialAdControllerDelegate> *_parent;

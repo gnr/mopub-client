@@ -61,10 +61,6 @@ typedef enum
 	
 	// Whether scrolling is enabled for the ad view.
 	BOOL _scrollable;
-			
-	// Whether webviews added to this ad view should automatically stretch to the
-	// ad view's full size. Typically only set to YES for interstitial ads.
-	BOOL _stretchesWebContentToFill;
 	
 	// Whether location data should be sent with MoPub ad requests.
 	BOOL _locationEnabled;
@@ -81,6 +77,10 @@ typedef enum
 	MPAdAnimationType _animationType;
 	
 	MPNativeAdOrientation _allowedNativeAdOrientation;
+	
+	// Whether the ad view ignores autorefresh values sent down from the server. If YES,
+	// the ad view will never refresh once it has an ad.
+	BOOL _ignoresAutorefresh;
 }
 
 @property (nonatomic, assign) id<MPAdViewDelegate> delegate;
@@ -89,10 +89,10 @@ typedef enum
 @property (nonatomic, retain) NSString *keywords;
 @property (nonatomic, assign) CGSize creativeSize;
 @property (nonatomic, assign) BOOL scrollable;
-@property (nonatomic, assign) BOOL stretchesWebContentToFill;
 @property (nonatomic, assign) BOOL locationEnabled;
 @property (nonatomic, assign) NSUInteger locationPrecision;
 @property (nonatomic, assign) MPAdAnimationType animationType;
+@property (nonatomic, assign) BOOL ignoresAutorefresh;
 
 /*
  * Returns an MPAdView with the given ad unit ID.
@@ -192,6 +192,8 @@ typedef enum
 
 @end
 
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
 @protocol MPAdViewDelegate <NSObject>
 
 @required
@@ -231,5 +233,11 @@ typedef enum
  * method should remove the ad view from the screen (see MPInterstitialAdController for an example).
  */
 - (void)adViewShouldClose:(MPAdView *)view;
+
+@end
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+@interface MPInterstitialAdView : MPAdView
 
 @end

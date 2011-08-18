@@ -19,6 +19,7 @@
 @property (nonatomic, copy) NSURL *failURL;
 @property (nonatomic, retain) NSMutableSet *webviewPool;
 @property (nonatomic, retain) MPBaseAdapter *currentAdapter;
+@property (nonatomic, assign) BOOL ignoresAutorefresh;
 
 - (id)initWithAdView:(MPAdView *)adView;
 - (void)removeWebviewFromPool:(UIWebView *)webview;
