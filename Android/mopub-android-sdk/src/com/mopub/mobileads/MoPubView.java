@@ -76,13 +76,13 @@ public class MoPubView extends FrameLayout {
         LOCATION_AWARENESS_NORMAL, LOCATION_AWARENESS_TRUNCATED, LOCATION_AWARENESS_DISABLED
     }
 
-    public static String HOST = "ads.mopub.com";
-    public static String AD_HANDLER = "/m/ad";
+    public static final String HOST = "ads.mopub.com";
+    public static final String AD_HANDLER = "/m/ad";
     public static final int DEFAULT_LOCATION_PRECISION = 6;
 
     protected AdView mAdView;
-    private Activity mActivity;
     protected BaseAdapter mAdapter;
+    
     private Context mContext;
     private BroadcastReceiver mScreenStateReceiver;
     private boolean mIsInForeground;
@@ -124,8 +124,6 @@ public class MoPubView extends FrameLayout {
         
         initVersionDependentAdView(context);
         registerScreenStateBroadcastReceiver();
-
-        mActivity = (Activity) context;
     }
     
     private void initVersionDependentAdView(Context context) {
@@ -179,7 +177,7 @@ public class MoPubView extends FrameLayout {
                 if (intent.getAction().equals(Intent.ACTION_SCREEN_OFF)) {
                     if (mIsInForeground) {
                         Log.d("MoPub", "Screen sleep with ad in foreground, disable refresh");
-                        mAdView.setAutorefreshEnabled(false);
+                        if (mAdView != null) mAdView.setAutorefreshEnabled(false);
                     } else {
                         Log.d("MoPub", "Screen sleep but ad in background; " + 
                                 "refresh should already be disabled");
@@ -187,7 +185,7 @@ public class MoPubView extends FrameLayout {
                 } else if (intent.getAction().equals(Intent.ACTION_USER_PRESENT)) {
                     if (mIsInForeground) {
                         Log.d("MoPub", "Screen wake / ad in foreground, enable refresh");
-                        mAdView.setAutorefreshEnabled(true);
+                        if (mAdView != null) mAdView.setAutorefreshEnabled(true);
                     } else {
                         Log.d("MoPub", "Screen wake but ad in background; don't enable refresh");
                     }
@@ -256,89 +254,6 @@ public class MoPubView extends FrameLayout {
         Log.d("MoPub", "Tracking impression for native adapter.");
         if (mAdView != null) mAdView.trackImpression();
     }
-
-    // Getters and Setters
-
-    public void setAdUnitId(String adUnitId) {
-        if (mAdView != null) mAdView.setAdUnitId(adUnitId);
-    }
-
-    public void setKeywords(String keywords) {
-        if (mAdView != null) mAdView.setKeywords(keywords);
-    }
-
-    public String getKeywords() {
-        if (mAdView == null) {
-            return null;
-        }
-        return mAdView.getKeywords();
-    }
-
-    public void setLocation(Location location) {
-        if (mAdView == null) {
-            return;
-        }
-        mAdView.setLocation(location);
-    }
-
-    public Location getLocation() {
-        if (mAdView == null) {
-            return null;
-        }
-        return mAdView.getLocation();
-    }
-
-    public void setTimeout(int milliseconds) {
-        if (mAdView == null) {
-            return;
-        }
-        mAdView.setTimeout(milliseconds);
-    }
-
-    public int getAdWidth() {
-        if (mAdView == null) {
-            return 0;
-        }
-        return mAdView.getAdWidth();
-    }
-
-    public int getAdHeight() {
-        if (mAdView == null) {
-            return 0;
-        }
-        return mAdView.getAdHeight();
-    }
-
-    public HttpResponse getResponse() {
-        if (mAdView == null) {
-            return null;
-        }
-        return mAdView.getResponse();
-    }
-
-    public String getResponseString() {
-        if (mAdView == null) {
-            return null;
-        }
-        return mAdView.getResponseString();
-    }
-    
-    public String getClickthroughUrl() {
-        if (mAdView == null) {
-            return null;
-        }
-        return mAdView.getClickthroughUrl();
-    }
-    
-    public void setClickthroughUrl(String url) {
-        if (mAdView != null) {
-            mAdView.setClickthroughUrl(url);
-        }
-    }
-
-    public Activity getActivity() {
-        return mActivity;
-    }
     
     @Override
     protected void onWindowVisibilityChanged(int visibility) {
@@ -358,47 +273,87 @@ public class MoPubView extends FrameLayout {
 
     protected void adWillLoad(String url) {
         Log.d("MoPub", "adWillLoad: " + url);
-        if (mOnAdWillLoadListener != null) {
-            mOnAdWillLoadListener.OnAdWillLoad(this, url);
-        }
+        if (mOnAdWillLoadListener != null) mOnAdWillLoadListener.OnAdWillLoad(this, url);
     }
 
     protected void adLoaded() {
         Log.d("MoPub", "adLoaded");
-        if (mOnAdLoadedListener != null) {
-            mOnAdLoadedListener.OnAdLoaded(this);
-        }
+        if (mOnAdLoadedListener != null) mOnAdLoadedListener.OnAdLoaded(this);
     }
 
     protected void adFailed() {
-        if (mOnAdFailedListener != null) {
-            mOnAdFailedListener.OnAdFailed(this);
-        }
+        if (mOnAdFailedListener != null) mOnAdFailedListener.OnAdFailed(this);
     }
 
     protected void adClosed() {
-        if (mOnAdClosedListener != null) {
-            mOnAdClosedListener.OnAdClosed(this);
-        }
+        if (mOnAdClosedListener != null) mOnAdClosedListener.OnAdClosed(this);
     }
 
     protected void adClicked() {
-        if (mOnAdClickedListener != null) {
-            mOnAdClickedListener.OnAdClicked(this);
-        }
+        if (mOnAdClickedListener != null) mOnAdClickedListener.OnAdClicked(this);
     }
     
     protected void nativeAdLoaded() {
-        if (mAdView != null) {
-            mAdView.scheduleRefreshTimerIfEnabled();
-        }
+        if (mAdView != null) mAdView.scheduleRefreshTimerIfEnabled();
         adLoaded();
     }
     
     protected void adAppeared() {
-        if (mAdView != null) {
-            mAdView.adAppeared();
-        }
+        if (mAdView != null) mAdView.adAppeared();
+    }
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////
+
+    public void setAdUnitId(String adUnitId) {
+        if (mAdView != null) mAdView.setAdUnitId(adUnitId);
+    }
+    
+    public void setKeywords(String keywords) {
+        if (mAdView != null) mAdView.setKeywords(keywords);
+    }
+
+    public String getKeywords() {
+        return (mAdView != null) ? mAdView.getKeywords() : null;
+    }
+
+    public void setLocation(Location location) {
+        if (mAdView != null) mAdView.setLocation(location);
+    }
+
+    public Location getLocation() {
+        return (mAdView != null) ? mAdView.getLocation() : null;
+    }
+
+    public void setTimeout(int milliseconds) {
+        if (mAdView != null) mAdView.setTimeout(milliseconds);
+    }
+
+    public int getAdWidth() {
+        return (mAdView != null) ? mAdView.getAdWidth() : 0;
+    }
+
+    public int getAdHeight() {
+        return (mAdView != null) ? mAdView.getAdHeight() : 0;
+    }
+
+    public HttpResponse getResponse() {
+        return (mAdView != null) ? mAdView.getResponse() : null;
+    }
+
+    public String getResponseString() {
+        return (mAdView != null) ? mAdView.getResponseString() : null;
+    }
+    
+    public void setClickthroughUrl(String url) {
+        if (mAdView != null) mAdView.setClickthroughUrl(url);
+    }
+    
+    public String getClickthroughUrl() {
+        return (mAdView != null) ? mAdView.getClickthroughUrl() : null;
+    }
+
+    public Activity getActivity() {
+        return (Activity) mContext;
     }
 
     public void setOnAdWillLoadListener(OnAdWillLoadListener listener) {
@@ -435,5 +390,9 @@ public class MoPubView extends FrameLayout {
 
     public int getLocationPrecision() {
         return mLocationPrecision;
+    }
+    
+    public void setAutorefreshEnabled(boolean enabled) {
+        if (mAdView != null) mAdView.setAutorefreshEnabled(enabled);
     }
 }
