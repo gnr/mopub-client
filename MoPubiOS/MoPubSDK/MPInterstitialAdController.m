@@ -117,9 +117,8 @@ static NSString * const kOrientationBoth				= @"b";
 		_orientationType = InterstitialOrientationTypeBoth;
 		
 		CGRect bounds = [UIScreen mainScreen].bounds;
-		_adView = [[MPAdView alloc] initWithAdUnitId:self.adUnitId size:bounds.size];
-		_adView.stretchesWebContentToFill = YES;
-		_adView.adManager.ignoresAutorefresh = YES;
+		_adView = [[MPInterstitialAdView alloc] initWithAdUnitId:self.adUnitId size:bounds.size];
+		_adView.ignoresAutorefresh = YES;
 		_adView.delegate = self;
 		
 		// Typically, we don't set an autoresizing mask for MPAdView, but in this case we always

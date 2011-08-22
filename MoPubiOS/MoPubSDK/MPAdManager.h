@@ -97,8 +97,8 @@ extern NSString * const kAdTypeClear;
 	// Used as the target object for the MPTimer, in order to avoid a retain cycle (see MPTimer.h).
 	MPTimerTarget *_timerTarget;
 	
-	// Whether this ad view ignores autorefresh values sent down from the server. If YES,
-	// the ad view will never create an autorefresh timer.
+	// Whether the ad view ignores autorefresh values sent down from the server. If YES,
+	// the ad view will never refresh once it has a valid ad.
 	BOOL _ignoresAutorefresh;	
 	
 	// Whether the autorefresh timer needs to be scheduled. Use case: during a user-triggered ad 
@@ -113,5 +113,11 @@ extern NSString * const kAdTypeClear;
 @property (nonatomic, readonly) MPAdView *adView;
 
 @property (nonatomic, assign) BOOL ignoresAutorefresh;
+
+@end
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+@interface MPInterstitialAdManager : MPAdManager
 
 @end

@@ -60,7 +60,7 @@
 {
 	if (![self.timer isValid])
 	{
-		MPLogWarn(@"Could not schedule invalidated MPTimer (%p).", self);
+		MPLogDebug(@"Could not schedule invalidated MPTimer (%p).", self);
 		return NO;
 	}
 	
@@ -73,19 +73,19 @@
 {
 	if (_isPaused)
 	{
-		MPLogWarn(@"No-op: tried to pause an MPTimer (%p) that was already paused.", self);
+		MPLogDebug(@"No-op: tried to pause an MPTimer (%p) that was already paused.", self);
 		return NO;
 	}
 	
 	if (![self.timer isValid])
 	{
-		MPLogWarn(@"Cannot pause invalidated MPTimer (%p).", self);
+		MPLogDebug(@"Cannot pause invalidated MPTimer (%p).", self);
 		return NO;
 	}
 	
 	if (![self isScheduled])
 	{
-		MPLogWarn(@"No-op: tried to pause an MPTimer (%p) that was never scheduled.", self);
+		MPLogDebug(@"No-op: tried to pause an MPTimer (%p) that was never scheduled.", self);
 		return NO;
 	}
 	
@@ -111,13 +111,13 @@
 {
 	if (![self.timer isValid])
 	{
-		MPLogWarn(@"Cannot resume invalidated MPTimer (%p).", self);
+		MPLogDebug(@"Cannot resume invalidated MPTimer (%p).", self);
 		return NO;
 	}
 	
 	if (!_isPaused)
 	{
-		MPLogWarn(@"No-op: tried to resume an MPTimer (%p) that was never paused.", self);
+		MPLogDebug(@"No-op: tried to resume an MPTimer (%p) that was never paused.", self);
 		return NO;
 	}
 	
@@ -161,7 +161,8 @@
 {
 	if (!_notificationName)
 	{
-		MPLogWarn(@"MPTimerTarget (%p) can't post notification without a notification name.", self);
+		MPLogWarn(@"MPTimerTarget (%p) tried to post a notification without a notification name.", 
+				  self);
 		return;
 	}
 	

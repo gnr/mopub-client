@@ -74,9 +74,11 @@ NSString * const kAdTypeClear = @"clear";
 - (NSString *)locationQueryStringComponent;
 - (NSURLRequest *)serverRequestObjectForUrl:(NSURL *)URL;
 - (void)replaceCurrentAdapterWithAdapter:(MPBaseAdapter *)newAdapter;
+- (void)scheduleAutorefreshTimerIfEnabled;
 - (void)scheduleAutorefreshTimer;
+- (void)cancelPendingAutorefreshTimer;
 - (NSURL *)serverRequestURL;
-- (UIWebView *)makeAdWebViewWithFrame:(CGRect)frame;
+- (UIWebView *)adWebViewWithFrame:(CGRect)frame;
 - (void)trackClick;
 - (void)trackImpression;
 - (void)setAdContentView:(UIView *)view;
@@ -114,11 +116,11 @@ NSString * const kAdTypeClear = @"clear";
 - (id)initWithAdView:(MPAdView *)adView {
 	if (self = [super init]) {
 		_adView = adView;
+		_adUnitId = adView.adUnitId;
 		_data = [[NSMutableData data] retain];
 		_webviewPool = [[NSMutableSet set] retain];
 		_shouldInterceptLinks = YES;
-		_isLoading = NO;
-		_ignoresAutorefresh = NO;
+		_ignoresAutorefresh = adView.ignoresAutorefresh;
 		_store = [MPStore sharedStore];
 		_timerTarget = [[MPTimerTarget alloc] initWithNotificationName:kTimerNotificationName];
 		[[NSNotificationCenter defaultCenter] addObserver:self
@@ -194,7 +196,7 @@ NSString * const kAdTypeClear = @"clear";
 
 - (void)refreshAd
 {
-	[self.autorefreshTimer invalidate];
+	[self cancelPendingAutorefreshTimer];
 	[self loadAdWithURL:nil];
 }
 
@@ -204,7 +206,7 @@ NSString * const kAdTypeClear = @"clear";
 	[_conn cancel];
 	
 	_isLoading = NO;
-	[self.autorefreshTimer invalidate];
+	[self cancelPendingAutorefreshTimer];
 	[self loadAdWithURL:nil];
 }
 
@@ -329,6 +331,14 @@ NSString * const kAdTypeClear = @"clear";
 - (void)setAdContentView:(UIView *)view
 {
 	[self.adView setAdContentView:view];
+}
+
+- (void)setIgnoresAutorefresh:(BOOL)ignoresAutorefresh
+{
+	_ignoresAutorefresh = ignoresAutorefresh;
+	
+	if (_ignoresAutorefresh) [self cancelPendingAutorefreshTimer];
+	else [self scheduleAutorefreshTimerIfEnabled];
 }
 
 - (void)rotateToOrientation:(UIInterfaceOrientation)orientation
@@ -552,7 +562,7 @@ NSString * const kAdTypeClear = @"clear";
 	// Create the autorefresh timer, which will be scheduled either when the ad appears,
 	// or if it fails to load.
 	NSString *refreshString = [headers objectForKey:kRefreshTimeHeaderKey];
-	if (refreshString && !self.ignoresAutorefresh)
+	if (refreshString)
 	{
 		NSTimeInterval interval = [refreshString doubleValue];
 		interval = (interval >= MINIMUM_REFRESH_INTERVAL) ? interval : MINIMUM_REFRESH_INTERVAL;
@@ -591,7 +601,7 @@ NSString * const kAdTypeClear = @"clear";
 		[connection cancel];
 		_isLoading = NO;
 		[self.adView backFillWithNothing];
-		[self scheduleAutorefreshTimer];
+		[self scheduleAutorefreshTimerIfEnabled];
 		return;
 	}
 	
@@ -635,7 +645,7 @@ NSString * const kAdTypeClear = @"clear";
 	_isLoading = NO;
 	[self.adView backFillWithNothing];
 	
-	// Retry in 60 seconds.
+	// Create an autorefresh timer if there isn't a valid one.
 	if (!self.autorefreshTimer || ![self.autorefreshTimer isValid])
 	{
 		self.autorefreshTimer = [MPTimer timerWithTimeInterval:kMoPubRequestRetryInterval 
@@ -645,13 +655,15 @@ NSString * const kAdTypeClear = @"clear";
 													   repeats:NO];
 	}
 	
+	// If the MoPub server returns an error, we should retry even if _ignoresAutorefresh is set to 
+	// YES. This avoids the case where the ad view stays blank if its first request happens to fail.
 	[self scheduleAutorefreshTimer];	
 }
 
 - (void)connectionDidFinishLoading:(NSURLConnection *)connection
 {
 	// Generate a new webview to contain the HTML and add it to the webview pool.
-	UIWebView *webview = [self makeAdWebViewWithFrame:(CGRect){{0, 0}, self.adView.creativeSize}];
+	UIWebView *webview = [self adWebViewWithFrame:(CGRect){{0, 0}, self.adView.creativeSize}];
 	webview.delegate = self;
 	[_webviewPool addObject:webview];
 	[webview loadData:_data MIMEType:@"text/html" textEncodingName:@"utf-8" baseURL:self.URL];
@@ -665,7 +677,13 @@ NSString * const kAdTypeClear = @"clear";
 	}
 }
 
-- (void)scheduleAutorefreshTimer
+- (void)scheduleAutorefreshTimerIfEnabled
+{
+	if (_ignoresAutorefresh) return;
+	else [self scheduleAutorefreshTimer];
+}
+
+- (void)scheduleAutorefreshTimer 
 {
 	if (_adActionInProgress)
 	{
@@ -686,6 +704,10 @@ NSString * const kAdTypeClear = @"clear";
 	}
 }
 
+- (void)cancelPendingAutorefreshTimer {
+	[self.autorefreshTimer invalidate];
+}
+
 #pragma mark -
 #pragma mark MPAdapterDelegate
 
@@ -696,7 +718,7 @@ NSString * const kAdTypeClear = @"clear";
 	[self.adView setAdContentView:ad];
 	
 	if (shouldTrack) [self trackImpression];
-	[self scheduleAutorefreshTimer];
+	[self scheduleAutorefreshTimerIfEnabled];
 	
 	if ([self.adView.delegate respondsToSelector:@selector(adViewDidLoadAd:)])
 		[self.adView.delegate adViewDidLoadAd:self.adView];	
@@ -718,7 +740,7 @@ NSString * const kAdTypeClear = @"clear";
 	// An adapter will sometimes send this message during a user action (example: user taps on an 
 	// iAd; iAd then does an internal refresh and fails). In this case, we schedule a new request
 	// to occur after the action ends. Otherwise, just start a new request using the fall-back URL.
-	if (_adActionInProgress) [self scheduleAutorefreshTimer];
+	if (_adActionInProgress) [self scheduleAutorefreshTimerIfEnabled];
 	else [self loadAdWithURL:self.failURL];
 	
 }
@@ -745,8 +767,7 @@ NSString * const kAdTypeClear = @"clear";
 		[self.autorefreshTimer scheduleNow];
 		_autorefreshTimerNeedsScheduling = NO;
 	}
-	else if ([self.autorefreshTimer isScheduled])
-		[self.autorefreshTimer resume];
+	else if ([self.autorefreshTimer isScheduled]) [self.autorefreshTimer resume];
 	
 	// Notify delegate that the ad's modal view was dismissed, returning focus to the app.
 	if ([self.adView.delegate respondsToSelector:@selector(didDismissModalViewForAd:)])
@@ -789,7 +810,7 @@ NSString * const kAdTypeClear = @"clear";
 			_isLoading = NO;
 			
 			[self.adView setAdContentView:webView];
-			[self scheduleAutorefreshTimer];
+			[self scheduleAutorefreshTimerIfEnabled];
 			
 			// Notify delegate that an ad has been loaded.
 			if ([self.adView.delegate respondsToSelector:@selector(adViewDidLoadAd:)]) 
@@ -847,11 +868,9 @@ NSString * const kAdTypeClear = @"clear";
 	return YES;	
 }
 
-- (UIWebView *)makeAdWebViewWithFrame:(CGRect)frame
+- (UIWebView *)adWebViewWithFrame:(CGRect)frame
 {
 	UIWebView *webView = [[UIWebView alloc] initWithFrame:frame];
-	if (self.adView.stretchesWebContentToFill)
-		webView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
 	webView.backgroundColor = [UIColor clearColor];
 	webView.opaque = NO;
 	return [webView autorelease];
@@ -868,7 +887,30 @@ NSString * const kAdTypeClear = @"clear";
 - (void)applicationWillEnterForeground
 {
 	_autorefreshTimerNeedsScheduling = NO;
-	if (_ignoresAutorefresh == NO) [self forceRefreshAd];
+	if (!_ignoresAutorefresh) [self forceRefreshAd];
+}
+
+@end
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+@implementation MPInterstitialAdManager
+
+- (void)connection:(NSURLConnection *)connection didFailWithError:(NSError *)error
+{
+	MPLogError(@"Ad view (%p) failed to get a valid response from MoPub server. Error: %@", 
+			   self, error);
+	
+	// If the initial request to MoPub fails, replace the current ad content with a blank.
+	_isLoading = NO;
+	[self.adView backFillWithNothing];
+}
+
+- (UIWebView *)adWebViewWithFrame:(CGRect)frame
+{
+	UIWebView *webView = [super adWebViewWithFrame:frame];
+	webView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+	return webView;
 }
 
 @end
