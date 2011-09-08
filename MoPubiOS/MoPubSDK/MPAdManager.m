@@ -63,6 +63,7 @@ NSString * const kAdTypeClear = @"clear";
 @property (nonatomic, retain) NSMutableData *data;
 @property (nonatomic, retain) NSMutableSet *webviewPool;
 @property (nonatomic, retain) MPBaseAdapter *currentAdapter;
+@property (nonatomic, retain) NSMutableURLRequest *request;
 
 - (void)loadAdWithURL:(NSURL *)URL;
 - (void)forceRefreshAd;
@@ -73,7 +74,6 @@ NSString * const kAdTypeClear = @"clear";
 - (NSString *)scaleFactorQueryStringComponent;
 - (NSString *)timeZoneQueryStringComponent;
 - (NSString *)locationQueryStringComponent;
-- (NSURLRequest *)serverRequestObjectForUrl:(NSURL *)URL;
 - (void)replaceCurrentAdapterWithAdapter:(MPBaseAdapter *)newAdapter;
 - (void)scheduleAutorefreshTimerIfEnabled;
 - (void)scheduleAutorefreshTimer;
@@ -113,6 +113,7 @@ NSString * const kAdTypeClear = @"clear";
 @synthesize data = _data;
 @synthesize webviewPool = _webviewPool;
 @synthesize currentAdapter = _currentAdapter;
+@synthesize request = _request;
 
 - (id)initWithAdView:(MPAdView *)adView {
 	if (self = [super init]) {
@@ -124,6 +125,10 @@ NSString * const kAdTypeClear = @"clear";
 		_ignoresAutorefresh = adView.ignoresAutorefresh;
 		_store = [MPStore sharedStore];
 		_timerTarget = [[MPTimerTarget alloc] initWithNotificationName:kTimerNotificationName];
+        _request = [[[NSMutableURLRequest alloc] initWithURL:nil
+                                                 cachePolicy:NSURLRequestUseProtocolCachePolicy 
+                                                 timeoutInterval:kMoPubRequestTimeoutInterval] retain];
+        [_request setValue:MPUserAgentString() forHTTPHeaderField:@"User-Agent"];			
 		[[NSNotificationCenter defaultCenter] addObserver:self
 												 selector:@selector(forceRefreshAd)
 													 name:kTimerNotificationName
@@ -175,6 +180,7 @@ NSString * const kAdTypeClear = @"clear";
 	[_autorefreshTimer invalidate];
 	[_autorefreshTimer release];
 	[_timerTarget release];
+    [_request release];
 	
 	_adView = nil;
     [super dealloc];
@@ -225,9 +231,9 @@ NSString * const kAdTypeClear = @"clear";
 	self.URL = (URL) ? URL : [self serverRequestURL];
 	MPLogDebug(@"Ad view (%p) loading ad with MoPub server URL: %@", self.adView, self.URL);
 	
-	NSURLRequest *request = [self serverRequestObjectForUrl:self.URL];
+    _request.URL = self.URL;
 	[_conn release];
-	_conn = [[NSURLConnection connectionWithRequest:request delegate:self] retain];
+	_conn = [[NSURLConnection connectionWithRequest:_request delegate:self] retain];
 	_isLoading = YES;
 	
 	MPLogInfo(@"Ad manager (%p) fired initial ad request.", self);
@@ -289,18 +295,6 @@ NSString * const kAdTypeClear = @"clear";
 	return result;
 }
 
-- (NSURLRequest *)serverRequestObjectForUrl:(NSURL *)URL {
-	NSMutableURLRequest *request = [[[NSMutableURLRequest alloc] 
-									 initWithURL:URL
-									 cachePolicy:NSURLRequestUseProtocolCachePolicy 
-									 timeoutInterval:kMoPubRequestTimeoutInterval] autorelease];
-	
-	// Set the user agent so that we know where the request is coming from (for targeting).
-	[request setValue:MPUserAgentString() forHTTPHeaderField:@"User-Agent"];			
-	
-	return request;
-}
-
 - (NSDictionary *)dictionaryFromQueryString:(NSString *)query
 {
 	NSMutableDictionary *queryDict = [[NSMutableDictionary alloc] initWithCapacity:1];
@@ -317,15 +311,15 @@ NSString * const kAdTypeClear = @"clear";
 
 - (void)trackClick
 {
-	NSURLRequest *clickURLRequest = [NSURLRequest requestWithURL:self.clickURL];
-	[NSURLConnection connectionWithRequest:clickURLRequest delegate:nil];
+    [_request setURL:self.clickURL];
+	[NSURLConnection connectionWithRequest:_request delegate:nil];
 	MPLogDebug(@"Ad view (%p) tracking click %@", self, self.clickURL);
 }
 
 - (void)trackImpression
 {
-	NSURLRequest *impTrackerURLRequest = [NSURLRequest requestWithURL:self.impTrackerURL];
-	[NSURLConnection connectionWithRequest:impTrackerURLRequest delegate:nil];
+    [_request setURL:self.impTrackerURL];
+	[NSURLConnection connectionWithRequest:_request delegate:nil];
 	MPLogDebug(@"Ad view (%p) tracking impression %@", self, self.impTrackerURL);
 }
 
@@ -663,6 +657,7 @@ NSString * const kAdTypeClear = @"clear";
 
 - (void)connectionDidFinishLoading:(NSURLConnection *)connection
 {
+    
 	// Generate a new webview to contain the HTML and add it to the webview pool.
 	UIWebView *webview = [self adWebViewWithFrame:(CGRect){{0, 0}, self.adView.creativeSize}];
 	webview.delegate = self;
