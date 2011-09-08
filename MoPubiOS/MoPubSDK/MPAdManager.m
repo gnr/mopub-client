@@ -389,12 +389,24 @@ NSString * const kAdTypeClear = @"clear";
 	[self trackImpression];
 }
 
-- (void)customEventDidFailToLoadAd {
+- (void)customEventDidFailToLoadAd 
+{
 	_isLoading = NO;
 	[self loadAdWithURL:self.failURL];
 }
 
-- (UIViewController *)viewControllerForPresentingModalView {
+- (void)customEventActionWillBegin 
+{
+    [self userActionWillBeginForAdapter:self.currentAdapter];
+}
+
+- (void)customEventActionDidEnd
+{
+    [self userActionDidEndForAdapter:self.currentAdapter];
+}
+
+- (UIViewController *)viewControllerForPresentingModalView 
+{
 	return [self.adView.delegate viewControllerForPresentingModalView];
 }
 

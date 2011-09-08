@@ -177,6 +177,17 @@ typedef enum
 - (void)customEventDidFailToLoadAd;
 
 /*
+ * Signals to the ad view that a user has interacted with the ad and action will take place.
+ * You must call this method if you implement custom events, for proper click tracking.
+ */
+- (void)customEventActionWillBegin;
+
+/*
+ * Signals to the ad view that a custom event ended action.
+ */
+- (void)customEventActionDidEnd;
+
+/*
  * Forces native ad networks to only use ads sized for the specified orientation. For instance, 
  * if you call this with UIInterfaceOrientationPortrait, native networks (e.g. iAd) will never 
  * return ads sized for the landscape orientation.

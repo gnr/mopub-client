@@ -366,6 +366,16 @@ static NSString * const kAdAnimationId = @"MPAdTransition";
 	[_adManager customEventDidFailToLoadAd];
 }
 
+- (void)customEventActionWillBegin 
+{
+    [_adManager customEventActionWillBegin];
+}
+
+- (void)customEventActionDidEnd
+{
+    [_adManager customEventActionDidEnd];
+}
+
 @end
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
