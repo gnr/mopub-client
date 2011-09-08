@@ -34,6 +34,7 @@ package com.mopub.mobileads;
 
 import android.app.Activity;
 import android.location.Location;
+import android.os.Handler;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
@@ -52,37 +53,36 @@ import java.lang.ref.WeakReference;
 
 public class MillennialAdapter extends BaseAdapter implements MMAdListener {
 
-    private MMAdView 					mMillennialAdView;
-    private MoPubView					mMoPubView;
-    private String 						mParams;
+    private MMAdView mMillennialAdView;
     
     // TODO: Temporary fix. MMAdView often calls MMAdReturned multiple times for a single 
     // successful ad load, so we need a way to dedupe these calls.
-    private boolean                     mHasAlreadyRegisteredImpression;
+    private boolean mHasAlreadyRegisteredImpression;
 
     // MMAdListener should use a WeakReference to the activity.
     // From: http://wiki.millennialmedia.com/index.php/Android#Listening_for_Ad_Events
-    private WeakReference<Activity>		mActivityReference;
-
-    public MillennialAdapter(MoPubView view, String params) {
-        this.mMoPubView = view;
-        this.mActivityReference = new WeakReference<Activity>((Activity)view.getContext());
-        this.mParams = params;
+    private WeakReference<Activity>	mActivityReference;
+    
+    // To avoid races between MMAdListener's asynchronous callbacks and our adapter code 
+    // (e.g. invalidate()), we'll "convert" asynchronous calls to synchronous ones via a Handler.
+    private final Handler mHandler = new Handler();
+    
+    @Override
+    public void init(MoPubView view, String jsonParams) {
+        mActivityReference = new WeakReference<Activity>((Activity)view.getContext());
+        super.init(view, jsonParams);
     }
 
     @Override
     public void loadAd() {
-        Activity activity = mActivityReference.get();
-        if (mMoPubView == null || activity == null) {
-            return;
-        }
+        if (isInvalidated()) return;
         
         // The following parameters are required. Fail if they aren't set.
         JSONObject object; 
         String pubId;
         double adWidth, adHeight;
         try { 
-            object = (JSONObject) new JSONTokener(mParams).nextValue(); 
+            object = (JSONObject) new JSONTokener(mJsonParams).nextValue(); 
             pubId = object.getString("adUnitID");
             adWidth = object.getDouble("adWidth");
             adHeight = object.getDouble("adHeight");
@@ -94,55 +94,95 @@ public class MillennialAdapter extends BaseAdapter implements MMAdListener {
         String mmAdType = MMAdView.BANNER_AD_TOP;
         if (adWidth == 300.0 && adHeight == 250.0) mmAdType = MMAdView.BANNER_AD_RECTANGLE;
         
+        Activity activity = mActivityReference.get();
         mMillennialAdView = new MMAdView(activity, pubId, mmAdType, MMAdView.REFRESH_INTERVAL_OFF);
         mMillennialAdView.setId(MMAdViewSDK.DEFAULT_VIEWID);
         mMillennialAdView.setListener(this);
-        Log.d("MoPub", "Loading Millennial ad...");
+        mMillennialAdView.setVisibility(View.INVISIBLE);
         
         Location location = mMoPubView.getLocation();
         if (location != null) mMillennialAdView.updateUserLocation(location);
 
-        mMillennialAdView.setVisibility(View.INVISIBLE);
         mHasAlreadyRegisteredImpression = false;
+        
+        Log.d("MoPub", "Loading Millennial ad...");
         mMillennialAdView.callForAd();
     }
 
     @Override
     public void invalidate() {
-        mMoPubView = null;
+        mActivityReference = null;
+        super.invalidate();
+    }
+    
+    @Override
+    public boolean isInvalidated() {
+        if (mActivityReference == null) return true;
+        else if (mActivityReference.get() == null) return true;
+        else return super.isInvalidated();
     }
 
+    ////////////////////////////////////////////////////////////////////////////////////////////////
+    
     @Override
     public void MMAdFailed(MMAdView adview)	{
-        Log.d("MoPub", "Millennial failed. Trying another");
-        if (mMoPubView != null) { 
-            mMoPubView.loadFailUrl(); 
-        }
+        mHandler.post(new Runnable() {
+            public void run() {
+                if (isInvalidated()) return;
+                
+                Log.d("MoPub", "Millennial failed. Trying another");
+                mMoPubView.loadFailUrl();
+            }
+        });   
     }
 
     @Override
     public void MMAdReturned(MMAdView adview) {
-        Log.d("MoPub", "Millennial returned ad");
-        Activity activity = mActivityReference.get();
-        if (activity != null && mMoPubView != null) {
-            activity.runOnUiThread(new MMRunnable(mMoPubView, adview));
-        }
+        mHandler.post(new Runnable() {
+            public void run() {
+                if (isInvalidated()) return;
+                
+                mMoPubView.removeAllViews();
+                mMillennialAdView.setVisibility(View.VISIBLE);
+                mMillennialAdView.setHorizontalScrollBarEnabled(false);
+                mMillennialAdView.setVerticalScrollBarEnabled(false);
+                FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(
+                        FrameLayout.LayoutParams.FILL_PARENT, 
+                        FrameLayout.LayoutParams.FILL_PARENT);
+                layoutParams.gravity = Gravity.CENTER_HORIZONTAL | Gravity.CENTER_VERTICAL;
+                mMoPubView.addView(mMillennialAdView, layoutParams);
+                
+                if (!mHasAlreadyRegisteredImpression) {
+                    mHasAlreadyRegisteredImpression = true;
+                    mMoPubView.nativeAdLoaded();
+                    mMoPubView.trackNativeImpression();
+                }
+            }
+        });
     }
 
     @Override
     public void MMAdClickedToNewBrowser(MMAdView adview) {
-        Log.d("MoPub", "Millennial clicked");
-        if (mMoPubView != null) { 
-            mMoPubView.registerClick(); 
-        } 
+        mHandler.post(new Runnable() {
+            public void run() {
+                if (isInvalidated()) return;
+                
+                Log.d("MoPub", "Millennial clicked");
+                mMoPubView.registerClick();
+            }
+        }); 
     }
 
     @Override
     public void MMAdClickedToOverlay(MMAdView adview) {
-        Log.d("MoPub", "Millennial clicked");
-        if (mMoPubView != null) { 
-            mMoPubView.registerClick(); 
-        } 
+        mHandler.post(new Runnable() {
+            public void run() {
+                if (isInvalidated()) return;
+                
+                Log.d("MoPub", "Millennial clicked");
+                mMoPubView.registerClick();
+            }
+        });
     }
 
     @Override
@@ -153,34 +193,5 @@ public class MillennialAdapter extends BaseAdapter implements MMAdListener {
     @Override
     public void MMAdRequestIsCaching(MMAdView adview) {
         // Nothing needs to happen.
-    }
-
-    private class MMRunnable implements Runnable {
-        private MoPubView mMoPubView;
-        private MMAdView mMMAdView;
-
-        public MMRunnable(MoPubView view, MMAdView adView) {
-            mMoPubView = view;
-            mMMAdView = adView;
-        }
-
-        public void run() {
-            if (mMoPubView != null && mMMAdView != null) {
-                mMoPubView.removeAllViews();
-                mMMAdView.setVisibility(View.VISIBLE);
-                mMMAdView.setHorizontalScrollBarEnabled(false);
-                mMMAdView.setVerticalScrollBarEnabled(false);
-                FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(
-                        FrameLayout.LayoutParams.FILL_PARENT, 
-                        FrameLayout.LayoutParams.FILL_PARENT);
-                layoutParams.gravity = Gravity.CENTER_HORIZONTAL | Gravity.CENTER_VERTICAL;
-                mMoPubView.addView(mMMAdView, layoutParams);
-                mMoPubView.nativeAdLoaded();
-                if (!mHasAlreadyRegisteredImpression) {
-                    mHasAlreadyRegisteredImpression = true;
-                    mMoPubView.trackNativeImpression();
-                }
-            }
-        }
     }
 }
