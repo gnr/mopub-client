@@ -67,8 +67,7 @@ public abstract class BaseAdapter {
         return mInvalidated;
     }
     
-    public static BaseAdapter getAdapterForType(MoPubView view, String type, 
-                                                HashMap<String, String> params) {
+    public static BaseAdapter getAdapterForType(String type) {
         if (type == null) return null;
         
         Class<?> adapterClass = classForAdapterType(type);
@@ -77,8 +76,6 @@ public abstract class BaseAdapter {
         try {
             Constructor<?> constructor = adapterClass.getConstructor();
             BaseAdapter nativeAdapter = (BaseAdapter) constructor.newInstance();
-            String jsonParams = params.get("X-Nativeparams");
-            nativeAdapter.init(view, jsonParams);
             return nativeAdapter;
         } catch (Exception e) {
             Log.d("MoPub", "Couldn't create native adapter for type: " + type);

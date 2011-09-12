@@ -39,26 +39,27 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 
-import com.google.ads.*;
+import com.google.ads.Ad;
+import com.google.ads.AdListener;
+import com.google.ads.AdRequest;
 import com.google.ads.AdRequest.ErrorCode;
+import com.google.ads.InterstitialAd;
 
 public class GoogleAdMobInterstitialAdapter extends BaseInterstitialAdapter implements 
         AdListener {
 
     private InterstitialAd mInterstitialAd;
-    private String mParams;
     private boolean mHasAlreadyRegisteredClick;
-
-    public GoogleAdMobInterstitialAdapter(MoPubInterstitial interstitial, String params) {
-        super(interstitial);
+    
+    @Override
+    public void init(MoPubInterstitial interstitial, String jsonParams) {
+        super.init(interstitial, jsonParams);
         
-        mParams = params;
-
         // The following parameters are required. Fail if they aren't set. 
         JSONObject object; 
         String pubId;
         try { 
-            object = (JSONObject) new JSONTokener(mParams).nextValue(); 
+            object = (JSONObject) new JSONTokener(mJsonParams).nextValue(); 
             pubId = object.getString("adUnitID");
         } catch (JSONException e) { 
             mInterstitial.interstitialFailed(); 
@@ -71,7 +72,7 @@ public class GoogleAdMobInterstitialAdapter extends BaseInterstitialAdapter impl
 
     @Override
     public void loadInterstitial() {
-        if (mInterstitial == null) return;
+        if (isInvalidated()) return;
         
         AdRequest adRequest = new AdRequest();
         // adRequest.addTestDevice(AdRequest.TEST_EMULATOR);
@@ -81,11 +82,6 @@ public class GoogleAdMobInterstitialAdapter extends BaseInterstitialAdapter impl
         if (location != null) adRequest.setLocation(location);
         
         mInterstitialAd.loadAd(adRequest);
-    }
-
-    @Override
-    public void invalidate() {
-        mInterstitial = null;
     }
 
     @Override
@@ -100,17 +96,19 @@ public class GoogleAdMobInterstitialAdapter extends BaseInterstitialAdapter impl
 
     @Override
     public void onFailedToReceiveAd(Ad arg0, ErrorCode arg1) {
+        if (isInvalidated()) return;
+        
         Log.d("MoPub", "Google AdMob interstitial failed. Trying another");
-        if (mInterstitial != null) { 
-            mInterstitial.interstitialFailed(); 
-        }
+        mInterstitial.interstitialFailed();
     }
 
     @Override
     public void onLeaveApplication(Ad arg0) {
+        if (isInvalidated()) return;
+        
         // TODO: This only tracks clicks accurately if all clicks result in leaving the app.
         Log.d("MoPub", "Google AdMob interstitial was clicked, leaving application");
-        if (mInterstitial != null && !mHasAlreadyRegisteredClick) { 
+        if (!mHasAlreadyRegisteredClick) { 
             mHasAlreadyRegisteredClick = true;
             mInterstitial.interstitialClicked(); 
         }
@@ -123,10 +121,10 @@ public class GoogleAdMobInterstitialAdapter extends BaseInterstitialAdapter impl
 
     @Override
     public void onReceiveAd(Ad arg0) {
+        if (isInvalidated()) return;
+        
         Log.d("MoPub", "Google AdMob interstitial received an ad successfully.");
-        if (mInterstitial != null) {
-            mInterstitial.interstitialLoaded();
-            mInterstitialAd.show();
-        }
+        mInterstitial.interstitialLoaded();
+        mInterstitialAd.show();
     }
 }

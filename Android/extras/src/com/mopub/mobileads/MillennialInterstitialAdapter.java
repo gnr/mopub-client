@@ -44,121 +44,143 @@ import com.millennialmedia.android.MMAdViewSDK;
 
 import android.app.Activity;
 import android.location.Location;
+import android.os.Handler;
 import android.util.Log;
 import android.view.View;
 
 public class MillennialInterstitialAdapter extends BaseInterstitialAdapter implements MMAdListener {
 
-    private MMAdView mAdView;
-    private String mParams;
+    private MMAdView mMillennialAdView;
+    
     private boolean mHasAlreadyRegisteredClick;
 
     // MMAdListener should use a WeakReference to the activity.
     // From: http://wiki.millennialmedia.com/index.php/Android#Listening_for_Ad_Events
     private WeakReference<Activity> mActivityReference;
+    
+    // To avoid races between MMAdListener's asynchronous callbacks and our adapter code 
+    // (e.g. invalidate()), we'll "convert" asynchronous calls to synchronous ones via a Handler.
+    private final Handler mHandler = new Handler();
 
-    public MillennialInterstitialAdapter(MoPubInterstitial interstitial, String params) {
-        super(interstitial);
+    @Override
+    public void init(MoPubInterstitial interstitial, String jsonParams) {
+        super.init(interstitial, jsonParams);
         mActivityReference = new WeakReference<Activity>(interstitial.getActivity());
-        mParams = params;
-
-        // The following parameters are required. Fail if they aren't set.
+        
+        // The following parameters are required. Fail if they aren't set. 
         JSONObject object; 
         String pubId;
         try { 
-            object = (JSONObject) new JSONTokener(mParams).nextValue(); 
+            object = (JSONObject) new JSONTokener(mJsonParams).nextValue(); 
             pubId = object.getString("adUnitID");
         } catch (JSONException e) { 
-            mInterstitial.interstitialFailed();
-            return; 
+            mInterstitial.interstitialFailed(); 
+            return;
         }
 
-        mAdView = new MMAdView(mActivityReference.get(), pubId, MMAdView.FULLSCREEN_AD_TRANSITION, 
-                MMAdView.REFRESH_INTERVAL_OFF);
-        mAdView.setId(MMAdViewSDK.DEFAULT_VIEWID);
-        mAdView.setListener(this);
+        mMillennialAdView = new MMAdView(mActivityReference.get(), pubId, 
+                MMAdView.FULLSCREEN_AD_TRANSITION, MMAdView.REFRESH_INTERVAL_OFF);
+        mMillennialAdView.setId(MMAdViewSDK.DEFAULT_VIEWID);
+        mMillennialAdView.setListener(this);
     }
 
     @Override
     public void loadInterstitial() {
-        if (mInterstitial == null) return;
+        if (isInvalidated()) return;
         
         Log.d("MoPub", "Showing Millennial ad...");
 
         Location location = mInterstitial.getLocation();
-        if (location != null) mAdView.updateUserLocation(location);
+        if (location != null) mMillennialAdView.updateUserLocation(location);
         
-        mAdView.setVisibility(View.INVISIBLE);
+        mMillennialAdView.setVisibility(View.INVISIBLE);
         mHasAlreadyRegisteredClick = false;
-        mAdView.callForAd();
+        mMillennialAdView.callForAd();
     }
 
     @Override
     public void invalidate() {
-        mInterstitial = null;
+        super.invalidate();
+        mActivityReference = null;
+    }
+    
+    @Override
+    public boolean isInvalidated() {
+        if (mActivityReference == null) return true;
+        else if (mActivityReference.get() == null) return true;
+        else return super.isInvalidated();
     }
 
     @Override
     public void showInterstitial() {
         // Not supported.
     }
+    
+    private void recordClickIfNecessary() {
+        if (!mHasAlreadyRegisteredClick) {
+            mHasAlreadyRegisteredClick = true;
+            mInterstitial.interstitialClicked(); 
+        }
+    }
 
     @Override
     public void MMAdFailed(MMAdView adview)	{
+        if (isInvalidated()) return;
+        
         Log.d("MoPub", "Millennial interstitial failed. Trying another");
-        if (mInterstitial != null) { 
-            mInterstitial.interstitialFailed(); 
-        }
+        mInterstitial.interstitialFailed();
     }
 
     @Override
     public void MMAdReturned(MMAdView adview) {
-        Log.d("MoPub", "Millennial interstitial returned an ad.");
-        if (mInterstitial != null) { 
-            Activity activity = mActivityReference.get();
-            if (activity != null) {
-                activity.runOnUiThread(new MMRunnable());
+        mHandler.post(new Runnable() {
+            public void run() {
+                if (isInvalidated()) return;
+                
+                Log.d("MoPub", "Millennial interstitial returned an ad.");
+                mInterstitial.interstitialLoaded();
             }
-        }
+        });
     }
 
     @Override
     public void MMAdClickedToNewBrowser(MMAdView adview) {
-        Log.d("MoPub", "Millennial interstitial clicked to new browser");
-        if (mInterstitial != null && !mHasAlreadyRegisteredClick) {
-            mHasAlreadyRegisteredClick = true;
-            mInterstitial.interstitialClicked(); 
-        } 
+        mHandler.post(new Runnable() {
+            public void run() {
+                if (isInvalidated()) return;
+                
+                Log.d("MoPub", "Millennial interstitial clicked to new browser");
+                recordClickIfNecessary();
+            }
+        });
     }
 
     @Override
     public void MMAdClickedToOverlay(MMAdView adview) {
-        Log.d("MoPub", "Millennial interstitial clicked to overlay");
-        if (mInterstitial != null && !mHasAlreadyRegisteredClick) { 
-            mHasAlreadyRegisteredClick = true;
-            mInterstitial.interstitialClicked(); 
-        } 
+        mHandler.post(new Runnable() {
+            public void run() {
+                if (isInvalidated()) return;
+                
+                Log.d("MoPub", "Millennial interstitial clicked to overlay");
+                recordClickIfNecessary();
+            }
+        }); 
     }
 
     @Override
     public void MMAdOverlayLaunched(MMAdView adview) {
-        Log.d("MoPub", "Millennial interstitial launched overlay");
-        if (mInterstitial != null && !mHasAlreadyRegisteredClick) { 
-            mHasAlreadyRegisteredClick = true;
-            mInterstitial.interstitialClicked(); 
-        } 
+        mHandler.post(new Runnable() {
+            public void run() {
+                if (isInvalidated()) return;
+                
+                Log.d("MoPub", "Millennial interstitial launched overlay");
+                recordClickIfNecessary();
+            }
+        });
     }
 
     @Override
     public void MMAdRequestIsCaching(MMAdView adview) {
         // Nothing needs to happen.
-    }
-    
-    protected class MMRunnable implements Runnable {
-        public void run() {
-            if (mInterstitial != null) {
-                mInterstitial.interstitialLoaded();
-            }
-        }
     }
 }
