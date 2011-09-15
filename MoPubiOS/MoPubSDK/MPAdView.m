@@ -14,6 +14,8 @@
 #define kDefaultLocationPrecision 6
 
 static NSString * const kAdAnimationId = @"MPAdTransition";
+static NSString * const kOldContentViewKey = @"OldContentView";
+static NSString * const kNewContentViewKey = @"NewContentView";
 
 @interface MPAdView ()
 
@@ -201,11 +203,19 @@ static NSString * const kAdAnimationId = @"MPAdTransition";
 	// Special case: if there's currently no ad content view, certain transitions will
 	// look strange (e.g. CurlUp / CurlDown). We'll just omit the transition.
 	if (!_adContentView) type = MPAdAnimationTypeNone;
-    if (type == MPAdAnimationTypeNone) {
+	
+	// Update content view pointer, even before we've added the new view to the view hierarchy.
+	UIView *oldContentView = _adContentView;
+	_adContentView = view;
+	
+	if (type == MPAdAnimationTypeNone) {
         [self addSubview:view];
-        [self animationDidStop:kAdAnimationId finished:[NSNumber numberWithBool:YES] context:view];
+        [self animationDidStop:kAdAnimationId 
+					  finished:[NSNumber numberWithBool:YES] 
+					   context:oldContentView];
         return;
-    } 
+    }
+	
 	if (type == MPAdAnimationTypeFade) view.alpha = 0.0;
 	
 	MPLogDebug(@"Ad view (%p) is using animationType: %d", self, type);
@@ -214,7 +224,7 @@ static NSString * const kAdAnimationId = @"MPAdTransition";
     [UIView setAnimationDelegate:self];
     [UIView setAnimationDidStopSelector:@selector(animationDidStop:finished:context:)];
     [UIView setAnimationDuration:1.0];
-    
+  
     switch (type)
     {
         case MPAdAnimationTypeFlipFromLeft:
@@ -257,28 +267,29 @@ static NSString * const kAdAnimationId = @"MPAdTransition";
 {
 	if ([animationID isEqualToString:kAdAnimationId])
 	{
-		UIView *viewAddedToHierarchy = (UIView *)context;
+		UIView *oldContentView = (UIView *)context;
+		
+		// _adContentView is the new view that was just added to the view hierarchy.
+		UIView *newContentView = _adContentView;
 		
 		// Remove the old ad content view from the view hierarchy, but first confirm that it's
 		// not the same as the new view; otherwise, we'll be left with no content view.
-		if (_adContentView != viewAddedToHierarchy)
+		if (oldContentView != newContentView)
 		{
-			[_adContentView removeFromSuperview];
+			[oldContentView removeFromSuperview];
 			
-			// Additionally, do webview-related cleanup if the old _adContentView was a webview.
-			if ([_adContentView isKindOfClass:[UIWebView class]])
+			// Additionally, do webview-related cleanup if the old content view was a webview.
+			if ([oldContentView isKindOfClass:[UIWebView class]])
 			{
-				UIWebView *webView = (UIWebView *)_adContentView;
+				UIWebView *webView = (UIWebView *)oldContentView;
 				[webView setDelegate:nil];
 				[webView stopLoading];
 				[_adManager removeWebviewFromPool:webView];
 			}
 		}
 		
-		// Release _adContentView, since -setAdContentView: retained it.
-		[_adContentView release];
-		
-		_adContentView = viewAddedToHierarchy;
+		// Release the old content view to balance the retain in -setAdContentView:.
+		[oldContentView release];
 	}
 }
 
