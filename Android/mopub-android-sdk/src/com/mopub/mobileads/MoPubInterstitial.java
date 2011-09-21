@@ -64,21 +64,28 @@ public class MoPubInterstitial {
 
         @Override
         protected void loadNativeSDK(HashMap<String, String> paramsHash) {
-            MoPubInterstitial parent = MoPubInterstitial.this;
+            if (paramsHash == null) return;
+            
+            MoPubInterstitial interstitial = MoPubInterstitial.this;
             String type = paramsHash.get("X-Adtype");
 
             if (type != null && type.equals("interstitial")) {
-                Log.i("MoPub", "Loading native adapter for type: "+type);
+                String interstitialType = paramsHash.get("X-Fulladtype");
+                
+                Log.i("MoPub", "Loading native adapter for interstitial type: " + interstitialType);
                 BaseInterstitialAdapter adapter =
-                        BaseInterstitialAdapter.getAdapterForType(parent, type, paramsHash);
+                        BaseInterstitialAdapter.getAdapterForType(interstitialType);
+                
                 if (adapter != null) {
+                    String jsonParams = paramsHash.get("X-Nativeparams");
+                    adapter.init(interstitial, jsonParams);
                     adapter.loadInterstitial();
                     return;
                 }
             }
             
             Log.i("MoPub", "Couldn't load native adapter. Trying next ad...");
-            parent.interstitialFailed();
+            interstitial.interstitialFailed();
         }
         
         protected void trackImpression() {

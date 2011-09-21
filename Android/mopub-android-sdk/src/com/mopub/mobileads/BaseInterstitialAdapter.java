@@ -7,7 +7,9 @@ import android.util.Log;
 
 public abstract class BaseInterstitialAdapter {
 
+    protected boolean mInvalidated;
     protected MoPubInterstitial mInterstitial;
+    protected String mJsonParams;
     
     private static final HashMap<String, String> sInterstitialAdapterMap;
     static {
@@ -18,56 +20,47 @@ public abstract class BaseInterstitialAdapter {
     
     public abstract void loadInterstitial();
     public abstract void showInterstitial();
-    public abstract void invalidate();
     
-    protected BaseInterstitialAdapter(MoPubInterstitial interstitial) {
+    public void init(MoPubInterstitial interstitial, String jsonParams) {
         mInterstitial = interstitial;
+        mJsonParams = jsonParams;
+        mInvalidated = false;
     }
     
-    public static BaseInterstitialAdapter getAdapterForType(MoPubInterstitial interstitial, 
-                                                            String type, 
-                                                            HashMap<String, String> params) {
-        if (type == null) {
-            return null;
-        }
+    public void invalidate() {
+        mInterstitial = null;
+        mInvalidated = true;
+    }
+    
+    public boolean isInvalidated() {
+        return mInvalidated;
+    }
+    
+    public static BaseInterstitialAdapter getAdapterForType(String type) {
+        if (type == null) return null;
         
-        Class<?> adapterClass = classForAdapterType(type, params);
-        if (adapterClass == null) {
-            return null;
-        }
-        
-        Class<?>[] parameterTypes = new Class[2];
-        parameterTypes[0] = MoPubInterstitial.class;
-        parameterTypes[1] = String.class;
-        
-        Object[] args = new Object[2];
-        args[0] = interstitial;
-        args[1] = params.get("X-Nativeparams");
+        Class<?> adapterClass = classForAdapterType(type);
+        if (adapterClass == null) return null;
         
         try {
-            Constructor<?> constructor = adapterClass.getConstructor(parameterTypes);
+            Constructor<?> constructor = adapterClass.getConstructor();
             BaseInterstitialAdapter nativeAdapter = 
-                    (BaseInterstitialAdapter) constructor.newInstance(args);
+                    (BaseInterstitialAdapter) constructor.newInstance();
             return nativeAdapter;
         } catch (Exception e) {
-            Log.d("MoPub", "Couldn't create native interstitial adapter for type: "+type);
+            Log.d("MoPub", "Couldn't create native interstitial adapter for type: " + type);
             return null;
         }
     }
         
-    protected static String classStringForAdapterType(String type, HashMap<String, String> params) {
-        String fullAdType = params.get("X-Fulladtype");
-        
-        if (type.equals("interstitial") && fullAdType != null) {
-            return sInterstitialAdapterMap.get(fullAdType);
-        }
-        return null;
+    private static String classStringForAdapterType(String type) {
+        return sInterstitialAdapterMap.get(type);
     }
         
-    protected static Class<?> classForAdapterType(String type, HashMap<String, String> params) {
-        String className = classStringForAdapterType(type, params);
+    private static Class<?> classForAdapterType(String type) {
+        String className = classStringForAdapterType(type);
         if (className == null) {
-            Log.d("MoPub", "Couldn't find a handler for this ad type: "+type+"."
+            Log.d("MoPub", "Couldn't find a handler for this ad type: " + type + "."
             + " MoPub for Android does not support it at this time.");
             return null;
         }
@@ -75,8 +68,8 @@ public abstract class BaseInterstitialAdapter {
         try {
             return (Class<?>) Class.forName(className);
         } catch (ClassNotFoundException e) {
-            Log.d("MoPub", "Couldn't find "+className+ "class."
-            + " Make sure the project includes the adapter library for "+className
+            Log.d("MoPub", "Couldn't find " + className + "class."
+            + " Make sure the project includes the adapter library for " + className
             + " from the extras folder");
             return null;
         }

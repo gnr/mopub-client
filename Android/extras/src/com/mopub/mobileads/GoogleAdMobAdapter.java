@@ -49,38 +49,26 @@ import com.google.ads.AdSize;
 
 public class GoogleAdMobAdapter extends BaseAdapter implements AdListener {
     
-    private com.google.ads.AdView mAdView;
-    private MoPubView mMoPubView;
-    private String mParams;
-
-    public GoogleAdMobAdapter(MoPubView view, String params) {
-        mMoPubView = view;
-        mParams = params;
-    }
+    private com.google.ads.AdView mAdMobView;
 
     @Override
     public void loadAd() {
-        if (mMoPubView == null) {
-            return;
-        }
+        if (isInvalidated()) return;
 
         // Get the parameters to pass to AdMob
         JSONObject object; 
         String adUnitId; 
         try { 
-            object = (JSONObject) new JSONTokener(mParams).nextValue(); 
+            object = (JSONObject) new JSONTokener(mJsonParams).nextValue(); 
             adUnitId = object.getString("adUnitID"); 
         } catch (JSONException e) { 
             mMoPubView.adFailed(); 
             return; 
         }
 
-        mAdView = new com.google.ads.AdView(mMoPubView.getActivity(), AdSize.BANNER, adUnitId);
-
-        // Listen for callbacks
-        mAdView.setAdListener(this);
-
-        // Start loading the ad in the background.
+        mAdMobView = new com.google.ads.AdView(mMoPubView.getActivity(), AdSize.BANNER, adUnitId);
+        mAdMobView.setAdListener(this);
+        
         AdRequest request = new AdRequest();
         // request.addTestDevice(AdRequest.TEST_EMULATOR);
         // Uncomment the line above to enable test ads on the emulator.
@@ -88,24 +76,27 @@ public class GoogleAdMobAdapter extends BaseAdapter implements AdListener {
         Location location = mMoPubView.getLocation();
         if (location != null) request.setLocation(location);
         
-        mAdView.loadAd(request);
+        mAdMobView.loadAd(request);
     }
 
     @Override
     public void invalidate() {
-        mMoPubView = null;
+        mAdMobView.destroy();
+        super.invalidate();
     }
-
+    
+    ////////////////////////////////////////////////////////////////////////////////////////////////
+    
     @Override
     public void onDismissScreen(Ad ad) {
     }
 
     @Override
     public void onFailedToReceiveAd(Ad ad, ErrorCode error) {
-        if (mMoPubView != null) { 
-            Log.d("MoPub", "Google AdMob failed. Trying another"); 
-            mMoPubView.loadFailUrl(); 
-        } 
+        if (isInvalidated()) return;
+        
+        Log.d("MoPub", "Google AdMob failed. Trying another"); 
+        mMoPubView.loadFailUrl();
     }
 
     @Override
@@ -114,25 +105,25 @@ public class GoogleAdMobAdapter extends BaseAdapter implements AdListener {
 
     @Override
     public void onPresentScreen(Ad ad) {
+        if (isInvalidated()) return;
+        
         Log.d("MoPub", "Google AdMob clicked"); 
-        if (mMoPubView != null) { 
-            mMoPubView.registerClick(); 
-        } 
+        mMoPubView.registerClick();
     }
 
     @Override
     public void onReceiveAd(Ad ad) {
-        if (mMoPubView != null) {
-            Log.d("MoPub", "Google AdMob load succeeded. Showing ad..."); 
-            mMoPubView.removeAllViews();
-            FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(
-                    FrameLayout.LayoutParams.FILL_PARENT, 
-                    FrameLayout.LayoutParams.FILL_PARENT);
-            layoutParams.gravity = Gravity.CENTER;
-            mMoPubView.addView(mAdView, layoutParams);
+        if (isInvalidated()) return;
+        
+        Log.d("MoPub", "Google AdMob load succeeded. Showing ad..."); 
+        mMoPubView.removeAllViews();
+        FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(
+                FrameLayout.LayoutParams.FILL_PARENT, 
+                FrameLayout.LayoutParams.FILL_PARENT);
+        layoutParams.gravity = Gravity.CENTER;
+        mMoPubView.addView(mAdMobView, layoutParams);
 
-            mMoPubView.nativeAdLoaded();
-            mMoPubView.trackNativeImpression();
-        } 
+        mMoPubView.nativeAdLoaded();
+        mMoPubView.trackNativeImpression();
     }
 }

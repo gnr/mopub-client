@@ -567,8 +567,9 @@ public class AdView extends WebView {
             try {
                 url = new URL(startingUrl);
             } catch (MalformedURLException e) {
-                // If starting URL is a market URL, just return it.
-                return (startingUrl.startsWith("market://")) ? startingUrl : "";
+                // Return the starting URL if it is non-null, since that could still potentially be
+                // a "valid" URL (e.g. one with a custom scheme).
+                return (startingUrl != null) ? startingUrl : "";
             }
             
             // Find the final target URL, manually following redirects if necessary. We can't use 
@@ -609,10 +610,9 @@ public class AdView extends WebView {
                 }
                 while (isStatusCodeForRedirection(statusCode));
             } catch (IOException e) {
-                // Might result from nextLocation being a market URL. If so, return that URL.
-                if (nextLocation != null) {
-                    return (nextLocation.startsWith("market://")) ? nextLocation : "";
-                } else return "";
+                // Return the last URL we tried to reach, since that could still potentially be a
+                // "valid" URL (e.g. one with a custom scheme).
+                return (nextLocation != null) ? nextLocation : "";
             } finally {
                 if (connection != null) connection.disconnect();
             }
