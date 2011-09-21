@@ -59,6 +59,8 @@ extern NSString * const kAdTypeClear;
 	// Whether the ad is currently in the middle of a user-triggered action.
 	BOOL _adActionInProgress;
 
+    NSMutableURLRequest *_request;
+    
 	NSURLConnection *_conn;
 	
 	// Connection data object for ad request.
