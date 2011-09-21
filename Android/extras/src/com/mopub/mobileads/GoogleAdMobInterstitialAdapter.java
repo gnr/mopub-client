@@ -86,6 +86,8 @@ public class GoogleAdMobInterstitialAdapter extends BaseInterstitialAdapter impl
 
     @Override
     public void showInterstitial() {
+        if (isInvalidated()) return;
+        
         mInterstitialAd.show();
     }
 
