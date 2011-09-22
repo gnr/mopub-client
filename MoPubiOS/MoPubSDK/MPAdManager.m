@@ -125,9 +125,9 @@ NSString * const kAdTypeClear = @"clear";
 		_ignoresAutorefresh = adView.ignoresAutorefresh;
 		_store = [MPStore sharedStore];
 		_timerTarget = [[MPTimerTarget alloc] initWithNotificationName:kTimerNotificationName];
-        _request = [[[NSMutableURLRequest alloc] initWithURL:nil
+        _request = [[NSMutableURLRequest alloc] initWithURL:nil
                                                  cachePolicy:NSURLRequestUseProtocolCachePolicy 
-                                                 timeoutInterval:kMoPubRequestTimeoutInterval] retain];
+                                                 timeoutInterval:kMoPubRequestTimeoutInterval];
         [_request setValue:MPUserAgentString() forHTTPHeaderField:@"User-Agent"];			
 		[[NSNotificationCenter defaultCenter] addObserver:self
 												 selector:@selector(forceRefreshAd)
