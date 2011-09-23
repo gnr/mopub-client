@@ -24,6 +24,7 @@ static NSString * const kNewContentViewKey = @"NewContentView";
 @property (nonatomic, assign) CGSize originalSize;
 @property (nonatomic, retain) NSArray *locationDescriptionPair;
 
+- (void)initializeManager;
 - (void)updateLocationDescriptionPair;
 - (void)setScrollable:(BOOL)scrollable forView:(UIView *)view;
 - (void)animateTransitionToAdView:(UIView *)view;
@@ -70,9 +71,14 @@ static NSString * const kNewContentViewKey = @"NewContentView";
 		_originalSize = size;
 		_allowedNativeAdOrientation = MPNativeAdOrientationAny;
 		_adUnitId = (adUnitId) ? [adUnitId copy] : DEFAULT_PUB_ID;
-		_adManager = [[MPAdManager alloc] initWithAdView:self];
+		[self initializeManager];
     }
     return self;
+}
+
+- (void)initializeManager 
+{
+	_adManager = [[MPAdManager alloc] initWithAdView:self];
 }
 
 - (void)dealloc 
@@ -383,13 +389,9 @@ static NSString * const kNewContentViewKey = @"NewContentView";
 
 @implementation MPInterstitialAdView
 
-- (id)initWithAdUnitId:(NSString *)adUnitId size:(CGSize)size 
-{   
-    if (self = [super initWithAdUnitId:adUnitId size:size]) 
-	{
-		_adManager = [[MPInterstitialAdManager alloc] initWithAdView:self];
-    }
-    return self;
+- (void)initializeManager 
+{
+	_adManager = [[MPInterstitialAdManager alloc] initWithAdView:self];
 }
 
 - (void)setAdContentView:(UIView *)view
