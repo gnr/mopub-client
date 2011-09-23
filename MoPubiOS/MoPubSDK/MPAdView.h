@@ -177,24 +177,14 @@ typedef enum
 - (void)customEventDidFailToLoadAd;
 
 /*
- * Signals to the ad view that a user has interacted with the ad and action will take place.
+ * Signals to the ad view that a user has tapped on a custom-event-triggered ad.
  * You must call this method if you implement custom events, for proper click tracking.
  */
 - (void)customEventActionWillBegin;
 
 /*
- * Signals to the ad view that a custom event ended action.
- */
-- (void)customEventActionDidEnd;
-
-/*
- * Signals to the ad view that a user has interacted with the ad and action will take place.
- * You must call this method if you implement custom events, for proper click tracking.
- */
-- (void)customEventActionWillBegin;
-
-/*
- * Signals to the ad view that a custom event ended action.
+ * Signals to the ad view that a user has stopped interacting with a custom-event-triggered ad. 
+ * You must call this method if you implement custom events.
  */
 - (void)customEventActionDidEnd;
 
