@@ -30,5 +30,7 @@
 - (void)rotateToOrientation:(UIInterfaceOrientation)orientation;
 - (void)customEventDidLoadAd;
 - (void)customEventDidFailToLoadAd;
+- (void)customEventActionWillBegin;
+- (void)customEventActionDidEnd;
 
 @end

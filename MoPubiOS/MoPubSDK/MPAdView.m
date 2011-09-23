@@ -383,6 +383,16 @@ static NSString * const kNewContentViewKey = @"NewContentView";
 	[_adManager customEventDidFailToLoadAd];
 }
 
+- (void)customEventActionWillBegin 
+{
+    [_adManager customEventActionWillBegin];
+}
+
+- (void)customEventActionDidEnd
+{
+    [_adManager customEventActionDidEnd];
+}
+
 @end
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
