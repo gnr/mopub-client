@@ -226,7 +226,7 @@ static NSString * const kNewContentViewKey = @"NewContentView";
 	
 	MPLogDebug(@"Ad view (%p) is using animationType: %d", self, type);
 	
-    [UIView beginAnimations:kAdAnimationId context:view];
+    [UIView beginAnimations:kAdAnimationId context:oldContentView];
     [UIView setAnimationDelegate:self];
     [UIView setAnimationDidStopSelector:@selector(animationDidStop:finished:context:)];
     [UIView setAnimationDuration:1.0];
