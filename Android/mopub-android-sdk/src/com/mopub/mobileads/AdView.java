@@ -709,6 +709,7 @@ public class AdView extends WebView {
         }
         
         public void execute() {
+            if (mData == null) return;
             mResponseString = mData;
             loadDataWithBaseURL("http://"+MoPubView.HOST+"/", 
                 mData, "text/html", "utf-8", null);
