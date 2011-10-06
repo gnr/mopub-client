@@ -14,7 +14,7 @@
 
 @interface MPMillennialInterstitialAdapter ()
 
-+ (MMAdView *)sharedMMAdViewForAPID:(NSString *)apid;
++ (MMAdView *)sharedMMAdViewForAPID:(NSString *)apid delegate:(id<MMAdDelegate>)delegate;
 - (void)releaseMMAdViewSafely;
 
 @end
@@ -23,7 +23,7 @@
 
 @implementation MPMillennialInterstitialAdapter
 
-+ (MMAdView *)sharedMMAdViewForAPID:(NSString *)apid
++ (MMAdView *)sharedMMAdViewForAPID:(NSString *)apid delegate:(id<MMAdDelegate>)delegate
 {
 	static NSMutableDictionary *sharedMMAdViews;
 	
@@ -43,11 +43,12 @@
 		{
 			adView = [MMAdView interstitialWithType:MMFullScreenAdTransition
 											   apid:apid
-										   delegate:self
+										   delegate:delegate
 											 loadAd:NO];
 			[sharedMMAdViews setObject:adView forKey:apid];
 		}
-		
+        
+        [adView setDelegate:delegate];
 		return adView;
 	}
 }
@@ -60,14 +61,13 @@
 																					 error:NULL];
 	NSString *apid = [hdrParams objectForKey:@"adUnitID"];
 	
-	_mmInterstitialAdView = [[[self class] sharedMMAdViewForAPID:apid] retain];
+	_mmInterstitialAdView = [[[self class] sharedMMAdViewForAPID:apid delegate:self] retain];
 	
 	if (!_mmInterstitialAdView) {
 		[_interstitialAdController adapter:self didFailToLoadAdWithError:nil];
 		return;
 	}
-		
-	[_mmInterstitialAdView setDelegate:self];
+
 	[_mmInterstitialAdView refreshAd];
 }
 

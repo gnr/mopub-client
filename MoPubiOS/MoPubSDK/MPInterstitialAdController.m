@@ -107,7 +107,8 @@ static NSString * const kOrientationBoth				= @"b";
 #pragma mark -
 #pragma mark Lifecycle
 
-- (id)initWithAdUnitId:(NSString *)ID parentViewController:(UIViewController *)parent
+- (id)initWithAdUnitId:(NSString *)ID 
+  parentViewController:(UIViewController<MPInterstitialAdControllerDelegate> *)parent
 {
 	if (self = [super init])
 	{

@@ -240,7 +240,7 @@ NSString * const kAdTypeClear = @"clear";
 }
 
 - (NSURL *)serverRequestURL {
-	NSString *urlString = [NSString stringWithFormat:@"http://%@/m/ad?v=6&udid=%@&q=%@&id=%@", 
+	NSString *urlString = [NSString stringWithFormat:@"http://%@/m/ad?v=7&udid=%@&q=%@&id=%@", 
 						   HOSTNAME,
 						   MPHashedUDID(),
 						   [_keywords stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding],
