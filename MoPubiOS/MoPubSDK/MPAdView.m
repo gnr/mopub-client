@@ -183,21 +183,29 @@ static NSString * const kNewContentViewKey = @"NewContentView";
 	// and set their scrolling and bounce.
 	if ([view isKindOfClass:[UIWebView class]])
 	{
+		
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= 50000 // iOS 5.0+
-        UIScrollView *scrollView = ((UIWebView *)view).scrollView;
-#else
-		UIScrollView *scrollView = nil;
-		for (UIView *v in view.subviews)
+		if ([(UIWebView *)view respondsToSelector:@selector(scrollView)]) 
 		{
-			if ([v isKindOfClass:[UIScrollView class]])
-			{
-				scrollView = (UIScrollView *)v;
-                break;
-			}
-		}
+			UIScrollView *scrollView = ((UIWebView *)view).scrollView;
+			scrollView.scrollEnabled = scrollable;
+			scrollView.bounces = scrollable;
+		} 
+		else 
 #endif
-        scrollView.scrollEnabled = scrollable;
-        scrollView.bounces = scrollable;
+		{
+			UIScrollView *scrollView = nil;
+			for (UIView *v in view.subviews)
+			{
+				if ([v isKindOfClass:[UIScrollView class]])
+				{
+					scrollView = (UIScrollView *)v;
+					break;
+				}
+			}
+			scrollView.scrollEnabled = scrollable;
+			scrollView.bounces = scrollable;
+		}
 	}
 	// For normal UIScrollView subclasses, use the provided setter.
 	else if ([view isKindOfClass:[UIScrollView class]])
