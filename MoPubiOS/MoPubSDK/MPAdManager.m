@@ -118,7 +118,7 @@ NSString * const kAdTypeClear = @"clear";
 - (id)initWithAdView:(MPAdView *)adView {
 	if (self = [super init]) {
 		_adView = adView;
-		_adUnitId = adView.adUnitId;
+		_adUnitId = [adView.adUnitId copy];
 		_data = [[NSMutableData data] retain];
 		_webviewPool = [[NSMutableSet set] retain];
 		_shouldInterceptLinks = YES;

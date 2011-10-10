@@ -113,7 +113,7 @@ static NSString * const kOrientationBoth				= @"b";
 	if (self = [super init])
 	{
 		_parent = parent;
-		_adUnitId = ID;
+		_adUnitId = [ID copy];
 		_closeButtonType = InterstitialCloseButtonTypeDefault;
 		_orientationType = InterstitialOrientationTypeBoth;
 		
