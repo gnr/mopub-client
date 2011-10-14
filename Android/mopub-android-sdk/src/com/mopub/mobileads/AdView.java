@@ -346,6 +346,7 @@ public class AdView extends WebView {
                 result = loadAdFromNetwork(urls[0]);
             } catch(Exception e) {
                 this.error = e;
+                Log.d("MoPub", "Error: " + this.error.getMessage());
             }
             return result;
         }
@@ -390,17 +391,20 @@ public class AdView extends WebView {
         // Handle native SDK ad type.
         else if (!atHeader.getValue().equals("html")) {
             Log.i("MoPub", "Loading native ad");
+            
+            mIsLoading = false;
+            HashMap<String, String> paramsHash = new HashMap<String, String>();
+            paramsHash.put("X-Adtype", atHeader.getValue());
+            
             Header npHeader = mResponse.getFirstHeader("X-Nativeparams");
             if (npHeader != null) {
-                mIsLoading = false;
-                HashMap<String, String> paramsHash = new HashMap<String, String>();
-                paramsHash.put("X-Adtype", atHeader.getValue());
                 paramsHash.put("X-Nativeparams", npHeader.getValue());
                 Header ftHeader = mResponse.getFirstHeader("X-Fulladtype");
                 if (ftHeader != null) paramsHash.put("X-Fulladtype", ftHeader.getValue());
-                return new LoadNativeAdTaskResult(paramsHash);
+            } else {
+                paramsHash.put("X-Nativeparams", "{}");
             }
-            else throw new Exception("Could not load native ad; MoPub provided no parameters.");
+            return new LoadNativeAdTaskResult(paramsHash);
         }
         
         // Handle HTML ad.
