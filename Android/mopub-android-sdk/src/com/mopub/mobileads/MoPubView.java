@@ -86,6 +86,7 @@ public class MoPubView extends FrameLayout {
     private boolean mIsInForeground;
     private LocationAwareness mLocationAwareness;
     private int mLocationPrecision;
+    private boolean mPreviousAutorefreshSetting = false;
 
     private OnAdWillLoadListener mOnAdWillLoadListener;
     private OnAdLoadedListener mOnAdLoadedListener;
@@ -175,6 +176,7 @@ public class MoPubView extends FrameLayout {
                 if (intent.getAction().equals(Intent.ACTION_SCREEN_OFF)) {
                     if (mIsInForeground) {
                         Log.d("MoPub", "Screen sleep with ad in foreground, disable refresh");
+                        mPreviousAutorefreshSetting = mAdView.getAutorefreshEnabled();
                         if (mAdView != null) mAdView.setAutorefreshEnabled(false);
                     } else {
                         Log.d("MoPub", "Screen sleep but ad in background; " + 
@@ -182,8 +184,10 @@ public class MoPubView extends FrameLayout {
                     }
                 } else if (intent.getAction().equals(Intent.ACTION_USER_PRESENT)) {
                     if (mIsInForeground) {
-                        Log.d("MoPub", "Screen wake / ad in foreground, enable refresh");
-                        if (mAdView != null) mAdView.setAutorefreshEnabled(true);
+                        Log.d("MoPub", "Screen wake / ad in foreground, reset refresh");
+                        if (mAdView != null) {
+                            mAdView.setAutorefreshEnabled(mPreviousAutorefreshSetting);
+                        }
                     } else {
                         Log.d("MoPub", "Screen wake but ad in background; don't enable refresh");
                     }

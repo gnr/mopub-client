@@ -210,5 +210,6 @@ public class MillennialInterstitialAdapter extends BaseInterstitialAdapter imple
     @Override
     public void MMAdRequestIsCaching(MMAdView adview) {
         // Nothing needs to happen.
+        Log.d("MoPub", "Millennial interstitial is caching.");
     }
 }
