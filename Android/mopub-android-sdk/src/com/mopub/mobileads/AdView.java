@@ -71,6 +71,7 @@ import org.apache.http.params.HttpParams;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.ref.WeakReference;
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.net.HttpURLConnection;
@@ -107,7 +108,6 @@ public class AdView extends WebView {
     private String mAdOrientation;
 
     protected MoPubView mMoPubView;
-    private HttpResponse mResponse;
     private String mResponseString;
     private String mUserAgent;
 
@@ -331,90 +331,101 @@ public class AdView extends WebView {
         
         mUrl = url;
         mIsLoading = true;
-        new LoadUrlTask().execute(mUrl);
+        new LoadUrlTask(this).execute(mUrl);
     }
     
     /*
      * Background operation that loads a URL.
      */
-    private class LoadUrlTask extends AsyncTask<String, Void, LoadUrlTaskResult> {
-        private Exception error;
+    private static class LoadUrlTask extends AsyncTask<String, Void, LoadUrlTaskResult> {
+        
+        private Exception mError;
+        private WeakReference<AdView> mWeakAdView;
+        private String mUserAgent;
+        private HttpClient mHttpClient;
+        
+        private LoadUrlTask(AdView adView) {
+            this.mWeakAdView = new WeakReference<AdView>(adView);
+            this.mUserAgent = (adView.mUserAgent != null) ? new String(adView.mUserAgent) : "";
+            this.mHttpClient = adView.getAdViewHttpClient();
+        }
         
         protected LoadUrlTaskResult doInBackground(String... urls) {
             LoadUrlTaskResult result = null;
             try {
                 result = loadAdFromNetwork(urls[0]);
             } catch(Exception e) {
-                this.error = e;
-                Log.d("MoPub", "Error: " + this.error.getMessage());
+                this.mError = e;
+                Log.d("MoPub", "Error: " + this.mError.getMessage());
             }
             return result;
         }
+        
         protected void onPostExecute(LoadUrlTaskResult result) {
-            if (error != null || result == null) {
-                adDidFail();
+            if (mError != null || result == null) {
+                AdView adView = this.mWeakAdView.get();
+                if (adView != null) adView.adDidFail();
             } else if (result != null) {
                 result.execute();
             }
         }
-    }
-    
-    private LoadUrlTaskResult loadAdFromNetwork(String url) throws Exception {
-        HttpGet httpget = new HttpGet(url);
-        httpget.addHeader("User-Agent", mUserAgent);
         
-        HttpClient httpclient = getAdViewHttpClient();
-        mResponse = httpclient.execute(httpget);
-        HttpEntity entity = mResponse.getEntity();
-        
-        // Anything but a 200 OK is an invalid response.
-        if (mResponse.getStatusLine().getStatusCode() != HttpStatus.SC_OK || 
-                entity == null || entity.getContentLength() == 0) {
-            throw new Exception("MoPub server returned invalid response.");
-        }
-        
-        // Ensure that the ad type header is valid and not "clear".
-        Header atHeader = mResponse.getFirstHeader("X-Adtype");
-        if (atHeader == null || atHeader.getValue().equals("clear")) {
-            throw new Exception("MoPub server returned no ad.");
-        }
-        
-        configureAdViewUsingHeadersFromHttpResponse(mResponse);
-        
-        // Handle custom event ad type.
-        if (atHeader.getValue().equals("custom")) {
-            Log.i("MoPub", "Performing custom event.");
-            Header cmHeader = mResponse.getFirstHeader("X-Customselector");
-            mIsLoading = false;
-            return new PerformCustomEventTaskResult(cmHeader);
-        }
-        // Handle native SDK ad type.
-        else if (!atHeader.getValue().equals("html")) {
-            Log.i("MoPub", "Loading native ad");
+        private LoadUrlTaskResult loadAdFromNetwork(String url) throws Exception {
+            HttpGet httpget = new HttpGet(url);
+            httpget.addHeader("User-Agent", this.mUserAgent);
             
-            mIsLoading = false;
-            HashMap<String, String> paramsHash = new HashMap<String, String>();
-            paramsHash.put("X-Adtype", atHeader.getValue());
+            HttpResponse response = this.mHttpClient.execute(httpget);
+            HttpEntity entity = response.getEntity();
             
-            Header npHeader = mResponse.getFirstHeader("X-Nativeparams");
-            if (npHeader != null) {
-                paramsHash.put("X-Nativeparams", npHeader.getValue());
-                Header ftHeader = mResponse.getFirstHeader("X-Fulladtype");
-                if (ftHeader != null) paramsHash.put("X-Fulladtype", ftHeader.getValue());
-            } else {
-                paramsHash.put("X-Nativeparams", "{}");
+            if (response.getStatusLine().getStatusCode() != HttpStatus.SC_OK ||
+                    entity == null || entity.getContentLength() == 0) {
+                throw new Exception("MoPub server returned invalid response.");
             }
-            return new LoadNativeAdTaskResult(paramsHash);
+            
+            // Ensure that the ad type header is valid and not "clear".
+            Header atHeader = response.getFirstHeader("X-Adtype");
+            if (atHeader == null || atHeader.getValue().equals("clear")) {
+                throw new Exception("MoPub server returned no ad.");
+            }
+            
+            AdView adView = this.mWeakAdView.get();
+            if (adView == null) throw new Exception("AdView has already been garbage collected.");
+            
+            adView.configureAdViewUsingHeadersFromHttpResponse(response);
+            
+            // Handle custom event ad type.
+            if (atHeader.getValue().equals("custom")) {
+                Log.i("MoPub", "Performing custom event.");
+                Header cmHeader = response.getFirstHeader("X-Customselector");
+                return new PerformCustomEventTaskResult(adView, cmHeader);
+            }
+            // Handle native SDK ad type.
+            else if (!atHeader.getValue().equals("html")) {
+                Log.i("MoPub", "Loading native ad");
+                
+                HashMap<String, String> paramsHash = new HashMap<String, String>();
+                paramsHash.put("X-Adtype", atHeader.getValue());
+                
+                Header npHeader = response.getFirstHeader("X-Nativeparams");
+                if (npHeader != null) {
+                    paramsHash.put("X-Nativeparams", npHeader.getValue());
+                    Header ftHeader = response.getFirstHeader("X-Fulladtype");
+                    if (ftHeader != null) paramsHash.put("X-Fulladtype", ftHeader.getValue());
+                } else {
+                    paramsHash.put("X-Nativeparams", "{}");
+                }
+                return new LoadNativeAdTaskResult(adView, paramsHash);
+            }
+            
+            // Handle HTML ad.
+            InputStream is = entity.getContent();
+            StringBuffer out = new StringBuffer();
+            byte[] b = new byte[4096];
+            for (int n; (n = is.read(b)) != -1;) {
+                out.append(new String(b, 0, n));
+            }
+            return new LoadHtmlAdTaskResult(adView, out.toString());  
         }
-        
-        // Handle HTML ad.
-        InputStream is = entity.getContent();
-        StringBuffer out = new StringBuffer();
-        byte[] b = new byte[4096];
-        for (int n; (n = is.read(b)) != -1;) {
-            out.append(new String(b, 0, n));
-        }
-        return new LoadHtmlAdTaskResult(out.toString());
     }
     
     private DefaultHttpClient getAdViewHttpClient() {
@@ -543,10 +554,19 @@ public class AdView extends WebView {
     }
     
     private void showBrowserAfterFollowingRedirectsForUrl(String url) {
-        new ShowBrowserTask().execute(url);
+        new ShowBrowserTask(this).execute(url);
     }
     
-    private class ShowBrowserTask extends AsyncTask<String, Void, String> {
+    private static class ShowBrowserTask extends AsyncTask<String, Void, String> {
+        
+        private WeakReference<AdView> mWeakAdView;
+        private String mUserAgent;
+        
+        private ShowBrowserTask(AdView adView) {
+            this.mWeakAdView = new WeakReference<AdView>(adView);
+            this.mUserAgent = (adView.mUserAgent != null) ? new String(adView.mUserAgent) : "";
+        }
+        
         @Override
         protected String doInBackground(String... urls) {
             String startingUrl = urls[0];
@@ -572,7 +592,7 @@ public class AdView extends WebView {
             try {
                 do {
                     connection = (HttpURLConnection) url.openConnection();
-                    connection.setRequestProperty("User-Agent", mUserAgent);
+                    connection.setRequestProperty("User-Agent", this.mUserAgent);
                     connection.setInstanceFollowRedirects(false);
                     
                     statusCode = connection.getResponseCode();
@@ -616,11 +636,14 @@ public class AdView extends WebView {
 
         @Override
         protected void onPostExecute(String uri) {
+            AdView adView = this.mWeakAdView.get();
+            if (adView == null) return;
+            
             if (uri == null || uri.equals("")) uri = "about:blank";
             Log.d("MoPub", "Final URI to show in browser: " + uri);
             Intent actionIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(uri));
             try {
-                getContext().startActivity(actionIntent);
+                adView.getContext().startActivity(actionIntent);
             } catch (ActivityNotFoundException e) {
                 String action = actionIntent.getAction();
                 if (action.startsWith("market://")) {
@@ -631,26 +654,42 @@ public class AdView extends WebView {
                     Log.w("MoPub", "Could not handle intent action: " + action);
                 }
                 
-                getContext().startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("about:blank")));
+                adView.getContext().startActivity(
+                        new Intent(Intent.ACTION_VIEW, Uri.parse("about:blank")));
             }
         }
     }
     
-    private abstract interface LoadUrlTaskResult {
+    private abstract static class LoadUrlTaskResult {
+        
+        protected WeakReference<AdView> mWeakAdView;
+        
+        public LoadUrlTaskResult(AdView adView) {
+            mWeakAdView = new WeakReference<AdView>(adView);
+        }
+        
         abstract void execute();
     }
     
-    private class PerformCustomEventTaskResult implements LoadUrlTaskResult {
+    private static class PerformCustomEventTaskResult extends LoadUrlTaskResult {
+ 
         protected Header mHeader;
         
-        public PerformCustomEventTaskResult(Header header) {
+        public PerformCustomEventTaskResult(AdView adView, Header header) {
+            super(adView);
             mHeader = header;
         }
         
         public void execute() {
+            AdView adView = mWeakAdView.get();
+            if (adView == null) return;
+            
+            adView.mIsLoading = false;
+            MoPubView mpv = adView.mMoPubView;
+            
             if (mHeader == null) {
                 Log.i("MoPub", "Couldn't call custom method because the server did not specify one.");
-                mMoPubView.adFailed();
+                mpv.adFailed();
                 return;
             }
             
@@ -659,11 +698,11 @@ public class AdView extends WebView {
             
             Class<? extends Activity> c;
             Method method;
-            Activity userActivity = mMoPubView.getActivity();
+            Activity userActivity = mpv.getActivity();
             try {
                 c = userActivity.getClass();
                 method = c.getMethod(methodName, MoPubView.class);
-                method.invoke(userActivity, mMoPubView);
+                method.invoke(userActivity, mpv);
             } catch (NoSuchMethodException e) {
                 Log.d("MoPub", "Couldn't perform custom method named " + methodName +
                         "(MoPubView view) because your activity class has no such method");
@@ -675,31 +714,42 @@ public class AdView extends WebView {
         }
     }
     
-    private class LoadNativeAdTaskResult implements LoadUrlTaskResult {
+    private static class LoadNativeAdTaskResult extends LoadUrlTaskResult {
+     
         protected HashMap<String, String> mParamsHash;
         
-        public LoadNativeAdTaskResult(HashMap<String, String> hash) {
+        private LoadNativeAdTaskResult(AdView adView, HashMap<String, String> hash) {
+            super(adView);
             mParamsHash = hash;
         }
         
         public void execute() {
-            mIsLoading = false;
-            mMoPubView.loadNativeSDK(mParamsHash);
+            AdView adView = mWeakAdView.get();
+            if (adView == null) return;
+            
+            adView.mIsLoading = false;
+            MoPubView mpv = adView.mMoPubView;
+            mpv.loadNativeSDK(mParamsHash);
         }
     }
     
-    private class LoadHtmlAdTaskResult implements LoadUrlTaskResult {
+    private static class LoadHtmlAdTaskResult extends LoadUrlTaskResult {
         protected String mData;
         
-        public LoadHtmlAdTaskResult(String data) {
+        private LoadHtmlAdTaskResult(AdView adView, String data) {
+            super(adView);
             mData = data;
         }
         
         public void execute() {
             if (mData == null) return;
-            mResponseString = mData;
-            loadDataWithBaseURL("http://"+MoPubView.HOST+"/", 
-                mData, "text/html", "utf-8", null);
+            
+            AdView adView = mWeakAdView.get();
+            if (adView == null) return;
+            
+            adView.mResponseString = mData;
+            adView.loadDataWithBaseURL("http://" + MoPubView.HOST + "/", mData, "text/html", 
+                    "utf-8", null);
         }
     }
     
@@ -843,10 +893,6 @@ public class AdView extends WebView {
 
     public String getRedirectUrl() {
         return mRedirectUrl;
-    }
-
-    public HttpResponse getResponse() {
-        return mResponse;
     }
 
     public String getResponseString() {

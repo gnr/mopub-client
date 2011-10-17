@@ -44,8 +44,6 @@ import android.util.Log;
 import android.webkit.WebViewDatabase;
 import android.widget.FrameLayout;
 
-import org.apache.http.HttpResponse;
-
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
@@ -216,6 +214,11 @@ public class MoPubView extends FrameLayout {
             mAdView.cleanup();
             mAdView = null;
         }
+        
+        if (mAdapter != null) {
+            mAdapter.invalidate();
+            mAdapter = null;
+        }
     }
 
     protected void loadFailUrl() {
@@ -336,10 +339,6 @@ public class MoPubView extends FrameLayout {
 
     public int getAdHeight() {
         return (mAdView != null) ? mAdView.getAdHeight() : 0;
-    }
-
-    public HttpResponse getResponse() {
-        return (mAdView != null) ? mAdView.getResponse() : null;
     }
 
     public String getResponseString() {
