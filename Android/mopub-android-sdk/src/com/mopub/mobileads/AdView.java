@@ -55,6 +55,7 @@ import android.webkit.WebViewClient;
 import android.widget.FrameLayout;
 
 import com.mopub.mobileads.MoPubView.LocationAwareness;
+import com.mopub.mobileads.Utils;
 
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
@@ -75,8 +76,6 @@ import java.math.BigDecimal;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -279,7 +278,7 @@ public class AdView extends WebView {
         sz.append("?v=4&id=" + mAdUnitId);
         
         String udid = Secure.getString(getContext().getContentResolver(), Secure.ANDROID_ID);
-        String udidDigest = (udid == null) ? "" : sha1(udid);
+        String udidDigest = (udid == null) ? "" : Utils.sha1(udid);
         sz.append("&udid=sha:" + udidDigest);
 
         if (mKeywords != null) sz.append("&q=" + Uri.encode(mKeywords));
@@ -307,22 +306,6 @@ public class AdView extends WebView {
         sz.append("&sc_a=" + metrics.density);
       
         return sz.toString();
-    }
-    
-    private String sha1(String s) {
-        try { 
-            MessageDigest digest = MessageDigest.getInstance("SHA-1");
-            digest.update(s.getBytes());
-            byte messageDigest[] = digest.digest();
-            
-            StringBuffer hexString = new StringBuffer();
-            for (int i = 0; i < messageDigest.length; i++) {
-                hexString.append(Integer.toHexString(0xFF & messageDigest[i]));
-            }
-            return hexString.toString();
-        } catch (NoSuchAlgorithmException e) {
-            return "";
-        }
     }
     
     private String getTimeZoneOffsetString() {

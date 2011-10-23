@@ -37,6 +37,8 @@ import android.content.SharedPreferences;
 import android.provider.Settings.Secure;
 import android.util.Log;
 
+import com.mopub.mobileads.Utils;
+
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
@@ -72,9 +74,12 @@ public class MoPubConversionTracker {
         public void run() {
             StringBuilder sz = new StringBuilder("http://"+TRACK_HOST+TRACK_HANDLER);
             sz.append("?v=3&id=" + mPackageName);
-            sz.append("&udid="+Secure.getString(mContext.getContentResolver(), Secure.ANDROID_ID));
+            
+            String udid = Secure.getString(mContext.getContentResolver(), Secure.ANDROID_ID);
+            String udidDigest = (udid == null) ? "" : Utils.sha1(udid);
+            sz.append("udid=sha:" + udidDigest);
             String url = sz.toString();
-            Log.d("MoPub", "Conversion track: "+url);
+            Log.d("MoPub", "Conversion track: " + url);
 
             DefaultHttpClient httpclient = new DefaultHttpClient();
             HttpGet httpget = new HttpGet(url);
