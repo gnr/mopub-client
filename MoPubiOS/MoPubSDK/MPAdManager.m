@@ -396,7 +396,7 @@ NSString * const kAdTypeClear = @"clear";
 
 - (void)customEventActionDidEnd
 {
-    [self userActionDidEndForAdapter:self.currentAdapter];
+    [self userActionDidFinishForAdapter:self.currentAdapter];
 }
 
 - (UIViewController *)viewControllerForPresentingModalView 
@@ -766,7 +766,7 @@ NSString * const kAdTypeClear = @"clear";
 		[self.adView.delegate willPresentModalViewForAd:self.adView];	
 }
 
-- (void)userActionDidEndForAdapter:(MPBaseAdapter *)adapter
+- (void)userActionDidFinishForAdapter:(MPBaseAdapter *)adapter
 {
 	_adActionInProgress = NO;
 	

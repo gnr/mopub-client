@@ -440,6 +440,18 @@ static NSString * const kOrientationBoth				= @"b";
 		[self.parent interstitialDidDisappear:self];
 }
 
+- (void)interstitialWasTappedForAdapter:(MPBaseInterstitialAdapter *)adapter
+{
+    [_adView.adManager trackClick];
+}
+
+- (void)interstitialDidExpireForAdapter:(MPBaseInterstitialAdapter *)adapter
+{
+    _ready = NO;
+    if ([self.parent respondsToSelector:@selector(interstitialDidExpire:)])
+        [self.parent interstitialDidExpire:self];
+}
+
 #pragma mark -
 
 - (void)didReceiveMemoryWarning 

@@ -59,4 +59,7 @@
 - (void)interstitialDidAppearForAdapter:(MPBaseInterstitialAdapter *)adapter;
 - (void)interstitialWillDisappearForAdapter:(MPBaseInterstitialAdapter *)adapter;
 - (void)interstitialDidDisappearForAdapter:(MPBaseInterstitialAdapter *)adapter;
+
+- (void)interstitialWasTappedForAdapter:(MPBaseInterstitialAdapter *)adapter;
+- (void)interstitialDidExpireForAdapter:(MPBaseInterstitialAdapter *)adapter;
 @end
