@@ -126,7 +126,7 @@ NSString * const kAdTypeClear = @"clear";
 		_store = [MPStore sharedStore];
 		_timerTarget = [[MPTimerTarget alloc] initWithNotificationName:kTimerNotificationName];
         _request = [[NSMutableURLRequest alloc] initWithURL:nil
-                                                 cachePolicy:NSURLRequestUseProtocolCachePolicy 
+                                                 cachePolicy:NSURLRequestReloadIgnoringLocalCacheData 
                                                  timeoutInterval:kMoPubRequestTimeoutInterval];
         [_request setValue:MPUserAgentString() forHTTPHeaderField:@"User-Agent"];			
 		[[NSNotificationCenter defaultCenter] addObserver:self
@@ -219,9 +219,6 @@ NSString * const kAdTypeClear = @"clear";
 
 - (void)loadAdWithURL:(NSURL *)URL
 {
-	[[NSURLCache sharedURLCache] setMemoryCapacity:0];
-	[[NSURLCache sharedURLCache] setDiskCapacity:0];
-	
 	if (_isLoading) 
 	{
 		MPLogWarn(@"Ad view (%p) already loading an ad. Wait for previous load to finish.", self.adView);
