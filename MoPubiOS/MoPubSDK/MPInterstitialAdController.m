@@ -113,7 +113,7 @@ static NSString * const kOrientationBoth				= @"b";
 	if (self = [super init])
 	{
 		_parent = parent;
-		_adUnitId = ID;
+		_adUnitId = [ID copy];
 		_closeButtonType = InterstitialCloseButtonTypeDefault;
 		_orientationType = InterstitialOrientationTypeBoth;
 		
@@ -438,6 +438,18 @@ static NSString * const kOrientationBoth				= @"b";
 {
 	if ([self.parent respondsToSelector:@selector(interstitialDidDisappear:)])
 		[self.parent interstitialDidDisappear:self];
+}
+
+- (void)interstitialWasTappedForAdapter:(MPBaseInterstitialAdapter *)adapter
+{
+    [_adView.adManager trackClick];
+}
+
+- (void)interstitialDidExpireForAdapter:(MPBaseInterstitialAdapter *)adapter
+{
+    _ready = NO;
+    if ([self.parent respondsToSelector:@selector(interstitialDidExpire:)])
+        [self.parent interstitialDidExpire:self];
 }
 
 #pragma mark -

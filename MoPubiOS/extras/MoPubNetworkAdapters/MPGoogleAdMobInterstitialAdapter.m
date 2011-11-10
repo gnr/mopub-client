@@ -77,6 +77,11 @@
 	[_interstitialAdController interstitialDidDisappearForAdapter:self];
 }
 
+- (void)interstitialWillLeaveApplication:(GADInterstitial *)ad
+{
+    [_interstitialAdController interstitialWasTappedForAdapter:self];
+}
+
 - (void)dealloc
 {
 	_gAdInterstitial.delegate = nil;

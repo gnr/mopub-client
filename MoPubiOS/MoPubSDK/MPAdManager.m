@@ -118,7 +118,7 @@ NSString * const kAdTypeClear = @"clear";
 - (id)initWithAdView:(MPAdView *)adView {
 	if (self = [super init]) {
 		_adView = adView;
-		_adUnitId = adView.adUnitId;
+		_adUnitId = [adView.adUnitId copy];
 		_data = [[NSMutableData data] retain];
 		_webviewPool = [[NSMutableSet set] retain];
 		_shouldInterceptLinks = YES;
@@ -126,7 +126,7 @@ NSString * const kAdTypeClear = @"clear";
 		_store = [MPStore sharedStore];
 		_timerTarget = [[MPTimerTarget alloc] initWithNotificationName:kTimerNotificationName];
         _request = [[NSMutableURLRequest alloc] initWithURL:nil
-                                                 cachePolicy:NSURLRequestUseProtocolCachePolicy 
+                                                 cachePolicy:NSURLRequestReloadIgnoringLocalCacheData 
                                                  timeoutInterval:kMoPubRequestTimeoutInterval];
         [_request setValue:MPUserAgentString() forHTTPHeaderField:@"User-Agent"];			
 		[[NSNotificationCenter defaultCenter] addObserver:self
@@ -219,9 +219,6 @@ NSString * const kAdTypeClear = @"clear";
 
 - (void)loadAdWithURL:(NSURL *)URL
 {
-	[[NSURLCache sharedURLCache] setMemoryCapacity:0];
-	[[NSURLCache sharedURLCache] setDiskCapacity:0];
-	
 	if (_isLoading) 
 	{
 		MPLogWarn(@"Ad view (%p) already loading an ad. Wait for previous load to finish.", self.adView);
@@ -396,7 +393,7 @@ NSString * const kAdTypeClear = @"clear";
 
 - (void)customEventActionDidEnd
 {
-    [self userActionDidEndForAdapter:self.currentAdapter];
+    [self userActionDidFinishForAdapter:self.currentAdapter];
 }
 
 - (UIViewController *)viewControllerForPresentingModalView 
@@ -766,7 +763,7 @@ NSString * const kAdTypeClear = @"clear";
 		[self.adView.delegate willPresentModalViewForAd:self.adView];	
 }
 
-- (void)userActionDidEndForAdapter:(MPBaseAdapter *)adapter
+- (void)userActionDidFinishForAdapter:(MPBaseAdapter *)adapter
 {
 	_adActionInProgress = NO;
 	

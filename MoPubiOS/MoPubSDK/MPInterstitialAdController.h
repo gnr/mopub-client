@@ -110,6 +110,16 @@ typedef NSUInteger InterstitialOrientationType;
  */
 - (void)dismissInterstitial:(MPInterstitialAdController *)interstitial;
 
+/*
+ * Interstitial ads from certain networks (e.g. iAd) may expire their content at any time, 
+ * regardless of whether the content is currently on-screen. This callback notifies you when the
+ * currently-loaded interstitial has expired and is no longer eligible for display. If the ad
+ * was on-screen when it expired, you can expect that the ad will already have been dismissed 
+ * by the time this callback was fired. Your implementation of this method does not need to include 
+ * logic to dismiss an interstitial. It may include a call to -loadAd to fetch a new ad, if desired.
+ */
+- (void)interstitialDidExpire:(MPInterstitialAdController *)interstitial;
+
 @optional
 /*
  * These callbacks notify you when the interstitial (un)successfully loads its ad content. You may

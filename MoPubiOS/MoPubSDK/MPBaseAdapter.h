@@ -62,7 +62,7 @@
  * These callbacks notify you that the user interacted (or stopped interacting) with the native ad.
  */
 - (void)userActionWillBeginForAdapter:(MPBaseAdapter *)adapter;
-- (void)userActionDidEndForAdapter:(MPBaseAdapter *)adapter;
+- (void)userActionDidFinishForAdapter:(MPBaseAdapter *)adapter;
 
 /*
  * This callback notifies you that user has tapped on an ad which will cause them to leave the 

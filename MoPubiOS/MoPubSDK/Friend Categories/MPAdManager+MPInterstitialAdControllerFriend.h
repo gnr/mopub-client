@@ -13,6 +13,7 @@
 @property (nonatomic, assign) BOOL isLoading;
 @property (nonatomic, assign) BOOL ignoresAutorefresh;
 
+- (void)trackClick;
 - (void)trackImpression;
 
 @end
