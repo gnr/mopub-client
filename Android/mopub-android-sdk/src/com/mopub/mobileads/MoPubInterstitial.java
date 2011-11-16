@@ -163,7 +163,7 @@ public class MoPubInterstitial implements OnAdLoadedListener, OnAdFailedListener
     ////////////////////////////////////////////////////////////////////////////////////////////////
 
     public Activity getActivity() {
-        return mActivity;
+    	return mActivity;
     }
     
     public void setListener(MoPubInterstitialListener listener) {

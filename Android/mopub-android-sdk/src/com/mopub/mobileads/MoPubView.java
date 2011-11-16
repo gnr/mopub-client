@@ -128,7 +128,7 @@ public class MoPubView extends FrameLayout {
     private void initVersionDependentAdView(Context context) {
         int sdkVersion = (new Integer(Build.VERSION.SDK)).intValue();
         if (sdkVersion < 7) {
-            mAdView = new AdView(context, this);
+        	mAdView = new AdView(context, this);
         } else {
             // On Android 2.1 (Eclair) and up, try to load our HTML5-enabled AdView class.
             Class<?> HTML5AdViewClass = null;

@@ -81,6 +81,7 @@ public class GoogleAdMobAdapter extends BaseAdapter implements AdListener {
 
     @Override
     public void invalidate() {
+        mMoPubView.removeView(mAdMobView);
         mAdMobView.destroy();
         super.invalidate();
     }

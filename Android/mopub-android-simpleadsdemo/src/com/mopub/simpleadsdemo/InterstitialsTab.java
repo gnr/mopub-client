@@ -31,10 +31,15 @@ public class InterstitialsTab extends Activity implements MoPubInterstitialListe
 
     public void showInterstitialAd() {
         interstitial.setListener(this);
-        interstitial.showAd();
+        interstitial.load();
     }
 
     public void OnInterstitialLoaded() {
+    	if (interstitial.isReady()) interstitial.show();
+    	else {
+    	    Toast.makeText(this, "Interstitial could not be shown. Try reloading.", 
+    	            Toast.LENGTH_SHORT).show();
+    	}
     }
 
     public void OnInterstitialFailed() {

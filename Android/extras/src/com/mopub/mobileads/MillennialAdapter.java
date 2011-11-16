@@ -111,8 +111,9 @@ public class MillennialAdapter extends BaseAdapter implements MMAdListener {
 
     @Override
     public void invalidate() {
-        super.invalidate();
+        mMoPubView.removeView(mMillennialAdView);
         mActivityReference = null;
+        super.invalidate();
     }
     
     @Override

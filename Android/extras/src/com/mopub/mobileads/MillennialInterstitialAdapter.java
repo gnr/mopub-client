@@ -86,8 +86,8 @@ public class MillennialInterstitialAdapter extends BaseInterstitialAdapter imple
 
     @Override
     public void invalidate() {
-        super.invalidate();
         mActivityReference = null;
+        super.invalidate();
     }
     
     @Override
@@ -199,9 +199,15 @@ public class MillennialInterstitialAdapter extends BaseInterstitialAdapter imple
             public void run() {
                 if (isInvalidated()) return;
                 
-                Log.d("MoPub", "Millennial interstitial caching completed.");
                 if (mAdapterListener != null) {
-                    mAdapterListener.onNativeInterstitialLoaded(MillennialInterstitialAdapter.this);
+                	if (mMillennialAdView.check()) {
+                		Log.d("MoPub", "Millennial interstitial caching completed.");
+                		mAdapterListener.onNativeInterstitialLoaded(MillennialInterstitialAdapter.this);
+                	}
+                	else {
+                		Log.d("MoPub", "Millennial interstitial caching failed. Trying another.");
+                        mAdapterListener.onNativeInterstitialFailed(MillennialInterstitialAdapter.this);
+                	}
                 }
             }
         });
