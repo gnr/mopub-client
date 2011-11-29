@@ -25,6 +25,8 @@ static NSString * const kOrientationBoth				= @"b";
 
 @interface MPInterstitialAdController ()
 
+@property (nonatomic, assign) InterstitialCloseButtonStyle closeButtonStyle;
+//@property (nonatomic, assign) BOOL adWantsNativeCloseButton;
 @property (nonatomic, retain) UIButton *closeButton;
 @property (nonatomic, retain) MPBaseInterstitialAdapter *currentAdapter;
 
@@ -32,6 +34,7 @@ static NSString * const kOrientationBoth				= @"b";
 - (void)setCloseButtonImageNamed:(NSString *)name;
 - (void)layoutCloseButton;
 - (void)closeButtonPressed;
+- (void)presentInterstitialModalViewController;
 
 @end
 
@@ -40,6 +43,8 @@ static NSString * const kOrientationBoth				= @"b";
 @synthesize ready = _ready;
 @synthesize parent = _parent;
 @synthesize adUnitId = _adUnitId;
+@synthesize closeButtonStyle = _closeButtonStyle;
+@synthesize adWantsNativeCloseButton = _adWantsNativeCloseButton;
 @synthesize closeButton = _closeButton;
 @synthesize currentAdapter = _currentAdapter;
 @synthesize keywords;
@@ -114,7 +119,8 @@ static NSString * const kOrientationBoth				= @"b";
 	{
 		_parent = parent;
 		_adUnitId = [ID copy];
-		_closeButtonType = InterstitialCloseButtonTypeDefault;
+		_closeButtonStyle = InterstitialCloseButtonStyleAdControlled;
+		_adWantsNativeCloseButton = YES;
 		_orientationType = InterstitialOrientationTypeBoth;
 		
 		CGRect bounds = [UIScreen mainScreen].bounds;
@@ -175,6 +181,18 @@ static NSString * const kOrientationBoth				= @"b";
 #pragma mark -
 #pragma mark Internal
 
+- (void)setCloseButtonStyle:(InterstitialCloseButtonStyle)closeButtonStyle
+{
+    _closeButtonStyle = closeButtonStyle;
+    [self layoutCloseButton];
+}
+
+- (void)setAdWantsNativeCloseButton:(BOOL)adWantsNativeCloseButton
+{
+    _adWantsNativeCloseButton = adWantsNativeCloseButton;
+    [self layoutCloseButton];
+}
+
 - (void)setCloseButtonImageNamed:(NSString *)name
 {
 	UIImage *image = [UIImage imageNamed:name];
@@ -202,18 +220,22 @@ static NSString * const kOrientationBoth				= @"b";
 											self.closeButton.bounds.size.height);
 		
 		[self.view addSubview:self.closeButton];
-		[self.view bringSubviewToFront:self.closeButton];
 	}
-					
-	if (_closeButtonType == InterstitialCloseButtonTypeDefault)
-	{
-		[self setCloseButtonImageNamed:kCloseButtonXImageName];
-		self.closeButton.hidden = NO;
+
+	switch (_closeButtonStyle) {
+		case InterstitialCloseButtonStyleAlwaysVisible: 
+			self.closeButton.hidden = NO;
+			break;
+		case InterstitialCloseButtonStyleAlwaysHidden: 
+			self.closeButton.hidden = YES;
+			break;
+		case InterstitialCloseButtonStyleAdControlled: 
+			self.closeButton.hidden = !_adWantsNativeCloseButton;
+			break;
+		default: break;
 	}
-	else
-	{
-		self.closeButton.hidden = YES;
-	}
+    
+    [self.view bringSubviewToFront:self.closeButton];
 }
 
 #pragma mark -
@@ -277,17 +299,22 @@ static NSString * const kOrientationBoth				= @"b";
 	else 
 	{
 		[self interstitialWillAppearForAdapter:nil];
-		// Track the previous state of the status bar, so that we can restore it.
-		_statusBarWasHidden = [UIApplication sharedApplication].statusBarHidden;
-		[[UIApplication sharedApplication] setStatusBarHidden:YES];
-		
-		// Likewise, track the previous state of the navigation bar.
-		_navigationBarWasHidden = self.navigationController.navigationBarHidden;
-		[self.navigationController setNavigationBarHidden:YES animated:YES];
-		
-		[self.parent presentModalViewController:self animated:YES];
+		[self presentInterstitialModalViewController];
 		[self interstitialDidAppearForAdapter:nil];
 	}
+}
+
+- (void)presentInterstitialModalViewController
+{
+	// Track the previous state of the status bar, so that we can restore it.
+	_statusBarWasHidden = [UIApplication sharedApplication].statusBarHidden;
+	[[UIApplication sharedApplication] setStatusBarHidden:YES];
+	
+	// Likewise, track the previous state of the navigation bar.
+	_navigationBarWasHidden = self.navigationController.navigationBarHidden;
+	[self.navigationController setNavigationBarHidden:YES animated:YES];
+	
+	[self.parent presentModalViewController:self animated:YES];
 }
 
 - (NSArray *)locationDescriptionPair {
@@ -351,13 +378,7 @@ static NSString * const kOrientationBoth				= @"b";
 - (void)adView:(MPAdView *)view didReceiveResponseParams:(NSDictionary *)params
 {
 	NSString *closeButtonChoice = [params objectForKey:kCloseButtonHeaderKey];
-	
-	if ([closeButtonChoice isEqualToString:kCloseButtonNone])
-		_closeButtonType = InterstitialCloseButtonTypeNone;
-	else
-		_closeButtonType = InterstitialCloseButtonTypeDefault;
-	
-	// Adjust the close button depending on the header value.
+	_adWantsNativeCloseButton = ![closeButtonChoice isEqualToString:kCloseButtonNone];
 	[self layoutCloseButton];
 	
 	// Set the allowed orientations.
@@ -369,8 +390,14 @@ static NSString * const kOrientationBoth				= @"b";
 	else 
 		_orientationType = InterstitialOrientationTypeBoth;
 	
-	NSString *adapterType = [params objectForKey:@"X-Fulladtype"];
-	if (!adapterType || [adapterType isEqualToString:@""]) return;
+	NSString *adapterType = ([[params objectForKey:@"X-Adtype"] isEqualToString:@"mraid"]) ? 
+		@"mraid" : [params objectForKey:@"X-Fulladtype"];
+
+	if (!adapterType || [adapterType isEqualToString:@""] || 
+		[adapterType isEqualToString:@"html"]) {
+		return;
+	}
+
 	NSString *classString = [[MPAdapterMap sharedAdapterMap] classStringForAdapterType:adapterType];
 	Class cls = NSClassFromString(classString);
 	if (cls != nil)
@@ -413,6 +440,25 @@ static NSString * const kOrientationBoth				= @"b";
 	self.currentAdapter = nil;
 	
 	[_adView.adManager adapter:nil didFailToLoadAdWithError:error];
+}
+
+- (void)adapter:(MPBaseInterstitialAdapter *)adapter requestsPresentationForView:(UIView *)content
+{
+	// Replace the default ad view with the one passed as an argument.
+	[_adView removeFromSuperview];
+	content.frame = self.view.bounds;
+	content.autoresizingMask = UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth;
+	[self.view addSubview:content];
+    [self layoutCloseButton];
+
+	[self interstitialWillAppearForAdapter:adapter];
+	[self presentInterstitialModalViewController];
+	[self interstitialDidAppearForAdapter:adapter];
+}
+
+- (void)adapter:(MPBaseInterstitialAdapter *)adapter requestsDismissalOfView:(UIView *)content
+{
+	[self closeButtonPressed];
 }
 
 - (void)interstitialWillAppearForAdapter:(MPBaseInterstitialAdapter *)adapter

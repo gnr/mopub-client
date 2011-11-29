@@ -14,6 +14,8 @@
 #import "MPAdapterMap.h"
 #import "MPConstants.h"
 #import "MPGlobal.h"
+#import "MPMraidAdapter.h"
+#import "MPMraidInterstitialAdapter.h"
 #import "CJSONDeserializer.h"
 
 NSString * const kTimerNotificationName = @"Autorefresh";
@@ -41,7 +43,9 @@ NSString * const kAnimationHeaderKey = @"X-Animation";
 NSString * const kAdTypeHeaderKey = @"X-Adtype";
 NSString * const kNetworkTypeHeaderKey = @"X-Networktype";
 NSString * const kAdTypeHtml = @"html";
+NSString * const kAdTypeInterstitial = @"interstitial";
 NSString * const kAdTypeClear = @"clear";
+NSString * const kAdTypeMraid = @"mraid";
 
 @interface MPAdManager ()
 
@@ -61,6 +65,7 @@ NSString * const kAdTypeClear = @"clear";
 @property (nonatomic, retain) MPTimer *autorefreshTimer;
 @property (nonatomic, retain) MPStore *store;
 @property (nonatomic, retain) NSMutableData *data;
+@property (nonatomic, retain) NSDictionary *headers;
 @property (nonatomic, retain) NSMutableSet *webviewPool;
 @property (nonatomic, retain) MPBaseAdapter *currentAdapter;
 @property (nonatomic, retain) NSMutableURLRequest *request;
@@ -88,6 +93,9 @@ NSString * const kAdTypeClear = @"clear";
 - (NSDictionary *)dictionaryFromQueryString:(NSString *)query;
 - (void)customLinkClickedForSelectorString:(NSString *)selectorString 
 							withDataString:(NSString *)dataString;
+- (void)processResponseHeaders:(NSDictionary *)headers body:(NSData *)data;
+- (void)handleMraidRequest;
+- (void)logResponseBodyToConsole:(NSData *)data;
 
 @end
 
@@ -111,18 +119,16 @@ NSString * const kAdTypeClear = @"clear";
 @synthesize autorefreshTimerNeedsScheduling = _autorefreshTimerNeedsScheduling;
 @synthesize store = _store;
 @synthesize data = _data;
+@synthesize headers = _headers;
 @synthesize webviewPool = _webviewPool;
 @synthesize currentAdapter = _currentAdapter;
 @synthesize request = _request;
 
-- (id)initWithAdView:(MPAdView *)adView {
+- (id)init {
 	if (self = [super init]) {
-		_adView = adView;
-		_adUnitId = [adView.adUnitId copy];
 		_data = [[NSMutableData data] retain];
 		_webviewPool = [[NSMutableSet set] retain];
 		_shouldInterceptLinks = YES;
-		_ignoresAutorefresh = adView.ignoresAutorefresh;
 		_store = [MPStore sharedStore];
 		_timerTarget = [[MPTimerTarget alloc] initWithNotificationName:kTimerNotificationName];
         _request = [[NSMutableURLRequest alloc] initWithURL:nil
@@ -136,6 +142,13 @@ NSString * const kAdTypeClear = @"clear";
 		[self registerForApplicationStateTransitionNotifications];
 	}
 	return self;
+}
+
+- (void)setAdView:(MPAdView *)adView {
+    _adView = adView;
+    
+    self.adUnitId = adView.adUnitId;
+    self.ignoresAutorefresh = adView.ignoresAutorefresh;
 }
 
 - (void)registerForApplicationStateTransitionNotifications
@@ -171,6 +184,7 @@ NSString * const kAdTypeClear = @"clear";
 	[_conn cancel];
 	[_conn release];
 	[_data release];
+	[_headers release];
 	[_URL release];
 	[_clickURL release];
 	[_interceptURL release];
@@ -237,7 +251,7 @@ NSString * const kAdTypeClear = @"clear";
 }
 
 - (NSURL *)serverRequestURL {
-	NSString *urlString = [NSString stringWithFormat:@"http://%@/m/ad?v=7&udid=%@&q=%@&id=%@", 
+	NSString *urlString = [NSString stringWithFormat:@"http://%@/m/ad?v=8&udid=%@&q=%@&id=%@", 
 						   HOSTNAME,
 						   MPHashedUDID(),
 						   [_keywords stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding],
@@ -248,7 +262,11 @@ NSString * const kAdTypeClear = @"clear";
 	urlString = [urlString stringByAppendingString:[self scaleFactorQueryStringComponent]];
 	urlString = [urlString stringByAppendingString:[self timeZoneQueryStringComponent]];
 	urlString = [urlString stringByAppendingString:[self locationQueryStringComponent]];
-	
+    
+    if (NSClassFromString(@"MPMraidAdapter") != nil) {
+        urlString = [urlString stringByAppendingString:@"&mr=1"];
+    }
+    
 	return [NSURL URLWithString:urlString];
 }
 
@@ -527,10 +545,6 @@ NSString * const kAdTypeClear = @"clear";
 	[_data release];
 	_data = [[NSMutableData data] retain];
 	
-	if ([self.adView.delegate respondsToSelector:@selector(adView:didReceiveResponseParams:)])
-		[self.adView.delegate adView:self.adView
-			didReceiveResponseParams:[(NSHTTPURLResponse *)response allHeaderFields]];
-	
 	// Parse response headers, set relevant URLs and booleans.
 	NSDictionary *headers = [(NSHTTPURLResponse *)response allHeaderFields];
 	NSString *urlString = nil;
@@ -589,16 +603,13 @@ NSString * const kAdTypeClear = @"clear";
 	{
 		MPLogInfo(@"Fetching Ad Network Type: %@", networkTypeHeader);
 	}
+
+	self.headers = headers;
 	
 	// Determine ad type.
 	NSString *typeHeader = [headers	objectForKey:kAdTypeHeaderKey];
 	
-	if (!typeHeader || [typeHeader isEqualToString:kAdTypeHtml]) {
-		[self replaceCurrentAdapterWithAdapter:nil];
-		
-		// HTML ad, so just return. connectionDidFinishLoading: will take care of the rest.
-		return;
-	}	else if ([typeHeader isEqualToString:kAdTypeClear]) {
+	if (!typeHeader || [typeHeader isEqualToString:kAdTypeClear]) {
 		[self replaceCurrentAdapterWithAdapter:nil];
 		
 		// Show a blank.
@@ -608,7 +619,16 @@ NSString * const kAdTypeClear = @"clear";
 		[self.adView backFillWithNothing];
 		[self scheduleAutorefreshTimerIfEnabled];
 		return;
-	}
+	} else if ([typeHeader isEqualToString:kAdTypeHtml] || 
+			[typeHeader isEqualToString:kAdTypeInterstitial]) {
+		// HTML ad, so just return. connectionDidFinishLoading: will take care of the rest.
+		[self replaceCurrentAdapterWithAdapter:nil];
+		return;
+	} else if ([typeHeader isEqualToString:kAdTypeMraid]) {
+		[self replaceCurrentAdapterWithAdapter:nil];
+        _shouldLoadMRAIDAd = YES;
+        return;
+    }
 	
 	// Obtain adapter for specified ad type.
 	NSString *classString = [[MPAdapterMap sharedAdapterMap] classStringForAdapterType:typeHeader];
@@ -667,17 +687,50 @@ NSString * const kAdTypeClear = @"clear";
 
 - (void)connectionDidFinishLoading:(NSURLConnection *)connection
 {
+    NSMutableDictionary *params = [NSMutableDictionary dictionaryWithDictionary:self.headers];
+    [params setObject:_data forKey:@"payload"];
     
-	// Generate a new webview to contain the HTML and add it to the webview pool.
-	UIWebView *webview = [self adWebViewWithFrame:(CGRect){{0, 0}, self.adView.creativeSize}];
-	webview.delegate = self;
-	[_webviewPool addObject:webview];
-	[webview loadData:_data MIMEType:@"text/html" textEncodingName:@"utf-8" baseURL:self.URL];
+	if ([self.adView.delegate respondsToSelector:@selector(adView:didReceiveResponseParams:)])
+		[self.adView.delegate adView:self.adView didReceiveResponseParams:params];
 	
-	// Print out the response, for debugging.
+	[self processResponseHeaders:self.headers body:_data];
+	[self logResponseBodyToConsole:_data];
+}
+
+- (void)processResponseHeaders:(NSDictionary *)headers body:(NSData *)data
+{
+	if (_shouldLoadMRAIDAd) {
+	    [self handleMraidRequest];
+    	_shouldLoadMRAIDAd = NO;
+	    return;
+    } else {
+    	// Generate a new webview to contain the HTML and add it to the webview pool.
+		UIWebView *webview = [self adWebViewWithFrame:(CGRect){{0, 0}, self.adView.creativeSize}];
+		webview.delegate = self;
+		[_webviewPool addObject:webview];
+		[webview loadData:_data MIMEType:@"text/html" textEncodingName:@"utf-8" baseURL:self.URL];
+    }
+}
+
+- (void)handleMraidRequest
+{
+	MPMraidAdapter *adapter = [[MPMraidAdapter alloc] initWithAdapterDelegate:self];
+	[self replaceCurrentAdapterWithAdapter:adapter];
+
+	CGSize size = self.adView.creativeSize;
+	NSDictionary *params = [NSDictionary dictionaryWithObjectsAndKeys:
+                        [NSString stringWithFormat:@"%f", size.width], @"adWidth",
+                        [NSString stringWithFormat:@"%f", size.height], @"adHeight",
+                        _data, @"payload",
+                        nil];
+	[adapter getAdWithParams:params];
+}
+
+- (void)logResponseBodyToConsole:(NSData *)data
+{
 	if (MPLogGetLevel() <= MPLogLevelTrace)
 	{
-		NSString *response = [[NSString alloc] initWithData:_data encoding:NSUTF8StringEncoding];
+		NSString *response = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
 		MPLogTrace(@"Ad view (%p) loaded HTML content: %@", self, response);
 		[response release];
 	}
@@ -740,7 +793,8 @@ NSString * const kAdTypeClear = @"clear";
 	
 	// Dispose of the current adapter, because we don't want it to try loading again.
 	[_currentAdapter unregisterDelegate];
-	[_currentAdapter release];
+    [_currentAdapter performSelector:@selector(release) withObject:nil afterDelay:1];
+	//[_currentAdapter release];
 	_currentAdapter = nil;
 	
 	// An adapter will sometimes send this message during a user action (example: user taps on an 
@@ -793,6 +847,17 @@ NSString * const kAdTypeClear = @"clear";
 - (MPNativeAdOrientation)allowedNativeAdsOrientation
 {
 	return [self.adView allowedNativeAdsOrientation];
+}
+
+- (void)pauseAutorefresh
+{
+    _previousIgnoresAutorefresh = _ignoresAutorefresh;
+    [self setIgnoresAutorefresh:YES];
+}
+
+- (void)resumeAutorefreshIfEnabled
+{
+    [self setIgnoresAutorefresh:_previousIgnoresAutorefresh];
 }
 
 #pragma mark -
@@ -893,7 +958,9 @@ NSString * const kAdTypeClear = @"clear";
 - (void)applicationWillEnterForeground
 {
 	_autorefreshTimerNeedsScheduling = NO;
-	if (!_ignoresAutorefresh) [self forceRefreshAd];
+	if (!_ignoresAutorefresh) {
+        [self forceRefreshAd];
+    }
 }
 
 @end
@@ -910,6 +977,12 @@ NSString * const kAdTypeClear = @"clear";
 	// If the initial request to MoPub fails, replace the current ad content with a blank.
 	_isLoading = NO;
 	[self.adView backFillWithNothing];
+}
+
+- (void)handleMraidRequest
+{
+	// The loading of an MRAID interstitial ad is done through -adView:didReceiveResponseParams:, so
+	// we don't need to do anything here.
 }
 
 - (UIWebView *)adWebViewWithFrame:(CGRect)frame

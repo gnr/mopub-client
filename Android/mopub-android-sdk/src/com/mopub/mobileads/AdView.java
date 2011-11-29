@@ -281,7 +281,7 @@ public class AdView extends WebView {
     
     private String generateAdUrl() {
         StringBuilder sz = new StringBuilder("http://" + MoPubView.HOST + MoPubView.AD_HANDLER);
-        sz.append("?v=4&id=" + mAdUnitId);
+        sz.append("?v=5&id=" + mAdUnitId);
         
         String udid = Secure.getString(getContext().getContentResolver(), Secure.ANDROID_ID);
         String udidDigest = (udid == null) ? "" : Utils.sha1(udid);
@@ -309,6 +309,14 @@ public class AdView extends WebView {
         DisplayMetrics metrics = new DisplayMetrics();
         ((WindowManager) getContext().getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay().getMetrics(metrics);
         sz.append("&sc_a=" + metrics.density);
+        
+        boolean mraid = true;
+        try {
+            Class.forName("com.mopub.mraid.MraidView", false, ClassLoader.getSystemClassLoader());
+        } catch (ClassNotFoundException e) {
+            mraid = false;
+        }
+        if (mraid) sz.append("&mr=1");
       
         return sz.toString();
     }
@@ -404,6 +412,19 @@ public class AdView extends WebView {
                     Header cmHeader = response.getFirstHeader("X-Customselector");
                     return new PerformCustomEventTaskResult(mAdView, cmHeader);
                 }
+                else if (atHeader.getValue().equals("mraid")) {
+                    HashMap<String, String> paramsHash = new HashMap<String, String>();
+                    paramsHash.put("X-Adtype", atHeader.getValue());
+
+                    InputStream is = entity.getContent();
+                    StringBuffer out = new StringBuffer();
+                    byte[] b = new byte[4096];
+                    for (int n; (n = is.read(b)) != -1;) {
+                        out.append(new String(b, 0, n));
+                    }
+                    paramsHash.put("X-Nativeparams", out.toString());
+                    return new LoadNativeAdTaskResult(mAdView, paramsHash);
+                }
                 // Handle native SDK ad type.
                 else if (!atHeader.getValue().equals("html")) {
                     Log.i("MoPub", "Loading native ad");
@@ -412,13 +433,12 @@ public class AdView extends WebView {
                     paramsHash.put("X-Adtype", atHeader.getValue());
                     
                     Header npHeader = response.getFirstHeader("X-Nativeparams");
-                    if (npHeader != null) {
-                        paramsHash.put("X-Nativeparams", npHeader.getValue());
-                        Header ftHeader = response.getFirstHeader("X-Fulladtype");
-                        if (ftHeader != null) paramsHash.put("X-Fulladtype", ftHeader.getValue());
-                    } else {
-                        paramsHash.put("X-Nativeparams", "{}");
-                    }
+                    paramsHash.put("X-Nativeparams", "{}");
+                    if (npHeader != null) paramsHash.put("X-Nativeparams", npHeader.getValue());
+                    
+                    Header ftHeader = response.getFirstHeader("X-Fulladtype");
+                    if (ftHeader != null) paramsHash.put("X-Fulladtype", ftHeader.getValue());
+                    
                     return new LoadNativeAdTaskResult(mAdView, paramsHash);
                 }
                 
@@ -903,6 +923,8 @@ public class AdView extends WebView {
     
     public void setAutorefreshEnabled(boolean enabled) {
         mAutorefreshEnabled = enabled;
+        
+        Log.d("MoPub", "Automatic refresh for " + mAdUnitId + " set to: " + enabled + ".");
         
         if (!mAutorefreshEnabled) cancelRefreshTimer();
         else scheduleRefreshTimerIfEnabled();

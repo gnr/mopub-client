@@ -19,6 +19,19 @@
 @synthesize timer = _timer;
 @synthesize pauseDate = _pauseDate;
 
++ (MPTimer *)scheduledTimerWithTimeInterval:(NSTimeInterval)seconds target:(id)target 
+                                   selector:(SEL)aSelector userInfo:(id)userInfo 
+                                    repeats:(BOOL)repeats
+{
+    MPTimer *m = [[MPTimer alloc] init];
+    m.timer = [NSTimer scheduledTimerWithTimeInterval:seconds 
+                                               target:target 
+                                             selector:aSelector 
+                                             userInfo:userInfo 
+                                              repeats:repeats];
+    return [m autorelease];
+}
+
 + (MPTimer *)timerWithTimeInterval:(NSTimeInterval)seconds target:(id)target 
 						  selector:(SEL)aSelector userInfo:(id)userInfo repeats:(BOOL)repeats
 {

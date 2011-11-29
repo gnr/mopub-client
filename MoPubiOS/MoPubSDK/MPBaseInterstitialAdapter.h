@@ -54,6 +54,20 @@
 - (void)adapter:(MPBaseInterstitialAdapter *)adapter didFailToLoadAdWithError:(NSError *)error;
 
 /*
+ * This callback is triggered when the adapter wants to delegate the actual presentation of an ad,
+ * rather than present the ad on its own. The view to be presented is passed as an argument.
+ * The implementation of this method should cause the view to be displayed on-screen.
+ */
+- (void)adapter:(MPBaseInterstitialAdapter *)adapter requestsPresentationForView:(UIView *)content;
+
+/*
+ * This callback is triggered when the adapter wishes to dismiss an ad that was previously
+ * presented via -adapter:requestsPresentationForView:. The implementation of this method should
+ * cause the view to be removed from the screen.
+ */
+- (void)adapter:(MPBaseInterstitialAdapter *)adapter requestsDismissalOfView:(UIView *)content;
+
+/*
  *
  */
 - (void)interstitialWillAppearForAdapter:(MPBaseInterstitialAdapter *)adapter;

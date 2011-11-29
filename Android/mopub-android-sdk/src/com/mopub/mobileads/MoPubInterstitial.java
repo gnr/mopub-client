@@ -117,13 +117,11 @@ public class MoPubInterstitial implements OnAdLoadedListener, OnAdFailedListener
         if (mInterstitialAdapter != null) mInterstitialAdapter.showInterstitial();
     }
     
-    @Override
     public void OnAdFailed(MoPubView m) {
         mCurrentInterstitialState = InterstitialState.NOT_READY;
         if (mListener != null) mListener.OnInterstitialFailed();
     }
 
-    @Override
     public void OnAdLoaded(MoPubView m) {
         mCurrentInterstitialState = InterstitialState.HTML_AD_READY;
         
@@ -143,7 +141,6 @@ public class MoPubInterstitial implements OnAdLoadedListener, OnAdFailedListener
          */
         
         mAdapterListener = new DefaultInterstitialAdapterListener() {
-            @Override
             public void onNativeInterstitialLoaded(BaseInterstitialAdapter adapter) {
                 super.onNativeInterstitialLoaded(adapter);
                 MoPubInterstitial.this.show();
@@ -214,25 +211,21 @@ public class MoPubInterstitial implements OnAdLoadedListener, OnAdFailedListener
     ////////////////////////////////////////////////////////////////////////////////////////////////
     
     public class DefaultInterstitialAdapterListener implements BaseInterstitialAdapterListener {
-        @Override
         public void onNativeInterstitialLoaded(BaseInterstitialAdapter adapter) {
             mCurrentInterstitialState = InterstitialState.NATIVE_AD_READY;
             mInterstitialView.trackImpression();
             if (mListener != null) mListener.OnInterstitialLoaded();
         }
 
-        @Override
         public void onNativeInterstitialFailed(BaseInterstitialAdapter adapter) {
             mCurrentInterstitialState = InterstitialState.NOT_READY;
             mInterstitialView.loadFailUrl();
         }
 
-        @Override
         public void onNativeInterstitialClicked(BaseInterstitialAdapter adapter) {
             mInterstitialView.registerClick();
         }
         
-        @Override
         public void onNativeInterstitialExpired(BaseInterstitialAdapter adapter) {
             mCurrentInterstitialState = InterstitialState.NOT_READY;
         }
@@ -255,8 +248,9 @@ public class MoPubInterstitial implements OnAdLoadedListener, OnAdFailedListener
                 interstitial.getInterstitialAdapterListener();
             String type = paramsHash.get("X-Adtype");
             
-            if (type != null && type.equals("interstitial")) {
-                String interstitialType = paramsHash.get("X-Fulladtype");
+            if (type != null && (type.equals("interstitial") || type.equals("mraid"))) {
+                String interstitialType = type.equals("interstitial") ? 
+                        paramsHash.get("X-Fulladtype") : "mraid";
                 
                 Log.i("MoPub", "Loading native adapter for interstitial type: " + interstitialType);
                 mInterstitialAdapter =

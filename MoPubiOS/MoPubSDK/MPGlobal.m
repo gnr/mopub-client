@@ -14,6 +14,31 @@ UIInterfaceOrientation MPInterfaceOrientation()
 	return [UIApplication sharedApplication].statusBarOrientation;
 }
 
+UIWindow *MPKeyWindow()
+{
+    return [UIApplication sharedApplication].keyWindow;
+}
+
+CGFloat MPStatusBarHeight() {
+    if ([UIApplication sharedApplication].statusBarHidden) return 0.0;
+    
+    UIInterfaceOrientation orientation = MPInterfaceOrientation();
+    
+    return UIInterfaceOrientationIsLandscape(orientation) ?
+        CGRectGetWidth([UIApplication sharedApplication].statusBarFrame) :
+        CGRectGetHeight([UIApplication sharedApplication].statusBarFrame);
+}
+
+CGRect MPApplicationFrame()
+{
+    CGRect frame = MPScreenBounds();
+    
+    frame.origin.y += MPStatusBarHeight();
+    frame.size.height -= MPStatusBarHeight();
+    
+    return frame;
+}
+
 CGRect MPScreenBounds()
 {
 	CGRect bounds = [UIScreen mainScreen].bounds;
@@ -37,7 +62,6 @@ CGFloat MPDeviceScaleFactor()
 	}
 	else return 1.0;
 }
-
 
 NSString *MPHashedUDID()
 {
@@ -74,6 +98,19 @@ NSString *MPUserAgentString()
         [webview release];
     }
     return userAgent;
+}
+
+NSDictionary *MPDictionaryFromQueryString(NSString *query) {
+    NSMutableDictionary *queryDict = [NSMutableDictionary dictionary];
+	NSArray *queryElements = [query componentsSeparatedByString:@"&"];
+	for (NSString *element in queryElements) {
+		NSArray *keyVal = [element componentsSeparatedByString:@"="];
+		NSString *key = [keyVal objectAtIndex:0];
+		NSString *value = [keyVal lastObject];
+		[queryDict setObject:[value stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding] 
+					  forKey:key];
+	}
+	return queryDict;
 }
 
 @implementation NSString (MPAdditions)

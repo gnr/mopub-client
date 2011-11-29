@@ -71,7 +71,10 @@ extern NSString * const kAdTypeClear;
 	NSURLConnection *_conn;
 	
 	// Connection data object for ad request.
-	NSMutableData *_data;	
+	NSMutableData *_data;
+
+	// Dictionary of response headers for the current ad request.
+	NSDictionary *_headers;
 	
 	// Pool of webviews being used as HTML ads.
 	NSMutableSet *_webviewPool;
@@ -108,7 +111,7 @@ extern NSString * const kAdTypeClear;
 	
 	// Whether the ad view ignores autorefresh values sent down from the server. If YES,
 	// the ad view will never refresh once it has a valid ad.
-	BOOL _ignoresAutorefresh;	
+	BOOL _ignoresAutorefresh;
 	
 	// Whether the autorefresh timer needs to be scheduled. Use case: during a user-triggered ad 
 	// action, we must postpone any attempted timer scheduling until the action ends. This flag 
@@ -117,6 +120,10 @@ extern NSString * const kAdTypeClear;
 	
 	// Handle to the shared store object that manages in-app purchases from ads.
 	MPStore *_store;
+    
+    BOOL _previousIgnoresAutorefresh;
+    
+    BOOL _shouldLoadMRAIDAd;
 }
 
 @property (nonatomic, readonly) MPAdView *adView;

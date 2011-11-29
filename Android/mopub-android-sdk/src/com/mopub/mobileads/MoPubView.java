@@ -400,4 +400,13 @@ public class MoPubView extends FrameLayout {
     public void setAutorefreshEnabled(boolean enabled) {
         if (mAdView != null) mAdView.setAutorefreshEnabled(enabled);
     }
+    
+    public boolean getAutorefreshEnabled() {
+        if (mAdView != null) return mAdView.getAutorefreshEnabled();
+        else {
+            Log.d("MoPub", "Can't get autorefresh status for destroyed MoPubView. " + 
+                    "Returning false.");
+            return false;
+        }
+    }
 }

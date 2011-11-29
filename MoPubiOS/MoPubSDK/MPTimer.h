@@ -10,7 +10,7 @@
 
 /* 
  * MPTimer is a simple wrapper class for NSTimer, adding pause/resume functionality.
- * It does not inherit NSTimer's entire interface -- just one convenience method for
+ * It does not inherit NSTimer's entire interface -- just a few convenience methods for
  * creation and the -invalidate method.
  */
 @interface MPTimer : NSObject 
@@ -21,6 +21,8 @@
 	NSDate *_pauseDate;
 }
 
++ (MPTimer *)scheduledTimerWithTimeInterval:(NSTimeInterval)seconds target:(id)target 
+						  selector:(SEL)aSelector userInfo:(id)userInfo repeats:(BOOL)repeats;
 + (MPTimer *)timerWithTimeInterval:(NSTimeInterval)seconds target:(id)target 
 						  selector:(SEL)aSelector userInfo:(id)userInfo repeats:(BOOL)repeats;
 

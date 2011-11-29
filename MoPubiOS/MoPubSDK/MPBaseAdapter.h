@@ -58,6 +58,9 @@
 - (UIViewController *)viewControllerForPresentingModalView;
 - (MPNativeAdOrientation)allowedNativeAdsOrientation;
 
+- (void)pauseAutorefresh;
+- (void)resumeAutorefreshIfEnabled;
+
 /*
  * These callbacks notify you that the adapter (un)successfully loaded an ad.
  */

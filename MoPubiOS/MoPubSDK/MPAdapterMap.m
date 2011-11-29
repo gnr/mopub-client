@@ -37,7 +37,7 @@ static MPAdapterMap *sharedAdapterMap = nil;
 				 @"MPGoogleAdMobInterstitialAdapter", @"admob_full",
 				 @"MPMillennialInterstitialAdapter", @"millennial_full",
 				 @"MPInterstitialAdapter", @"interstitial",
-				 @"MPORMMAAdapter", @"ORMMA",
+				 @"MPMraidInterstitialAdapter", @"mraid",
 				 nil] retain];
 	}
 	return self;

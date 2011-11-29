@@ -64,7 +64,7 @@
 	NSString *appID = [context objectForKey:kApplicationIdContextKey];
 	NSString *userAgent = [context objectForKey:kUserAgentContextKey];
 	
-	NSString *appOpenUrlString = [NSString stringWithFormat:@"http://%@/m/open?v=7&udid=%@&id=%@",
+	NSString *appOpenUrlString = [NSString stringWithFormat:@"http://%@/m/open?v=8&udid=%@&id=%@",
 								  HOSTNAME,
 								  MPHashedUDID(),
 								  appID];

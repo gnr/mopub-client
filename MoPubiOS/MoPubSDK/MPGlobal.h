@@ -10,10 +10,14 @@
 #import <UIKit/UIKit.h>
 
 UIInterfaceOrientation MPInterfaceOrientation(void);
+UIWindow *MPKeyWindow(void);
+CGFloat MPStatusBarHeight(void);
+CGRect MPApplicationFrame(void);
 CGRect MPScreenBounds(void);
 CGFloat MPDeviceScaleFactor(void);
 NSString *MPHashedUDID(void);
 NSString *MPUserAgentString(void);
+NSDictionary *MPDictionaryFromQueryString(NSString *query);
 
 @interface NSString (MPAdditions)
 

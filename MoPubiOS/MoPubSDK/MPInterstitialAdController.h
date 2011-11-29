@@ -10,12 +10,13 @@
 #import "MPAdView.h"
 #import "MPBaseInterstitialAdapter.h"
 
-enum 
+enum
 {
-	InterstitialCloseButtonTypeDefault,
-	InterstitialCloseButtonTypeNone
+	InterstitialCloseButtonStyleAlwaysVisible,
+	InterstitialCloseButtonStyleAlwaysHidden,
+	InterstitialCloseButtonStyleAdControlled
 };
-typedef NSUInteger InterstitialCloseButtonType;
+typedef NSUInteger InterstitialCloseButtonStyle;
 
 enum 
 {
@@ -47,8 +48,11 @@ typedef NSUInteger InterstitialOrientationType;
 	// The ad unit ID.
 	NSString *_adUnitId;
 	
-	// Determines what kind of close button we want to display.
-	InterstitialCloseButtonType _closeButtonType;
+	// Determines how/when the interstitial should display a native close button.
+	InterstitialCloseButtonStyle _closeButtonStyle;
+
+	// Whether the ad content has requested that a native close button be shown.
+	BOOL _adWantsNativeCloseButton;
 	
 	// Determines the allowed orientations for the interstitial.
 	InterstitialOrientationType _orientationType;
@@ -66,6 +70,7 @@ typedef NSUInteger InterstitialOrientationType;
 @property (nonatomic, copy) CLLocation *location;
 @property (nonatomic, assign) BOOL locationEnabled;
 @property (nonatomic, assign) NSUInteger locationPrecision;
+@property (nonatomic, assign) BOOL adWantsNativeCloseButton;
 
 /*
  * A shared pool of interstitial ads.
