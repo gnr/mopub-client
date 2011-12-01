@@ -34,6 +34,7 @@
  */
 - (void)getAd;
 - (void)getAdWithParams:(NSDictionary *)params;
+- (void)_getAdWithParams:(NSDictionary *)params;
 
 /*
  * Presents the interstitial from the specified view controller.
