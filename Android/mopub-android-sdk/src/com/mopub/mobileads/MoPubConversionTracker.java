@@ -77,7 +77,7 @@ public class MoPubConversionTracker {
             
             String udid = Secure.getString(mContext.getContentResolver(), Secure.ANDROID_ID);
             String udidDigest = (udid == null) ? "" : Utils.sha1(udid);
-            sz.append("udid=sha:" + udidDigest);
+            sz.append("&udid=sha:" + udidDigest);
             String url = sz.toString();
             Log.d("MoPub", "Conversion track: " + url);
 
