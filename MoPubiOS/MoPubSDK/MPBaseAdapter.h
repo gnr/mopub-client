@@ -34,6 +34,13 @@
 - (void)getAdWithParams:(NSDictionary *)params;
 
 /*
+ * This method wraps -getAdWithParams: with calls to -retain and -release, since that method
+ * may prematurely deallocate the adapter during its own execution (as the result of various
+ * callbacks).
+ */
+- (void)_getAdWithParams:(NSDictionary *)params;
+
+/*
  * Your subclass should implement this method if your native ads vary depending on orientation.
  */
 - (void)rotateToOrientation:(UIInterfaceOrientation)newOrientation;

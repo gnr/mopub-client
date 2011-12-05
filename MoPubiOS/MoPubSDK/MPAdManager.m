@@ -621,7 +621,7 @@ NSString * const kAdTypeClear = @"clear";
 		
 		// Tell adapter to fire off ad request.
 		NSDictionary *params = [(NSHTTPURLResponse *)response allHeaderFields];
-		[_currentAdapter getAdWithParams:params];
+		[_currentAdapter _getAdWithParams:params];
 	}
 	// Else: no adapter for the specified ad type, so just fail over.
 	else 

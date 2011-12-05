@@ -43,6 +43,13 @@
 	[self doesNotRecognizeSelector:_cmd];
 }
 
+- (void)_getAdWithParams:(NSDictionary *)params
+{
+  [self retain];
+  [self getAdWithParams:params];
+  [self release];
+}
+
 - (void)rotateToOrientation:(UIInterfaceOrientation)newOrientation
 {
 	// Do nothing by default. Subclasses can override.

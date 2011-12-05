@@ -42,6 +42,13 @@
 	[self doesNotRecognizeSelector:_cmd];
 }
 
+- (void)_getAdWithParams:(NSDictionary *)params 
+{
+  [self retain];
+  [self getAdWithParams:params];
+  [self release];
+}
+
 - (void)showInterstitialFromViewController:(UIViewController *)controller
 {
 	[self doesNotRecognizeSelector:_cmd];
