@@ -377,6 +377,7 @@ NSString * const kAdTypeClear = @"clear";
 - (void)customEventDidLoadAd
 {
 	_isLoading = NO;
+    [self scheduleAutorefreshTimerIfEnabled];
 	[self trackImpression];
 }
 
