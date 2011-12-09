@@ -86,6 +86,7 @@ public class MillennialInterstitialAdapter extends BaseInterstitialAdapter imple
 
     @Override
     public void invalidate() {
+    	mMillennialAdView.removeAllViews();
         mActivityReference = null;
         super.invalidate();
     }
