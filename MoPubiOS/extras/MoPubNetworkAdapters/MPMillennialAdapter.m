@@ -126,7 +126,7 @@
 
 - (void)adModalWasDismissed
 {
-	[self.delegate userActionDidEndForAdapter:self];
+	[self.delegate userActionDidFinishForAdapter:self];
 }
 
 @end

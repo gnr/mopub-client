@@ -102,7 +102,7 @@
 
 - (void)adViewDidDismissScreen:(GADBannerView *)bannerView
 {
-	[self.delegate userActionDidEndForAdapter:self];
+	[self.delegate userActionDidFinishForAdapter:self];
 }
 
 - (void)adViewWillLeaveApplication:(GADBannerView *)bannerView

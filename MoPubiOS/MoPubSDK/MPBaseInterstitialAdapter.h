@@ -34,6 +34,7 @@
  */
 - (void)getAd;
 - (void)getAdWithParams:(NSDictionary *)params;
+- (void)_getAdWithParams:(NSDictionary *)params;
 
 /*
  * Presents the interstitial from the specified view controller.
@@ -59,4 +60,7 @@
 - (void)interstitialDidAppearForAdapter:(MPBaseInterstitialAdapter *)adapter;
 - (void)interstitialWillDisappearForAdapter:(MPBaseInterstitialAdapter *)adapter;
 - (void)interstitialDidDisappearForAdapter:(MPBaseInterstitialAdapter *)adapter;
+
+- (void)interstitialWasTappedForAdapter:(MPBaseInterstitialAdapter *)adapter;
+- (void)interstitialDidExpireForAdapter:(MPBaseInterstitialAdapter *)adapter;
 @end

@@ -49,6 +49,7 @@ public class GoogleAdMobInterstitialAdapter extends BaseInterstitialAdapter impl
         AdListener {
 
     private InterstitialAd mInterstitialAd;
+    private boolean mHasPrefetchedInterstitial;
     private boolean mHasAlreadyRegisteredClick;
     
     @Override
@@ -62,7 +63,7 @@ public class GoogleAdMobInterstitialAdapter extends BaseInterstitialAdapter impl
             object = (JSONObject) new JSONTokener(mJsonParams).nextValue(); 
             pubId = object.getString("adUnitID");
         } catch (JSONException e) { 
-            mInterstitial.interstitialFailed(); 
+            if (mAdapterListener != null) mAdapterListener.onNativeInterstitialFailed(this); 
             return; 
         }
 
@@ -81,14 +82,14 @@ public class GoogleAdMobInterstitialAdapter extends BaseInterstitialAdapter impl
         Location location = mInterstitial.getLocation();
         if (location != null) adRequest.setLocation(location);
         
+        mHasPrefetchedInterstitial = false;
         mInterstitialAd.loadAd(adRequest);
     }
 
     @Override
     public void showInterstitial() {
         if (isInvalidated()) return;
-        
-        mInterstitialAd.show();
+        if (mHasPrefetchedInterstitial) mInterstitialAd.show();
     }
 
     @Override
@@ -101,7 +102,8 @@ public class GoogleAdMobInterstitialAdapter extends BaseInterstitialAdapter impl
         if (isInvalidated()) return;
         
         Log.d("MoPub", "Google AdMob interstitial failed. Trying another");
-        mInterstitial.interstitialFailed();
+        mHasPrefetchedInterstitial = false;
+        if (mAdapterListener != null) mAdapterListener.onNativeInterstitialFailed(this);
     }
 
     @Override
@@ -112,7 +114,7 @@ public class GoogleAdMobInterstitialAdapter extends BaseInterstitialAdapter impl
         Log.d("MoPub", "Google AdMob interstitial was clicked, leaving application");
         if (!mHasAlreadyRegisteredClick) { 
             mHasAlreadyRegisteredClick = true;
-            mInterstitial.interstitialClicked(); 
+            if (mAdapterListener != null) mAdapterListener.onNativeInterstitialClicked(this);
         }
     }
 
@@ -126,7 +128,7 @@ public class GoogleAdMobInterstitialAdapter extends BaseInterstitialAdapter impl
         if (isInvalidated()) return;
         
         Log.d("MoPub", "Google AdMob interstitial received an ad successfully.");
-        mInterstitial.interstitialLoaded();
-        mInterstitialAd.show();
+        mHasPrefetchedInterstitial = true;
+        if (mAdapterListener != null) mAdapterListener.onNativeInterstitialLoaded(this);
     }
 }

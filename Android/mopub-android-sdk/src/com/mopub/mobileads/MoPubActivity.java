@@ -32,20 +32,28 @@
 
 package com.mopub.mobileads;
 
-import com.mopub.mobileads.MoPubView.OnAdLoadedListener;
-
 import android.app.Activity;
 import android.content.res.Configuration;
+import android.graphics.drawable.StateListDrawable;
 import android.os.Bundle;
+import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.RelativeLayout;
+
+import com.mopub.mobileads.MoPubView.OnAdLoadedListener;
 
 public class MoPubActivity extends Activity implements OnAdLoadedListener {
     public static final int MOPUB_ACTIVITY_NO_AD = 1234;
+    private static final float CLOSE_BUTTON_SIZE_DP = 50.0f;
+    private static final float CLOSE_BUTTON_PADDING_DP = 8.0f;
 
     private MoPubView mMoPubView;
     private RelativeLayout mLayout;
+    private ImageView mCloseButton;
 
     /** Called when the activity is first created. */
     @Override
@@ -85,6 +93,29 @@ public class MoPubActivity extends Activity implements OnAdLoadedListener {
         adViewLayout.addRule(RelativeLayout.CENTER_IN_PARENT);
         mLayout.addView(mMoPubView, adViewLayout);
 
+        StateListDrawable states = new StateListDrawable();
+        states.addState(new int[] {-android.R.attr.state_pressed},
+                getResources().getDrawable(R.drawable.close_button_normal));
+        states.addState(new int[] {android.R.attr.state_pressed},
+                getResources().getDrawable(R.drawable.close_button_pressed));
+        mCloseButton = new ImageButton(this);
+        mCloseButton.setImageDrawable(states);
+        mCloseButton.setBackgroundDrawable(null);
+        mCloseButton.setOnClickListener(new OnClickListener() {
+            public void onClick(View v) {
+                MoPubActivity.this.finish();
+            }
+        });
+        
+        final float scale = getResources().getDisplayMetrics().density;
+        int buttonSize = (int) (CLOSE_BUTTON_SIZE_DP * scale + 0.5f);
+        int buttonPadding = (int) (CLOSE_BUTTON_PADDING_DP * scale + 0.5f);
+        RelativeLayout.LayoutParams buttonLayout = new RelativeLayout.LayoutParams(
+                buttonSize, buttonSize);
+        buttonLayout.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
+        buttonLayout.setMargins(buttonPadding, 0, buttonPadding, 0);
+        mLayout.addView(mCloseButton, buttonLayout);
+
         setContentView(mLayout);
     }
     
@@ -96,6 +127,7 @@ public class MoPubActivity extends Activity implements OnAdLoadedListener {
     @Override
     protected void onDestroy() {
         mMoPubView.destroy();
+        mLayout.removeAllViews();
         super.onDestroy();
     }
     
@@ -104,7 +136,6 @@ public class MoPubActivity extends Activity implements OnAdLoadedListener {
         return source.replaceAll("http://ads.mopub.com/m/imp", "mopub://null");
     }
 
-    @Override
     public void OnAdLoaded(MoPubView m) {
         m.adAppeared();
     }

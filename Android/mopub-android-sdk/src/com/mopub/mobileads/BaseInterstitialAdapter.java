@@ -10,6 +10,14 @@ public abstract class BaseInterstitialAdapter {
     protected boolean mInvalidated;
     protected MoPubInterstitial mInterstitial;
     protected String mJsonParams;
+    protected BaseInterstitialAdapterListener mAdapterListener;
+    
+    public interface BaseInterstitialAdapterListener {
+        public void onNativeInterstitialLoaded(BaseInterstitialAdapter adapter);
+        public void onNativeInterstitialFailed(BaseInterstitialAdapter adapter);
+        public void onNativeInterstitialClicked(BaseInterstitialAdapter adapter);
+        public void onNativeInterstitialExpired(BaseInterstitialAdapter adapter);
+    }
     
     private static final HashMap<String, String> sInterstitialAdapterMap;
     static {
@@ -29,11 +37,16 @@ public abstract class BaseInterstitialAdapter {
     
     public void invalidate() {
         mInterstitial = null;
+        mAdapterListener = null;
         mInvalidated = true;
     }
     
     public boolean isInvalidated() {
         return mInvalidated;
+    }
+    
+    public void setAdapterListener(BaseInterstitialAdapterListener listener) {
+        mAdapterListener = listener;
     }
     
     public static BaseInterstitialAdapter getAdapterForType(String type) {

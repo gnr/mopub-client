@@ -153,7 +153,7 @@ static NSDictionary *GADHeaderAttrMap = nil;
 
 - (void)adControllerDidCloseWebsiteView:(GADAdViewController *)adController
 {
-	[self.delegate userActionDidEndForAdapter:self];
+	[self.delegate userActionDidFinishForAdapter:self];
 }
 
 @end

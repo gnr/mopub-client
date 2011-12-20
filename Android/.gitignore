@@ -1,0 +1,12 @@
+# dex VM files
+*.dex
+
+# class files
+*.class
+
+# generated files
+bin/
+gen/
+
+# local configuration file
+local.properties

@@ -14,7 +14,7 @@
 
 @interface MPMillennialInterstitialAdapter ()
 
-+ (MMAdView *)sharedMMAdViewForAPID:(NSString *)apid;
++ (MMAdView *)sharedMMAdViewForAPID:(NSString *)apid delegate:(id<MMAdDelegate>)delegate;
 - (void)releaseMMAdViewSafely;
 
 @end
@@ -23,7 +23,7 @@
 
 @implementation MPMillennialInterstitialAdapter
 
-+ (MMAdView *)sharedMMAdViewForAPID:(NSString *)apid
++ (MMAdView *)sharedMMAdViewForAPID:(NSString *)apid delegate:(id<MMAdDelegate>)delegate
 {
 	static NSMutableDictionary *sharedMMAdViews;
 	
@@ -43,11 +43,12 @@
 		{
 			adView = [MMAdView interstitialWithType:MMFullScreenAdTransition
 											   apid:apid
-										   delegate:self
+										   delegate:delegate
 											 loadAd:NO];
 			[sharedMMAdViews setObject:adView forKey:apid];
 		}
-		
+        
+        [adView setDelegate:delegate];
 		return adView;
 	}
 }
@@ -60,15 +61,21 @@
 																					 error:NULL];
 	NSString *apid = [hdrParams objectForKey:@"adUnitID"];
 	
-	_mmInterstitialAdView = [[[self class] sharedMMAdViewForAPID:apid] retain];
+	_mmInterstitialAdView = [[[self class] sharedMMAdViewForAPID:apid delegate:self] retain];
 	
 	if (!_mmInterstitialAdView) {
 		[_interstitialAdController adapter:self didFailToLoadAdWithError:nil];
 		return;
 	}
-		
-	[_mmInterstitialAdView setDelegate:self];
-	[_mmInterstitialAdView refreshAd];
+    
+    // If a Millennial interstitial has already been cached, we don't need to fetch another one.
+    if ([_mmInterstitialAdView checkForCachedAd]) {
+        MPLogInfo(@"Previous Millennial interstitial ad was found in the cache.");
+        [_interstitialAdController adapterDidFinishLoadingAd:self];
+        return;
+    }
+
+    [_mmInterstitialAdView fetchAdToCache];
 }
 
 - (void)dealloc
@@ -85,7 +92,7 @@
 
 - (void)showInterstitialFromViewController:(UIViewController *)controller
 {
-	// No-op: not supported.
+    if ([_mmInterstitialAdView checkForCachedAd]) [_mmInterstitialAdView displayCachedAd];
 }
 
 # pragma mark - 
@@ -105,19 +112,21 @@
 	return params;
 }
 
-- (void)adRequestSucceeded:(MMAdView *)adView
-{
-	[_interstitialAdController adapterDidFinishLoadingAd:self];
+- (void)adRequestFailed:(MMAdView *)adView {
 }
 
-- (void)adRequestFailed:(MMAdView *)adView
-{
-	[_interstitialAdController adapter:self didFailToLoadAdWithError:nil];
+- (void)adRequestIsCaching:(MMAdView *)adView {
+    MPLogInfo(@"Millennial interstitial ad is currently caching.");
 }
 
-- (void)adRequestIsCaching:(MMAdView *)adView
-{
-	MPLogInfo(@"Millennial ad request is currently caching -- try showing it again later.");
+- (void)adRequestFinishedCaching:(MMAdView *)adView successful:(BOOL)didSucceed {
+    if (didSucceed) {
+        MPLogInfo(@"Millennial interstitial ad was cached successfully.");
+        [_interstitialAdController adapterDidFinishLoadingAd:self];
+    } else {
+        MPLogInfo(@"Millennial interstitial ad caching failed.");
+        [_interstitialAdController adapter:self didFailToLoadAdWithError:nil];
+    }
 }
 
 - (void)adModalWillAppear
@@ -134,6 +143,7 @@
 {
 	[_interstitialAdController interstitialWillDisappearForAdapter:self];
 	[_interstitialAdController interstitialDidDisappearForAdapter:self];
+    [_interstitialAdController interstitialDidExpireForAdapter:self];
 }
 
 @end

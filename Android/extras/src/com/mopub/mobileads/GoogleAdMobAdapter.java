@@ -57,16 +57,35 @@ public class GoogleAdMobAdapter extends BaseAdapter implements AdListener {
 
         // Get the parameters to pass to AdMob
         JSONObject object; 
-        String adUnitId; 
+        String adUnitId;
+        AdSize adType = AdSize.BANNER;
+        int adWidth, adHeight;
         try { 
-            object = (JSONObject) new JSONTokener(mJsonParams).nextValue(); 
-            adUnitId = object.getString("adUnitID"); 
-        } catch (JSONException e) { 
+            object = (JSONObject) new JSONTokener(mJsonParams).nextValue();
+            adUnitId = object.getString("adUnitID");
+            adWidth = object.getInt("adWidth");
+            adHeight = object.getInt("adHeight");
+        } catch (JSONException e) {
             mMoPubView.adFailed(); 
             return; 
         }
 
-        mAdMobView = new com.google.ads.AdView(mMoPubView.getActivity(), AdSize.BANNER, adUnitId);
+        // Use the smallest AdMob AdSize that will properly contain the adView
+        if (adWidth <= AdSize.BANNER.getWidth() && adHeight <= AdSize.BANNER.getHeight())
+        	adType = AdSize.BANNER;
+        else if (adWidth <= AdSize.IAB_MRECT.getWidth() && adHeight <= AdSize.IAB_MRECT.getHeight())
+        	adType = AdSize.IAB_MRECT;
+        else if (adWidth <= AdSize.IAB_BANNER.getWidth() && adHeight <= AdSize.IAB_BANNER.getHeight())
+        	adType = AdSize.IAB_BANNER;
+        else if (adWidth <= AdSize.IAB_LEADERBOARD.getWidth() && adHeight <= AdSize.IAB_LEADERBOARD.getHeight())
+        	adType = AdSize.IAB_LEADERBOARD;
+        else {
+        	Log.e("MoPub", "Failed to retrieve ad from AdMob native. Unsupported ad size: " + adWidth + "x" + adHeight);
+        	mMoPubView.adFailed();
+        	return;
+        }
+        
+        mAdMobView = new com.google.ads.AdView(mMoPubView.getActivity(), adType, adUnitId);
         mAdMobView.setAdListener(this);
         
         AdRequest request = new AdRequest();
@@ -81,6 +100,7 @@ public class GoogleAdMobAdapter extends BaseAdapter implements AdListener {
 
     @Override
     public void invalidate() {
+        mMoPubView.removeView(mAdMobView);
         mAdMobView.destroy();
         super.invalidate();
     }

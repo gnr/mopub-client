@@ -111,8 +111,10 @@ public class MillennialAdapter extends BaseAdapter implements MMAdListener {
 
     @Override
     public void invalidate() {
-        super.invalidate();
+    	mMillennialAdView.removeAllViews();
+        mMoPubView.removeView(mMillennialAdView);
         mActivityReference = null;
+        super.invalidate();
     }
     
     @Override
@@ -192,6 +194,11 @@ public class MillennialAdapter extends BaseAdapter implements MMAdListener {
 
     @Override
     public void MMAdRequestIsCaching(MMAdView adview) {
-        // Nothing needs to happen.
+        // Nothing needs to happen -- caching is only relevant for interstitial ads.
+    }
+    
+    @Override
+    public void MMAdCachingCompleted(MMAdView adview, boolean success) {
+        // Nothing needs to happen -- caching is only relevant for interstitial ads.
     }
 }

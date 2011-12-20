@@ -70,7 +70,7 @@ static NSString * const kNewContentViewKey = @"NewContentView";
 		_animationType = MPAdAnimationTypeNone;
 		_originalSize = size;
 		_allowedNativeAdOrientation = MPNativeAdOrientationAny;
-		_adUnitId = (adUnitId) ? [adUnitId copy] : DEFAULT_PUB_ID;
+        _adUnitId = (adUnitId) ? [adUnitId copy] : [[NSString alloc] initWithString:DEFAULT_PUB_ID];
 		[self initializeManager];
     }
     return self;
@@ -183,15 +183,28 @@ static NSString * const kNewContentViewKey = @"NewContentView";
 	// and set their scrolling and bounce.
 	if ([view isKindOfClass:[UIWebView class]])
 	{
-		UIScrollView *scrollView = nil;
-		for (UIView *v in view.subviews)
+		
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 50000 // iOS 5.0+
+		if ([(UIWebView *)view respondsToSelector:@selector(scrollView)]) 
 		{
-			if ([v isKindOfClass:[UIScrollView class]])
+			UIScrollView *scrollView = ((UIWebView *)view).scrollView;
+			scrollView.scrollEnabled = scrollable;
+			scrollView.bounces = scrollable;
+		} 
+		else 
+#endif
+		{
+			UIScrollView *scrollView = nil;
+			for (UIView *v in view.subviews)
 			{
-				scrollView = (UIScrollView *)v;
-				scrollView.scrollEnabled = scrollable;
-				scrollView.bounces = scrollable;
+				if ([v isKindOfClass:[UIScrollView class]])
+				{
+					scrollView = (UIScrollView *)v;
+					break;
+				}
 			}
+			scrollView.scrollEnabled = scrollable;
+			scrollView.bounces = scrollable;
 		}
 	}
 	// For normal UIScrollView subclasses, use the provided setter.

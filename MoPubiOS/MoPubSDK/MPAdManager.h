@@ -41,7 +41,14 @@ extern NSString * const kAdTypeClear;
 
 @class MPAdView, MPTimer, MPTimerTarget, MPBaseAdapter;
 
-@interface MPAdManager : NSObject <MPAdapterDelegate, MPAdBrowserControllerDelegate, UIWebViewDelegate> {
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 50000 // iOS 5.0+
+@interface MPAdManager : NSObject <MPAdapterDelegate, MPAdBrowserControllerDelegate, 
+    UIWebViewDelegate, NSURLConnectionDataDelegate>
+#else
+@interface MPAdManager : NSObject <MPAdapterDelegate, MPAdBrowserControllerDelegate, 
+    UIWebViewDelegate>
+#endif
+{
 	MPAdView *_adView;
 
 	// Ad unit identifier for the ad view.

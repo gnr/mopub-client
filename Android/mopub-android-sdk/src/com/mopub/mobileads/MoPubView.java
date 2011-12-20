@@ -44,8 +44,6 @@ import android.util.Log;
 import android.webkit.WebViewDatabase;
 import android.widget.FrameLayout;
 
-import org.apache.http.HttpResponse;
-
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
@@ -88,6 +86,7 @@ public class MoPubView extends FrameLayout {
     private boolean mIsInForeground;
     private LocationAwareness mLocationAwareness;
     private int mLocationPrecision;
+    private boolean mPreviousAutorefreshSetting = false;
 
     private OnAdWillLoadListener mOnAdWillLoadListener;
     private OnAdLoadedListener mOnAdLoadedListener;
@@ -129,7 +128,7 @@ public class MoPubView extends FrameLayout {
     private void initVersionDependentAdView(Context context) {
         int sdkVersion = (new Integer(Build.VERSION.SDK)).intValue();
         if (sdkVersion < 7) {
-            mAdView = new AdView(context, this);
+        	mAdView = new AdView(context, this);
         } else {
             // On Android 2.1 (Eclair) and up, try to load our HTML5-enabled AdView class.
             Class<?> HTML5AdViewClass = null;
@@ -177,6 +176,7 @@ public class MoPubView extends FrameLayout {
                 if (intent.getAction().equals(Intent.ACTION_SCREEN_OFF)) {
                     if (mIsInForeground) {
                         Log.d("MoPub", "Screen sleep with ad in foreground, disable refresh");
+                        mPreviousAutorefreshSetting = mAdView.getAutorefreshEnabled();
                         if (mAdView != null) mAdView.setAutorefreshEnabled(false);
                     } else {
                         Log.d("MoPub", "Screen sleep but ad in background; " + 
@@ -184,8 +184,10 @@ public class MoPubView extends FrameLayout {
                     }
                 } else if (intent.getAction().equals(Intent.ACTION_USER_PRESENT)) {
                     if (mIsInForeground) {
-                        Log.d("MoPub", "Screen wake / ad in foreground, enable refresh");
-                        if (mAdView != null) mAdView.setAutorefreshEnabled(true);
+                        Log.d("MoPub", "Screen wake / ad in foreground, reset refresh");
+                        if (mAdView != null) {
+                            mAdView.setAutorefreshEnabled(mPreviousAutorefreshSetting);
+                        }
                     } else {
                         Log.d("MoPub", "Screen wake but ad in background; don't enable refresh");
                     }
@@ -215,6 +217,11 @@ public class MoPubView extends FrameLayout {
         if (mAdView != null) {
             mAdView.cleanup();
             mAdView = null;
+        }
+        
+        if (mAdapter != null) {
+            mAdapter.invalidate();
+            mAdapter = null;
         }
     }
 
@@ -336,10 +343,6 @@ public class MoPubView extends FrameLayout {
 
     public int getAdHeight() {
         return (mAdView != null) ? mAdView.getAdHeight() : 0;
-    }
-
-    public HttpResponse getResponse() {
-        return (mAdView != null) ? mAdView.getResponse() : null;
     }
 
     public String getResponseString() {

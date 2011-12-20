@@ -107,12 +107,13 @@ static NSString * const kOrientationBoth				= @"b";
 #pragma mark -
 #pragma mark Lifecycle
 
-- (id)initWithAdUnitId:(NSString *)ID parentViewController:(UIViewController *)parent
+- (id)initWithAdUnitId:(NSString *)ID 
+  parentViewController:(UIViewController<MPInterstitialAdControllerDelegate> *)parent
 {
 	if (self = [super init])
 	{
 		_parent = parent;
-		_adUnitId = ID;
+		_adUnitId = [ID copy];
 		_closeButtonType = InterstitialCloseButtonTypeDefault;
 		_orientationType = InterstitialOrientationTypeBoth;
 		
@@ -377,7 +378,7 @@ static NSString * const kOrientationBoth				= @"b";
 		[self.currentAdapter unregisterDelegate];	
 		self.currentAdapter = [(MPBaseInterstitialAdapter *)
 							   [[cls alloc] initWithInterstitialAdController:self] autorelease];
-		[self.currentAdapter getAdWithParams:params];
+		[self.currentAdapter _getAdWithParams:params];
 	}
 	else 
 	{
@@ -437,6 +438,18 @@ static NSString * const kOrientationBoth				= @"b";
 {
 	if ([self.parent respondsToSelector:@selector(interstitialDidDisappear:)])
 		[self.parent interstitialDidDisappear:self];
+}
+
+- (void)interstitialWasTappedForAdapter:(MPBaseInterstitialAdapter *)adapter
+{
+    [_adView.adManager trackClick];
+}
+
+- (void)interstitialDidExpireForAdapter:(MPBaseInterstitialAdapter *)adapter
+{
+    _ready = NO;
+    if ([self.parent respondsToSelector:@selector(interstitialDidExpire:)])
+        [self.parent interstitialDidExpire:self];
 }
 
 #pragma mark -

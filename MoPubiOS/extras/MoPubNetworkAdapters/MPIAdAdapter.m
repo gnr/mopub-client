@@ -161,7 +161,7 @@
 - (void)bannerViewActionDidFinish:(ADBannerView *)banner
 {
 	MPLogInfo(@"iAd finished executing banner action.");
-	[self.delegate userActionDidEndForAdapter:self];
+	[self.delegate userActionDidFinishForAdapter:self];
 }
 
 - (BOOL)bannerViewActionShouldBegin:(ADBannerView *)banner willLeaveApplication:(BOOL)willLeave

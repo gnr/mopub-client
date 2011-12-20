@@ -50,11 +50,13 @@ import android.util.Log;
 import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.WindowManager;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.FrameLayout;
 
 import com.mopub.mobileads.MoPubView.LocationAwareness;
+import com.mopub.mobileads.Utils;
 
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
@@ -63,6 +65,7 @@ import org.apache.http.HttpStatus;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
+import org.apache.http.conn.ClientConnectionManager;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpConnectionParams;
@@ -70,13 +73,9 @@ import org.apache.http.params.HttpParams;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.ref.WeakReference;
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -89,8 +88,10 @@ public class AdView extends WebView {
     public static final String DEVICE_ORIENTATION_SQUARE = "s";
     public static final String DEVICE_ORIENTATION_UNKNOWN = "u";
     public static final String EXTRA_AD_CLICK_DATA = "com.mopub.intent.extra.AD_CLICK_DATA";
-    public static final long MINIMUM_REFRESH_TIME_MILLISECONDS = 10000;
-        
+    
+    private static final int MINIMUM_REFRESH_TIME_MILLISECONDS = 10000;
+    private static final int HTTP_CLIENT_TIMEOUT_MILLISECONDS = 10000;
+    
     private String mAdUnitId;
     private String mKeywords;
     private String mUrl;
@@ -101,19 +102,22 @@ public class AdView extends WebView {
     private Location mLocation;
     private boolean mIsLoading;
     private boolean mAutorefreshEnabled;
-    private long mRefreshTimeMilliseconds = 0;
-    private int mTimeoutMilliseconds = -1;
+    private int mRefreshTimeMilliseconds = 0;
+    private int mTimeoutMilliseconds = HTTP_CLIENT_TIMEOUT_MILLISECONDS;
     private int mWidth;
     private int mHeight;
     private String mAdOrientation;
 
     protected MoPubView mMoPubView;
-    private HttpResponse mResponse;
     private String mResponseString;
     private String mUserAgent;
+    private boolean mIsDestroyed;
+    private LoadUrlTask mLoadUrlTask;
 
     public AdView(Context context, MoPubView view) {
-        super(context);
+        // Important: don't allow any WebView subclass to be instantiated using an Activity context, 
+        // as it will leak on Froyo devices and earlier.
+        super(context.getApplicationContext());
         
         mMoPubView = view;
         mAutorefreshEnabled = true;
@@ -156,7 +160,8 @@ public class AdView extends WebView {
             else if (url.startsWith("tel:") || url.startsWith("voicemail:") ||
                     url.startsWith("sms:") || url.startsWith("mailto:") ||
                     url.startsWith("geo:") || url.startsWith("google.streetview:")) { 
-                Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url)); 
+                Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 try {
                     getContext().startActivity(intent);
                 } catch (ActivityNotFoundException e) {
@@ -170,7 +175,7 @@ public class AdView extends WebView {
             Log.d("MoPub", "Ad clicked. Click URL: " + url);
             mMoPubView.adClicked();
 
-            showBrowserAfterFollowingRedirectsForUrl(url);
+            showBrowserForUrl(url);
             return true;
         }
 
@@ -182,7 +187,7 @@ public class AdView extends WebView {
             if (redirectUrl != null && url.startsWith(redirectUrl)) {
                 url = urlWithClickTrackingRedirect(adView, url);
                 view.stopLoading();
-                showBrowserAfterFollowingRedirectsForUrl(url);
+                showBrowserForUrl(url);
             }
         }
         
@@ -279,7 +284,7 @@ public class AdView extends WebView {
         sz.append("?v=4&id=" + mAdUnitId);
         
         String udid = Secure.getString(getContext().getContentResolver(), Secure.ANDROID_ID);
-        String udidDigest = (udid == null) ? "" : sha1(udid);
+        String udidDigest = (udid == null) ? "" : Utils.sha1(udid);
         sz.append("&udid=sha:" + udidDigest);
 
         if (mKeywords != null) sz.append("&q=" + Uri.encode(mKeywords));
@@ -302,27 +307,10 @@ public class AdView extends WebView {
         sz.append("&o=" + orString);
         
         DisplayMetrics metrics = new DisplayMetrics();
-        Activity activity = (Activity) getContext();
-        activity.getWindowManager().getDefaultDisplay().getMetrics(metrics);
+        ((WindowManager) getContext().getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay().getMetrics(metrics);
         sz.append("&sc_a=" + metrics.density);
       
         return sz.toString();
-    }
-    
-    private String sha1(String s) {
-        try { 
-            MessageDigest digest = MessageDigest.getInstance("SHA-1");
-            digest.update(s.getBytes());
-            byte messageDigest[] = digest.digest();
-            
-            StringBuffer hexString = new StringBuffer();
-            for (int i = 0; i < messageDigest.length; i++) {
-                hexString.append(Integer.toHexString(0xFF & messageDigest[i]));
-            }
-            return hexString.toString();
-        } catch (NoSuchAlgorithmException e) {
-            return "";
-        }
     }
     
     private String getTimeZoneOffsetString() {
@@ -348,86 +336,137 @@ public class AdView extends WebView {
         
         mUrl = url;
         mIsLoading = true;
-        new LoadUrlTask().execute(mUrl);
+        
+        if (mLoadUrlTask != null) {
+            mLoadUrlTask.releaseResources();
+        }
+        
+        mLoadUrlTask = new LoadUrlTask(this);
+        mLoadUrlTask.execute(mUrl);
     }
     
     /*
      * Background operation that loads a URL.
      */
-    private class LoadUrlTask extends AsyncTask<String, Void, LoadUrlTaskResult> {
-        private Exception error;
+    private static class LoadUrlTask extends AsyncTask<String, Void, LoadUrlTaskResult> {
+        private AdView mAdView;
+        private HttpClient mHttpClient;
+        private String mUserAgent;
+        private Exception mException;
+        
+        private LoadUrlTask(AdView adView) {
+            this.mAdView = adView;
+            this.mUserAgent = (adView.mUserAgent != null) ? new String(adView.mUserAgent) : "";
+            this.mHttpClient = adView.getAdViewHttpClient();
+        }
         
         protected LoadUrlTaskResult doInBackground(String... urls) {
             LoadUrlTaskResult result = null;
             try {
                 result = loadAdFromNetwork(urls[0]);
             } catch(Exception e) {
-                this.error = e;
+                mException = e;
             }
             return result;
         }
+        
+        private LoadUrlTaskResult loadAdFromNetwork(String url) throws Exception {
+            HttpGet httpget = new HttpGet(url);
+            httpget.addHeader("User-Agent", mUserAgent);
+            
+            synchronized(this) {
+                if (mAdView == null || mAdView.isDestroyed()) {
+                    Log.d("MoPub", "Error loading ad: AdView has already been GCed or destroyed.");
+                    return null;
+                }
+                
+                HttpResponse response = mHttpClient.execute(httpget);
+                HttpEntity entity = response.getEntity();
+                
+                if (response.getStatusLine().getStatusCode() != HttpStatus.SC_OK ||
+                        entity == null || entity.getContentLength() == 0) {
+                    Log.d("MoPub", "Error loading ad: MoPub server returned invalid response.");
+                    return null;
+                }
+                
+                // Ensure that the ad type header is valid and not "clear".
+                Header atHeader = response.getFirstHeader("X-Adtype");
+                if (atHeader == null || atHeader.getValue().equals("clear")) {
+                    Log.d("MoPub", "Error loading ad: MoPub server returned no ad.");
+                    return null;
+                }
+                
+                mAdView.configureAdViewUsingHeadersFromHttpResponse(response);
+                
+                // Handle custom event ad type.
+                if (atHeader.getValue().equals("custom")) {
+                    Log.i("MoPub", "Performing custom event.");
+                    Header cmHeader = response.getFirstHeader("X-Customselector");
+                    return new PerformCustomEventTaskResult(mAdView, cmHeader);
+                }
+                // Handle native SDK ad type.
+                else if (!atHeader.getValue().equals("html")) {
+                    Log.i("MoPub", "Loading native ad");
+                    
+                    HashMap<String, String> paramsHash = new HashMap<String, String>();
+                    paramsHash.put("X-Adtype", atHeader.getValue());
+                    
+                    Header npHeader = response.getFirstHeader("X-Nativeparams");
+                    if (npHeader != null) {
+                        paramsHash.put("X-Nativeparams", npHeader.getValue());
+                        Header ftHeader = response.getFirstHeader("X-Fulladtype");
+                        if (ftHeader != null) paramsHash.put("X-Fulladtype", ftHeader.getValue());
+                    } else {
+                        paramsHash.put("X-Nativeparams", "{}");
+                    }
+                    return new LoadNativeAdTaskResult(mAdView, paramsHash);
+                }
+                
+                // Handle HTML ad.
+                InputStream is = entity.getContent();
+                StringBuffer out = new StringBuffer();
+                byte[] b = new byte[4096];
+                for (int n; (n = is.read(b)) != -1;) {
+                    out.append(new String(b, 0, n));
+                } 
+                is.close();
+                
+                return new LoadHtmlAdTaskResult(mAdView, out.toString());
+            }
+        }
+        
+        protected void releaseResources() {
+            synchronized(this) {
+                mAdView = null;
+            
+                if (mHttpClient != null) {
+                    ClientConnectionManager manager = mHttpClient.getConnectionManager();
+                    if (manager != null) manager.shutdown();
+                    mHttpClient = null;
+                }
+            }
+            
+            mException = null;
+        }
+        
         protected void onPostExecute(LoadUrlTaskResult result) {
-            if (error != null || result == null) {
-                adDidFail();
+            // If cleanup() has already been called on the AdView, don't proceed.
+            if (mAdView == null || mAdView.isDestroyed()) {
+                if (result != null) result.cleanup();
+                releaseResources();
+                return;
+            }
+            
+            if (mException != null) {
+                Log.d("MoPub", "Exception caught while loading ad: " + mException);
+                mAdView.adDidFail();
             } else if (result != null) {
                 result.execute();
+                result.cleanup();
             }
+            
+            releaseResources();
         }
-    }
-    
-    private LoadUrlTaskResult loadAdFromNetwork(String url) throws Exception {
-        HttpGet httpget = new HttpGet(url);
-        httpget.addHeader("User-Agent", mUserAgent);
-        
-        HttpClient httpclient = getAdViewHttpClient();
-        mResponse = httpclient.execute(httpget);
-        HttpEntity entity = mResponse.getEntity();
-        
-        // Anything but a 200 OK is an invalid response.
-        if (mResponse.getStatusLine().getStatusCode() != HttpStatus.SC_OK || 
-                entity == null || entity.getContentLength() == 0) {
-            throw new Exception("MoPub server returned invalid response.");
-        }
-        
-        // Ensure that the ad type header is valid and not "clear".
-        Header atHeader = mResponse.getFirstHeader("X-Adtype");
-        if (atHeader == null || atHeader.getValue().equals("clear")) {
-            throw new Exception("MoPub server returned no ad.");
-        }
-        
-        configureAdViewUsingHeadersFromHttpResponse(mResponse);
-        
-        // Handle custom event ad type.
-        if (atHeader.getValue().equals("custom")) {
-            Log.i("MoPub", "Performing custom event.");
-            Header cmHeader = mResponse.getFirstHeader("X-Customselector");
-            mIsLoading = false;
-            return new PerformCustomEventTaskResult(cmHeader);
-        }
-        // Handle native SDK ad type.
-        else if (!atHeader.getValue().equals("html")) {
-            Log.i("MoPub", "Loading native ad");
-            Header npHeader = mResponse.getFirstHeader("X-Nativeparams");
-            if (npHeader != null) {
-                mIsLoading = false;
-                HashMap<String, String> paramsHash = new HashMap<String, String>();
-                paramsHash.put("X-Adtype", atHeader.getValue());
-                paramsHash.put("X-Nativeparams", npHeader.getValue());
-                Header ftHeader = mResponse.getFirstHeader("X-Fulladtype");
-                if (ftHeader != null) paramsHash.put("X-Fulladtype", ftHeader.getValue());
-                return new LoadNativeAdTaskResult(paramsHash);
-            }
-            else throw new Exception("Could not load native ad; MoPub provided no parameters.");
-        }
-        
-        // Handle HTML ad.
-        InputStream is = entity.getContent();
-        StringBuffer out = new StringBuffer();
-        byte[] b = new byte[4096];
-        for (int n; (n = is.read(b)) != -1;) {
-            out.append(new String(b, 0, n));
-        }
-        return new LoadHtmlAdTaskResult(out.toString());
     }
     
     private DefaultHttpClient getAdViewHttpClient() {
@@ -492,7 +531,7 @@ public class AdView extends WebView {
         // Set the auto-refresh time. A timer will be scheduled upon ad success or failure.
         Header rtHeader = response.getFirstHeader("X-Refreshtime");
         if (rtHeader != null) {
-            mRefreshTimeMilliseconds = Long.valueOf(rtHeader.getValue()) * 1000;
+            mRefreshTimeMilliseconds = Integer.valueOf(rtHeader.getValue()) * 1000;
             if (mRefreshTimeMilliseconds < MINIMUM_REFRESH_TIME_MILLISECONDS) {
                 mRefreshTimeMilliseconds = MINIMUM_REFRESH_TIME_MILLISECONDS;
             }
@@ -546,6 +585,7 @@ public class AdView extends WebView {
         String action = uri.getQueryParameter("fnc");
         String adData = uri.getQueryParameter("data");
         Intent customIntent = new Intent(action);
+        customIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         if (adData != null) customIntent.putExtra(EXTRA_AD_CLICK_DATA, adData);
         try {
             getContext().startActivity(customIntent);
@@ -555,115 +595,63 @@ public class AdView extends WebView {
         }
     }
     
-    private void showBrowserAfterFollowingRedirectsForUrl(String url) {
-        new ShowBrowserTask().execute(url);
+    private void showBrowserForUrl(String url) {
+        if (this.isDestroyed()) return;
+        
+        if (url == null || url.equals("")) url = "about:blank";
+        Log.d("MoPub", "Final URI to show in browser: " + url);
+        Intent actionIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+        actionIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        try {
+            getContext().startActivity(actionIntent);
+        } catch (ActivityNotFoundException e) {
+            String action = actionIntent.getAction();
+            if (action.startsWith("market://")) {
+                Log.w("MoPub", "Could not handle market action: " + action
+                        + ". Perhaps you're running in the emulator, which does not have "
+                        + "the Android Market?");
+            } else {
+                Log.w("MoPub", "Could not handle intent action: " + action);
+            }
+            
+            getContext().startActivity(
+                    new Intent(Intent.ACTION_VIEW, Uri.parse("about:blank"))
+                        .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
+        }
     }
     
-    private class ShowBrowserTask extends AsyncTask<String, Void, String> {
-        @Override
-        protected String doInBackground(String... urls) {
-            String startingUrl = urls[0];
-            URL url = null;
-            try {
-                url = new URL(startingUrl);
-            } catch (MalformedURLException e) {
-                // Return the starting URL if it is non-null, since that could still potentially be
-                // a "valid" URL (e.g. one with a custom scheme).
-                return (startingUrl != null) ? startingUrl : "";
-            }
-            
-            // Find the final target URL, manually following redirects if necessary. We can't use 
-            // HttpClient for this since the target may not be a supported URL (e.g. a market URL).
-            int statusCode = -1;
-            HttpURLConnection connection = null;
-            String nextLocation = url.toString();
-            
-            // Keep track of where we've been to detect redirect cycles.
-            Set<String> redirectLocations = new HashSet<String>();
-            redirectLocations.add(nextLocation);
-            
-            try {
-                do {
-                    connection = (HttpURLConnection) url.openConnection();
-                    connection.setRequestProperty("User-Agent", mUserAgent);
-                    connection.setInstanceFollowRedirects(false);
-                    
-                    statusCode = connection.getResponseCode();
-                    if (statusCode == HttpStatus.SC_OK) {
-                        // Successfully reached the end of redirects: nextLocation is our target.
-                        connection.disconnect();
-                        break;
-                    } else {
-                        // Depending on statusCode, we'll either continue to redirect, or error
-                        // out (in which case nextLocation will probably be null).
-                        nextLocation = connection.getHeaderField("location");
-                        connection.disconnect();
-                        
-                        // Check for redirect cycle.
-                        if (!redirectLocations.add(nextLocation)) {
-                            Log.d("MoPub", "Click redirect cycle detected -- will show blank.");
-                            return "";
-                        }
-                            
-                        url = new URL(nextLocation);
-                    }
-                }
-                while (isStatusCodeForRedirection(statusCode));
-            } catch (IOException e) {
-                // Return the last URL we tried to reach, since that could still potentially be a
-                // "valid" URL (e.g. one with a custom scheme).
-                return (nextLocation != null) ? nextLocation : "";
-            } finally {
-                if (connection != null) connection.disconnect();
-            }
-            
-            return nextLocation;
+    private abstract static class LoadUrlTaskResult {
+        WeakReference<AdView> mWeakAdView;
+        
+        public LoadUrlTaskResult(AdView adView) {
+            mWeakAdView = new WeakReference<AdView>(adView);
         }
         
-        private boolean isStatusCodeForRedirection(int statusCode) {
-            return (statusCode == HttpStatus.SC_MOVED_TEMPORARILY ||
-                    statusCode == HttpStatus.SC_MOVED_PERMANENTLY ||
-                    statusCode == HttpStatus.SC_TEMPORARY_REDIRECT ||
-                    statusCode == HttpStatus.SC_SEE_OTHER);
-        }
-
-        @Override
-        protected void onPostExecute(String uri) {
-            if (uri == null || uri.equals("")) uri = "about:blank";
-            Log.d("MoPub", "Final URI to show in browser: " + uri);
-            Intent actionIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(uri));
-            try {
-                getContext().startActivity(actionIntent);
-            } catch (ActivityNotFoundException e) {
-                String action = actionIntent.getAction();
-                if (action.startsWith("market://")) {
-                    Log.w("MoPub", "Could not handle market action: " + action
-                            + ". Perhaps you're running in the emulator, which does not have "
-                            + "the Android Market?");
-                } else {
-                    Log.w("MoPub", "Could not handle intent action: " + action);
-                }
-                
-                getContext().startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("about:blank")));
-            }
-        }
-    }
-    
-    private abstract interface LoadUrlTaskResult {
         abstract void execute();
+        
+        // The AsyncTask thread pool often appears to keep references to these objects, preventing
+        // GC. This method should be used to release resources to mitigate the GC issue.
+        abstract void cleanup();
     }
     
-    private class PerformCustomEventTaskResult implements LoadUrlTaskResult {
+    private static class PerformCustomEventTaskResult extends LoadUrlTaskResult {
         protected Header mHeader;
         
-        public PerformCustomEventTaskResult(Header header) {
+        public PerformCustomEventTaskResult(AdView adView, Header header) {
+            super(adView);
             mHeader = header;
         }
         
         public void execute() {
+            AdView adView = mWeakAdView.get();
+            if (adView == null || adView.isDestroyed()) return;
+            
+            adView.mIsLoading = false;
+            MoPubView mpv = adView.mMoPubView;
+            
             if (mHeader == null) {
                 Log.i("MoPub", "Couldn't call custom method because the server did not specify one.");
-                mMoPubView.adFailed();
+                mpv.adFailed();
                 return;
             }
             
@@ -672,11 +660,11 @@ public class AdView extends WebView {
             
             Class<? extends Activity> c;
             Method method;
-            Activity userActivity = mMoPubView.getActivity();
+            Activity userActivity = mpv.getActivity();
             try {
                 c = userActivity.getClass();
                 method = c.getMethod(methodName, MoPubView.class);
-                method.invoke(userActivity, mMoPubView);
+                method.invoke(userActivity, mpv);
             } catch (NoSuchMethodException e) {
                 Log.d("MoPub", "Couldn't perform custom method named " + methodName +
                         "(MoPubView view) because your activity class has no such method");
@@ -686,41 +674,86 @@ public class AdView extends WebView {
                 return;
             }
         }
+        
+        public void cleanup() {
+            mHeader = null;
+        }
     }
     
-    private class LoadNativeAdTaskResult implements LoadUrlTaskResult {
+    private static class LoadNativeAdTaskResult extends LoadUrlTaskResult {
         protected HashMap<String, String> mParamsHash;
         
-        public LoadNativeAdTaskResult(HashMap<String, String> hash) {
+        private LoadNativeAdTaskResult(AdView adView, HashMap<String, String> hash) {
+            super(adView);
             mParamsHash = hash;
         }
         
         public void execute() {
-            mIsLoading = false;
-            mMoPubView.loadNativeSDK(mParamsHash);
+            AdView adView = mWeakAdView.get();
+            if (adView == null || adView.isDestroyed()) return;
+            
+            adView.mIsLoading = false;
+            MoPubView mpv = adView.mMoPubView;
+            mpv.loadNativeSDK(mParamsHash);
+        }
+
+        public void cleanup() {
+            mParamsHash = null;
         }
     }
     
-    private class LoadHtmlAdTaskResult implements LoadUrlTaskResult {
+    private static class LoadHtmlAdTaskResult extends LoadUrlTaskResult {
         protected String mData;
         
-        public LoadHtmlAdTaskResult(String data) {
+        private LoadHtmlAdTaskResult(AdView adView, String data) {
+            super(adView);
             mData = data;
         }
         
         public void execute() {
             if (mData == null) return;
-            mResponseString = mData;
-            loadDataWithBaseURL("http://"+MoPubView.HOST+"/", 
-                mData, "text/html", "utf-8", null);
+            
+            AdView adView = mWeakAdView.get();
+            if (adView == null || adView.isDestroyed()) return;
+            
+            adView.mResponseString = mData;
+            adView.loadDataWithBaseURL("http://" + MoPubView.HOST + "/", mData, "text/html", 
+                    "utf-8", null);
+        }
+        
+        public void cleanup() {
+            mData = null;
         }
     }
     
+    protected boolean isDestroyed() {
+        return mIsDestroyed;
+    }
+    
     /*
-     * Stops refreshing ads.
+     * Clean up the internal state of the AdView.
      */
     protected void cleanup() {
         setAutorefreshEnabled(false);
+        cancelRefreshTimer();
+        destroy();
+        
+        // WebView subclasses are not garbage-collected in a timely fashion on Froyo and below, 
+        // thanks to some persistent references in WebViewCore. We manually release some resources
+        // to compensate for this "leak".
+        
+        if (mLoadUrlTask != null) {
+            mLoadUrlTask.releaseResources();
+            mLoadUrlTask = null;
+        }
+        
+        mResponseString = null;
+        
+        mMoPubView.removeView(this);
+        mMoPubView = null;
+        
+        // Flag as destroyed. LoadUrlTask checks this before proceeding in its onPostExecute().
+        mIsDestroyed = true;
     }
 
     @Override
@@ -759,6 +792,8 @@ public class AdView extends WebView {
                     Log.i("MoPub", "Impression tracking failed: "+mImpressionUrl);
                 } catch (IOException e) {
                     Log.i("MoPub", "Impression tracking failed: "+mImpressionUrl);
+                } finally {
+                    httpclient.getConnectionManager().shutdown();
                 }
             }
         }).start();
@@ -778,6 +813,8 @@ public class AdView extends WebView {
                     Log.i("MoPub", "Click tracking failed: "+mClickthroughUrl);
                 } catch (IOException e) {
                     Log.i("MoPub", "Click tracking failed: "+mClickthroughUrl);
+                } finally {
+                    httpclient.getConnectionManager().shutdown();
                 }
             }
         }).start();
@@ -856,10 +893,6 @@ public class AdView extends WebView {
 
     public String getRedirectUrl() {
         return mRedirectUrl;
-    }
-
-    public HttpResponse getResponse() {
-        return mResponse;
     }
 
     public String getResponseString() {
