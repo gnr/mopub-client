@@ -457,10 +457,12 @@ public class AdView extends WebView {
                 return;
             }
             
-            if (mException != null) {
-                Log.d("MoPub", "Exception caught while loading ad: " + mException);
+            if (result == null) {
+                if (mException != null) {
+                    Log.d("MoPub", "Exception caught while loading ad: " + mException);
+                }
                 mAdView.adDidFail();
-            } else if (result != null) {
+            } else {
                 result.execute();
                 result.cleanup();
             }
