@@ -13,6 +13,7 @@
 
 #define MM_SIZE_320x53	CGSizeMake(320, 53)
 #define MM_SIZE_300x250 CGSizeMake(300, 250)
+#define MM_SIZE_728x90  CGSizeMake(728, 90)
 
 @interface MPMillennialAdapter ()
 
@@ -58,22 +59,27 @@
 	[self.mmAdView refreshAd];
 }
 
-- (void)setAdPropertiesFromNativeParams:(NSDictionary *)params
-{
-	CGFloat width = [(NSString *)[params objectForKey:@"adWidth"] floatValue];
-	CGFloat height = [(NSString *)[params objectForKey:@"adHeight"] floatValue];
-	if (width == 300.0 && height == 250.0)
-	{
-		self.mmAdSize = MM_SIZE_300x250;
-		self.mmAdType = MMBannerAdRectangle;
-	}
-	else
-	{
-		self.mmAdSize = MM_SIZE_320x53;
-		self.mmAdType = MMBannerAdTop;
-	}
-	
-	self.mmAdApid = [params objectForKey:@"adUnitID"];
+- (void)setAdPropertiesFromNativeParams:(NSDictionary *)params { 
+    CGFloat width = [(NSString *)[params objectForKey:@"adWidth"] floatValue];
+    CGFloat height = [(NSString *)[params objectForKey:@"adHeight"] floatValue];
+
+    if (width == 300.0 && height == 250.0)
+    { 
+        self.mmAdSize = MM_SIZE_300x250;
+        self.mmAdType = MMBannerAdRectangle;
+    } 
+    else if (width == 728.0 && height == 90.0)
+    { 
+        self.mmAdSize = MM_SIZE_728x90;
+        self.mmAdType = MMBannerAdTop;
+    } 
+    else
+    { 
+        self.mmAdSize = MM_SIZE_320x53;
+        self.mmAdType = MMBannerAdTop;
+    }
+    
+    self.mmAdApid = [params objectForKey:@"adUnitID"];
 }
 
 /* 
