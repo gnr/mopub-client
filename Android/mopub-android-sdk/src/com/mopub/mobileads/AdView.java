@@ -102,7 +102,7 @@ public class AdView extends WebView {
     private Location mLocation;
     private boolean mIsLoading;
     private boolean mAutorefreshEnabled;
-    private int mRefreshTimeMilliseconds = 0;
+    private int mRefreshTimeMilliseconds = 60000;
     private int mTimeoutMilliseconds = HTTP_CLIENT_TIMEOUT_MILLISECONDS;
     private int mWidth;
     private int mHeight;
@@ -383,20 +383,20 @@ public class AdView extends WebView {
                 HttpResponse response = mHttpClient.execute(httpget);
                 HttpEntity entity = response.getEntity();
                 
-                if (response.getStatusLine().getStatusCode() != HttpStatus.SC_OK ||
-                        entity == null || entity.getContentLength() == 0) {
-                    Log.d("MoPub", "Error loading ad: MoPub server returned invalid response.");
-                    return null;
-                }
-                
-                // Ensure that the ad type header is valid and not "clear".
-                Header atHeader = response.getFirstHeader("X-Adtype");
-                if (atHeader == null || atHeader.getValue().equals("clear")) {
-                    Log.d("MoPub", "Error loading ad: MoPub server returned no ad.");
+                if (response == null || entity == null || 
+                        response.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
+                    Log.d("MoPub", "MoPub server returned invalid response.");
                     return null;
                 }
                 
                 mAdView.configureAdViewUsingHeadersFromHttpResponse(response);
+                
+                // Ensure that the ad type header is valid and not "clear".
+                Header atHeader = response.getFirstHeader("X-Adtype");
+                if (atHeader == null || atHeader.getValue().equals("clear")) {
+                    Log.d("MoPub", "MoPub server returned no ad.");
+                    return null;
+                }
                 
                 // Handle custom event ad type.
                 if (atHeader.getValue().equals("custom")) {
