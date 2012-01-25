@@ -176,8 +176,10 @@ public class MoPubView extends FrameLayout {
                 if (intent.getAction().equals(Intent.ACTION_SCREEN_OFF)) {
                     if (mIsInForeground) {
                         Log.d("MoPub", "Screen sleep with ad in foreground, disable refresh");
-                        mPreviousAutorefreshSetting = mAdView.getAutorefreshEnabled();
-                        if (mAdView != null) mAdView.setAutorefreshEnabled(false);
+                        if (mAdView != null) {
+                            mPreviousAutorefreshSetting = mAdView.getAutorefreshEnabled();
+                            mAdView.setAutorefreshEnabled(false);
+                        }
                     } else {
                         Log.d("MoPub", "Screen sleep but ad in background; " + 
                                 "refresh should already be disabled");
