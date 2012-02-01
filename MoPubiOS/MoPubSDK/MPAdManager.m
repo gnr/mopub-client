@@ -793,8 +793,16 @@ NSString * const kAdTypeMraid = @"mraid";
 	
 	// Dispose of the current adapter, because we don't want it to try loading again.
 	[_currentAdapter unregisterDelegate];
-    [_currentAdapter performSelector:@selector(release) withObject:nil afterDelay:1];
-	//[_currentAdapter release];
+    
+    if (_currentAdapter.class == NSClassFromString(@"MPMillennialAdapter")) {
+        // XXX: Millennial says an MMAdView must not be deallocated immediately after it fails
+        // to load an ad, because it will result in a crash. This means that we can't immediately 
+        // release our Millennial adapters. Their suggestion was to use this ugly delay.
+        [_currentAdapter performSelector:@selector(release) withObject:nil afterDelay:1];
+    } else {
+        [_currentAdapter release];
+    }
+    
 	_currentAdapter = nil;
 	
 	// An adapter will sometimes send this message during a user action (example: user taps on an 
