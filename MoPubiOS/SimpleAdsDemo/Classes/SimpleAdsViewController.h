@@ -7,14 +7,13 @@
 #import <UIKit/UIKit.h>
 #import "MPAdView.h"
 #import "MPInterstitialAdController.h"
-#import "SecondViewController.h"
 
 #define PUB_ID_320x50 @"agltb3B1Yi1pbmNyDAsSBFNpdGUYkaoMDA"
 #define PUB_ID_300x250 @"agltb3B1Yi1pbmNyDAsSBFNpdGUYycEMDA"
 
 @class InterstitialAdController;
 
-@interface SimpleAdsViewController : UIViewController <UITextFieldDelegate, MPAdViewDelegate, MPInterstitialAdControllerDelegate> {
+@interface SimpleAdsViewController : UIViewController <UITextFieldDelegate, MPAdViewDelegate> {
 	IBOutlet UITextField* keyword;
 	IBOutlet UIView* adView;
 	IBOutlet UIView* mrectView;

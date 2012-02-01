@@ -245,10 +245,13 @@ static NSString * const kMraidURLScheme = @"mraid";
     
     NSMutableString *mutableHTML = [HTML mutableCopy];
     if (isFragment) [self convertFragmentToFullPayload:mutableHTML];
+
+    NSString *mraidBundlePath = [[NSBundle mainBundle] pathForResource:@"MRAID" ofType:@"bundle"];
+    NSBundle *mraidBundle = [NSBundle bundleWithPath:mraidBundlePath];
+    NSString *mraidPath = [mraidBundle pathForResource:@"mraid" ofType:@"js"];
+    NSURL *mraidUrl = [NSURL fileURLWithPath:mraidPath];
     
     headTagRange = [mutableHTML rangeOfString:@"<head>"];
-    NSString *mraidPath = [[NSBundle mainBundle] pathForResource:@"mraid" ofType:@"js"];
-    NSURL *mraidUrl = [NSURL fileURLWithPath:mraidPath];
     [mutableHTML replaceCharactersInRange:headTagRange withString:
      [NSString stringWithFormat:@"<head><script src='%@'></script>", [mraidUrl absoluteString]]];
     

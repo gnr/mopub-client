@@ -70,9 +70,4 @@
 	return self;
 }
 
-- (void)dismissInterstitial:(MPInterstitialAdController *)interstitial
-{
-	[self dismissModalViewControllerAnimated:YES];
-}
-
 @end

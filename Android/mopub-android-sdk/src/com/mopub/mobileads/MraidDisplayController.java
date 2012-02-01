@@ -15,6 +15,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.ActivityInfo;
 import android.graphics.Color;
+import android.graphics.Rect;
 import android.graphics.drawable.StateListDrawable;
 import android.os.Handler;
 import android.util.DisplayMetrics;
@@ -24,6 +25,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnTouchListener;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.view.WindowManager;
 import android.view.View.OnClickListener;
 import android.webkit.URLUtil;
@@ -116,7 +118,7 @@ class MraidDisplayController extends MraidAbstractController {
         mNativeCloseButtonStyle = buttonStyle;
         
         Context context = getView().getContext();
-        mOriginalRequestedOrientation = (context.getClass() == Activity.class) ? 
+        mOriginalRequestedOrientation = (context instanceof Activity) ? 
                 ((Activity) context).getRequestedOrientation() :
                 ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED;
                 
@@ -132,13 +134,27 @@ class MraidDisplayController extends MraidAbstractController {
     }
     
     private void initializeScreenMetrics() {
+        Context context = getView().getContext();
         DisplayMetrics metrics = new DisplayMetrics();
-        WindowManager wm = (WindowManager) getView().getContext()
-                .getSystemService(Context.WINDOW_SERVICE);
+        WindowManager wm = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
         wm.getDefaultDisplay().getMetrics(metrics);
         mDensity = metrics.density;
-        mScreenWidth = metrics.widthPixels;
-        mScreenHeight = metrics.heightPixels;
+        
+        int statusBarHeight = 0, titleBarHeight = 0;
+        if (context instanceof Activity) {
+            Activity activity = (Activity) context;
+            Window window = activity.getWindow();
+            Rect rect = new Rect();
+            window.getDecorView().getWindowVisibleDisplayFrame(rect);
+            statusBarHeight = rect.top;
+            int contentViewTop = window.findViewById(Window.ID_ANDROID_CONTENT).getTop();
+            titleBarHeight = contentViewTop - statusBarHeight;
+        }
+        
+        int widthPixels = metrics.widthPixels;
+        int heightPixels = metrics.heightPixels - statusBarHeight - titleBarHeight;
+        mScreenWidth = (int) (widthPixels * (160.0 / metrics.densityDpi));
+        mScreenHeight = (int) (heightPixels * (160.0 / metrics.densityDpi));
     }
     
     private void initializeViewabilityTimer() {
@@ -246,7 +262,7 @@ class MraidDisplayController extends MraidAbstractController {
         }
 
         ViewGroup expansionViewContainer = createExpansionViewContainer(expansionContentView, 
-                width, height);
+                (int) (width * mDensity), (int) (height * mDensity));
         mRootView.addView(expansionViewContainer, new RelativeLayout.LayoutParams(
                 RelativeLayout.LayoutParams.FILL_PARENT, RelativeLayout.LayoutParams.FILL_PARENT));
         

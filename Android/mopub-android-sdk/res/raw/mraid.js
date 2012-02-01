@@ -108,9 +108,15 @@
   };
 
   mraidbridge.removeEventListener = function(event, listener) {
-    var eventListeners = listeners[event];
-    
-    if (eventListeners !== null) eventListeners.remove(listener);
+    if (listeners.hasOwnProperty(event)) {
+      var eventListeners = listeners[event];
+      if (eventListeners) {
+        var idx = eventListeners.indexOf(listener);
+        if (idx !== -1) {
+          eventListeners.splice(idx, 1);
+        }
+      }
+    }
   };
 }());
 
@@ -315,20 +321,20 @@
           }
         }
       }
-    } else {
-      for (var prop in obj) {
-        var validator = validators[prop];
-        var value = obj[prop];
-        if (obj.hasOwnProperty(prop) && !validator) {
-          // Property with no validator is not allowed to be set.
-          broadcastEvent(EVENTS.ERROR, 'Invalid property specified: ' + prop + '.', action);
-          return false;
-        } else if (!validator(value)) {
-          // Failed validation.
-          broadcastEvent(EVENTS.ERROR, 'Value of property ' + prop + ' is invalid or read-only.', 
-            action);
-          return false;
-        }
+    }
+    
+    for (var prop in obj) {
+      var validator = validators[prop];
+      var value = obj[prop];
+      if (obj.hasOwnProperty(prop) && !validator) {
+        // Property with no validator is not allowed to be set.
+        broadcastEvent(EVENTS.ERROR, 'Invalid property specified: ' + prop + '.', action);
+        return false;
+      } else if (!validator(value)) {
+        // Failed validation.
+        broadcastEvent(EVENTS.ERROR, 'Value of property ' + prop + ' is invalid or read-only.', 
+          action);
+        return false;
       }
     }
     
@@ -466,7 +472,9 @@
 
       if (properties.hasOwnProperty('useCustomClose')) hasSetCustomClose = true;
 
-      expandProperties = properties;
+      for (var propname in properties) {
+        if (properties.hasOwnProperty(propname)) expandProperties[propname] = properties[propname];
+      }
     }
   };
   

@@ -101,7 +101,7 @@ static const NSTimeInterval kViewabilityTimerInterval = 1.0;
 
 - (void)initializeJavascriptState {
     NSArray *properties = [NSArray arrayWithObjects:
-                           [MRScreenSizeProperty propertyWithSize:MPScreenBounds().size],
+                           [MRScreenSizeProperty propertyWithSize:MPApplicationFrame().size],
                            [MRStateProperty propertyWithState:_currentState],
                            nil];
     
@@ -110,7 +110,7 @@ static const NSTimeInterval kViewabilityTimerInterval = 1.0;
 
 - (void)rotateToOrientation:(UIInterfaceOrientation)newOrientation {
     [_view fireChangeEventForProperty:
-     [MRScreenSizeProperty propertyWithSize:MPScreenBounds().size]];
+     [MRScreenSizeProperty propertyWithSize:MPApplicationFrame().size]];
     [self rotateExpandedWindowsToCurrentOrientation];
 }
 
