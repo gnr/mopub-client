@@ -80,25 +80,35 @@ public class MillennialAdapter extends BaseAdapter implements MMAdListener {
         // The following parameters are required. Fail if they aren't set.
         JSONObject object; 
         String pubId;
-        double adWidth, adHeight;
+        int adWidth, adHeight;
         try { 
             object = (JSONObject) new JSONTokener(mJsonParams).nextValue(); 
             pubId = object.getString("adUnitID");
-            adWidth = object.getDouble("adWidth");
-            adHeight = object.getDouble("adHeight");
+            adWidth = object.getInt("adWidth");
+            adHeight = object.getInt("adHeight");
         } catch (JSONException e) { 
             mMoPubView.adFailed(); 
             return; 
         }
-
+        
         String mmAdType = MMAdView.BANNER_AD_TOP;
-        if (adWidth == 300.0 && adHeight == 250.0) mmAdType = MMAdView.BANNER_AD_RECTANGLE;
+        String widthString = "320";
+        String heightString = "53";
+        
+        if (adWidth == 300 && adHeight == 250) {
+            mmAdType = MMAdView.BANNER_AD_RECTANGLE;
+            widthString = Integer.toString(adWidth);
+            heightString = Integer.toString(adHeight);
+        }
         
         Activity activity = mActivityReference.get();
         mMillennialAdView = new MMAdView(activity, pubId, mmAdType, MMAdView.REFRESH_INTERVAL_OFF);
         mMillennialAdView.setId(MMAdViewSDK.DEFAULT_VIEWID);
         mMillennialAdView.setListener(this);
         mMillennialAdView.setVisibility(View.INVISIBLE);
+        
+        mMillennialAdView.setWidth(widthString);
+        mMillennialAdView.setHeight(heightString);
         
         Location location = mMoPubView.getLocation();
         if (location != null) mMillennialAdView.updateUserLocation(location);
