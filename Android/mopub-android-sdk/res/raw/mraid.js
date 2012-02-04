@@ -326,18 +326,13 @@
     for (var prop in obj) {
       var validator = validators[prop];
       var value = obj[prop];
-      if (obj.hasOwnProperty(prop) && !validator) {
-        // Property with no validator is not allowed to be set.
-        broadcastEvent(EVENTS.ERROR, 'Invalid property specified: ' + prop + '.', action);
-        return false;
-      } else if (!validator(value)) {
+      if (validator && !validator(value)) {
         // Failed validation.
-        broadcastEvent(EVENTS.ERROR, 'Value of property ' + prop + ' is invalid or read-only.', 
+        broadcastEvent(EVENTS.ERROR, 'Value of property ' + prop + ' is invalid.', 
           action);
         return false;
       }
     }
-    
     return true;
   };
   
@@ -345,7 +340,6 @@
     width: function(v) { return !isNaN(v) && v >= 0; },
     height: function(v) { return !isNaN(v) && v >= 0; },
     useCustomClose: function(v) { return (typeof v === 'boolean'); },
-    isModal: function(v) { return false; }, // isModal is a read-only property.
     lockOrientation: function(v) { return (typeof v === 'boolean'); }
   };
   
@@ -465,14 +459,16 @@
   
   mraid.setExpandProperties = function(properties) {
     if (validate(properties, expandPropertyValidators, 'setExpandProperties', true)) {
-
       if (properties.hasOwnProperty('width') || properties.hasOwnProperty('height')) {
         hasSetCustomSize = true;
       }
 
       if (properties.hasOwnProperty('useCustomClose')) hasSetCustomClose = true;
 
-      for (var propname in properties) {
+      var desiredProperties = ['width', 'height', 'useCustomClose', 'lockOrientation'];
+      var length = desiredProperties.length;
+      for (var i = 0; i < length; i++) {
+        var propname = desiredProperties[i];
         if (properties.hasOwnProperty(propname)) expandProperties[propname] = properties[propname];
       }
     }
