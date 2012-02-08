@@ -111,6 +111,10 @@ class MraidDisplayController extends MraidAbstractController {
     // The view's position within its parent.
     private int mViewIndexInParent;
     
+    // A view that replaces the MraidView within its parent view when the MraidView is expanded
+    // (i.e. moved to the top of the view hierarchy).
+    FrameLayout mPlaceholderView;
+    
     MraidDisplayController(MraidView view, MraidView.ExpansionStyle expStyle, 
             MraidView.NativeCloseButtonStyle buttonStyle) {
         super(view);
@@ -176,7 +180,13 @@ class MraidDisplayController extends MraidAbstractController {
     
     public void destroy() {
         mHandler.removeCallbacks(mCheckViewabilityTask);
-        getView().getContext().unregisterReceiver(mOrientationBroadcastReceiver);
+        try {
+            getView().getContext().unregisterReceiver(mOrientationBroadcastReceiver);
+        } catch (IllegalArgumentException e) {
+            if (e.getMessage().contains("Receiver not registered")) {
+                // Ignore this exception.
+            } else throw e;
+        }
     }
     
     protected void initializeJavaScriptState() {
@@ -210,13 +220,11 @@ class MraidDisplayController extends MraidAbstractController {
         }
     }
     
-    private void resetViewToDefaultState() {
+    private void resetViewToDefaultState() {        
         FrameLayout adContainerLayout = 
             (FrameLayout) mRootView.findViewById(MraidView.AD_CONTAINER_LAYOUT_ID);
         RelativeLayout expansionLayout = (RelativeLayout) mRootView.findViewById(
                 MraidView.MODAL_CONTAINER_LAYOUT_ID);
-        FrameLayout placeholderView = (FrameLayout) mRootView.findViewById(
-                MraidView.PLACEHOLDER_VIEW_ID);
         
         setNativeCloseButtonEnabled(false);
         adContainerLayout.removeAllViewsInLayout();
@@ -224,9 +232,9 @@ class MraidDisplayController extends MraidAbstractController {
         
         getView().requestLayout();
         
-        ViewGroup parent = (ViewGroup) placeholderView.getParent();
+        ViewGroup parent = (ViewGroup) mPlaceholderView.getParent();
         parent.addView(getView(), mViewIndexInParent);
-        parent.removeView(placeholderView);
+        parent.removeView(mPlaceholderView);
         parent.invalidate();
     }
     
@@ -281,8 +289,7 @@ class MraidDisplayController extends MraidAbstractController {
         ViewGroup parent = (ViewGroup) getView().getParent();
         if (parent == null) return;
         
-        FrameLayout placeholderView = new FrameLayout(getView().getContext());
-        placeholderView.setId(MraidView.PLACEHOLDER_VIEW_ID);
+        mPlaceholderView = new FrameLayout(getView().getContext());
         
         int index;
         int count = parent.getChildCount();
@@ -291,7 +298,7 @@ class MraidDisplayController extends MraidAbstractController {
         }
         
         mViewIndexInParent = index;
-        parent.addView(placeholderView, index, 
+        parent.addView(mPlaceholderView, index, 
                 new ViewGroup.LayoutParams(getView().getWidth(), getView().getHeight()));
         parent.removeView(getView());
     }

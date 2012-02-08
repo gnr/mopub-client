@@ -102,9 +102,18 @@ public class MraidView extends WebView {
         
         setVerticalScrollBarEnabled(false);
         setHorizontalScrollBarEnabled(false);
+        
         setOnTouchListener(new View.OnTouchListener() {
             public boolean onTouch(View v, MotionEvent event) {
-                return (event.getAction() == MotionEvent.ACTION_MOVE);
+                switch (event.getAction()) {
+                    case MotionEvent.ACTION_DOWN:
+                    case MotionEvent.ACTION_UP:
+                        if (!v.hasFocus()) {
+                            v.requestFocus();
+                        }
+                        break;
+                }
+                return false;
             }
         });
         
@@ -124,6 +133,7 @@ public class MraidView extends WebView {
     
     public void destroy() {
         mDisplayController.destroy();
+        super.destroy();
     }
 
     public void loadHtmlData(String data) {

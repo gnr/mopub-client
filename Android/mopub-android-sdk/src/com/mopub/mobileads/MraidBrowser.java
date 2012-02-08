@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -50,8 +51,16 @@ public class MraidBrowser extends Activity {
             
             @Override
             public boolean shouldOverrideUrlLoading(WebView view, String url) {
-                view.loadUrl(url);
-                return true;
+                if (url == null) return false;
+                
+                if (url.startsWith("market:") || url.startsWith("tel:") || 
+                        url.startsWith("voicemail:") || url.startsWith("sms:") || 
+                        url.startsWith("mailto:") || url.startsWith("geo:") || 
+                        url.startsWith("google.streetview:")) {
+                    startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(url)));
+                    return true;
+                }
+                return false;
             }
             
             @Override
