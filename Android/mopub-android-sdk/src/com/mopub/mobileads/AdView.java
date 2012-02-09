@@ -32,6 +32,29 @@
 
 package com.mopub.mobileads;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.lang.ref.WeakReference;
+import java.lang.reflect.Method;
+import java.math.BigDecimal;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.TimeZone;
+
+import org.apache.http.Header;
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.HttpStatus;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.conn.ClientConnectionManager;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.params.BasicHttpParams;
+import org.apache.http.params.HttpConnectionParams;
+import org.apache.http.params.HttpParams;
+
 import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
@@ -56,28 +79,6 @@ import android.webkit.WebViewClient;
 import android.widget.FrameLayout;
 
 import com.mopub.mobileads.MoPubView.LocationAwareness;
-import com.mopub.mobileads.Utils;
-
-import org.apache.http.Header;
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
-import org.apache.http.HttpStatus;
-import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.conn.ClientConnectionManager;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.params.BasicHttpParams;
-import org.apache.http.params.HttpConnectionParams;
-import org.apache.http.params.HttpParams;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.lang.ref.WeakReference;
-import java.lang.reflect.Method;
-import java.math.BigDecimal;
-import java.text.SimpleDateFormat;
-import java.util.*;
 
 public class AdView extends WebView {
     public static final String AD_ORIENTATION_PORTRAIT_ONLY = "p";
@@ -88,10 +89,10 @@ public class AdView extends WebView {
     public static final String DEVICE_ORIENTATION_SQUARE = "s";
     public static final String DEVICE_ORIENTATION_UNKNOWN = "u";
     public static final String EXTRA_AD_CLICK_DATA = "com.mopub.intent.extra.AD_CLICK_DATA";
-    
+
     private static final int MINIMUM_REFRESH_TIME_MILLISECONDS = 10000;
     private static final int HTTP_CLIENT_TIMEOUT_MILLISECONDS = 10000;
-    
+
     private String mAdUnitId;
     private String mKeywords;
     private String mUrl;
@@ -102,7 +103,7 @@ public class AdView extends WebView {
     private Location mLocation;
     private boolean mIsLoading;
     private boolean mAutorefreshEnabled;
-    private int mRefreshTimeMilliseconds = 0;
+    private int mRefreshTimeMilliseconds = 60000;
     private int mTimeoutMilliseconds = HTTP_CLIENT_TIMEOUT_MILLISECONDS;
     private int mWidth;
     private int mHeight;
@@ -115,23 +116,23 @@ public class AdView extends WebView {
     private LoadUrlTask mLoadUrlTask;
 
     public AdView(Context context, MoPubView view) {
-        // Important: don't allow any WebView subclass to be instantiated using an Activity context, 
+        // Important: don't allow any WebView subclass to be instantiated using an Activity context,
         // as it will leak on Froyo devices and earlier.
         super(context.getApplicationContext());
-        
+
         mMoPubView = view;
         mAutorefreshEnabled = true;
-        
+
         // Store user agent string at beginning to prevent NPE during background thread operations
         mUserAgent = getSettings().getUserAgentString();
-        
+
         disableScrollingAndZoom();
         getSettings().setJavaScriptEnabled(true);
         getSettings().setPluginsEnabled(true);
         setBackgroundColor(Color.TRANSPARENT);
         setWebViewClient(new AdWebViewClient());
     }
-    
+
     private void disableScrollingAndZoom() {
         setHorizontalScrollBarEnabled(false);
         setHorizontalScrollbarOverlay(false);
@@ -139,17 +140,17 @@ public class AdView extends WebView {
         setVerticalScrollbarOverlay(false);
         getSettings().setSupportZoom(false);
     }
-    
+
     private class AdWebViewClient extends WebViewClient {
         @Override
         public boolean shouldOverrideUrlLoading(WebView view, String url) {
             AdView adView = (AdView) view;
-            
+
             // Handle the special mopub:// scheme calls.
             if (url.startsWith("mopub://")) {
                 Uri uri = Uri.parse(url);
                 String host = uri.getHost();
-                
+
                 if (host.equals("finishLoad")) adView.adDidLoad();
                 else if (host.equals("close")) adView.adDidClose();
                 else if (host.equals("failLoad")) adView.loadFailUrl();
@@ -159,7 +160,7 @@ public class AdView extends WebView {
             // Handle other phone intents.
             else if (url.startsWith("tel:") || url.startsWith("voicemail:") ||
                     url.startsWith("sms:") || url.startsWith("mailto:") ||
-                    url.startsWith("geo:") || url.startsWith("google.streetview:")) { 
+                    url.startsWith("geo:") || url.startsWith("google.streetview:")) {
                 Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
                 intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 try {
@@ -190,7 +191,7 @@ public class AdView extends WebView {
                 showBrowserForUrl(url);
             }
         }
-        
+
         private String urlWithClickTrackingRedirect(AdView adView, String url) {
             String clickthroughUrl = adView.getClickthroughUrl();
             if (clickthroughUrl == null) return url;
@@ -200,10 +201,10 @@ public class AdView extends WebView {
             }
         }
     }
-    
+
     public void loadAd() {
         if (mAdUnitId == null) {
-            Log.d("MoPub", "Can't load an ad in this ad view because the ad unit ID is null. " + 
+            Log.d("MoPub", "Can't load an ad in this ad view because the ad unit ID is null. " +
                     "Did you forget to call setAdUnitId()?");
             return;
         }
@@ -214,10 +215,10 @@ public class AdView extends WebView {
         mMoPubView.adWillLoad(adUrl);
         loadUrl(adUrl);
     }
-    
+
     /*
      * Returns the last known location of the device using its GPS and network location providers.
-     * May be null if: 
+     * May be null if:
      * - Location permissions are not requested in the Android manifest file
      * - The location providers don't exist
      * - Location awareness is disabled in the parent MoPubView
@@ -226,12 +227,12 @@ public class AdView extends WebView {
         LocationAwareness locationAwareness = mMoPubView.getLocationAwareness();
         int locationPrecision = mMoPubView.getLocationPrecision();
         Location result = null;
-        
+
         if (locationAwareness == LocationAwareness.LOCATION_AWARENESS_DISABLED) {
             return null;
         }
-        
-        LocationManager lm 
+
+        LocationManager lm
                 = (LocationManager) getContext().getSystemService(Context.LOCATION_SERVICE);
         Location gpsLocation = null;
         try {
@@ -241,7 +242,7 @@ public class AdView extends WebView {
         } catch (IllegalArgumentException e) {
             Log.d("MoPub", "Failed to retrieve GPS location: device has no GPS provider.");
         }
-        
+
         Location networkLocation = null;
         try {
             networkLocation = lm.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
@@ -250,7 +251,7 @@ public class AdView extends WebView {
         } catch (IllegalArgumentException e) {
             Log.d("MoPub", "Failed to retrieve network location: device has no network provider.");
         }
-        
+
         if (gpsLocation == null && networkLocation == null) {
             return null;
         }
@@ -260,7 +261,7 @@ public class AdView extends WebView {
         }
         else if (gpsLocation != null) result = gpsLocation;
         else result = networkLocation;
-        
+
         // Truncate latitude/longitude to the number of digits specified by locationPrecision.
         if (locationAwareness == LocationAwareness.LOCATION_AWARENESS_TRUNCATED) {
             double lat = result.getLatitude();
@@ -268,33 +269,33 @@ public class AdView extends WebView {
                 .setScale(locationPrecision, BigDecimal.ROUND_HALF_DOWN)
                 .doubleValue();
             result.setLatitude(truncatedLat);
-            
+
             double lon = result.getLongitude();
             double truncatedLon = BigDecimal.valueOf(lon)
                 .setScale(locationPrecision, BigDecimal.ROUND_HALF_DOWN)
                 .doubleValue();
             result.setLongitude(truncatedLon);
         }
-        
+
         return result;
     }
-    
+
     private String generateAdUrl() {
         StringBuilder sz = new StringBuilder("http://" + MoPubView.HOST + MoPubView.AD_HANDLER);
         sz.append("?v=4&id=" + mAdUnitId);
-        
+
         String udid = Secure.getString(getContext().getContentResolver(), Secure.ANDROID_ID);
         String udidDigest = (udid == null) ? "" : Utils.sha1(udid);
         sz.append("&udid=sha:" + udidDigest);
 
         if (mKeywords != null) sz.append("&q=" + Uri.encode(mKeywords));
-        
+
         if (mLocation != null) {
             sz.append("&ll=" + mLocation.getLatitude() + "," + mLocation.getLongitude());
         }
-        
+
         sz.append("&z=" + getTimeZoneOffsetString());
-        
+
         int orientation = getResources().getConfiguration().orientation;
         String orString = DEVICE_ORIENTATION_UNKNOWN;
         if (orientation == Configuration.ORIENTATION_PORTRAIT) {
@@ -305,20 +306,20 @@ public class AdView extends WebView {
             orString = DEVICE_ORIENTATION_SQUARE;
         }
         sz.append("&o=" + orString);
-        
+
         DisplayMetrics metrics = new DisplayMetrics();
         ((WindowManager) getContext().getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay().getMetrics(metrics);
         sz.append("&sc_a=" + metrics.density);
-      
+
         return sz.toString();
     }
-    
+
     private String getTimeZoneOffsetString() {
         SimpleDateFormat format = new SimpleDateFormat("Z");
         format.setTimeZone(TimeZone.getDefault());
         return format.format(new Date());
     }
-    
+
     /*
      * Overrides the WebView's loadUrl() in order to expose HTTP response headers.
      */
@@ -333,18 +334,18 @@ public class AdView extends WebView {
             Log.i("MoPub", "Already loading an ad for " + mAdUnitId + ", wait to finish.");
             return;
         }
-        
+
         mUrl = url;
         mIsLoading = true;
-        
+
         if (mLoadUrlTask != null) {
             mLoadUrlTask.releaseResources();
         }
-        
+
         mLoadUrlTask = new LoadUrlTask(this);
         mLoadUrlTask.execute(mUrl);
     }
-    
+
     /*
      * Background operation that loads a URL.
      */
@@ -353,14 +354,15 @@ public class AdView extends WebView {
         private HttpClient mHttpClient;
         private String mUserAgent;
         private Exception mException;
-        
+
         private LoadUrlTask(AdView adView) {
             this.mAdView = adView;
             this.mUserAgent = (adView.mUserAgent != null) ? new String(adView.mUserAgent) : "";
             this.mHttpClient = adView.getAdViewHttpClient();
         }
-        
-        protected LoadUrlTaskResult doInBackground(String... urls) {
+
+        @Override
+		protected LoadUrlTaskResult doInBackground(String... urls) {
             LoadUrlTaskResult result = null;
             try {
                 result = loadAdFromNetwork(urls[0]);
@@ -369,35 +371,35 @@ public class AdView extends WebView {
             }
             return result;
         }
-        
+
         private LoadUrlTaskResult loadAdFromNetwork(String url) throws Exception {
             HttpGet httpget = new HttpGet(url);
             httpget.addHeader("User-Agent", mUserAgent);
-            
+
             synchronized(this) {
                 if (mAdView == null || mAdView.isDestroyed()) {
                     Log.d("MoPub", "Error loading ad: AdView has already been GCed or destroyed.");
                     return null;
                 }
-                
+
                 HttpResponse response = mHttpClient.execute(httpget);
                 HttpEntity entity = response.getEntity();
-                
-                if (response.getStatusLine().getStatusCode() != HttpStatus.SC_OK ||
-                        entity == null || entity.getContentLength() == 0) {
-                    Log.d("MoPub", "Error loading ad: MoPub server returned invalid response.");
+
+                if (response == null || entity == null ||
+                		response.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
+                    Log.d("MoPub", "MoPub server returned invalid response.");
                     return null;
                 }
-                
+
+                mAdView.configureAdViewUsingHeadersFromHttpResponse(response);
+
                 // Ensure that the ad type header is valid and not "clear".
                 Header atHeader = response.getFirstHeader("X-Adtype");
                 if (atHeader == null || atHeader.getValue().equals("clear")) {
-                    Log.d("MoPub", "Error loading ad: MoPub server returned no ad.");
+                    Log.d("MoPub", "MoPub server returned no ad.");
                     return null;
                 }
-                
-                mAdView.configureAdViewUsingHeadersFromHttpResponse(response);
-                
+
                 // Handle custom event ad type.
                 if (atHeader.getValue().equals("custom")) {
                     Log.i("MoPub", "Performing custom event.");
@@ -407,10 +409,10 @@ public class AdView extends WebView {
                 // Handle native SDK ad type.
                 else if (!atHeader.getValue().equals("html")) {
                     Log.i("MoPub", "Loading native ad");
-                    
+
                     HashMap<String, String> paramsHash = new HashMap<String, String>();
                     paramsHash.put("X-Adtype", atHeader.getValue());
-                    
+
                     Header npHeader = response.getFirstHeader("X-Nativeparams");
                     if (npHeader != null) {
                         paramsHash.put("X-Nativeparams", npHeader.getValue());
@@ -421,42 +423,43 @@ public class AdView extends WebView {
                     }
                     return new LoadNativeAdTaskResult(mAdView, paramsHash);
                 }
-                
+
                 // Handle HTML ad.
                 InputStream is = entity.getContent();
                 StringBuffer out = new StringBuffer();
                 byte[] b = new byte[4096];
                 for (int n; (n = is.read(b)) != -1;) {
                     out.append(new String(b, 0, n));
-                } 
+                }
                 is.close();
-                
+
                 return new LoadHtmlAdTaskResult(mAdView, out.toString());
             }
         }
-        
+
         protected void releaseResources() {
             synchronized(this) {
                 mAdView = null;
-            
+
                 if (mHttpClient != null) {
                     ClientConnectionManager manager = mHttpClient.getConnectionManager();
                     if (manager != null) manager.shutdown();
                     mHttpClient = null;
                 }
             }
-            
+
             mException = null;
         }
-        
-        protected void onPostExecute(LoadUrlTaskResult result) {
+
+        @Override
+		protected void onPostExecute(LoadUrlTaskResult result) {
             // If cleanup() has already been called on the AdView, don't proceed.
             if (mAdView == null || mAdView.isDestroyed()) {
                 if (result != null) result.cleanup();
                 releaseResources();
                 return;
             }
-            
+
             if (result == null) {
                 if (mException != null) {
                     Log.d("MoPub", "Exception caught while loading ad: " + mException);
@@ -466,11 +469,11 @@ public class AdView extends WebView {
                 result.execute();
                 result.cleanup();
             }
-            
+
             releaseResources();
         }
     }
-    
+
     private DefaultHttpClient getAdViewHttpClient() {
         HttpParams httpParameters = new BasicHttpParams();
 
@@ -486,7 +489,7 @@ public class AdView extends WebView {
 
         return new DefaultHttpClient(httpParameters);
     }
-    
+
     private void configureAdViewUsingHeadersFromHttpResponse(HttpResponse response) {
         // Print the ad network type to the console.
         Header ntHeader = response.getFirstHeader("X-Networktype");
@@ -506,12 +509,12 @@ public class AdView extends WebView {
         Header flHeader = response.getFirstHeader("X-Failurl");
         if (flHeader != null) mFailUrl = flHeader.getValue();
         else mFailUrl = null;
-        
+
         // Set the URL to be used for impression tracking.
         Header imHeader = response.getFirstHeader("X-Imptracker");
         if (imHeader != null) mImpressionUrl = imHeader.getValue();
         else mImpressionUrl = null;
-        
+
         // Set the webview's scrollability.
         Header scHeader = response.getFirstHeader("X-Scrollable");
         boolean enabled = false;
@@ -539,24 +542,25 @@ public class AdView extends WebView {
             }
         }
         else mRefreshTimeMilliseconds = 0;
-        
+
         // Set the allowed orientations for this ad.
         Header orHeader = response.getFirstHeader("X-Orientation");
         mAdOrientation = (orHeader != null) ? orHeader.getValue() : null;
     }
-    
+
     private void setWebViewScrollingEnabled(boolean enabled) {
         if (enabled) {
             setOnTouchListener(null);
         } else {
             setOnTouchListener(new View.OnTouchListener() {
-                public boolean onTouch(View v, MotionEvent event) {
+                @Override
+				public boolean onTouch(View v, MotionEvent event) {
                     return (event.getAction() == MotionEvent.ACTION_MOVE);
                 }
             });
         }
     }
-    
+
     private void adDidLoad() {
         Log.i("MoPub", "Ad successfully loaded.");
         mIsLoading = false;
@@ -581,7 +585,7 @@ public class AdView extends WebView {
     private void adDidClose() {
         mMoPubView.adClosed();
     }
-    
+
     private void handleCustomIntentFromUri(Uri uri) {
         mMoPubView.adClicked();
         String action = uri.getQueryParameter("fnc");
@@ -596,10 +600,10 @@ public class AdView extends WebView {
                     ". Is your intent spelled correctly?");
         }
     }
-    
+
     private void showBrowserForUrl(String url) {
         if (this.isDestroyed()) return;
-        
+
         if (url == null || url.equals("")) url = "about:blank";
         Log.d("MoPub", "Final URI to show in browser: " + url);
         Intent actionIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
@@ -615,51 +619,52 @@ public class AdView extends WebView {
             } else {
                 Log.w("MoPub", "Could not handle intent action: " + action);
             }
-            
+
             getContext().startActivity(
                     new Intent(Intent.ACTION_VIEW, Uri.parse("about:blank"))
                         .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
         }
     }
-    
+
     private abstract static class LoadUrlTaskResult {
         WeakReference<AdView> mWeakAdView;
-        
+
         public LoadUrlTaskResult(AdView adView) {
             mWeakAdView = new WeakReference<AdView>(adView);
         }
-        
+
         abstract void execute();
-        
+
         // The AsyncTask thread pool often appears to keep references to these objects, preventing
         // GC. This method should be used to release resources to mitigate the GC issue.
         abstract void cleanup();
     }
-    
+
     private static class PerformCustomEventTaskResult extends LoadUrlTaskResult {
         protected Header mHeader;
-        
+
         public PerformCustomEventTaskResult(AdView adView, Header header) {
             super(adView);
             mHeader = header;
         }
-        
-        public void execute() {
+
+        @Override
+		public void execute() {
             AdView adView = mWeakAdView.get();
             if (adView == null || adView.isDestroyed()) return;
-            
+
             adView.mIsLoading = false;
             MoPubView mpv = adView.mMoPubView;
-            
+
             if (mHeader == null) {
                 Log.i("MoPub", "Couldn't call custom method because the server did not specify one.");
                 mpv.adFailed();
                 return;
             }
-            
+
             String methodName = mHeader.getValue();
             Log.i("MoPub", "Trying to call method named " + methodName);
-            
+
             Class<? extends Activity> c;
             Method method;
             Activity userActivity = mpv.getActivity();
@@ -676,62 +681,67 @@ public class AdView extends WebView {
                 return;
             }
         }
-        
-        public void cleanup() {
+
+        @Override
+		public void cleanup() {
             mHeader = null;
         }
     }
-    
+
     private static class LoadNativeAdTaskResult extends LoadUrlTaskResult {
         protected HashMap<String, String> mParamsHash;
-        
+
         private LoadNativeAdTaskResult(AdView adView, HashMap<String, String> hash) {
             super(adView);
             mParamsHash = hash;
         }
-        
-        public void execute() {
+
+        @Override
+		public void execute() {
             AdView adView = mWeakAdView.get();
             if (adView == null || adView.isDestroyed()) return;
-            
+
             adView.mIsLoading = false;
             MoPubView mpv = adView.mMoPubView;
             mpv.loadNativeSDK(mParamsHash);
         }
 
-        public void cleanup() {
+        @Override
+		public void cleanup() {
             mParamsHash = null;
         }
     }
-    
+
     private static class LoadHtmlAdTaskResult extends LoadUrlTaskResult {
         protected String mData;
-        
+
         private LoadHtmlAdTaskResult(AdView adView, String data) {
             super(adView);
             mData = data;
         }
-        
-        public void execute() {
+
+        @Override
+		public void execute() {
             if (mData == null) return;
-            
+
             AdView adView = mWeakAdView.get();
             if (adView == null || adView.isDestroyed()) return;
-            
+
             adView.mResponseString = mData;
-            adView.loadDataWithBaseURL("http://" + MoPubView.HOST + "/", mData, "text/html", 
+            adView.loadDataWithBaseURL("http://" + MoPubView.HOST + "/", mData, "text/html",
                     "utf-8", null);
         }
-        
-        public void cleanup() {
+
+        @Override
+		public void cleanup() {
             mData = null;
         }
     }
-    
+
     protected boolean isDestroyed() {
         return mIsDestroyed;
     }
-    
+
     /*
      * Clean up the internal state of the AdView.
      */
@@ -739,21 +749,21 @@ public class AdView extends WebView {
         setAutorefreshEnabled(false);
         cancelRefreshTimer();
         destroy();
-        
-        // WebView subclasses are not garbage-collected in a timely fashion on Froyo and below, 
+
+        // WebView subclasses are not garbage-collected in a timely fashion on Froyo and below,
         // thanks to some persistent references in WebViewCore. We manually release some resources
         // to compensate for this "leak".
-        
+
         if (mLoadUrlTask != null) {
             mLoadUrlTask.releaseResources();
             mLoadUrlTask = null;
         }
-        
+
         mResponseString = null;
-        
+
         mMoPubView.removeView(this);
         mMoPubView = null;
-        
+
         // Flag as destroyed. LoadUrlTask checks this before proceeding in its onPostExecute().
         mIsDestroyed = true;
     }
@@ -774,7 +784,7 @@ public class AdView extends WebView {
             adDidFail();
         }
     }
-    
+
     protected void loadResponseString(String responseString) {
         loadDataWithBaseURL("http://"+MoPubView.HOST+"/",
                 responseString,"text/html","utf-8", null);
@@ -782,9 +792,10 @@ public class AdView extends WebView {
 
     protected void trackImpression() {
         if (mImpressionUrl == null) return;
-        
+
         new Thread(new Runnable() {
-            public void run () {
+            @Override
+			public void run () {
                 DefaultHttpClient httpclient = new DefaultHttpClient();
                 HttpGet httpget = new HttpGet(mImpressionUrl);
                 httpget.addHeader("User-Agent", mUserAgent);
@@ -800,12 +811,13 @@ public class AdView extends WebView {
             }
         }).start();
     }
-    
+
     protected void registerClick() {
         if (mClickthroughUrl == null) return;
 
         new Thread(new Runnable() {
-            public void run () {
+            @Override
+			public void run () {
                 DefaultHttpClient httpclient = new DefaultHttpClient();
                 HttpGet httpget = new HttpGet(mClickthroughUrl);
                 httpget.addHeader("User-Agent", mUserAgent);
@@ -825,10 +837,11 @@ public class AdView extends WebView {
     protected void adAppeared() {
         this.loadUrl("javascript:webviewDidAppear();");
     }
-    
+
     private Handler mRefreshHandler = new Handler();
     private Runnable mRefreshRunnable = new Runnable() {
-        public void run() {
+        @Override
+		public void run() {
             loadAd();
         }
     };
@@ -880,7 +893,7 @@ public class AdView extends WebView {
     public int getAdHeight() {
         return mHeight;
     }
-    
+
     public String getAdOrientation() {
         return mAdOrientation;
     }
@@ -888,7 +901,7 @@ public class AdView extends WebView {
     public String getClickthroughUrl() {
         return mClickthroughUrl;
     }
-    
+
     public void setClickthroughUrl(String url) {
         mClickthroughUrl = url;
     }
@@ -900,14 +913,14 @@ public class AdView extends WebView {
     public String getResponseString() {
         return mResponseString;
     }
-    
+
     public void setAutorefreshEnabled(boolean enabled) {
         mAutorefreshEnabled = enabled;
-        
+
         if (!mAutorefreshEnabled) cancelRefreshTimer();
         else scheduleRefreshTimerIfEnabled();
     }
-    
+
     public boolean getAutorefreshEnabled() {
         return mAutorefreshEnabled;
     }
