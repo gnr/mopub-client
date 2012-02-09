@@ -427,6 +427,19 @@ static NSString * const kOrientationBoth				= @"b";
 	[self closeButtonPressed];
 }
 
+- (void)customEventDidLoadAd {
+  _adView.adManager.isLoading = NO;
+  [_adView.adManager trackImpression];
+}
+
+- (void)customEventDidFailToLoadAd {
+  [_adView.adManager adapter:nil didFailToLoadAdWithError:nil];
+}
+
+- (void)customEventActionWillBegin {
+  [_adView.adManager trackClick];
+}
+
 #pragma mark -
 #pragma mark MPBaseInterstitialAdapterDelegate
 

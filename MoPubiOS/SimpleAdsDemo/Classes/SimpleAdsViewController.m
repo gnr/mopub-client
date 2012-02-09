@@ -27,7 +27,6 @@
 	mpMrectView.delegate = self;
 	[mpMrectView loadAd];
 	[self.mrectView addSubview:mpMrectView];	
-	
 }
 
 - (IBAction) refreshAd {

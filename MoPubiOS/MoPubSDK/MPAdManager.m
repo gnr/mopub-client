@@ -400,7 +400,7 @@ NSString * const kAdTypeMraid = @"mraid";
 - (void)customEventDidLoadAd
 {
 	_isLoading = NO;
-    [self scheduleAutorefreshTimerIfEnabled];
+  [self scheduleAutorefreshTimerIfEnabled];
 	[self trackImpression];
 }
 

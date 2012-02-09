@@ -108,6 +108,24 @@ typedef NSUInteger InterstitialOrientationType;
  */
 - (NSArray *)locationDescriptionPair;
 
+/*
+ * Signals to the ad view that a custom event has caused ad content to load
+ * successfully. You must call this method if you implement custom events.
+ */
+- (void)customEventDidLoadAd;
+
+/*
+ * Signals to the ad view that a custom event has resulted in a failed load.
+ * You must call this method if you implement custom events.
+ */
+- (void)customEventDidFailToLoadAd;
+
+/*
+ * Signals to the ad view that a user has tapped on a custom-event-triggered ad.
+ * You must call this method if you implement custom events, for proper click tracking.
+ */
+- (void)customEventActionWillBegin;
+
 @end
 
 @protocol MPInterstitialAdControllerDelegate <MPAdViewDelegate>
