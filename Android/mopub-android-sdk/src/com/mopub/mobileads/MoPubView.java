@@ -32,6 +32,10 @@
 
 package com.mopub.mobileads;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import java.util.HashMap;
+
 import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -43,10 +47,6 @@ import android.util.AttributeSet;
 import android.util.Log;
 import android.webkit.WebViewDatabase;
 import android.widget.FrameLayout;
-
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
-import java.util.HashMap;
 
 public class MoPubView extends FrameLayout {
 
@@ -69,7 +69,7 @@ public class MoPubView extends FrameLayout {
     public interface OnAdClickedListener {
         public void OnAdClicked(MoPubView m);
     }
-    
+
     public enum LocationAwareness {
         LOCATION_AWARENESS_NORMAL, LOCATION_AWARENESS_TRUNCATED, LOCATION_AWARENESS_DISABLED
     }
@@ -80,7 +80,7 @@ public class MoPubView extends FrameLayout {
 
     protected AdView mAdView;
     protected BaseAdapter mAdapter;
-    
+
     private Context mContext;
     private BroadcastReceiver mScreenStateReceiver;
     private boolean mIsInForeground;
@@ -105,10 +105,10 @@ public class MoPubView extends FrameLayout {
         mIsInForeground = (getVisibility() == VISIBLE);
         mLocationAwareness = LocationAwareness.LOCATION_AWARENESS_NORMAL;
         mLocationPrecision = DEFAULT_LOCATION_PRECISION;
-        
+
         setHorizontalScrollBarEnabled(false);
         setVerticalScrollBarEnabled(false);
-        
+
         // There is a rare bug in Froyo/2.2 where creation of a WebView causes a
         // NullPointerException. (http://code.google.com/p/android/issues/detail?id=10789)
         // It happens when the WebView can't access the local file store to make a cache file.
@@ -120,11 +120,11 @@ public class MoPubView extends FrameLayout {
                     "http://code.google.com/p/android/issues/detail?id=10789");
             return;
         }
-        
+
         initVersionDependentAdView(context);
         registerScreenStateBroadcastReceiver();
     }
-    
+
     private void initVersionDependentAdView(Context context) {
         int sdkVersion = (new Integer(Build.VERSION.SDK)).intValue();
         if (sdkVersion < 7) {
@@ -133,11 +133,11 @@ public class MoPubView extends FrameLayout {
             // On Android 2.1 (Eclair) and up, try to load our HTML5-enabled AdView class.
             Class<?> HTML5AdViewClass = null;
             try {
-                HTML5AdViewClass = (Class<?>) Class.forName("com.mopub.mobileads.HTML5AdView");
+                HTML5AdViewClass = Class.forName("com.mopub.mobileads.HTML5AdView");
             } catch (ClassNotFoundException e) {
                 mAdView = new AdView(context, this);
                 return;
-            } 
+            }
 
             Class<?>[] parameterTypes = new Class[2];
             parameterTypes[0] = Context.class;
@@ -170,16 +170,19 @@ public class MoPubView extends FrameLayout {
 
     private void registerScreenStateBroadcastReceiver() {
         if (mAdView == null) return;
-        
+
         mScreenStateReceiver = new BroadcastReceiver() {
-            public void onReceive(Context context, Intent intent) {
+            @Override
+			public void onReceive(Context context, Intent intent) {
                 if (intent.getAction().equals(Intent.ACTION_SCREEN_OFF)) {
                     if (mIsInForeground) {
                         Log.d("MoPub", "Screen sleep with ad in foreground, disable refresh");
-                        mPreviousAutorefreshSetting = mAdView.getAutorefreshEnabled();
-                        if (mAdView != null) mAdView.setAutorefreshEnabled(false);
+                        if (mAdView != null) {
+	                        mPreviousAutorefreshSetting = mAdView.getAutorefreshEnabled();
+	                        mAdView.setAutorefreshEnabled(false);
+                        }
                     } else {
-                        Log.d("MoPub", "Screen sleep but ad in background; " + 
+                        Log.d("MoPub", "Screen sleep but ad in background; " +
                                 "refresh should already be disabled");
                     }
                 } else if (intent.getAction().equals(Intent.ACTION_USER_PRESENT)) {
@@ -198,27 +201,27 @@ public class MoPubView extends FrameLayout {
         filter.addAction(Intent.ACTION_USER_PRESENT);
         mContext.registerReceiver(mScreenStateReceiver, filter);
     }
-    
+
     private void unregisterScreenStateBroadcastReceiver() {
         mContext.unregisterReceiver(mScreenStateReceiver);
     }
-    
+
     public void loadAd() {
         if (mAdView != null) mAdView.loadAd();
     }
-    
+
     /*
      * Tears down the ad view: no ads will be shown once this method executes. The parent
      * Activity's onDestroy implementation must include a call to this method.
      */
     public void destroy() {
         unregisterScreenStateBroadcastReceiver();
-        
+
         if (mAdView != null) {
             mAdView.cleanup();
             mAdView = null;
         }
-        
+
         if (mAdapter != null) {
             mAdapter.invalidate();
             mAdapter = null;
@@ -254,20 +257,20 @@ public class MoPubView extends FrameLayout {
             adClicked();
         }
     }
-    
+
     protected void loadHtmlString(String html) {
         if (mAdView != null) mAdView.loadResponseString(html);
     }
-    
+
     protected void trackNativeImpression() {
         Log.d("MoPub", "Tracking impression for native adapter.");
         if (mAdView != null) mAdView.trackImpression();
     }
-    
+
     @Override
     protected void onWindowVisibilityChanged(int visibility) {
         if (mAdView == null) return;
-        
+
         if (visibility == VISIBLE) {
             Log.d("MoPub", "Ad Unit ("+mAdView.getAdUnitId()+") going visible: enabling refresh");
             mIsInForeground = true;
@@ -301,12 +304,12 @@ public class MoPubView extends FrameLayout {
     protected void adClicked() {
         if (mOnAdClickedListener != null) mOnAdClickedListener.OnAdClicked(this);
     }
-    
+
     protected void nativeAdLoaded() {
         if (mAdView != null) mAdView.scheduleRefreshTimerIfEnabled();
         adLoaded();
     }
-    
+
     protected void adAppeared() {
         if (mAdView != null) mAdView.adAppeared();
     }
@@ -316,7 +319,7 @@ public class MoPubView extends FrameLayout {
     public void setAdUnitId(String adUnitId) {
         if (mAdView != null) mAdView.setAdUnitId(adUnitId);
     }
-    
+
     public void setKeywords(String keywords) {
         if (mAdView != null) mAdView.setKeywords(keywords);
     }
@@ -348,11 +351,11 @@ public class MoPubView extends FrameLayout {
     public String getResponseString() {
         return (mAdView != null) ? mAdView.getResponseString() : null;
     }
-    
+
     public void setClickthroughUrl(String url) {
         if (mAdView != null) mAdView.setClickthroughUrl(url);
     }
-    
+
     public String getClickthroughUrl() {
         return (mAdView != null) ? mAdView.getClickthroughUrl() : null;
     }
@@ -380,7 +383,7 @@ public class MoPubView extends FrameLayout {
     public void setOnAdClickedListener(OnAdClickedListener listener) {
         mOnAdClickedListener = listener;
     }
-    
+
     public void setLocationAwareness(LocationAwareness awareness) {
         mLocationAwareness = awareness;
     }
@@ -396,11 +399,11 @@ public class MoPubView extends FrameLayout {
     public int getLocationPrecision() {
         return mLocationPrecision;
     }
-    
+
     public void setAutorefreshEnabled(boolean enabled) {
         if (mAdView != null) mAdView.setAutorefreshEnabled(enabled);
     }
-    
+
     public boolean getAutorefreshEnabled() {
         if (mAdView != null) {
             return mAdView.getAutorefreshEnabled();
