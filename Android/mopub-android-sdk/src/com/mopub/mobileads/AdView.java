@@ -616,14 +616,17 @@ public class AdView extends WebView {
         Log.i("MoPub", "Ad successfully loaded.");
         mIsLoading = false;
         scheduleRefreshTimerIfEnabled();
+        setAdContentView(this);
+        mMoPubView.adLoaded();
+    }
+    
+    public void setAdContentView(View view) {
         mMoPubView.removeAllViews();
         FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(
                 FrameLayout.LayoutParams.WRAP_CONTENT,
                 FrameLayout.LayoutParams.WRAP_CONTENT,
                 Gravity.CENTER);
-        mMoPubView.addView(this, layoutParams);
-
-        mMoPubView.adLoaded();
+        mMoPubView.addView(view, layoutParams);
     }
 
     private void adDidFail() {
@@ -737,6 +740,20 @@ public class AdView extends WebView {
         }
     }
     
+    public void customEventDidLoadAd() {
+        mIsLoading = false;
+        trackImpression();
+        scheduleRefreshTimerIfEnabled();
+    }
+
+    public void customEventDidFailToLoadAd() {
+        adDidFail();
+    }
+
+    public void customEventActionWillBegin() {
+        registerClick();
+    }
+
     private static class LoadNativeAdTaskResult extends LoadUrlTaskResult {
         protected HashMap<String, String> mParamsHash;
         

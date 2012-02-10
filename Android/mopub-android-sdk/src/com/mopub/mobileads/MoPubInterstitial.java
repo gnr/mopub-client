@@ -133,6 +133,18 @@ public class MoPubInterstitial implements OnAdLoadedListener, OnAdFailedListener
         if (mListener != null) mListener.OnInterstitialLoaded();
     }
     
+    public void customEventDidLoadAd() {
+        if (mInterstitialView != null) mInterstitialView.trackImpression();
+    }
+
+    public void customEventDidFailToLoadAd() {
+        if (mInterstitialView != null) mInterstitialView.loadFailUrl();
+    }
+
+    public void customEventActionWillBegin() {
+        if (mInterstitialView != null) mInterstitialView.registerClick();
+    }
+
     @Deprecated
     public void showAd() {
         /* 

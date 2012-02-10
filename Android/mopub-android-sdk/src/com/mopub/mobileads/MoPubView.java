@@ -41,6 +41,7 @@ import android.location.Location;
 import android.os.Build;
 import android.util.AttributeSet;
 import android.util.Log;
+import android.view.View;
 import android.webkit.WebViewDatabase;
 import android.widget.FrameLayout;
 
@@ -313,6 +314,18 @@ public class MoPubView extends FrameLayout {
         if (mAdView != null) mAdView.adAppeared();
     }
 
+    public void customEventDidLoadAd() {
+        if (mAdView != null) mAdView.customEventDidLoadAd();
+    }
+    
+    public void customEventDidFailToLoadAd() {
+        if (mAdView != null) mAdView.customEventDidFailToLoadAd();
+    }
+    
+    public void customEventActionWillBegin() {
+        if (mAdView != null) mAdView.customEventActionWillBegin();
+    }
+
     ////////////////////////////////////////////////////////////////////////////////////////////////
 
     public void setAdUnitId(String adUnitId) {
@@ -410,5 +423,9 @@ public class MoPubView extends FrameLayout {
                     "Returning false.");
             return false;
         }
+    }
+    
+    public void setAdContentView(View view) {
+        if (mAdView != null) mAdView.setAdContentView(view);
     }
 }
