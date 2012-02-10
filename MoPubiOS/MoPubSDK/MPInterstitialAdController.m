@@ -26,7 +26,6 @@ static NSString * const kOrientationBoth				= @"b";
 @interface MPInterstitialAdController ()
 
 @property (nonatomic, assign) InterstitialCloseButtonStyle closeButtonStyle;
-//@property (nonatomic, assign) BOOL adWantsNativeCloseButton;
 @property (nonatomic, retain) UIButton *closeButton;
 @property (nonatomic, retain) MPBaseInterstitialAdapter *currentAdapter;
 

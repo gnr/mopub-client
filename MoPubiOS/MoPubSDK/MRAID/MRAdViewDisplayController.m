@@ -20,6 +20,15 @@ static NSString * const kAnimationKeyRotateExpanded = @"rotateExpanded";
 static NSString * const kViewabilityTimerNotificationName = @"Viewability";
 static const NSTimeInterval kViewabilityTimerInterval = 1.0;
 
+static NSString *const kMovieDidEnterNotification43 = 
+    @"UIMoviePlayerControllerDidEnterFullscreenNotification";
+static NSString *const kMovieWillExitNotification43 = 
+    @"UIMoviePlayerControllerWillExitFullscreenNotification";
+static NSString *const kMovieDidEnterNotification42 = 
+    @"UIMoviePlayerControllerDidEnterFullcreenNotification";
+static NSString *const kMovieWillExitNotification42 = 
+    @"UIMoviePlayerControllerWillExitFullcreenNotification";
+
 @interface MRAdViewDisplayController ()
 
 @property (nonatomic, retain) MRAdView *twoPartExpansionView;
@@ -46,6 +55,9 @@ static const NSTimeInterval kViewabilityTimerInterval = 1.0;
 - (CGRect)orientationAdjustedRect:(CGRect)rect;
 - (CGRect)convertRectToWindowForCurrentOrientation:(CGRect)rect;
 - (void)expandAnimationDidStop;
+
+- (void)moviePlayerWillEnterFullscreen:(NSNotification *)notification;
+- (void)moviePlayerDidExitFullscreen:(NSNotification *)notification;
 
 @end
 
@@ -79,6 +91,26 @@ static const NSTimeInterval kViewabilityTimerInterval = 1.0;
                                                  selector:@selector(checkViewability)
                                                      name:kViewabilityTimerNotificationName 
                                                    object:_viewabilityTimerTarget];
+        
+        [[NSNotificationCenter defaultCenter] addObserver:self
+                                                 selector:@selector(moviePlayerWillEnterFullscreen:)
+                                                     name:kMovieDidEnterNotification43
+                                                   object:nil];
+        
+        [[NSNotificationCenter defaultCenter] addObserver:self
+                                                 selector:@selector(moviePlayerWillEnterFullscreen:)
+                                                     name:kMovieDidEnterNotification42
+                                                   object:nil];
+        
+        [[NSNotificationCenter defaultCenter] addObserver:self
+                                                 selector:@selector(moviePlayerDidExitFullscreen:)
+                                                     name:kMovieWillExitNotification43
+                                                   object:nil];
+        
+        [[NSNotificationCenter defaultCenter] addObserver:self
+                                                 selector:@selector(moviePlayerDidExitFullscreen:)
+                                                     name:kMovieWillExitNotification42
+                                                   object:nil];
         
         _dimmingView = [[MRDimmingView alloc] initWithFrame:MPKeyWindow().frame];
         _dimmingView.backgroundColor = [UIColor darkGrayColor];
@@ -498,6 +530,16 @@ shouldLockOrientation:(BOOL)shouldLockOrientation {
 
 - (void)adDidClose:(MRAdView *)adView {
     [self close];
+}
+
+#pragma mark - Movie Player Notifications
+
+- (void)moviePlayerWillEnterFullscreen:(NSNotification *)notification {
+    [self hideExpandedElementsIfNeeded];
+}
+
+- (void)moviePlayerDidExitFullscreen:(NSNotification *)notification {
+    [self unhideExpandedElementsIfNeeded];
 }
 
 @end
