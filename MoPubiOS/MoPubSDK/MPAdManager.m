@@ -488,10 +488,11 @@ NSString * const kAdTypeMraid = @"mraid";
 {
 	// Dispose of the last adapter stored in _previousAdapter.
 	[_previousAdapter unregisterDelegate];
-	[_previousAdapter release];
+  [_previousAdapter release];
 	
 	_previousAdapter = _currentAdapter;
 	_currentAdapter = newAdapter;
+  [_currentAdapter retain];
 }
 
 #pragma mark -
@@ -636,7 +637,7 @@ NSString * const kAdTypeMraid = @"mraid";
 	Class cls = NSClassFromString(classString);
 	if (cls != nil)
 	{
-		MPBaseAdapter *newAdapter = (MPBaseAdapter *)[[cls alloc] initWithAdapterDelegate:self];
+		MPBaseAdapter *newAdapter = [(MPBaseAdapter *)[[cls alloc] initWithAdapterDelegate:self] autorelease];
 		[self replaceCurrentAdapterWithAdapter:newAdapter];
 		
 		[connection cancel];
@@ -715,7 +716,7 @@ NSString * const kAdTypeMraid = @"mraid";
 
 - (void)handleMraidRequest
 {
-	MPMraidAdapter *adapter = [[MPMraidAdapter alloc] initWithAdapterDelegate:self];
+	MPMraidAdapter *adapter = [[[MPMraidAdapter alloc] initWithAdapterDelegate:self] autorelease];
 	[self replaceCurrentAdapterWithAdapter:adapter];
 
 	CGSize size = self.adView.creativeSize;
