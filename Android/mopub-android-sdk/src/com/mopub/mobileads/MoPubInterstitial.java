@@ -237,6 +237,7 @@ public class MoPubInterstitial implements OnAdLoadedListener, OnAdFailedListener
         
         public MoPubInterstitialView(Context context) {
             super(context);
+            setAutorefreshEnabled(false);
         }
         
         @Override

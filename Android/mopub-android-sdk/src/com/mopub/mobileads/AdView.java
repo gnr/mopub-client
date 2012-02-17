@@ -113,6 +113,7 @@ public class AdView extends WebView {
     private String mUserAgent;
     private boolean mIsDestroyed;
     private LoadUrlTask mLoadUrlTask;
+    private final Handler mHandler = new Handler();
 
     public AdView(Context context, MoPubView view) {
         // Important: don't allow any WebView subclass to be instantiated using an Activity context, 
@@ -130,6 +131,8 @@ public class AdView extends WebView {
         getSettings().setPluginsEnabled(true);
         setBackgroundColor(Color.TRANSPARENT);
         setWebViewClient(new AdWebViewClient());
+        
+        addMoPubUriJavascriptInterface();
     }
     
     private void disableScrollingAndZoom() {
@@ -138,6 +141,37 @@ public class AdView extends WebView {
         setVerticalScrollBarEnabled(false);
         setVerticalScrollbarOverlay(false);
         getSettings().setSupportZoom(false);
+    }
+    
+    // XXX (2/15/12): This is a workaround for a problem on ICS devices where WebViews with
+    // layout height WRAP_CONTENT can mysteriously render with zero height. This seems to happen
+    // when calling loadData() with HTML that sets window.location during its "onload" event.
+    // We use loadData() when displaying interstitials, and our creatives use window.location to
+    // communicate ad loading status to AdViews. This results in zero-height interstitials.
+    //
+    // We counteract this by using a Javascript interface object to signal loading status,
+    // rather than modifying window.location.
+    private void addMoPubUriJavascriptInterface() {
+        
+        final class MoPubUriJavascriptInterface {
+            // This method appears to be unused, since it will only be called from JavaScript.
+            @SuppressWarnings("unused")
+            public boolean fireFinishLoad() {
+                AdView.this.postHandlerRunnable(new Runnable() {
+                    @Override
+                    public void run() {
+                        AdView.this.adDidLoad();
+                    }
+                });
+                return true;
+            }
+        }
+        
+        addJavascriptInterface(new MoPubUriJavascriptInterface(), "mopubUriInterface");
+    }
+    
+    private void postHandlerRunnable(Runnable r) {
+        mHandler.post(r);
     }
     
     private class AdWebViewClient extends WebViewClient {
@@ -281,7 +315,7 @@ public class AdView extends WebView {
     
     private String generateAdUrl() {
         StringBuilder sz = new StringBuilder("http://" + MoPubView.HOST + MoPubView.AD_HANDLER);
-        sz.append("?v=5&id=" + mAdUnitId);
+        sz.append("?v=6&id=" + mAdUnitId);
         
         String udid = Secure.getString(getContext().getContentResolver(), Secure.ANDROID_ID);
         String udidDigest = (udid == null) ? "" : Utils.sha1(udid);
