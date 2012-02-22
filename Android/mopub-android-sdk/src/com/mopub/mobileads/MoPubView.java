@@ -45,6 +45,7 @@ import android.location.Location;
 import android.os.Build;
 import android.util.AttributeSet;
 import android.util.Log;
+import android.view.View;
 import android.webkit.WebViewDatabase;
 import android.widget.FrameLayout;
 
@@ -272,9 +273,12 @@ public class MoPubView extends FrameLayout {
         if (mAdView == null) return;
 
         if (visibility == VISIBLE) {
-            Log.d("MoPub", "Ad Unit ("+mAdView.getAdUnitId()+") going visible: enabling refresh");
+            Log.d("MoPub", "Ad Unit ("+mAdView.getAdUnitId()+") window is visible");
             mIsInForeground = true;
-            mAdView.setAutorefreshEnabled(true);
+            if ((getVisibility() == View.VISIBLE)) {
+                Log.d("MoPub", "enabling auto-refresh");
+            	mAdView.setAutorefreshEnabled(true);
+            }
         }
         else {
             Log.d("MoPub", "Ad Unit ("+mAdView.getAdUnitId()+") going invisible: disabling refresh");
