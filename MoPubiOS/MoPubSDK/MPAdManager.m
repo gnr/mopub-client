@@ -615,7 +615,7 @@ NSString * const kAdTypeMraid = @"mraid";
 		[self replaceCurrentAdapterWithAdapter:nil];
 		
 		// Show a blank.
-		MPLogInfo(@"*** CLEAR ***");
+		MPLogInfo(@"No ad available");
 		[connection cancel];
 		_isLoading = NO;
 		[self.adView backFillWithNothing];
