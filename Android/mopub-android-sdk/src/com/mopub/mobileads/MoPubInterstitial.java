@@ -118,13 +118,13 @@ public class MoPubInterstitial implements OnAdLoadedListener, OnAdFailedListener
     }
     
     @Override
-    public void OnAdFailed(MoPubView m) {
+    public void onAdFailed(MoPubView m) {
         mCurrentInterstitialState = InterstitialState.NOT_READY;
         if (mListener != null) mListener.OnInterstitialFailed();
     }
 
     @Override
-    public void OnAdLoaded(MoPubView m) {
+    public void onAdLoaded(MoPubView m) {
         mCurrentInterstitialState = InterstitialState.HTML_AD_READY;
         
         if (mInterstitialAdapter != null) {
@@ -151,8 +151,8 @@ public class MoPubInterstitial implements OnAdLoadedListener, OnAdFailedListener
         };
         
         mInterstitialView.setOnAdLoadedListener(new OnAdLoadedListener() {
-            public void OnAdLoaded(MoPubView m) {
-                MoPubInterstitial.this.OnAdLoaded(m);
+            public void onAdLoaded(MoPubView m) {
+                MoPubInterstitial.this.onAdLoaded(m);
                 MoPubInterstitial.this.show();
             }
         });

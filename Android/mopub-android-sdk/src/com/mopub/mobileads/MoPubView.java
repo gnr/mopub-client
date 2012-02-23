@@ -52,23 +52,23 @@ import android.widget.FrameLayout;
 public class MoPubView extends FrameLayout {
 
     public interface OnAdWillLoadListener {
-        public void OnAdWillLoad(MoPubView m, String url);
+        public void onAdWillLoad(MoPubView m, String url);
     }
 
     public interface OnAdLoadedListener {
-        public void OnAdLoaded(MoPubView m);
+        public void onAdLoaded(MoPubView m);
     }
 
     public interface OnAdFailedListener {
-        public void OnAdFailed(MoPubView m);
+        public void onAdFailed(MoPubView m);
     }
 
     public interface OnAdClosedListener {
-        public void OnAdClosed(MoPubView m);
+        public void onAdClosed(MoPubView m);
     }
 
     public interface OnAdClickedListener {
-        public void OnAdClicked(MoPubView m);
+        public void onAdClicked(MoPubView m);
     }
 
     public enum LocationAwareness {
@@ -289,24 +289,24 @@ public class MoPubView extends FrameLayout {
 
     protected void adWillLoad(String url) {
         Log.d("MoPub", "adWillLoad: " + url);
-        if (mOnAdWillLoadListener != null) mOnAdWillLoadListener.OnAdWillLoad(this, url);
+        if (mOnAdWillLoadListener != null) mOnAdWillLoadListener.onAdWillLoad(this, url);
     }
 
     protected void adLoaded() {
         Log.d("MoPub", "adLoaded");
-        if (mOnAdLoadedListener != null) mOnAdLoadedListener.OnAdLoaded(this);
+        if (mOnAdLoadedListener != null) mOnAdLoadedListener.onAdLoaded(this);
     }
 
     protected void adFailed() {
-        if (mOnAdFailedListener != null) mOnAdFailedListener.OnAdFailed(this);
+        if (mOnAdFailedListener != null) mOnAdFailedListener.onAdFailed(this);
     }
 
     protected void adClosed() {
-        if (mOnAdClosedListener != null) mOnAdClosedListener.OnAdClosed(this);
+        if (mOnAdClosedListener != null) mOnAdClosedListener.onAdClosed(this);
     }
 
     protected void adClicked() {
-        if (mOnAdClickedListener != null) mOnAdClickedListener.OnAdClicked(this);
+        if (mOnAdClickedListener != null) mOnAdClickedListener.onAdClicked(this);
     }
 
     protected void nativeAdLoaded() {
