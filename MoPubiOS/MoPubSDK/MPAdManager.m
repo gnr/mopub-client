@@ -251,12 +251,12 @@ NSString * const kAdTypeMraid = @"mraid";
 }
 
 - (NSURL *)serverRequestURL {
-	NSString *urlString = [NSString stringWithFormat:@"http://%@/m/ad?v=8&udid=%@&q=%@&id=%@", 
+	NSString *urlString = [NSString stringWithFormat:@"http://%@/m/ad?v=8&udid=%@&q=%@&id=%@&nv=%@", 
 						   HOSTNAME,
 						   MPHashedUDID(),
 						   [_keywords stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding],
-						   [_adUnitId stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]
-						   ];
+						   [_adUnitId stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding],
+						   MP_SDK_VERSION];
 	
 	urlString = [urlString stringByAppendingString:[self orientationQueryStringComponent]];
 	urlString = [urlString stringByAppendingString:[self scaleFactorQueryStringComponent]];
