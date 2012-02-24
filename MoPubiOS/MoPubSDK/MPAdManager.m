@@ -89,7 +89,7 @@ NSString * const kAdTypeMraid = @"mraid";
 - (void)trackImpression;
 - (void)setAdContentView:(UIView *)view;
 - (void)rotateToOrientation:(UIInterfaceOrientation)orientation;
-- (void)fireOrientationChangedEventInWebview:(UIWebView *)webview;
+- (void)updateOrientationPropertiesForWebView:(UIWebView *)webview;
 - (NSDictionary *)dictionaryFromQueryString:(NSString *)query;
 - (void)customLinkClickedForSelectorString:(NSString *)selectorString 
 							withDataString:(NSString *)dataString;
@@ -356,11 +356,11 @@ NSString * const kAdTypeMraid = @"mraid";
 	if (self.currentAdapter) {
 		[self.currentAdapter rotateToOrientation:orientation];
 	} else if ([self.adView.adContentView isKindOfClass:[UIWebView class]]) {
-		[self fireOrientationChangedEventInWebview:(UIWebView *)self.adView.adContentView];
+		[self updateOrientationPropertiesForWebView:(UIWebView *)self.adView.adContentView];
 	}
 }
 
-- (void)fireOrientationChangedEventInWebview:(UIWebView *)webview
+- (void)updateOrientationPropertiesForWebView:(UIWebView *)webview
 {
 	UIInterfaceOrientation orientation = [[UIApplication sharedApplication] statusBarOrientation];
 	int angle = -1;
@@ -379,15 +379,16 @@ NSString * const kAdTypeMraid = @"mraid";
 	NSString *orientationEventScript = [NSString stringWithFormat:
 					@"window.__defineGetter__('orientation',function(){return %d;});"
 					@"(function(){ var evt = document.createEvent('Events');"
-					@"evt.initEvent('orientationchange', true, true); window.dispatchEvent(evt);})();",
+					@"evt.initEvent('orientationchange',true,true);window.dispatchEvent(evt);})();",
 					angle];
 	[webview stringByEvaluatingJavaScriptFromString:orientationEventScript];
 	
-	// If the UIWebView is rotated off-screen (which may happen with interstitials), its content 
-	// appears to render at the wrong position. We compensate by setting the viewport meta tag's 
+	// XXX: If the UIWebView is rotated off-screen (which may happen with interstitials), its 
+	// content may render off-center upon display. We compensate by setting the viewport meta tag's 
 	// 'width' attribute to be the size of the webview.
 	NSString *viewportUpdateScript = [NSString stringWithFormat:
-					  @"document.querySelector('meta[name=viewport]').setAttribute('content', 'width=%f;', false);",
+					  @"document.querySelector('meta[name=viewport]')"
+                      @".setAttribute('content', 'width=%f;', false);",
 					  webview.frame.size.width];
 	[webview stringByEvaluatingJavaScriptFromString:viewportUpdateScript];
 }

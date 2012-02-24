@@ -61,6 +61,9 @@ typedef NSUInteger InterstitialOrientationType;
 	UIButton *_closeButton;
 	
 	MPBaseInterstitialAdapter *_currentAdapter;
+    
+    // Whether the interstitial has been presented at least once.
+    BOOL _adHasBeenPresented;
 }
 
 @property (nonatomic, readonly, assign) BOOL ready;

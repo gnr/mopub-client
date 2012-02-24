@@ -332,8 +332,9 @@ static NSString * const kNewContentViewKey = @"NewContentView";
 
 - (void)adViewDidAppear
 {
-	if ([_adContentView isKindOfClass:[UIWebView class]])
+	if ([_adContentView isKindOfClass:[UIWebView class]]) {
 		[(UIWebView *)_adContentView stringByEvaluatingJavaScriptFromString:@"webviewDidAppear();"];
+    }
 }
 
 - (void)lockNativeAdsToOrientation:(MPNativeAdOrientation)orientation
@@ -422,6 +423,16 @@ static NSString * const kNewContentViewKey = @"NewContentView";
 	[self setScrollable:self.scrollable forView:view];
 	
 	[self animateTransitionToAdView:view];
+}
+
+- (void)forceRedraw {
+    // XXX: Fix for interstitials appearing off-center when the application is in landscape.
+    // UIWebView doesn't seem to redraw itself when it is rotated / auto-resized while off-
+    // screen. This call sets UIWebView's viewport width, which essentially forces UIWebView to
+    // redraw. See comments in the method implementation for details.
+    if ([_adContentView isKindOfClass:[UIWebView class]]) {
+        [_adManager updateOrientationPropertiesForWebView:(UIWebView *)_adContentView];
+    }
 }
 
 @end

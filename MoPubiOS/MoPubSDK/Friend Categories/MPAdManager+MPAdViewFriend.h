@@ -32,5 +32,6 @@
 - (void)customEventDidFailToLoadAd;
 - (void)customEventActionWillBegin;
 - (void)customEventActionDidEnd;
+- (void)updateOrientationPropertiesForWebView:(UIWebView *)webview;
 
 @end
