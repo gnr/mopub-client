@@ -12,7 +12,7 @@
 
 #define HOSTNAME					@"ads.mopub.com"
 #define DEFAULT_PUB_ID				@"agltb3B1Yi1pbmNyDAsSBFNpdGUYkaoMDA"
-#define MP_SDK_VERSION              @"1.1.4"
+#define MP_SDK_VERSION              @"1.1.5"
 
 // Sizing constants.
 #define MOPUB_BANNER_SIZE			CGSizeMake(320, 50)

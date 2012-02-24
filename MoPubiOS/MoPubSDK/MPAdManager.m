@@ -345,10 +345,14 @@ NSString * const kAdTypeMraid = @"mraid";
 
 - (void)setIgnoresAutorefresh:(BOOL)ignoresAutorefresh
 {
-	_ignoresAutorefresh = ignoresAutorefresh;
-	
-	if (_ignoresAutorefresh) [self cancelPendingAutorefreshTimer];
-	else [self scheduleAutorefreshTimerIfEnabled];
+    _ignoresAutorefresh = ignoresAutorefresh;
+    if (_ignoresAutorefresh) {
+        MPLogInfo(@"Ad view (%p) is now ignoring autorefresh.", self);
+        if ([self.autorefreshTimer isScheduled]) [self.autorefreshTimer pause];
+    } else {
+        MPLogInfo(@"Ad view (%p) is no longer ignoring autorefresh.", self);
+        if ([self.autorefreshTimer isScheduled]) [self.autorefreshTimer resume];
+    }
 }
 
 - (void)rotateToOrientation:(UIInterfaceOrientation)orientation
