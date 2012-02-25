@@ -41,6 +41,8 @@ import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.location.Location;
 import android.location.LocationManager;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Handler;
@@ -242,11 +244,25 @@ public class AdView extends WebView {
             return;
         }
 
+        if (!isNetworkAvailable()) {
+            Log.d("MoPub", "Can't load an ad because there is no network connectivity.");
+            scheduleRefreshTimerIfEnabled();
+            return;
+        }
+
         if (mLocation == null) mLocation = getLastKnownLocation();
 
         String adUrl = generateAdUrl();
         mMoPubView.adWillLoad(adUrl);
         loadUrl(adUrl);
+    }
+
+    private boolean isNetworkAvailable() {
+        ConnectivityManager cm
+                = (ConnectivityManager) getContext().getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo networkInfo = cm.getActiveNetworkInfo();
+
+        return networkInfo != null && networkInfo.isConnected();
     }
     
     /*
