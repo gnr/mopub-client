@@ -36,6 +36,7 @@ import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.Color;
@@ -258,10 +259,17 @@ public class AdView extends WebView {
     }
 
     private boolean isNetworkAvailable() {
+        Context context = getContext();
+        
+        // If we don't have network state access, just assume the network is up.
+        String permission = android.Manifest.permission.ACCESS_NETWORK_STATE;
+        int result = context.checkCallingPermission(permission);
+        if (result == PackageManager.PERMISSION_DENIED) return true;
+        
+        // Otherwise, perform the connectivity check.
         ConnectivityManager cm
                 = (ConnectivityManager) getContext().getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = cm.getActiveNetworkInfo();
-
         return networkInfo != null && networkInfo.isConnected();
     }
     
