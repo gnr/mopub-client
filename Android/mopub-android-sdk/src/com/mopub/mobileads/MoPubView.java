@@ -71,6 +71,10 @@ public class MoPubView extends FrameLayout {
         public void OnAdClicked(MoPubView m);
     }
     
+    public interface OnAdPresentedOverlayListener {
+        public void OnAdPresentedOverlay(MoPubView m);
+    }
+    
     public enum LocationAwareness {
         LOCATION_AWARENESS_NORMAL, LOCATION_AWARENESS_TRUNCATED, LOCATION_AWARENESS_DISABLED
     }
@@ -92,6 +96,7 @@ public class MoPubView extends FrameLayout {
     private OnAdWillLoadListener mOnAdWillLoadListener;
     private OnAdLoadedListener mOnAdLoadedListener;
     private OnAdFailedListener mOnAdFailedListener;
+    private OnAdPresentedOverlayListener mOnAdPresentedOverlayListener;
     private OnAdClosedListener mOnAdClosedListener;
     private OnAdClickedListener mOnAdClickedListener;
 
@@ -297,6 +302,12 @@ public class MoPubView extends FrameLayout {
         if (mOnAdFailedListener != null) mOnAdFailedListener.OnAdFailed(this);
     }
 
+    protected void adPresentedOverlay() {
+        if (mOnAdPresentedOverlayListener != null) {
+            mOnAdPresentedOverlayListener.OnAdPresentedOverlay(this);
+        }
+    }
+    
     protected void adClosed() {
         if (mOnAdClosedListener != null) mOnAdClosedListener.OnAdClosed(this);
     }
@@ -388,6 +399,10 @@ public class MoPubView extends FrameLayout {
         mOnAdFailedListener = listener;
     }
 
+    public void setOnAdPresentedOverlayListener(OnAdPresentedOverlayListener listener) {
+        mOnAdPresentedOverlayListener = listener;
+    }
+    
     public void setOnAdClosedListener(OnAdClosedListener listener) {
         mOnAdClosedListener = listener;
     }

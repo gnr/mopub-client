@@ -85,6 +85,7 @@ public class MraidAdapter extends BaseAdapter {
                 if (!isInvalidated()) {
                     mPreviousAutorefreshSetting = mMoPubView.getAutorefreshEnabled();
                     mMoPubView.setAutorefreshEnabled(false);
+                    mMoPubView.adPresentedOverlay();
                     mMoPubView.registerClick();
                 }
             }
