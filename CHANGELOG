@@ -1,5 +1,10 @@
 # MoPub Changelog #
 
+Version 1.3.0.0
+o Android: Fixed handling of potential SecurityExceptions from network connectivity checks
+o Android: Exposed keyword APIs for interstitials
+o Android: Fixed click-tracking for custom:// and other non-http intents.
+
 Version 1.2.0.0
 o iOS: Fixed a bug in which landscape interstitials appeared off-center on iOS 5.0+
 o iOS: Fixed some static analyzer warnings in MPAdManager and MPAdBrowserController

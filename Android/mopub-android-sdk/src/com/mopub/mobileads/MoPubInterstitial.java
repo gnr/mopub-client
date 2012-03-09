@@ -170,7 +170,15 @@ public class MoPubInterstitial implements OnAdLoadedListener, OnAdFailedListener
     }
     
     ////////////////////////////////////////////////////////////////////////////////////////////////
+    
+    public void setKeywords(String keywords) {
+        if (mInterstitialView != null) mInterstitialView.setKeywords(keywords);
+    }
 
+    public String getKeywords() {
+        return (mInterstitialView != null) ? mInterstitialView.getKeywords() : null;
+    }
+    
     public Activity getActivity() {
     	return mActivity;
     }

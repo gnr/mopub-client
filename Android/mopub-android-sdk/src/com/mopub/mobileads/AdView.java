@@ -201,6 +201,7 @@ public class AdView extends WebView {
                 intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 try {
                     getContext().startActivity(intent);
+                    registerClick();
                 } catch (ActivityNotFoundException e) {
                     Log.w("MoPub", "Could not handle intent with URI: " + url +
                         ". Is this intent unsupported on your phone?");
@@ -665,7 +666,7 @@ public class AdView extends WebView {
     }
     
     private void handleCustomIntentFromUri(Uri uri) {
-        mMoPubView.adClicked();
+        registerClick();
         String action = uri.getQueryParameter("fnc");
         String adData = uri.getQueryParameter("data");
         Intent customIntent = new Intent(action);
