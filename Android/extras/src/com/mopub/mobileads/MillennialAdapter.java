@@ -86,8 +86,8 @@ public class MillennialAdapter extends BaseAdapter implements MMAdListener {
             pubId = object.getString("adUnitID");
             adWidth = object.getInt("adWidth");
             adHeight = object.getInt("adHeight");
-        } catch (JSONException e) { 
-            mMoPubView.adFailed(); 
+        } catch (JSONException e) {
+            mMoPubView.loadFailUrl(); 
             return; 
         }
         
@@ -121,8 +121,10 @@ public class MillennialAdapter extends BaseAdapter implements MMAdListener {
 
     @Override
     public void invalidate() {
-    	mMillennialAdView.removeAllViews();
-        mMoPubView.removeView(mMillennialAdView);
+        if (mMillennialAdView != null) {
+            mMillennialAdView.removeAllViews();
+            mMoPubView.removeView(mMillennialAdView);
+        }
         mActivityReference = null;
         super.invalidate();
     }

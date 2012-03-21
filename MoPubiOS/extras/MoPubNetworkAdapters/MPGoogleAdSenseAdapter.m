@@ -83,9 +83,11 @@ static NSDictionary *GADHeaderAttrMap = nil;
 {	
 	// Native AdSense params.
 	NSMutableDictionary *attributes = [[NSMutableDictionary alloc] init];
-	NSData *headerData = [(NSString *)[params objectForKey:@"X-Nativeparams"] dataUsingEncoding:NSUTF8StringEncoding];
-	NSDictionary *headerParams = [[CJSONDeserializer deserializer] deserializeAsDictionary:headerData
-																					 error:NULL];
+	CJSONDeserializer *deserializer = [CJSONDeserializer deserializerWithNullObject:NULL];
+    
+    NSData *headerData = [(NSString *)[params objectForKey:@"X-Nativeparams"] 
+					   dataUsingEncoding:NSUTF8StringEncoding];
+	NSDictionary *headerParams = [deserializer deserializeAsDictionary:hdrData error:NULL];
 	for (NSString *key in headerParams)
 	{
 		NSObject *value = [headerParams objectForKey:key];

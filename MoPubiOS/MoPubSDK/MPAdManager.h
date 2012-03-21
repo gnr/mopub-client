@@ -116,10 +116,7 @@ extern NSString * const kAdTypeClear;
 	// Whether the autorefresh timer needs to be scheduled. Use case: during a user-triggered ad 
 	// action, we must postpone any attempted timer scheduling until the action ends. This flag 
 	// allows the "action-ended" callbacks to decide whether the timer needs to be re-scheduled.
-	BOOL _autorefreshTimerNeedsScheduling;	
-	
-	// Handle to the shared store object that manages in-app purchases from ads.
-	MPStore *_store;
+	BOOL _autorefreshTimerNeedsScheduling;
     
     BOOL _previousIgnoresAutorefresh;
     

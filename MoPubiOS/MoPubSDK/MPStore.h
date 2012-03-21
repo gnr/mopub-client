@@ -25,6 +25,16 @@
 + (MPStore *)sharedStore;
 
 /*
+ * Begins listening for in-app purchase transactions.
+ */
++ (void)beginObservingTransactions;
+
+/*
+ * Stops listening for in-app purchase transactions.
+ */
++ (void)stopObservingTransactions;
+
+/*
  * Begins an in-app purchase given the product identifier and the desired quantity.
  */
 - (void)initiatePurchaseForProductIdentifier:(NSString *)identifier quantity:(NSInteger)quantity;

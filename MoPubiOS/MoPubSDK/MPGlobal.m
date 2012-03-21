@@ -7,7 +7,14 @@
 //
 
 #import "MPGlobal.h"
+#import "MPConstants.h"
 #import <CommonCrypto/CommonDigest.h>
+#import "OpenUDID.h"
+
+NSString *MPReadUDIDFromDefaults();
+void MPWriteUDIDToDefaults(NSString *UDID);
+NSString *MPGenerateUDID();
+NSString *MPSHA1Digest(NSString *string);
 
 UIInterfaceOrientation MPInterfaceOrientation()
 {
@@ -63,31 +70,6 @@ CGFloat MPDeviceScaleFactor()
 	else return 1.0;
 }
 
-NSString *MPHashedUDID()
-{
-	static NSString *hashedUDID = nil;
-	
-	if (!hashedUDID) 
-	{
-		unsigned char digest[20];
-		
-		NSString *udid = [NSString stringWithFormat:@"%@", 
-						  [[UIDevice currentDevice] uniqueIdentifier]];
-		NSData *data = [udid dataUsingEncoding:NSASCIIStringEncoding];
-		CC_SHA1([data bytes], [data length], digest);
-		
-		NSMutableString *output = [NSMutableString stringWithCapacity:CC_SHA1_DIGEST_LENGTH * 2];
-		
-		for(int i = 0; i < CC_SHA1_DIGEST_LENGTH; i++) 
-		{
-			[output appendFormat:@"%02x", digest[i]];
-		}
-		
-		hashedUDID = [[NSString stringWithFormat:@"sha:%@", [output uppercaseString]] retain];
-	}
-	return hashedUDID;
-}
-
 NSString *MPUserAgentString()
 {
 	static NSString *userAgent = nil;
@@ -112,6 +94,71 @@ NSDictionary *MPDictionaryFromQueryString(NSString *query) {
 	}
 	return queryDict;
 }
+
+NSString *MPHashedUDID()
+{
+	static NSString *cachedIdentifier = nil;
+    
+    if (cachedIdentifier) return cachedIdentifier;
+    
+    NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
+    cachedIdentifier = [[userDefaults objectForKey:MOPUB_IDENTIFIER_DEFAULTS_KEY] retain];
+    if (!cachedIdentifier)
+    {
+        cachedIdentifier = [MPGenerateUDID() retain];
+        [userDefaults setObject:cachedIdentifier forKey:MOPUB_IDENTIFIER_DEFAULTS_KEY];
+        [userDefaults synchronize];
+    }
+    
+	return cachedIdentifier;
+}
+
+NSString *MPGenerateUDID()
+{
+    NSString *identifier;
+    NSString *identifierLabel;
+    
+#if MOPUB_USE_OPENUDID
+    identifierLabel = @"openudid";
+    identifier = [OpenUDID value];
+#else
+    identifierLabel = @"sha";
+    identifier = MPSHA1Digest([[UIDevice currentDevice] uniqueIdentifier]);
+#endif
+    
+    return [NSString stringWithFormat:@"%@:%@", identifierLabel, [identifier uppercaseString]];
+}
+
+NSString *MPSHA1Digest(NSString *string)
+{
+    unsigned char digest[CC_SHA1_DIGEST_LENGTH];
+    NSData *data = [string dataUsingEncoding:NSASCIIStringEncoding];
+    CC_SHA1([data bytes], [data length], digest);
+    
+    NSMutableString *output = [NSMutableString stringWithCapacity:CC_SHA1_DIGEST_LENGTH * 2];
+    for (int i = 0; i < CC_SHA1_DIGEST_LENGTH; i++)
+    {
+        [output appendFormat:@"%02x", digest[i]];
+    }
+    
+    return output;
+}
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+@implementation CJSONDeserializer (MPAdditions)
+
++ (CJSONDeserializer *)deserializerWithNullObject:(id)obj
+{
+    CJSONDeserializer *deserializer = [CJSONDeserializer deserializer];
+    deserializer.nullObject = obj;
+    return deserializer;
+}
+
+@end
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
 
 @implementation NSString (MPAdditions)
 

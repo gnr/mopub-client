@@ -1,9 +1,21 @@
 # MoPub Changelog #
 
+Version 1.4.0.0
+o iOS: Reduced the amount of logging messages regarding autorefresh
+o iOS: Modified JSON deserializer to avoid getting NSNull objects
+o iOS: Fixed issue in which interstitials could appear blank upon repeated show: calls
+o iOS: Removed call to deprecated SKMutablePayment class method
+o iOS: Added APIs for enabling and disabling the in-app purchase transaction observer
+o iOS: Fixed a memory leak in MPInterstitialAdController
+o iOS: Added support for OpenUDID as a optional replacement for UIDevice's -uniqueIdentifier
+o Android: Fixed some NullPointerExceptions in the AdMob and Millennial native adapters
+o Android: Fixed issues in which third-party adapters might not properly fail over
+o Android: Fixed an crashed caused by unregistering non-existent broadcast receivers
+
 Version 1.3.0.0
 o Android: Fixed handling of potential SecurityExceptions from network connectivity checks
 o Android: Exposed keyword APIs for interstitials
-o Android: Fixed click-tracking for custom:// and other non-http intents.
+o Android: Fixed click-tracking for custom:// and other non-http intents
 
 Version 1.2.0.0
 o iOS: Fixed a bug in which landscape interstitials appeared off-center on iOS 5.0+

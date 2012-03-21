@@ -14,25 +14,43 @@
 @interface MPStore (Internal)
 
 - (void)requestProductDataForProductIdentifier:(NSString *)identifier;
-- (void)startPaymentForProductIdentifier:(NSString *)identifier;
+- (void)startPaymentForProduct:(SKProduct *)product;
 - (void)recordTransaction:(SKPaymentTransaction *)transaction;
 
 @end
+
+static BOOL storeTrackingEnabled = false;
+static MPStore *sharedStore = nil;
 
 @implementation MPStore
 
 + (MPStore *)sharedStore
 {
-	static MPStore *sharedStore = nil;
 	@synchronized(self)
 	{
-		if (sharedStore == nil)
+        if (storeTrackingEnabled && sharedStore == nil)
 		{
 			sharedStore = [[MPStore alloc] init];
-			[[SKPaymentQueue defaultQueue] addTransactionObserver:sharedStore];
+            [[SKPaymentQueue defaultQueue] addTransactionObserver:sharedStore];
 		}
-		return sharedStore;
+        return sharedStore;
 	}
+}
+
++ (void)beginObservingTransactions
+{
+    storeTrackingEnabled = YES;
+    [MPStore sharedStore];
+}
+
++ (void)stopObservingTransactions
+{
+    storeTrackingEnabled = NO;
+    @synchronized(self)
+    {
+        [[SKPaymentQueue defaultQueue] removeTransactionObserver:sharedStore];
+        sharedStore = nil;
+    }
 }
 
 - (id)init
@@ -57,24 +75,25 @@
 
 - (void)requestProductDataForProductIdentifier:(NSString *)identifier
 {
-	SKProductsRequest *request = [[SKProductsRequest alloc] initWithProductIdentifiers:
-								  [NSSet setWithObject:identifier]];
+	SKProductsRequest *request = [[[SKProductsRequest alloc] initWithProductIdentifiers:
+								  [NSSet setWithObject:identifier]] autorelease];
 	request.delegate = self;
 	[request start];
 }
 
-- (void)startPaymentForProductIdentifier:(NSString *)identifier
+- (void)startPaymentForProduct:(SKProduct *)product
 {
-	SKMutablePayment *payment = [SKMutablePayment paymentWithProductIdentifier:identifier];
-	payment.quantity = _quantity;
-	[[SKPaymentQueue defaultQueue] addPayment:payment];
-	_isProcessing = NO;
+    SKMutablePayment *payment = [SKMutablePayment paymentWithProduct:product];
+    payment.quantity = _quantity;
+    [[SKPaymentQueue defaultQueue] addPayment:payment];
+    _isProcessing = NO;
 }
 
 - (void)recordTransaction:(SKPaymentTransaction *)transaction 
 {
 	// Report this transaction (specifically its receipt) back to the MoPub servers.
-	NSURL *url = [NSURL URLWithString:[NSString stringWithFormat:@"http://%@%@", HOSTNAME, STORE_RECEIPT_SUFFIX]];
+	NSURL *url = [NSURL URLWithString:
+                  [NSString stringWithFormat:@"http://%@%@", HOSTNAME, STORE_RECEIPT_SUFFIX]];
 	NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:url];
 	NSString *receiptString = [[[NSString alloc] initWithData:transaction.transactionReceipt 
 													 encoding:NSUTF8StringEncoding] autorelease];
@@ -92,7 +111,7 @@
 
 - (void)initiatePurchaseForProductIdentifier:(NSString *)identifier quantity:(NSInteger)quantity
 {
-	if (_isProcessing)
+    if (_isProcessing)
 	{
 		MPLogWarn(@"Warning - MPStore (%p) can only initiate one store request at a time.", self);
 		return;
@@ -108,14 +127,12 @@
 
 - (void)productsRequest:(SKProductsRequest *)request didReceiveResponse:(SKProductsResponse *)response
 {
-	[request autorelease];
-	SKProduct *product = [response.products objectAtIndex:0];
-	[self startPaymentForProductIdentifier:product.productIdentifier];
+    SKProduct *product = [response.products objectAtIndex:0];
+	[self startPaymentForProduct:product];
 }
 
 - (void)request:(SKRequest *)request didFailWithError:(NSError *)error
 {
-	[request autorelease];
 	MPLogError(@"SKProductsRequest failed with error %@.", error);
 	_isProcessing = NO;
 }

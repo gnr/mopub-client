@@ -63,7 +63,6 @@ NSString * const kAdTypeMraid = @"mraid";
 @property (nonatomic, assign) BOOL adActionInProgress;
 @property (nonatomic, assign) BOOL autorefreshTimerNeedsScheduling;	
 @property (nonatomic, retain) MPTimer *autorefreshTimer;
-@property (nonatomic, retain) MPStore *store;
 @property (nonatomic, retain) NSMutableData *data;
 @property (nonatomic, retain) NSDictionary *headers;
 @property (nonatomic, retain) NSMutableSet *webviewPool;
@@ -117,7 +116,6 @@ NSString * const kAdTypeMraid = @"mraid";
 @synthesize adActionInProgress = _adActionInProgress;
 @synthesize ignoresAutorefresh = _ignoresAutorefresh;
 @synthesize autorefreshTimerNeedsScheduling = _autorefreshTimerNeedsScheduling;
-@synthesize store = _store;
 @synthesize data = _data;
 @synthesize headers = _headers;
 @synthesize webviewPool = _webviewPool;
@@ -129,7 +127,6 @@ NSString * const kAdTypeMraid = @"mraid";
 		_data = [[NSMutableData data] retain];
 		_webviewPool = [[NSMutableSet set] retain];
 		_shouldInterceptLinks = YES;
-		_store = [MPStore sharedStore];
 		_timerTarget = [[MPTimerTarget alloc] initWithNotificationName:kTimerNotificationName];
         _request = [[NSMutableURLRequest alloc] initWithURL:nil
                                                  cachePolicy:NSURLRequestReloadIgnoringLocalCacheData 
@@ -347,10 +344,10 @@ NSString * const kAdTypeMraid = @"mraid";
 {
     _ignoresAutorefresh = ignoresAutorefresh;
     if (_ignoresAutorefresh) {
-        MPLogInfo(@"Ad view (%p) is now ignoring autorefresh.", self);
+        MPLogDebug(@"Ad view (%p) is now ignoring autorefresh.", self);
         if ([self.autorefreshTimer isScheduled]) [self.autorefreshTimer pause];
     } else {
-        MPLogInfo(@"Ad view (%p) is no longer ignoring autorefresh.", self);
+        MPLogDebug(@"Ad view (%p) is no longer ignoring autorefresh.", self);
         if ([self.autorefreshTimer isScheduled]) [self.autorefreshTimer resume];
     }
 }
@@ -449,9 +446,9 @@ NSString * const kAdTypeMraid = @"mraid";
 		
 		if ([self.adView.delegate respondsToSelector:selectorWithObject])
 		{
+            CJSONDeserializer *deserializer = [CJSONDeserializer deserializerWithNullObject:NULL];
 			NSData *data = [dataString dataUsingEncoding:NSUTF8StringEncoding];
-			NSDictionary *dataDictionary = [[CJSONDeserializer deserializer] deserializeAsDictionary:data
-																							   error:NULL];
+			NSDictionary *dataDictionary = [deserializer deserializeAsDictionary:data error:NULL];
 			[self.adView.delegate performSelector:selectorWithObject withObject:dataDictionary];
 		}
 		else
@@ -917,7 +914,7 @@ NSString * const kAdTypeMraid = @"mraid";
 		{
 			[self trackClick];
 			NSDictionary *queryDict = [self dictionaryFromQueryString:[URL query]];
-			[_store initiatePurchaseForProductIdentifier:[queryDict objectForKey:@"id"] 
+			[[MPStore sharedStore] initiatePurchaseForProductIdentifier:[queryDict objectForKey:@"id"] 
 												quantity:[[queryDict objectForKey:@"num"] intValue]];
 		}
 	    else if ([host isEqualToString:kMoPubCustomHost])

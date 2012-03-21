@@ -62,8 +62,8 @@ typedef NSUInteger InterstitialOrientationType;
 	
 	MPBaseInterstitialAdapter *_currentAdapter;
     
-    // Whether the interstitial has been presented at least once.
-    BOOL _adHasBeenPresented;
+    // Whether the interstitial is currently being presented.
+    BOOL _isOnModalViewControllerStack;
 }
 
 @property (nonatomic, readonly, assign) BOOL ready;
