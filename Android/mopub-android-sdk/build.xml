@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<<<<<<< HEAD
 <project name="mopub-android-sdk" default="help">
 
     <!-- The local.properties file is created and updated by the 'android' tool.
@@ -10,19 +9,6 @@
     <!-- The ant.properties file can be created by you. It is only edited by the
          'android' tool to add properties to it.
          This is the place to change some Ant specific build properties.
-=======
-<project name="mopub_android_sdk" default="help">
-
-<!-- The local.properties file is created and updated by the 'android'
-     tool.
-     It contains the path to the SDK. It should *NOT* be checked into
-     Version Control Systems. -->
-    <property file="local.properties" />
-
-    <!-- The build.properties file can be created by you and is never touched
-         by the 'android' tool. This is the place to change some of the
-         default property values used by the Ant rules.
->>>>>>> 629da2c041d7d904cf8bcc2df77225b346042e5f
          Here are some properties you may want to change/update:
 
          source.dir
@@ -30,12 +16,6 @@
          out.dir
              The name of the output directory. Default is 'bin'.
 
-<<<<<<< HEAD
-         For other overridable properties, look at the beginning of the rules
-         files in the SDK, at tools/ant/build.xml
-
-=======
->>>>>>> 629da2c041d7d904cf8bcc2df77225b346042e5f
          Properties related to the SDK location or the project target should
          be updated using the 'android' tool with the 'update' action.
 
@@ -43,7 +23,6 @@
          application and should be checked into Version Control Systems.
 
          -->
-<<<<<<< HEAD
     <property file="ant.properties" />
 
     <!-- The project.properties file is created and updated by the 'android'
@@ -62,20 +41,6 @@
             message="sdk.dir is missing. Make sure to generate local.properties using 'android update project' or to inject it through an env var"
             unless="sdk.dir"
     />
-=======
-    <property file="build.properties" />
-
-    <!-- The default.properties file is created and updated by the 'android'
-         tool, as well as ADT.
-         This file is an integral part of the build system for your
-         application and should be checked into Version Control Systems. -->
-    <property file="default.properties" />
-
-
-    <!-- Required pre-setup import -->
-    <import file="${sdk.dir}/tools/ant/pre_setup.xml" />
->>>>>>> 629da2c041d7d904cf8bcc2df77225b346042e5f
-
 
 <!-- extension targets. Uncomment the ones where you want to do custom work
      in between standard targets -->
@@ -85,37 +50,18 @@
     <target name="-pre-compile">
     </target>
 
-<<<<<<< HEAD
     /* This is typically used for code obfuscation.
        Compiled code location: ${out.classes.absolute.dir}
        If this is not done in place, override ${out.dex.input.absolute.dir} */
-=======
-    [This is typically used for code obfuscation.
-     Compiled code location: ${out.classes.absolute.dir}
-     If this is not done in place, override ${out.dex.input.absolute.dir}]
->>>>>>> 629da2c041d7d904cf8bcc2df77225b346042e5f
     <target name="-post-compile">
     </target>
 -->
 
-<<<<<<< HEAD
     <!-- Import the actual build file.
-=======
-    <!-- Execute the Android Setup task that will setup some properties
-         specific to the target, and import the build rules files.
-
-         The rules file is imported from
-            <SDK>/tools/ant/
-         Depending on the project type it can be either:
-         - main_rules.xml
-         - lib_rules.xml
-         - test_rules.xml
->>>>>>> 629da2c041d7d904cf8bcc2df77225b346042e5f
 
          To customize existing targets, there are two options:
          - Customize only one target:
              - copy/paste the target into this file, *before* the
-<<<<<<< HEAD
                <import> task.
              - customize it to your needs.
          - Customize the whole content of build.xml
@@ -131,17 +77,5 @@
     -->
     <!-- version-tag: 1 -->
     <import file="${sdk.dir}/tools/ant/build.xml" />
-=======
-               <setup> task.
-             - customize it to your needs.
-         - Customize the whole script.
-             - copy/paste the content of the rules files (minus the top node)
-               into this file, *after* the <setup> task
-             - disable the import of the rules by changing the setup task
-               below to <setup import="false" />.
-             - customize to your needs.
-    -->
-    <setup />
->>>>>>> 629da2c041d7d904cf8bcc2df77225b346042e5f
 
 </project>
