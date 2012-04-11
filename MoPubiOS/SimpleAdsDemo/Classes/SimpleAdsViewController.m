@@ -27,7 +27,6 @@
 	mpMrectView.delegate = self;
 	[mpMrectView loadAd];
 	[self.mrectView addSubview:mpMrectView];	
-	
 }
 
 - (IBAction) refreshAd {
@@ -68,11 +67,6 @@
 - (UIViewController *)viewControllerForPresentingModalView
 {
 	return self;
-}
-
-- (void)dismissInterstitial:(MPInterstitialAdController *)interstitial
-{
-	[self dismissModalViewControllerAnimated:YES];
 }
 
 @end

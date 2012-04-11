@@ -25,6 +25,7 @@ static NSString * const kOrientationBoth				= @"b";
 
 @interface MPInterstitialAdController ()
 
+@property (nonatomic, assign) InterstitialCloseButtonStyle closeButtonStyle;
 @property (nonatomic, retain) UIButton *closeButton;
 @property (nonatomic, retain) MPBaseInterstitialAdapter *currentAdapter;
 
@@ -32,6 +33,7 @@ static NSString * const kOrientationBoth				= @"b";
 - (void)setCloseButtonImageNamed:(NSString *)name;
 - (void)layoutCloseButton;
 - (void)closeButtonPressed;
+- (void)presentInterstitialModalViewController;
 
 @end
 
@@ -40,6 +42,8 @@ static NSString * const kOrientationBoth				= @"b";
 @synthesize ready = _ready;
 @synthesize parent = _parent;
 @synthesize adUnitId = _adUnitId;
+@synthesize closeButtonStyle = _closeButtonStyle;
+@synthesize adWantsNativeCloseButton = _adWantsNativeCloseButton;
 @synthesize closeButton = _closeButton;
 @synthesize currentAdapter = _currentAdapter;
 @synthesize keywords;
@@ -114,13 +118,15 @@ static NSString * const kOrientationBoth				= @"b";
 	{
 		_parent = parent;
 		_adUnitId = [ID copy];
-		_closeButtonType = InterstitialCloseButtonTypeDefault;
+		_closeButtonStyle = InterstitialCloseButtonStyleAdControlled;
+		_adWantsNativeCloseButton = YES;
 		_orientationType = InterstitialOrientationTypeBoth;
 		
 		CGRect bounds = [UIScreen mainScreen].bounds;
 		_adView = [[MPInterstitialAdView alloc] initWithAdUnitId:self.adUnitId size:bounds.size];
 		_adView.ignoresAutorefresh = YES;
 		_adView.delegate = self;
+        _adView.alpha = 0.0;
 		
 		// Typically, we don't set an autoresizing mask for MPAdView, but in this case we always
 		// want it to occupy the full screen.
@@ -138,42 +144,64 @@ static NSString * const kOrientationBoth				= @"b";
 	[_currentAdapter release];
 	[_adView release];
 	[_adUnitId release];
+    [_closeButton release];
     [super dealloc];
 }
 
-- (void)loadView 
+- (void)viewDidLoad
 {
-	self.view = [[[UIView alloc] initWithFrame:CGRectZero] autorelease];
-	self.view.backgroundColor = [UIColor blackColor];
-	self.view.frame = [UIScreen mainScreen].bounds;
-	self.view.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
-	
-	[self.view addSubview:_adView];
-	
-	[self layoutCloseButton];
-}
-
-- (void)viewWillAppear:(BOOL)animated
-{
-	[super viewWillAppear:animated];
+    self.view.backgroundColor = [UIColor blackColor];
+    [self.view addSubview:_adView];
+    [self layoutCloseButton];
 }
 
 - (void)viewDidAppear:(BOOL)animated
 {
 	[super viewDidAppear:animated];
-	[_adView adViewDidAppear];
+    
+	if (!_isOnModalViewControllerStack) {
+        _isOnModalViewControllerStack = YES;
+        [_adView adViewDidAppear];
+        
+        // XXX: In certain cases, UIWebView's content appears off-center due to rotation / auto-
+        // resizing while off-screen. -forceRedraw corrects this issue, but there is always a brief
+        // instant when the old content is visible. We mask this using a short fade animation.
+        [_adView forceRedraw];
+        [UIView beginAnimations:nil context:nil];
+        [UIView setAnimationDuration:0.3];
+        _adView.alpha = 1.0;
+        [UIView commitAnimations];
+    }
 }
 
 - (void)viewDidDisappear:(BOOL)animated
 {
-	// -viewDidDisappear: is called when the interstitial is dismissed and when presenting a modal
-	// view such as the ad browser. We only want to send a "did disappear" message to the delegate
-	// for the first case -- when the interstitial has actually been dismissed.
-	if (!self.modalViewController) [self interstitialDidDisappearForAdapter:nil];
+	[super viewDidDisappear:animated];
+    
+    // -viewDidDisappear: is called 1) when the interstitial is dismissed and 2) when a modal view
+	// controller is presented (e.g. the ad browser). We only want to send a "did disappear" message
+    // to the delegate for the first case -- when the interstitial has actually been dismissed.
+	if (!self.modalViewController) {
+        _isOnModalViewControllerStack = NO;
+        _adView.alpha = 0.0;
+        [self interstitialDidDisappearForAdapter:nil];
+    }
 }
 
 #pragma mark -
 #pragma mark Internal
+
+- (void)setCloseButtonStyle:(InterstitialCloseButtonStyle)closeButtonStyle
+{
+    _closeButtonStyle = closeButtonStyle;
+    [self layoutCloseButton];
+}
+
+- (void)setAdWantsNativeCloseButton:(BOOL)adWantsNativeCloseButton
+{
+    _adWantsNativeCloseButton = adWantsNativeCloseButton;
+    [self layoutCloseButton];
+}
 
 - (void)setCloseButtonImageNamed:(NSString *)name
 {
@@ -202,18 +230,22 @@ static NSString * const kOrientationBoth				= @"b";
 											self.closeButton.bounds.size.height);
 		
 		[self.view addSubview:self.closeButton];
-		[self.view bringSubviewToFront:self.closeButton];
 	}
-					
-	if (_closeButtonType == InterstitialCloseButtonTypeDefault)
-	{
-		[self setCloseButtonImageNamed:kCloseButtonXImageName];
-		self.closeButton.hidden = NO;
+
+	switch (_closeButtonStyle) {
+		case InterstitialCloseButtonStyleAlwaysVisible: 
+			self.closeButton.hidden = NO;
+			break;
+		case InterstitialCloseButtonStyleAlwaysHidden: 
+			self.closeButton.hidden = YES;
+			break;
+		case InterstitialCloseButtonStyleAdControlled: 
+			self.closeButton.hidden = !_adWantsNativeCloseButton;
+			break;
+		default: break;
 	}
-	else
-	{
-		self.closeButton.hidden = YES;
-	}
+    
+    [self.view bringSubviewToFront:self.closeButton];
 }
 
 #pragma mark -
@@ -277,17 +309,22 @@ static NSString * const kOrientationBoth				= @"b";
 	else 
 	{
 		[self interstitialWillAppearForAdapter:nil];
-		// Track the previous state of the status bar, so that we can restore it.
-		_statusBarWasHidden = [UIApplication sharedApplication].statusBarHidden;
-		[[UIApplication sharedApplication] setStatusBarHidden:YES];
-		
-		// Likewise, track the previous state of the navigation bar.
-		_navigationBarWasHidden = self.navigationController.navigationBarHidden;
-		[self.navigationController setNavigationBarHidden:YES animated:YES];
-		
-		[self.parent presentModalViewController:self animated:YES];
+		[self presentInterstitialModalViewController];
 		[self interstitialDidAppearForAdapter:nil];
 	}
+}
+
+- (void)presentInterstitialModalViewController
+{
+	// Track the previous state of the status bar, so that we can restore it.
+	_statusBarWasHidden = [UIApplication sharedApplication].statusBarHidden;
+	[[UIApplication sharedApplication] setStatusBarHidden:YES];
+	
+	// Likewise, track the previous state of the navigation bar.
+	_navigationBarWasHidden = self.navigationController.navigationBarHidden;
+	[self.navigationController setNavigationBarHidden:YES animated:YES];
+	
+	[self.parent presentModalViewController:self animated:YES];
 }
 
 - (NSArray *)locationDescriptionPair {
@@ -351,13 +388,7 @@ static NSString * const kOrientationBoth				= @"b";
 - (void)adView:(MPAdView *)view didReceiveResponseParams:(NSDictionary *)params
 {
 	NSString *closeButtonChoice = [params objectForKey:kCloseButtonHeaderKey];
-	
-	if ([closeButtonChoice isEqualToString:kCloseButtonNone])
-		_closeButtonType = InterstitialCloseButtonTypeNone;
-	else
-		_closeButtonType = InterstitialCloseButtonTypeDefault;
-	
-	// Adjust the close button depending on the header value.
+	_adWantsNativeCloseButton = ![closeButtonChoice isEqualToString:kCloseButtonNone];
 	[self layoutCloseButton];
 	
 	// Set the allowed orientations.
@@ -369,8 +400,14 @@ static NSString * const kOrientationBoth				= @"b";
 	else 
 		_orientationType = InterstitialOrientationTypeBoth;
 	
-	NSString *adapterType = [params objectForKey:@"X-Fulladtype"];
-	if (!adapterType || [adapterType isEqualToString:@""]) return;
+	NSString *adapterType = ([[params objectForKey:@"X-Adtype"] isEqualToString:@"mraid"]) ? 
+		@"mraid" : [params objectForKey:@"X-Fulladtype"];
+
+	if (!adapterType || [adapterType isEqualToString:@""] || 
+		[adapterType isEqualToString:@"html"]) {
+		return;
+	}
+
 	NSString *classString = [[MPAdapterMap sharedAdapterMap] classStringForAdapterType:adapterType];
 	Class cls = NSClassFromString(classString);
 	if (cls != nil)
@@ -390,6 +427,19 @@ static NSString * const kOrientationBoth				= @"b";
 - (void)adViewShouldClose:(MPAdView *)view
 {
 	[self closeButtonPressed];
+}
+
+- (void)customEventDidLoadAd {
+  _adView.adManager.isLoading = NO;
+  [_adView.adManager trackImpression];
+}
+
+- (void)customEventDidFailToLoadAd {
+  [_adView.adManager adapter:nil didFailToLoadAdWithError:nil];
+}
+
+- (void)customEventActionWillBegin {
+  [_adView.adManager trackClick];
 }
 
 #pragma mark -
@@ -413,6 +463,25 @@ static NSString * const kOrientationBoth				= @"b";
 	self.currentAdapter = nil;
 	
 	[_adView.adManager adapter:nil didFailToLoadAdWithError:error];
+}
+
+- (void)adapter:(MPBaseInterstitialAdapter *)adapter requestsPresentationForView:(UIView *)content
+{
+	// Replace the default ad view with the one passed as an argument.
+	[_adView removeFromSuperview];
+	content.frame = self.view.bounds;
+	content.autoresizingMask = UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth;
+	[self.view addSubview:content];
+    [self layoutCloseButton];
+
+	[self interstitialWillAppearForAdapter:adapter];
+	[self presentInterstitialModalViewController];
+	[self interstitialDidAppearForAdapter:adapter];
+}
+
+- (void)adapter:(MPBaseInterstitialAdapter *)adapter requestsDismissalOfView:(UIView *)content
+{
+	[self closeButtonPressed];
 }
 
 - (void)interstitialWillAppearForAdapter:(MPBaseInterstitialAdapter *)adapter

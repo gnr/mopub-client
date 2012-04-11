@@ -14,6 +14,8 @@
 #import "MPAdapterMap.h"
 #import "MPConstants.h"
 #import "MPGlobal.h"
+#import "MPMraidAdapter.h"
+#import "MPMraidInterstitialAdapter.h"
 #import "CJSONDeserializer.h"
 
 NSString * const kTimerNotificationName = @"Autorefresh";
@@ -41,7 +43,9 @@ NSString * const kAnimationHeaderKey = @"X-Animation";
 NSString * const kAdTypeHeaderKey = @"X-Adtype";
 NSString * const kNetworkTypeHeaderKey = @"X-Networktype";
 NSString * const kAdTypeHtml = @"html";
+NSString * const kAdTypeInterstitial = @"interstitial";
 NSString * const kAdTypeClear = @"clear";
+NSString * const kAdTypeMraid = @"mraid";
 
 @interface MPAdManager ()
 
@@ -58,8 +62,8 @@ NSString * const kAdTypeClear = @"clear";
 @property (nonatomic, assign) BOOL adActionInProgress;
 @property (nonatomic, assign) BOOL autorefreshTimerNeedsScheduling;	
 @property (nonatomic, retain) MPTimer *autorefreshTimer;
-@property (nonatomic, retain) MPStore *store;
 @property (nonatomic, retain) NSMutableData *data;
+@property (nonatomic, retain) NSDictionary *headers;
 @property (nonatomic, retain) NSMutableSet *webviewPool;
 @property (nonatomic, retain) MPBaseAdapter *currentAdapter;
 @property (nonatomic, retain) NSMutableURLRequest *request;
@@ -83,10 +87,13 @@ NSString * const kAdTypeClear = @"clear";
 - (void)trackImpression;
 - (void)setAdContentView:(UIView *)view;
 - (void)rotateToOrientation:(UIInterfaceOrientation)orientation;
-- (void)fireOrientationChangedEventInWebview:(UIWebView *)webview;
+- (void)updateOrientationPropertiesForWebView:(UIWebView *)webview;
 - (NSDictionary *)dictionaryFromQueryString:(NSString *)query;
 - (void)customLinkClickedForSelectorString:(NSString *)selectorString 
 							withDataString:(NSString *)dataString;
+- (void)processResponseHeaders:(NSDictionary *)headers body:(NSData *)data;
+- (void)handleMraidRequest;
+- (void)logResponseBodyToConsole:(NSData *)data;
 
 @end
 
@@ -108,21 +115,17 @@ NSString * const kAdTypeClear = @"clear";
 @synthesize adActionInProgress = _adActionInProgress;
 @synthesize ignoresAutorefresh = _ignoresAutorefresh;
 @synthesize autorefreshTimerNeedsScheduling = _autorefreshTimerNeedsScheduling;
-@synthesize store = _store;
 @synthesize data = _data;
+@synthesize headers = _headers;
 @synthesize webviewPool = _webviewPool;
 @synthesize currentAdapter = _currentAdapter;
 @synthesize request = _request;
 
-- (id)initWithAdView:(MPAdView *)adView {
+- (id)init {
 	if (self = [super init]) {
-		_adView = adView;
-		_adUnitId = [adView.adUnitId copy];
 		_data = [[NSMutableData data] retain];
 		_webviewPool = [[NSMutableSet set] retain];
 		_shouldInterceptLinks = YES;
-		_ignoresAutorefresh = adView.ignoresAutorefresh;
-		_store = [MPStore sharedStore];
 		_timerTarget = [[MPTimerTarget alloc] initWithNotificationName:kTimerNotificationName];
         _request = [[NSMutableURLRequest alloc] initWithURL:nil
                                                  cachePolicy:NSURLRequestReloadIgnoringLocalCacheData 
@@ -135,6 +138,13 @@ NSString * const kAdTypeClear = @"clear";
 		[self registerForApplicationStateTransitionNotifications];
 	}
 	return self;
+}
+
+- (void)setAdView:(MPAdView *)adView {
+    _adView = adView;
+    
+    self.adUnitId = adView.adUnitId;
+    self.ignoresAutorefresh = adView.ignoresAutorefresh;
 }
 
 - (void)registerForApplicationStateTransitionNotifications
@@ -170,6 +180,7 @@ NSString * const kAdTypeClear = @"clear";
 	[_conn cancel];
 	[_conn release];
 	[_data release];
+	[_headers release];
 	[_URL release];
 	[_clickURL release];
 	[_interceptURL release];
@@ -236,18 +247,22 @@ NSString * const kAdTypeClear = @"clear";
 }
 
 - (NSURL *)serverRequestURL {
-	NSString *urlString = [NSString stringWithFormat:@"http://%@/m/ad?v=7&udid=%@&q=%@&id=%@", 
+	NSString *urlString = [NSString stringWithFormat:@"http://%@/m/ad?v=8&udid=%@&q=%@&id=%@&nv=%@", 
 						   HOSTNAME,
 						   MPHashedUDID(),
 						   [_keywords stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding],
-						   [_adUnitId stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]
-						   ];
+						   [_adUnitId stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding],
+						   MP_SDK_VERSION];
 	
 	urlString = [urlString stringByAppendingString:[self orientationQueryStringComponent]];
 	urlString = [urlString stringByAppendingString:[self scaleFactorQueryStringComponent]];
 	urlString = [urlString stringByAppendingString:[self timeZoneQueryStringComponent]];
 	urlString = [urlString stringByAppendingString:[self locationQueryStringComponent]];
-	
+    
+    if (NSClassFromString(@"MPMraidAdapter") != nil) {
+        urlString = [urlString stringByAppendingString:@"&mr=1"];
+    }
+    
 	return [NSURL URLWithString:urlString];
 }
 
@@ -326,10 +341,14 @@ NSString * const kAdTypeClear = @"clear";
 
 - (void)setIgnoresAutorefresh:(BOOL)ignoresAutorefresh
 {
-	_ignoresAutorefresh = ignoresAutorefresh;
-	
-	if (_ignoresAutorefresh) [self cancelPendingAutorefreshTimer];
-	else [self scheduleAutorefreshTimerIfEnabled];
+    _ignoresAutorefresh = ignoresAutorefresh;
+    if (_ignoresAutorefresh) {
+        MPLogDebug(@"Ad view (%p) is now ignoring autorefresh.", self);
+        if ([self.autorefreshTimer isScheduled]) [self.autorefreshTimer pause];
+    } else {
+        MPLogDebug(@"Ad view (%p) is no longer ignoring autorefresh.", self);
+        if ([self.autorefreshTimer isScheduled]) [self.autorefreshTimer resume];
+    }
 }
 
 - (void)rotateToOrientation:(UIInterfaceOrientation)orientation
@@ -337,11 +356,11 @@ NSString * const kAdTypeClear = @"clear";
 	if (self.currentAdapter) {
 		[self.currentAdapter rotateToOrientation:orientation];
 	} else if ([self.adView.adContentView isKindOfClass:[UIWebView class]]) {
-		[self fireOrientationChangedEventInWebview:(UIWebView *)self.adView.adContentView];
+		[self updateOrientationPropertiesForWebView:(UIWebView *)self.adView.adContentView];
 	}
 }
 
-- (void)fireOrientationChangedEventInWebview:(UIWebView *)webview
+- (void)updateOrientationPropertiesForWebView:(UIWebView *)webview
 {
 	UIInterfaceOrientation orientation = [[UIApplication sharedApplication] statusBarOrientation];
 	int angle = -1;
@@ -360,15 +379,16 @@ NSString * const kAdTypeClear = @"clear";
 	NSString *orientationEventScript = [NSString stringWithFormat:
 					@"window.__defineGetter__('orientation',function(){return %d;});"
 					@"(function(){ var evt = document.createEvent('Events');"
-					@"evt.initEvent('orientationchange', true, true); window.dispatchEvent(evt);})();",
+					@"evt.initEvent('orientationchange',true,true);window.dispatchEvent(evt);})();",
 					angle];
 	[webview stringByEvaluatingJavaScriptFromString:orientationEventScript];
 	
-	// If the UIWebView is rotated off-screen (which may happen with interstitials), its content 
-	// appears to render at the wrong position. We compensate by setting the viewport meta tag's 
+	// XXX: If the UIWebView is rotated off-screen (which may happen with interstitials), its 
+	// content may render off-center upon display. We compensate by setting the viewport meta tag's 
 	// 'width' attribute to be the size of the webview.
 	NSString *viewportUpdateScript = [NSString stringWithFormat:
-					  @"document.querySelector('meta[name=viewport]').setAttribute('content', 'width=%f;', false);",
+					  @"document.querySelector('meta[name=viewport]')"
+                      @".setAttribute('content', 'width=%f;', false);",
 					  webview.frame.size.width];
 	[webview stringByEvaluatingJavaScriptFromString:viewportUpdateScript];
 }
@@ -376,7 +396,7 @@ NSString * const kAdTypeClear = @"clear";
 - (void)customEventDidLoadAd
 {
 	_isLoading = NO;
-    [self scheduleAutorefreshTimerIfEnabled];
+  [self scheduleAutorefreshTimerIfEnabled];
 	[self trackImpression];
 }
 
@@ -425,9 +445,9 @@ NSString * const kAdTypeClear = @"clear";
 		
 		if ([self.adView.delegate respondsToSelector:selectorWithObject])
 		{
+            CJSONDeserializer *deserializer = [CJSONDeserializer deserializerWithNullObject:NULL];
 			NSData *data = [dataString dataUsingEncoding:NSUTF8StringEncoding];
-			NSDictionary *dataDictionary = [[CJSONDeserializer deserializer] deserializeAsDictionary:data
-																							   error:NULL];
+			NSDictionary *dataDictionary = [deserializer deserializeAsDictionary:data error:NULL];
 			[self.adView.delegate performSelector:selectorWithObject withObject:dataDictionary];
 		}
 		else
@@ -468,10 +488,11 @@ NSString * const kAdTypeClear = @"clear";
 {
 	// Dispose of the last adapter stored in _previousAdapter.
 	[_previousAdapter unregisterDelegate];
-	[_previousAdapter release];
+  [_previousAdapter release];
 	
 	_previousAdapter = _currentAdapter;
 	_currentAdapter = newAdapter;
+  [_currentAdapter retain];
 }
 
 #pragma mark -
@@ -525,10 +546,6 @@ NSString * const kAdTypeClear = @"clear";
 	// Initialize data.
 	[_data release];
 	_data = [[NSMutableData data] retain];
-	
-	if ([self.adView.delegate respondsToSelector:@selector(adView:didReceiveResponseParams:)])
-		[self.adView.delegate adView:self.adView
-			didReceiveResponseParams:[(NSHTTPURLResponse *)response allHeaderFields]];
 	
 	// Parse response headers, set relevant URLs and booleans.
 	NSDictionary *headers = [(NSHTTPURLResponse *)response allHeaderFields];
@@ -588,33 +605,39 @@ NSString * const kAdTypeClear = @"clear";
 	{
 		MPLogInfo(@"Fetching Ad Network Type: %@", networkTypeHeader);
 	}
+
+	self.headers = headers;
 	
 	// Determine ad type.
 	NSString *typeHeader = [headers	objectForKey:kAdTypeHeaderKey];
 	
-	if (!typeHeader || [typeHeader isEqualToString:kAdTypeHtml]) {
-		[self replaceCurrentAdapterWithAdapter:nil];
-		
-		// HTML ad, so just return. connectionDidFinishLoading: will take care of the rest.
-		return;
-	}	else if ([typeHeader isEqualToString:kAdTypeClear]) {
+	if (!typeHeader || [typeHeader isEqualToString:kAdTypeClear]) {
 		[self replaceCurrentAdapterWithAdapter:nil];
 		
 		// Show a blank.
-		MPLogInfo(@"*** CLEAR ***");
+		MPLogInfo(@"No ad available");
 		[connection cancel];
 		_isLoading = NO;
 		[self.adView backFillWithNothing];
 		[self scheduleAutorefreshTimerIfEnabled];
 		return;
-	}
+	} else if ([typeHeader isEqualToString:kAdTypeHtml] || 
+			[typeHeader isEqualToString:kAdTypeInterstitial]) {
+		// HTML ad, so just return. connectionDidFinishLoading: will take care of the rest.
+		[self replaceCurrentAdapterWithAdapter:nil];
+		return;
+	} else if ([typeHeader isEqualToString:kAdTypeMraid]) {
+		[self replaceCurrentAdapterWithAdapter:nil];
+        _shouldLoadMRAIDAd = YES;
+        return;
+    }
 	
 	// Obtain adapter for specified ad type.
 	NSString *classString = [[MPAdapterMap sharedAdapterMap] classStringForAdapterType:typeHeader];
 	Class cls = NSClassFromString(classString);
 	if (cls != nil)
 	{
-		MPBaseAdapter *newAdapter = (MPBaseAdapter *)[[cls alloc] initWithAdapterDelegate:self];
+		MPBaseAdapter *newAdapter = [(MPBaseAdapter *)[[cls alloc] initWithAdapterDelegate:self] autorelease];
 		[self replaceCurrentAdapterWithAdapter:newAdapter];
 		
 		[connection cancel];
@@ -666,17 +689,50 @@ NSString * const kAdTypeClear = @"clear";
 
 - (void)connectionDidFinishLoading:(NSURLConnection *)connection
 {
+    NSMutableDictionary *params = [NSMutableDictionary dictionaryWithDictionary:self.headers];
+    [params setObject:_data forKey:@"payload"];
     
-	// Generate a new webview to contain the HTML and add it to the webview pool.
-	UIWebView *webview = [self adWebViewWithFrame:(CGRect){{0, 0}, self.adView.creativeSize}];
-	webview.delegate = self;
-	[_webviewPool addObject:webview];
-	[webview loadData:_data MIMEType:@"text/html" textEncodingName:@"utf-8" baseURL:self.URL];
+	if ([self.adView.delegate respondsToSelector:@selector(adView:didReceiveResponseParams:)])
+		[self.adView.delegate adView:self.adView didReceiveResponseParams:params];
 	
-	// Print out the response, for debugging.
+	[self processResponseHeaders:self.headers body:_data];
+	[self logResponseBodyToConsole:_data];
+}
+
+- (void)processResponseHeaders:(NSDictionary *)headers body:(NSData *)data
+{
+	if (_shouldLoadMRAIDAd) {
+	    [self handleMraidRequest];
+    	_shouldLoadMRAIDAd = NO;
+	    return;
+    } else {
+    	// Generate a new webview to contain the HTML and add it to the webview pool.
+		UIWebView *webview = [self adWebViewWithFrame:(CGRect){{0, 0}, self.adView.creativeSize}];
+		webview.delegate = self;
+		[_webviewPool addObject:webview];
+		[webview loadData:_data MIMEType:@"text/html" textEncodingName:@"utf-8" baseURL:self.URL];
+    }
+}
+
+- (void)handleMraidRequest
+{
+	MPMraidAdapter *adapter = [[[MPMraidAdapter alloc] initWithAdapterDelegate:self] autorelease];
+	[self replaceCurrentAdapterWithAdapter:adapter];
+
+	CGSize size = self.adView.creativeSize;
+	NSDictionary *params = [NSDictionary dictionaryWithObjectsAndKeys:
+                        [NSString stringWithFormat:@"%f", size.width], @"adWidth",
+                        [NSString stringWithFormat:@"%f", size.height], @"adHeight",
+                        _data, @"payload",
+                        nil];
+	[adapter getAdWithParams:params];
+}
+
+- (void)logResponseBodyToConsole:(NSData *)data
+{
 	if (MPLogGetLevel() <= MPLogLevelTrace)
 	{
-		NSString *response = [[NSString alloc] initWithData:_data encoding:NSUTF8StringEncoding];
+		NSString *response = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
 		MPLogTrace(@"Ad view (%p) loaded HTML content: %@", self, response);
 		[response release];
 	}
@@ -739,7 +795,16 @@ NSString * const kAdTypeClear = @"clear";
 	
 	// Dispose of the current adapter, because we don't want it to try loading again.
 	[_currentAdapter unregisterDelegate];
-	[_currentAdapter release];
+    
+    if (_currentAdapter.class == NSClassFromString(@"MPMillennialAdapter")) {
+        // XXX: Millennial says an MMAdView must not be deallocated immediately after it fails
+        // to load an ad, because it will result in a crash. This means that we can't immediately 
+        // release our Millennial adapters. Their suggestion was to use this ugly delay.
+        [_currentAdapter performSelector:@selector(release) withObject:nil afterDelay:1];
+    } else {
+        [_currentAdapter release];
+    }
+    
 	_currentAdapter = nil;
 	
 	// An adapter will sometimes send this message during a user action (example: user taps on an 
@@ -794,6 +859,17 @@ NSString * const kAdTypeClear = @"clear";
 	return [self.adView allowedNativeAdsOrientation];
 }
 
+- (void)pauseAutorefresh
+{
+    _previousIgnoresAutorefresh = _ignoresAutorefresh;
+    [self setIgnoresAutorefresh:YES];
+}
+
+- (void)resumeAutorefreshIfEnabled
+{
+    [self setIgnoresAutorefresh:_previousIgnoresAutorefresh];
+}
+
 #pragma mark -
 #pragma mark UIWebViewDelegate
 
@@ -837,7 +913,7 @@ NSString * const kAdTypeClear = @"clear";
 		{
 			[self trackClick];
 			NSDictionary *queryDict = [self dictionaryFromQueryString:[URL query]];
-			[_store initiatePurchaseForProductIdentifier:[queryDict objectForKey:@"id"] 
+			[[MPStore sharedStore] initiatePurchaseForProductIdentifier:[queryDict objectForKey:@"id"] 
 												quantity:[[queryDict objectForKey:@"num"] intValue]];
 		}
 	    else if ([host isEqualToString:kMoPubCustomHost])
@@ -892,7 +968,9 @@ NSString * const kAdTypeClear = @"clear";
 - (void)applicationWillEnterForeground
 {
 	_autorefreshTimerNeedsScheduling = NO;
-	if (!_ignoresAutorefresh) [self forceRefreshAd];
+	if (!_ignoresAutorefresh) {
+        [self forceRefreshAd];
+    }
 }
 
 @end
@@ -909,6 +987,12 @@ NSString * const kAdTypeClear = @"clear";
 	// If the initial request to MoPub fails, replace the current ad content with a blank.
 	_isLoading = NO;
 	[self.adView backFillWithNothing];
+}
+
+- (void)handleMraidRequest
+{
+	// The loading of an MRAID interstitial ad is done through -adView:didReceiveResponseParams:, so
+	// we don't need to do anything here.
 }
 
 - (UIWebView *)adWebViewWithFrame:(CGRect)frame

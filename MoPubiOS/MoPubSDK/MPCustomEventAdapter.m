@@ -8,6 +8,7 @@
 
 #import "MPCustomEventAdapter.h"
 #import "MPAdView.h"
+#import "MPInterstitialAdController.h"
 #import "MPLogging.h"
 
 @implementation MPCustomEventAdapter
@@ -23,12 +24,19 @@
 	}
 
 	SEL selector = NSSelectorFromString(selectorString);
-	MPAdView *adView = [self.delegate adView];
+  NSObject *ad = [self.delegate adView];
+	NSObject *delegate = [(MPAdView *)ad delegate];
+  
+  // Set the proper ad and delegate objects for the interstitial workflow 
+  if ([delegate isKindOfClass:[MPInterstitialAdController class]]) {
+    ad = delegate;
+    delegate = [(MPInterstitialAdController *)delegate parent];
+  }
 	
 	// First, try calling the no-object selector.
-	if ([adView.delegate respondsToSelector:selector])
+	if ([delegate respondsToSelector:selector])
 	{
-		[adView.delegate performSelector:selector];
+		[delegate performSelector:selector];
 	}
 	// Then, try calling the selector passing in the ad view.
 	else 
@@ -36,9 +44,9 @@
 		NSString *selectorWithObjectString = [NSString stringWithFormat:@"%@:", selectorString];
 		SEL selectorWithObject = NSSelectorFromString(selectorWithObjectString);
 		
-		if ([adView.delegate respondsToSelector:selectorWithObject])
+		if ([delegate respondsToSelector:selectorWithObject])
 		{
-			[adView.delegate performSelector:selectorWithObject withObject:adView];
+			[delegate performSelector:selectorWithObject withObject:ad];
 		}
 		else
 		{

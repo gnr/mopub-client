@@ -8,6 +8,8 @@
 
 #import "MPAdView.h"
 #import "MPAdManager+MPAdViewFriend.h"
+#import "UIWebView+MPAdditions.h"
+#import "MRAdView.h"
 #import <stdlib.h>
 #import <time.h>
 
@@ -24,7 +26,7 @@ static NSString * const kNewContentViewKey = @"NewContentView";
 @property (nonatomic, assign) CGSize originalSize;
 @property (nonatomic, retain) NSArray *locationDescriptionPair;
 
-- (void)initializeManager;
+- (id)initWithAdUnitId:(NSString *)adUnitId size:(CGSize)size adManager:(MPAdManager *)adManager;
 - (void)updateLocationDescriptionPair;
 - (void)setScrollable:(BOOL)scrollable forView:(UIView *)view;
 - (void)animateTransitionToAdView:(UIView *)view;
@@ -60,7 +62,13 @@ static NSString * const kNewContentViewKey = @"NewContentView";
 
 - (id)initWithAdUnitId:(NSString *)adUnitId size:(CGSize)size 
 {   
-	CGRect f = (CGRect){{0, 0}, size};
+    MPAdManager *adManager = [[[MPAdManager alloc] init] autorelease];
+	return [self initWithAdUnitId:adUnitId size:size adManager:adManager];
+}
+
+- (id)initWithAdUnitId:(NSString *)adUnitId size:(CGSize)size adManager:(MPAdManager *)adManager
+{
+    CGRect f = (CGRect){{0, 0}, size};
     if (self = [super initWithFrame:f]) 
 	{	
 		self.backgroundColor = [UIColor clearColor];
@@ -71,14 +79,10 @@ static NSString * const kNewContentViewKey = @"NewContentView";
 		_originalSize = size;
 		_allowedNativeAdOrientation = MPNativeAdOrientationAny;
         _adUnitId = (adUnitId) ? [adUnitId copy] : [[NSString alloc] initWithString:DEFAULT_PUB_ID];
-		[self initializeManager];
+		_adManager = [adManager retain];
+        _adManager.adView = self;
     }
     return self;
-}
-
-- (void)initializeManager 
-{
-	_adManager = [[MPAdManager alloc] initWithAdView:self];
 }
 
 - (void)dealloc 
@@ -179,38 +183,11 @@ static NSString * const kNewContentViewKey = @"NewContentView";
 
 - (void)setScrollable:(BOOL)scrollable forView:(UIView *)view
 {
-	// For webviews, find all subviews that are UIScrollViews or subclasses
-	// and set their scrolling and bounce.
-	if ([view isKindOfClass:[UIWebView class]])
-	{
-		
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 50000 // iOS 5.0+
-		if ([(UIWebView *)view respondsToSelector:@selector(scrollView)]) 
-		{
-			UIScrollView *scrollView = ((UIWebView *)view).scrollView;
-			scrollView.scrollEnabled = scrollable;
-			scrollView.bounces = scrollable;
-		} 
-		else 
-#endif
-		{
-			UIScrollView *scrollView = nil;
-			for (UIView *v in view.subviews)
-			{
-				if ([v isKindOfClass:[UIScrollView class]])
-				{
-					scrollView = (UIScrollView *)v;
-					break;
-				}
-			}
-			scrollView.scrollEnabled = scrollable;
-			scrollView.bounces = scrollable;
-		}
-	}
-	// For normal UIScrollView subclasses, use the provided setter.
-	else if ([view isKindOfClass:[UIScrollView class]])
-	{
-		[(UIScrollView *)view setScrollEnabled:scrollable];
+	if ([view isKindOfClass:[UIWebView class]]) {
+        [(UIWebView *)view mp_setScrollable:scrollable];
+    } else if ([view isKindOfClass:[UIScrollView class]]) {
+        // For normal UIScrollView subclasses, use the provided setter.
+        [(UIScrollView *)view setScrollEnabled:scrollable];
 	}
 }
 
@@ -303,6 +280,7 @@ static NSString * const kNewContentViewKey = @"NewContentView";
 				UIWebView *webView = (UIWebView *)oldContentView;
 				[webView setDelegate:nil];
 				[webView stopLoading];
+                [webView loadHTMLString:@"" baseURL:nil];
 				[_adManager removeWebviewFromPool:webView];
 			}
 		}
@@ -314,7 +292,8 @@ static NSString * const kNewContentViewKey = @"NewContentView";
 
 - (CGSize)adContentViewSize
 {
-	return (!_adContentView) ? _originalSize : _adContentView.bounds.size;
+    if (!_adContentView || [_adContentView isKindOfClass:[MRAdView class]]) return _originalSize;
+    else return _adContentView.bounds.size;
 }
 
 - (void)rotateToOrientation:(UIInterfaceOrientation)newOrientation
@@ -353,8 +332,9 @@ static NSString * const kNewContentViewKey = @"NewContentView";
 
 - (void)adViewDidAppear
 {
-	if ([_adContentView isKindOfClass:[UIWebView class]])
+	if ([_adContentView isKindOfClass:[UIWebView class]]) {
 		[(UIWebView *)_adContentView stringByEvaluatingJavaScriptFromString:@"webviewDidAppear();"];
+    }
 }
 
 - (void)lockNativeAdsToOrientation:(MPNativeAdOrientation)orientation
@@ -412,9 +392,10 @@ static NSString * const kNewContentViewKey = @"NewContentView";
 
 @implementation MPInterstitialAdView
 
-- (void)initializeManager 
+- (id)initWithAdUnitId:(NSString *)adUnitId size:(CGSize)size
 {
-	_adManager = [[MPInterstitialAdManager alloc] initWithAdView:self];
+    MPInterstitialAdManager *adManager = [[[MPInterstitialAdManager alloc] init] autorelease];
+	return [self initWithAdUnitId:adUnitId size:size adManager:adManager];
 }
 
 - (void)setAdContentView:(UIView *)view
@@ -429,6 +410,11 @@ static NSString * const kNewContentViewKey = @"NewContentView";
 		// 2) ad view resizes its frame before the webview gets set as the content view
 		view.frame = self.bounds;
 	}
+    
+    if ([view isKindOfClass:[MRAdView class]])
+    {
+        // Disable expansion.
+    }
 	
 	self.hidden = NO;
 	
@@ -437,6 +423,16 @@ static NSString * const kNewContentViewKey = @"NewContentView";
 	[self setScrollable:self.scrollable forView:view];
 	
 	[self animateTransitionToAdView:view];
+}
+
+- (void)forceRedraw {
+    // XXX: Fix for interstitials appearing off-center when the application is in landscape.
+    // UIWebView doesn't seem to redraw itself when it is rotated / auto-resized while off-
+    // screen. This call sets UIWebView's viewport width, which essentially forces UIWebView to
+    // redraw. See comments in the method implementation for details.
+    if ([_adContentView isKindOfClass:[UIWebView class]]) {
+        [_adManager updateOrientationPropertiesForWebView:(UIWebView *)_adContentView];
+    }
 }
 
 @end

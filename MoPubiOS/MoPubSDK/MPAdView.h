@@ -254,4 +254,6 @@ typedef enum
 
 @interface MPInterstitialAdView : MPAdView
 
+- (void)forceRedraw;
+
 @end

@@ -52,19 +52,20 @@
 	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
 	
 	NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
-	if ([paths count] <= 0) return;
+	if ([paths count] <= 0) {[pool release]; return;}
+
 	
 	NSString *documentsDir = [paths objectAtIndex:0];
 	NSString *appOpenLogPath = [documentsDir stringByAppendingPathComponent:@"mopubAppOpen.log"];
 	NSFileManager *fileManager = [NSFileManager defaultManager];
 	
 	// The existence of mopubAppOpen.log tells us whether we have already reported this app open.
-	if ([fileManager fileExistsAtPath:appOpenLogPath]) return;
+	if ([fileManager fileExistsAtPath:appOpenLogPath]) {[pool release]; return;}
 	
 	NSString *appID = [context objectForKey:kApplicationIdContextKey];
 	NSString *userAgent = [context objectForKey:kUserAgentContextKey];
 	
-	NSString *appOpenUrlString = [NSString stringWithFormat:@"http://%@/m/open?v=7&udid=%@&id=%@",
+	NSString *appOpenUrlString = [NSString stringWithFormat:@"http://%@/m/open?v=8&udid=%@&id=%@",
 								  HOSTNAME,
 								  MPHashedUDID(),
 								  appID];

@@ -59,11 +59,14 @@ import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.location.Location;
 import android.location.LocationManager;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Handler;
@@ -114,6 +117,7 @@ public class AdView extends WebView {
     private String mUserAgent;
     private boolean mIsDestroyed;
     private LoadUrlTask mLoadUrlTask;
+    private final Handler mHandler = new Handler();
 
     public AdView(Context context, MoPubView view) {
         // Important: don't allow any WebView subclass to be instantiated using an Activity context,
@@ -131,6 +135,8 @@ public class AdView extends WebView {
         getSettings().setPluginsEnabled(true);
         setBackgroundColor(Color.TRANSPARENT);
         setWebViewClient(new AdWebViewClient());
+
+        addMoPubUriJavascriptInterface();
     }
 
     private void disableScrollingAndZoom() {
@@ -139,6 +145,37 @@ public class AdView extends WebView {
         setVerticalScrollBarEnabled(false);
         setVerticalScrollbarOverlay(false);
         getSettings().setSupportZoom(false);
+    }
+
+    // XXX (2/15/12): This is a workaround for a problem on ICS devices where WebViews with
+    // layout height WRAP_CONTENT can mysteriously render with zero height. This seems to happen
+    // when calling loadData() with HTML that sets window.location during its "onload" event.
+    // We use loadData() when displaying interstitials, and our creatives use window.location to
+    // communicate ad loading status to AdViews. This results in zero-height interstitials.
+    //
+    // We counteract this by using a Javascript interface object to signal loading status,
+    // rather than modifying window.location.
+    private void addMoPubUriJavascriptInterface() {
+
+        final class MoPubUriJavascriptInterface {
+            // This method appears to be unused, since it will only be called from JavaScript.
+            @SuppressWarnings("unused")
+            public boolean fireFinishLoad() {
+                AdView.this.postHandlerRunnable(new Runnable() {
+                    @Override
+                    public void run() {
+                        AdView.this.adDidLoad();
+                    }
+                });
+                return true;
+            }
+        }
+
+        addJavascriptInterface(new MoPubUriJavascriptInterface(), "mopubUriInterface");
+    }
+
+    private void postHandlerRunnable(Runnable r) {
+        mHandler.post(r);
     }
 
     private class AdWebViewClient extends WebViewClient {
@@ -165,6 +202,7 @@ public class AdView extends WebView {
                 intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 try {
                     getContext().startActivity(intent);
+                    registerClick();
                 } catch (ActivityNotFoundException e) {
                     Log.w("MoPub", "Could not handle intent with URI: " + url +
                         ". Is this intent unsupported on your phone?");
@@ -209,11 +247,32 @@ public class AdView extends WebView {
             return;
         }
 
+        if (!isNetworkAvailable()) {
+            Log.d("MoPub", "Can't load an ad because there is no network connectivity.");
+            scheduleRefreshTimerIfEnabled();
+            return;
+        }
+
         if (mLocation == null) mLocation = getLastKnownLocation();
 
         String adUrl = generateAdUrl();
         mMoPubView.adWillLoad(adUrl);
         loadUrl(adUrl);
+    }
+
+    private boolean isNetworkAvailable() {
+        Context context = getContext();
+
+        // If we don't have network state access, just assume the network is up.
+        String permission = android.Manifest.permission.ACCESS_NETWORK_STATE;
+        int result = context.checkCallingPermission(permission);
+        if (result == PackageManager.PERMISSION_DENIED) return true;
+
+        // Otherwise, perform the connectivity check.
+        ConnectivityManager cm
+                = (ConnectivityManager) getContext().getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo networkInfo = cm.getActiveNetworkInfo();
+        return networkInfo != null && networkInfo.isConnected();
     }
 
     /*
@@ -282,7 +341,8 @@ public class AdView extends WebView {
 
     private String generateAdUrl() {
         StringBuilder sz = new StringBuilder("http://" + MoPubView.HOST + MoPubView.AD_HANDLER);
-        sz.append("?v=4&id=" + mAdUnitId);
+        sz.append("?v=6&id=" + mAdUnitId);
+        sz.append("&nv=" + MoPub.SDK_VERSION);
 
         String udid = Secure.getString(getContext().getContentResolver(), Secure.ANDROID_ID);
         String udidDigest = (udid == null) ? "" : Utils.sha1(udid);
@@ -310,6 +370,14 @@ public class AdView extends WebView {
         DisplayMetrics metrics = new DisplayMetrics();
         ((WindowManager) getContext().getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay().getMetrics(metrics);
         sz.append("&sc_a=" + metrics.density);
+
+        boolean mraid = true;
+        try {
+            Class.forName("com.mopub.mraid.MraidView", false, ClassLoader.getSystemClassLoader());
+        } catch (ClassNotFoundException e) {
+            mraid = false;
+        }
+        if (mraid) sz.append("&mr=1");
 
         return sz.toString();
     }
@@ -406,6 +474,19 @@ public class AdView extends WebView {
                     Header cmHeader = response.getFirstHeader("X-Customselector");
                     return new PerformCustomEventTaskResult(mAdView, cmHeader);
                 }
+                else if (atHeader.getValue().equals("mraid")) {
+                    HashMap<String, String> paramsHash = new HashMap<String, String>();
+                    paramsHash.put("X-Adtype", atHeader.getValue());
+
+                    InputStream is = entity.getContent();
+                    StringBuffer out = new StringBuffer();
+                    byte[] b = new byte[4096];
+                    for (int n; (n = is.read(b)) != -1;) {
+                        out.append(new String(b, 0, n));
+                    }
+                    paramsHash.put("X-Nativeparams", out.toString());
+                    return new LoadNativeAdTaskResult(mAdView, paramsHash);
+                }
                 // Handle native SDK ad type.
                 else if (!atHeader.getValue().equals("html")) {
                     Log.i("MoPub", "Loading native ad");
@@ -414,13 +495,12 @@ public class AdView extends WebView {
                     paramsHash.put("X-Adtype", atHeader.getValue());
 
                     Header npHeader = response.getFirstHeader("X-Nativeparams");
-                    if (npHeader != null) {
-                        paramsHash.put("X-Nativeparams", npHeader.getValue());
-                        Header ftHeader = response.getFirstHeader("X-Fulladtype");
-                        if (ftHeader != null) paramsHash.put("X-Fulladtype", ftHeader.getValue());
-                    } else {
-                        paramsHash.put("X-Nativeparams", "{}");
-                    }
+                    paramsHash.put("X-Nativeparams", "{}");
+                    if (npHeader != null) paramsHash.put("X-Nativeparams", npHeader.getValue());
+
+                    Header ftHeader = response.getFirstHeader("X-Fulladtype");
+                    if (ftHeader != null) paramsHash.put("X-Fulladtype", ftHeader.getValue());
+
                     return new LoadNativeAdTaskResult(mAdView, paramsHash);
                 }
 
@@ -565,14 +645,17 @@ public class AdView extends WebView {
         Log.i("MoPub", "Ad successfully loaded.");
         mIsLoading = false;
         scheduleRefreshTimerIfEnabled();
+        setAdContentView(this);
+        mMoPubView.adLoaded();
+    }
+
+    public void setAdContentView(View view) {
         mMoPubView.removeAllViews();
         FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(
                 FrameLayout.LayoutParams.WRAP_CONTENT,
                 FrameLayout.LayoutParams.WRAP_CONTENT,
                 Gravity.CENTER);
-        mMoPubView.addView(this, layoutParams);
-
-        mMoPubView.adLoaded();
+        mMoPubView.addView(view, layoutParams);
     }
 
     private void adDidFail() {
@@ -587,7 +670,7 @@ public class AdView extends WebView {
     }
 
     private void handleCustomIntentFromUri(Uri uri) {
-        mMoPubView.adClicked();
+        registerClick();
         String action = uri.getQueryParameter("fnc");
         String adData = uri.getQueryParameter("data");
         Intent customIntent = new Intent(action);
@@ -686,6 +769,20 @@ public class AdView extends WebView {
 		public void cleanup() {
             mHeader = null;
         }
+    }
+
+    public void customEventDidLoadAd() {
+        mIsLoading = false;
+        trackImpression();
+        scheduleRefreshTimerIfEnabled();
+    }
+
+    public void customEventDidFailToLoadAd() {
+        adDidFail();
+    }
+
+    public void customEventActionWillBegin() {
+        registerClick();
     }
 
     private static class LoadNativeAdTaskResult extends LoadUrlTaskResult {
@@ -916,6 +1013,8 @@ public class AdView extends WebView {
 
     public void setAutorefreshEnabled(boolean enabled) {
         mAutorefreshEnabled = enabled;
+
+        Log.d("MoPub", "Automatic refresh for " + mAdUnitId + " set to: " + enabled + ".");
 
         if (!mAutorefreshEnabled) cancelRefreshTimer();
         else scheduleRefreshTimerIfEnabled();

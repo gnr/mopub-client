@@ -8,6 +8,14 @@
 
 #import <UIKit/UIKit.h>
 
+#ifndef CF_RETURNS_RETAINED
+#if __has_feature(attribute_cf_returns_retained)
+#define CF_RETURNS_RETAINED __attribute__((cf_returns_retained))
+#else
+#define CF_RETURNS_RETAINED
+#endif
+#endif
+
 @protocol MPAdBrowserControllerDelegate;
 
 @interface MPAdBrowserController : UIViewController <UIWebViewDelegate, UIActionSheetDelegate>
@@ -48,7 +56,7 @@
 - (IBAction)done;
 
 // Drawing methods.
-- (CGContextRef)createContext;
+- (CGContextRef)createContext CF_RETURNS_RETAINED;
 - (UIImage *)backArrowImage;
 - (UIImage *)forwardArrowImage;
 

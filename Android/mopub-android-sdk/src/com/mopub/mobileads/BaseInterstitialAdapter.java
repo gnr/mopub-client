@@ -22,6 +22,7 @@ public abstract class BaseInterstitialAdapter {
     private static final HashMap<String, String> sInterstitialAdapterMap;
     static {
         sInterstitialAdapterMap = new HashMap<String, String>();
+        sInterstitialAdapterMap.put("mraid", "com.mopub.mobileads.MraidInterstitialAdapter");
         sInterstitialAdapterMap.put("admob_full", "com.mopub.mobileads.GoogleAdMobInterstitialAdapter");
         sInterstitialAdapterMap.put("millennial_full", "com.mopub.mobileads.MillennialInterstitialAdapter");
     }

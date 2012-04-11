@@ -11,12 +11,11 @@
 @implementation InterstitialViewController
 
 @synthesize showInterstitialButton;
-@synthesize interstitialAdController, navigationInterstitialAdController;
+@synthesize interstitialAdController;
 
 - (void)dealloc{
 	[showInterstitialButton release];
 	[interstitialAdController release];
-	[navigationInterstitialAdController release];
 	[super dealloc];
 }
 
@@ -28,7 +27,6 @@
 
 #pragma mark Orientations
 
-// Override to allow orientations other than the default portrait orientation.
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation {
 	return YES;
 }
@@ -57,14 +55,6 @@
 	[interstitialAdController show];
 }
 
-#pragma mark Navigation Interstitials 
-
-- (IBAction) getNavigationInterstitial{
-	self.navigationInterstitialAdController = [MPInterstitialAdController interstitialAdControllerForAdUnitId:PUB_ID_NAV_INTERSTITIAL];
-	self.navigationInterstitialAdController.parent = nil;//self.navigationController;
-	[self.navigationInterstitialAdController loadAd];
-}
-
 #pragma mark Interstitial delegate methods
 - (UIViewController *)viewControllerForPresentingModalView{
 	return self;
@@ -72,23 +62,12 @@
 
 - (void)interstitialDidLoadAd:(MPInterstitialAdController *)interstitial{
 	NSLog(@"Interstitial did load Ad: %@",interstitial);
-	if (interstitial.parent == self.navigationController) {
-		// if the adcontroller is the navigational interstitial
-		// then we show the interstitial right away as part of the nav action
-		// when the interstitial is closed, we can push the actual view into the nav controller
-		//
-		[self.navigationController pushViewController:self.navigationInterstitialAdController animated:YES];
-	}
-	else { 
-		if (getAndShow) {
-			// if its an interstitial we show it right away if the flag is set
-//			[self presentModalViewController:interstitial animated:YES];
-			[interstitial show];
-		} else {
-			// otherwise, we enable the button so the user can show it manually
-			self.showInterstitialButton.hidden = NO;
-		}
-	}
+	if (getAndShow) {
+        [interstitial show];
+    } else {
+        // otherwise, we enable the button so the user can show it manually
+        self.showInterstitialButton.hidden = NO;
+    }
 }
 
 - (void)dismissInterstitial:(MPInterstitialAdController *)interstitial{
@@ -103,43 +82,9 @@
 	NSLog(@"Interstitial will appear: %@",interstitial);
 }
 
-
-//
-//- (void)interstitialDidLoad:(MPInterstitialAdController *)_interstitialAdController{
-//	if (_interstitialAdController.parent == self.navigationController) {
-//		// if the adcontroller is the navigational interstitial
-//		// then we show the interstitial right away as part of the nav action
-//		// when the interstitial is closed, we can push the actual view into the nav controller
-//		//
-//		[self.navigationController pushViewController:self.navigationInterstitialAdController animated:YES];
-//	}
-//	else { 
-//		if (getAndShow) {
-//			// if its an interstitial we show it right away if the flag is set
-//			[self presentModalViewController:_interstitialAdController animated:YES];
-//		} else {
-//			// otherwise, we enable the button so the user can show it manually
-//			self.showInterstitialButton.hidden = NO;
-//		}
-//	}	
-//}
-//
-//- (void)interstitialDidClose:(MPInterstitialAdController *)_interstitialAdController{
-//	if (_interstitialAdController == self.navigationInterstitialAdController){
-//		// if we are in the nav view, we close the interstitial without animation
-//		// and replace with the SecondViewController
-//		[self.navigationController popViewControllerAnimated:NO];
-//		SecondViewController *vc = [[SecondViewController alloc] initWithNibName:@"SecondViewController" bundle:nil];
-//		[self.navigationController pushViewController:vc animated:YES]; 
-//		[vc release];
-//	}
-//	else {
-//		[_interstitialAdController dismissModalViewControllerAnimated:YES];
-//	}
-//
-//	// release the object
-//	[MPInterstitialAdController removeSharedInterstitialAdController:_interstitialAdController];
-//}
+- (void)interstitialDidExpire:(MPInterstitialAdController *)interstitial {
+    // Reload the interstitial ad, if desired.
+}
 
 - (void)didReceiveMemoryWarning {
 	// Releases the view if it doesn't have a superview.

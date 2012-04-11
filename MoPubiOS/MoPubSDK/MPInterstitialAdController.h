@@ -10,12 +10,13 @@
 #import "MPAdView.h"
 #import "MPBaseInterstitialAdapter.h"
 
-enum 
+enum
 {
-	InterstitialCloseButtonTypeDefault,
-	InterstitialCloseButtonTypeNone
+	InterstitialCloseButtonStyleAlwaysVisible,
+	InterstitialCloseButtonStyleAlwaysHidden,
+	InterstitialCloseButtonStyleAdControlled
 };
-typedef NSUInteger InterstitialCloseButtonType;
+typedef NSUInteger InterstitialCloseButtonStyle;
 
 enum 
 {
@@ -47,8 +48,11 @@ typedef NSUInteger InterstitialOrientationType;
 	// The ad unit ID.
 	NSString *_adUnitId;
 	
-	// Determines what kind of close button we want to display.
-	InterstitialCloseButtonType _closeButtonType;
+	// Determines how/when the interstitial should display a native close button.
+	InterstitialCloseButtonStyle _closeButtonStyle;
+
+	// Whether the ad content has requested that a native close button be shown.
+	BOOL _adWantsNativeCloseButton;
 	
 	// Determines the allowed orientations for the interstitial.
 	InterstitialOrientationType _orientationType;
@@ -57,6 +61,9 @@ typedef NSUInteger InterstitialOrientationType;
 	UIButton *_closeButton;
 	
 	MPBaseInterstitialAdapter *_currentAdapter;
+    
+    // Whether the interstitial is currently being presented.
+    BOOL _isOnModalViewControllerStack;
 }
 
 @property (nonatomic, readonly, assign) BOOL ready;
@@ -66,6 +73,7 @@ typedef NSUInteger InterstitialOrientationType;
 @property (nonatomic, copy) CLLocation *location;
 @property (nonatomic, assign) BOOL locationEnabled;
 @property (nonatomic, assign) NSUInteger locationPrecision;
+@property (nonatomic, assign) BOOL adWantsNativeCloseButton;
 
 /*
  * A shared pool of interstitial ads.
@@ -99,6 +107,24 @@ typedef NSUInteger InterstitialOrientationType;
  * Returns the result of -locationDescriptionPair on the embedded ad view.
  */
 - (NSArray *)locationDescriptionPair;
+
+/*
+ * Signals to the ad view that a custom event has caused ad content to load
+ * successfully. You must call this method if you implement custom events.
+ */
+- (void)customEventDidLoadAd;
+
+/*
+ * Signals to the ad view that a custom event has resulted in a failed load.
+ * You must call this method if you implement custom events.
+ */
+- (void)customEventDidFailToLoadAd;
+
+/*
+ * Signals to the ad view that a user has tapped on a custom-event-triggered ad.
+ * You must call this method if you implement custom events, for proper click tracking.
+ */
+- (void)customEventActionWillBegin;
 
 @end
 

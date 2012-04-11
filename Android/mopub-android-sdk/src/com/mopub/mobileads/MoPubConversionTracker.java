@@ -73,7 +73,7 @@ public class MoPubConversionTracker {
     Runnable mTrackOpen = new Runnable() {
         public void run() {
             StringBuilder sz = new StringBuilder("http://"+TRACK_HOST+TRACK_HANDLER);
-            sz.append("?v=3&id=" + mPackageName);
+            sz.append("?v=6&id=" + mPackageName);
             
             String udid = Secure.getString(mContext.getContentResolver(), Secure.ANDROID_ID);
             String udidDigest = (udid == null) ? "" : Utils.sha1(udid);

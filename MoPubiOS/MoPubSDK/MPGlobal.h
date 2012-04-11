@@ -8,12 +8,27 @@
 
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
+#import "CJSONDeserializer.h"
 
 UIInterfaceOrientation MPInterfaceOrientation(void);
+UIWindow *MPKeyWindow(void);
+CGFloat MPStatusBarHeight(void);
+CGRect MPApplicationFrame(void);
 CGRect MPScreenBounds(void);
 CGFloat MPDeviceScaleFactor(void);
 NSString *MPHashedUDID(void);
 NSString *MPUserAgentString(void);
+NSDictionary *MPDictionaryFromQueryString(NSString *query);
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+@interface CJSONDeserializer (MPAdditions)
+
++ (CJSONDeserializer *)deserializerWithNullObject:(id)obj;
+
+@end
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
 
 @interface NSString (MPAdditions)
 

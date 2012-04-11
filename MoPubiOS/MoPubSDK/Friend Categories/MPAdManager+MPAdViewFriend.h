@@ -21,7 +21,7 @@
 @property (nonatomic, retain) MPBaseAdapter *currentAdapter;
 @property (nonatomic, assign) BOOL ignoresAutorefresh;
 
-- (id)initWithAdView:(MPAdView *)adView;
+- (id)init;
 - (void)removeWebviewFromPool:(UIWebView *)webview;
 - (void)loadAdWithURL:(NSURL *)URL;
 - (void)refreshAd;
@@ -32,5 +32,6 @@
 - (void)customEventDidFailToLoadAd;
 - (void)customEventActionWillBegin;
 - (void)customEventActionDidEnd;
+- (void)updateOrientationPropertiesForWebView:(UIWebView *)webview;
 
 @end

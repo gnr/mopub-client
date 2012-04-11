@@ -55,11 +55,12 @@
 
 - (void)getAdWithParams:(NSDictionary *)params
 {	
-	NSData *hdrData = [(NSString *)[params objectForKey:@"X-Nativeparams"] 
+    CJSONDeserializer *deserializer = [CJSONDeserializer deserializerWithNullObject:NULL];
+    
+    NSData *hdrData = [(NSString *)[params objectForKey:@"X-Nativeparams"] 
 					   dataUsingEncoding:NSUTF8StringEncoding];
-	NSDictionary *hdrParams = [[CJSONDeserializer deserializer] deserializeAsDictionary:hdrData
-																					 error:NULL];
-	NSString *apid = [hdrParams objectForKey:@"adUnitID"];
+    NSDictionary *hdrParams = [deserializer deserializeAsDictionary:hdrData error:NULL];
+    NSString *apid = [hdrParams objectForKey:@"adUnitID"];
 	
 	_mmInterstitialAdView = [[[self class] sharedMMAdViewForAPID:apid delegate:self] retain];
 	

@@ -71,6 +71,10 @@ public class MoPubView extends FrameLayout {
         public void onAdClicked(MoPubView m);
     }
 
+    public interface OnAdPresentedOverlayListener {
+        public void OnAdPresentedOverlay(MoPubView m);
+    }
+
     public enum LocationAwareness {
         LOCATION_AWARENESS_NORMAL, LOCATION_AWARENESS_TRUNCATED, LOCATION_AWARENESS_DISABLED
     }
@@ -92,6 +96,7 @@ public class MoPubView extends FrameLayout {
     private OnAdWillLoadListener mOnAdWillLoadListener;
     private OnAdLoadedListener mOnAdLoadedListener;
     private OnAdFailedListener mOnAdFailedListener;
+    private OnAdPresentedOverlayListener mOnAdPresentedOverlayListener;
     private OnAdClosedListener mOnAdClosedListener;
     private OnAdClickedListener mOnAdClickedListener;
 
@@ -179,8 +184,8 @@ public class MoPubView extends FrameLayout {
                     if (mIsInForeground) {
                         Log.d("MoPub", "Screen sleep with ad in foreground, disable refresh");
                         if (mAdView != null) {
-	                        mPreviousAutorefreshSetting = mAdView.getAutorefreshEnabled();
-	                        mAdView.setAutorefreshEnabled(false);
+                            mPreviousAutorefreshSetting = mAdView.getAutorefreshEnabled();
+                            mAdView.setAutorefreshEnabled(false);
                         }
                     } else {
                         Log.d("MoPub", "Screen sleep but ad in background; " +
@@ -204,7 +209,11 @@ public class MoPubView extends FrameLayout {
     }
 
     private void unregisterScreenStateBroadcastReceiver() {
-        mContext.unregisterReceiver(mScreenStateReceiver);
+        try {
+            mContext.unregisterReceiver(mScreenStateReceiver);
+        } catch (Exception IllegalArgumentException) {
+            Log.d("MoPub", "Failed to unregister screen state broadcast receiver (never registered).");
+        }
     }
 
     public void loadAd() {
@@ -301,6 +310,12 @@ public class MoPubView extends FrameLayout {
         if (mOnAdFailedListener != null) mOnAdFailedListener.onAdFailed(this);
     }
 
+    protected void adPresentedOverlay() {
+        if (mOnAdPresentedOverlayListener != null) {
+            mOnAdPresentedOverlayListener.OnAdPresentedOverlay(this);
+        }
+    }
+
     protected void adClosed() {
         if (mOnAdClosedListener != null) mOnAdClosedListener.onAdClosed(this);
     }
@@ -316,6 +331,18 @@ public class MoPubView extends FrameLayout {
 
     protected void adAppeared() {
         if (mAdView != null) mAdView.adAppeared();
+    }
+
+    public void customEventDidLoadAd() {
+        if (mAdView != null) mAdView.customEventDidLoadAd();
+    }
+
+    public void customEventDidFailToLoadAd() {
+        if (mAdView != null) mAdView.customEventDidFailToLoadAd();
+    }
+
+    public void customEventActionWillBegin() {
+        if (mAdView != null) mAdView.customEventActionWillBegin();
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////
@@ -380,6 +407,10 @@ public class MoPubView extends FrameLayout {
         mOnAdFailedListener = listener;
     }
 
+    public void setOnAdPresentedOverlayListener(OnAdPresentedOverlayListener listener) {
+        mOnAdPresentedOverlayListener = listener;
+    }
+
     public void setOnAdClosedListener(OnAdClosedListener listener) {
         mOnAdClosedListener = listener;
     }
@@ -409,10 +440,15 @@ public class MoPubView extends FrameLayout {
     }
 
     public boolean getAutorefreshEnabled() {
-        if (mAdView != null) {
-            return mAdView.getAutorefreshEnabled();
-        } else {
+        if (mAdView != null) return mAdView.getAutorefreshEnabled();
+        else {
+            Log.d("MoPub", "Can't get autorefresh status for destroyed MoPubView. " +
+                    "Returning false.");
             return false;
         }
+    }
+
+    public void setAdContentView(View view) {
+        if (mAdView != null) mAdView.setAdContentView(view);
     }
 }
