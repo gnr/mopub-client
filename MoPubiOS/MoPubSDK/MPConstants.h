@@ -27,6 +27,6 @@
 #define STORE_RECEIPT_SUFFIX		@"/m/purchase"
 
 // Device identifier constants.
-#define MOPUB_USE_OPENUDID                  0
+#define MOPUB_USE_OPENUDID                  1
 #define MOPUB_IDENTIFIER_DEFAULTS_KEY       @"MOPUB_IDENTIFIER"
 
