@@ -23,7 +23,8 @@
 
 @implementation MPMillennialInterstitialAdapter
 
-+ (MMAdView *)sharedMMAdViewForAPID:(NSString *)apid delegate:(id<MMAdDelegate>)delegate
++ (MMAdView *)sharedMMAdViewForAPID:(NSString *)apid
+                           delegate:(MPMillennialInterstitialAdapter *)delegate
 {
 	static NSMutableDictionary *sharedMMAdViews;
 	
@@ -93,7 +94,15 @@
 
 - (void)showInterstitialFromViewController:(UIViewController *)controller
 {
-    if ([_mmInterstitialAdView checkForCachedAd]) [_mmInterstitialAdView displayCachedAd];
+    if ([_mmInterstitialAdView checkForCachedAd])
+    {
+        _mmInterstitialAdView.rootViewController = controller;
+        if (![_mmInterstitialAdView displayCachedAd])
+        {
+            MPLogInfo(@"Millennial interstitial ad could not be displayed.");
+            [_interstitialAdController interstitialDidExpireForAdapter:self];
+        }
+    }
 }
 
 # pragma mark - 

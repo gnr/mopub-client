@@ -58,6 +58,8 @@
 								 delegate:self
 								   loadAd:NO
 							   startTimer:NO];
+    
+    self.mmAdView.rootViewController = [self.delegate viewControllerForPresentingModalView];
 	[self.mmAdView refreshAd];
 }
 

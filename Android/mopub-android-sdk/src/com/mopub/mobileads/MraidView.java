@@ -152,10 +152,10 @@ public class MraidView extends WebView {
 
     public void loadUrl(String url) {
         HttpClient httpClient = new DefaultHttpClient();
-        HttpGet httpGet = new HttpGet(url);
         StringBuffer out = new StringBuffer();
         
         try {
+            HttpGet httpGet = new HttpGet(url);
             HttpResponse response = httpClient.execute(httpGet);
             HttpEntity entity = response.getEntity();
     
@@ -166,6 +166,10 @@ public class MraidView extends WebView {
                     out.append(new String(b, 0, n));
                 }
             }
+        } catch (IllegalArgumentException e) {
+            Log.d("MoPub", "Mraid loadUrl failed (IllegalArgumentException): "+url);
+            notifyOnFailureListener();
+            return;
         } catch (ClientProtocolException e) {
             notifyOnFailureListener();
             return;
