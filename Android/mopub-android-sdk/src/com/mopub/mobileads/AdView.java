@@ -783,7 +783,7 @@ public class AdView extends WebView {
     }
 
     public void customEventDidFailToLoadAd() {
-        adDidFail();
+        loadFailUrl();
     }
 
     public void customEventActionWillBegin() {
