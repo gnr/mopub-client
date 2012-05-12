@@ -523,7 +523,10 @@ public class AdView extends WebView {
 
                 if (mHttpClient != null) {
                     ClientConnectionManager manager = mHttpClient.getConnectionManager();
-                    if (manager != null) manager.shutdown();
+                    if (manager != null) {
+                    	// GKB: Release the manager on a worker thread so we don't get strict mode violations
+                    	(new ReleaseTask(manager)).execute();
+                    }
                     mHttpClient = null;
                 }
             }
@@ -531,7 +534,7 @@ public class AdView extends WebView {
             mException = null;
         }
 
-        @Override
+		@Override
 		protected void onPostExecute(LoadUrlTaskResult result) {
             // If cleanup() has already been called on the AdView, don't proceed.
             if (mAdView == null || mAdView.isDestroyed()) {
@@ -552,6 +555,21 @@ public class AdView extends WebView {
 
             releaseResources();
         }
+    }
+
+    private static final class ReleaseTask extends AsyncTask<Integer, Integer, Integer> {
+
+    	private final ClientConnectionManager mManager;
+
+    	public ReleaseTask(ClientConnectionManager manager) {
+    		mManager = manager;
+    	}
+
+		@Override
+		protected Integer doInBackground(Integer... params) {
+			mManager.shutdown();
+			return null;
+		}
     }
 
     private DefaultHttpClient getAdViewHttpClient() {
