@@ -444,69 +444,6 @@ public class AdView extends WebView {
             HttpGet httpget = new HttpGet(url);
             httpget.addHeader("User-Agent", mUserAgent);
 
-            synchronized(this) {
-                if (mAdView == null || mAdView.isDestroyed()) {
-                    Log.d("MoPub", "Error loading ad: AdView has already been GCed or destroyed.");
-                    return null;
-                }
-
-                HttpResponse response = mHttpClient.execute(httpget);
-                HttpEntity entity = response.getEntity();
-
-                if (response == null || entity == null ||
-                		response.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
-                    Log.d("MoPub", "MoPub server returned invalid response.");
-                    return null;
-                }
-
-                mAdView.configureAdViewUsingHeadersFromHttpResponse(response);
-
-                // Ensure that the ad type header is valid and not "clear".
-                Header atHeader = response.getFirstHeader("X-Adtype");
-                if (atHeader == null || atHeader.getValue().equals("clear")) {
-                    Log.d("MoPub", "MoPub server returned no ad.");
-                    return null;
-                }
-
-                // Handle custom event ad type.
-                if (atHeader.getValue().equals("custom")) {
-                    Log.i("MoPub", "Performing custom event.");
-                    Header cmHeader = response.getFirstHeader("X-Customselector");
-                    return new PerformCustomEventTaskResult(mAdView, cmHeader);
-                }
-                else if (atHeader.getValue().equals("mraid")) {
-                    HashMap<String, String> paramsHash = new HashMap<String, String>();
-                    paramsHash.put("X-Adtype", atHeader.getValue());
-
-                    InputStream is = entity.getContent();
-                    StringBuffer out = new StringBuffer();
-                    byte[] b = new byte[4096];
-                    for (int n; (n = is.read(b)) != -1;) {
-                        out.append(new String(b, 0, n));
-                    }
-                    paramsHash.put("X-Nativeparams", out.toString());
-                    return new LoadNativeAdTaskResult(mAdView, paramsHash);
-                }
-                // Handle native SDK ad type.
-                else if (!atHeader.getValue().equals("html")) {
-                    Log.i("MoPub", "Loading native ad");
-
-                    HashMap<String, String> paramsHash = new HashMap<String, String>();
-                    paramsHash.put("X-Adtype", atHeader.getValue());
-
-                    Header npHeader = response.getFirstHeader("X-Nativeparams");
-                    paramsHash.put("X-Nativeparams", "{}");
-                    if (npHeader != null) paramsHash.put("X-Nativeparams", npHeader.getValue());
-
-                    Header ftHeader = response.getFirstHeader("X-Fulladtype");
-                    if (ftHeader != null) paramsHash.put("X-Fulladtype", ftHeader.getValue());
-
-                    return new LoadNativeAdTaskResult(mAdView, paramsHash);
-                }
-
-                // Handle HTML ad.
-=======
-            
             // We check to see if this AsyncTask was cancelled, as per
             // http://developer.android.com/reference/android/os/AsyncTask.html
             if (isCancelled()) return null;
@@ -582,19 +519,22 @@ public class AdView extends WebView {
             return new LoadHtmlAdTaskResult(mAdView, out.toString());
         }
 
-        protected void releaseResources() { 
+        protected void releaseResources() {
             mAdView = null;
-            
+
             if (mHttpClient != null) {
-                ClientConnectionManager manager = mHttpClient.getConnectionManager();
-                if (manager != null) manager.shutdown();
+            	releaseManagerSafely();
                 mHttpClient = null;
             }
 
             mException = null;
         }
-        
-        @Override
+
+        private void releaseManagerSafely() {
+        	(new ClientConnReleaseTask(mHttpClient.getConnectionManager())).execute(0);
+		}
+
+		@Override
         protected void onPostExecute(LoadUrlTaskResult result) {
             // If cleanup() has already been called on the AdView, don't proceed.
             if (mAdView == null || mAdView.isDestroyed()) {
@@ -626,17 +566,19 @@ public class AdView extends WebView {
         }
     }
 
-    private static final class ReleaseTask extends AsyncTask<Integer, Integer, Integer> {
+    private static final class ClientConnReleaseTask extends AsyncTask<Integer, Integer, Integer> {
 
     	private final ClientConnectionManager mManager;
 
-    	public ReleaseTask(ClientConnectionManager manager) {
+    	public ClientConnReleaseTask(ClientConnectionManager manager) {
     		mManager = manager;
     	}
 
 		@Override
 		protected Integer doInBackground(Integer... params) {
-			mManager.shutdown();
+			if (mManager != null) {
+				mManager.shutdown();
+			}
 			return null;
 		}
     }
