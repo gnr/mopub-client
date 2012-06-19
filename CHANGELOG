@@ -1,5 +1,16 @@
 # MoPub Changelog #
 
+Version 1.6.0.0
+o iOS: Added new API method for displaying an interstitial (-showFromViewController:)
+o iOS: Added new delegate property on MPInterstitialAdController
+o iOS: Deprecated old API method for displaying an interstitial (-show:)
+o iOS: Deprecated parent property on MPInterstitialAdController
+o iOS: Deprecated various callbacks in MPInterstitialAdControllerDelegate
+o Android: Improved click experience by directing clicks to an in-app browser
+o Android: Fixed errors loading mraid.js from disk on Android 4.0+
+o Android: Added ThreadPoolExecutor for AsyncTasks on Android 4.0+
+o Android: Fixed incorrect failover behavior for Custom Native Network banners
+
 Version 1.5.0.0
 o iOS: Added support for Millennial Media SDK 4.5.5
 o iOS: Modified Millennial Media interstitial adapter to be more robust to ad display failures

@@ -520,18 +520,24 @@ public class AdView extends WebView {
         
         if (url == null || url.equals("")) url = "about:blank";
         Log.d("MoPub", "Final URI to show in browser: " + url);
-        Intent actionIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
-        actionIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        
+        Context context = getContext();
+        Intent intent = new Intent(context, MraidBrowser.class);
+        intent.putExtra(MraidBrowser.URL_EXTRA, url);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        
         try {
-            getContext().startActivity(actionIntent);
+            context.startActivity(intent);
         } catch (ActivityNotFoundException e) {
-            String action = actionIntent.getAction();
-            if (action.startsWith("market://")) {
+            String action = intent.getAction();
+            if (action != null && action.startsWith("market://")) {
                 Log.w("MoPub", "Could not handle market action: " + action
                         + ". Perhaps you're running in the emulator, which does not have "
                         + "the Android Market?");
             } else {
-                Log.w("MoPub", "Could not handle intent action: " + action);
+                Log.w("MoPub", "Could not handle intent action: " + action
+                        + ". Perhaps you forgot to declare com.mopub.mobileads.MraidBrowser"
+                        + " in your Android manifest file.");
             }
             
             getContext().startActivity(
