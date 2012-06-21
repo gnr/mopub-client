@@ -28,12 +28,15 @@ static NSString * const kOrientationBoth				= @"b";
 @property (nonatomic, assign) InterstitialCloseButtonStyle closeButtonStyle;
 @property (nonatomic, retain) UIButton *closeButton;
 @property (nonatomic, retain) MPBaseInterstitialAdapter *currentAdapter;
+@property (nonatomic, assign) UIViewController *rootViewController;
 
-- (id)initWithAdUnitId:(NSString *)ID parentViewController:(UIViewController *)parent;
+- (id)initWithAdUnitId:(NSString *)ID;
 - (void)setCloseButtonImageNamed:(NSString *)name;
 - (void)layoutCloseButton;
 - (void)closeButtonPressed;
-- (void)presentInterstitialModalViewController;
+- (void)presentNonNativeInterstitialForAdapter:(MPBaseInterstitialAdapter *)adapter
+                            fromViewController:(UIViewController *)controller;
+- (id<MPInterstitialAdControllerDelegate>)customEventDelegate;
 
 @end
 
@@ -41,6 +44,8 @@ static NSString * const kOrientationBoth				= @"b";
 
 @synthesize ready = _ready;
 @synthesize parent = _parent;
+@synthesize delegate = _delegate;
+@synthesize rootViewController = _rootViewController;
 @synthesize adUnitId = _adUnitId;
 @synthesize closeButtonStyle = _closeButtonStyle;
 @synthesize adWantsNativeCloseButton = _adWantsNativeCloseButton;
@@ -86,8 +91,7 @@ static NSString * const kOrientationBoth				= @"b";
 		// Create the ad controller if it doesn't exist.
 		if (!controller)
 		{
-			controller = [[[MPInterstitialAdController alloc] initWithAdUnitId:ID 
-														  parentViewController:nil] autorelease];
+			controller = [[[MPInterstitialAdController alloc] initWithAdUnitId:ID] autorelease];
 			[controllers addObject:controller];
 		}
 		return controller;
@@ -111,13 +115,11 @@ static NSString * const kOrientationBoth				= @"b";
 #pragma mark -
 #pragma mark Lifecycle
 
-- (id)initWithAdUnitId:(NSString *)ID 
-  parentViewController:(UIViewController<MPInterstitialAdControllerDelegate> *)parent
+- (id)initWithAdUnitId:(NSString *)ID
 {
 	if (self = [super init])
 	{
-		_parent = parent;
-		_adUnitId = [ID copy];
+        _adUnitId = [ID copy];
 		_closeButtonStyle = InterstitialCloseButtonStyleAdControlled;
 		_adWantsNativeCloseButton = YES;
 		_orientationType = InterstitialOrientationTypeBoth;
@@ -139,6 +141,8 @@ static NSString * const kOrientationBoth				= @"b";
 - (void)dealloc 
 {
 	_parent = nil;
+    _delegate = nil;
+    _rootViewController = nil;
 	_adView.delegate = nil;
 	[_currentAdapter unregisterDelegate];
 	[_currentAdapter release];
@@ -248,6 +252,28 @@ static NSString * const kOrientationBoth				= @"b";
     [self.view bringSubviewToFront:self.closeButton];
 }
 
+- (void)presentNonNativeInterstitialForAdapter:(MPBaseInterstitialAdapter *)adapter
+                            fromViewController:(UIViewController *)controller;
+{
+    [self interstitialWillAppearForAdapter:adapter];
+    
+    // Track the previous state of the status bar, so that we can restore it.
+	_statusBarWasHidden = [UIApplication sharedApplication].statusBarHidden;
+	[[UIApplication sharedApplication] setStatusBarHidden:YES];
+	
+	// Likewise, track the previous state of the navigation bar.
+	_navigationBarWasHidden = self.navigationController.navigationBarHidden;
+	[self.navigationController setNavigationBarHidden:YES animated:YES];
+	
+	[controller presentModalViewController:self animated:YES];
+    
+    [self interstitialDidAppearForAdapter:adapter];
+}
+
+- (id<MPInterstitialAdControllerDelegate>)customEventDelegate {
+    return (self.delegate) ? self.delegate : _parent;
+}
+
 #pragma mark -
 
 - (void)setKeywords:(NSString *)words
@@ -291,7 +317,16 @@ static NSString * const kOrientationBoth				= @"b";
 	[self.navigationController setNavigationBarHidden:_navigationBarWasHidden animated:NO];
 	
 	[self interstitialWillDisappearForAdapter:nil];
-	[self.parent dismissInterstitial:self];
+    
+    if (self.rootViewController) {
+        [self.rootViewController dismissModalViewControllerAnimated:YES];
+        
+        // Reset the rootViewController reference to avoid accidentally presenting this
+        // interstitial from the wrong view controller.
+        self.rootViewController = nil;
+    } else if ([_parent respondsToSelector:@selector(dismissInterstitial:)]) {
+        [_parent performSelector:@selector(dismissInterstitial:) withObject:self];
+    }
 }
 
 - (void)loadAd
@@ -301,30 +336,50 @@ static NSString * const kOrientationBoth				= @"b";
 }
 
 - (void)show
-{	
-	if (self.currentAdapter != nil)
-	{
-		[self.currentAdapter showInterstitialFromViewController:self.parent];
-	}
-	else 
-	{
-		[self interstitialWillAppearForAdapter:nil];
-		[self presentInterstitialModalViewController];
-		[self interstitialDidAppearForAdapter:nil];
+{
+    MPLogWarn(@"The interstitial -show method is deprecated. "
+              @"Use -showFromViewController: instead.");
+    
+    if (self.delegate && !_parent) {
+        MPLogError(@"Interstitial could not be shown: "
+                   @"call -showFromViewController: instead of -show when using the "
+                   @"parent property (deprecated).");
+        return;
+    }
+    
+    if (self.delegate && _parent) {
+        MPLogError(@"Interstitial could not be shown: "
+                   @"the delegate and parent property should not be both set.");
+        return;
+    }
+    
+	if (self.currentAdapter != nil) {
+		[self.currentAdapter showInterstitialFromViewController:_parent];
+	} else {
+		[self presentNonNativeInterstitialForAdapter:nil fromViewController:_parent];
 	}
 }
 
-- (void)presentInterstitialModalViewController
+- (void)showFromViewController:(UIViewController *)controller
 {
-	// Track the previous state of the status bar, so that we can restore it.
-	_statusBarWasHidden = [UIApplication sharedApplication].statusBarHidden;
-	[[UIApplication sharedApplication] setStatusBarHidden:YES];
-	
-	// Likewise, track the previous state of the navigation bar.
-	_navigationBarWasHidden = self.navigationController.navigationBarHidden;
-	[self.navigationController setNavigationBarHidden:YES animated:YES];
-	
-	[self.parent presentModalViewController:self animated:YES];
+    if (_parent) {
+        MPLogWarn(@"The parent property of MPInterstitialAdController is deprecated: "
+                  @"use the delegate property instead.");
+    }
+    
+    self.rootViewController = controller;
+    
+    if (!self.rootViewController) {
+        MPLogWarn(@"Interstitial could not be shown: "
+                  @"a nil view controller was passed to -showFromViewController:.");
+        return;
+    }
+    
+    if (self.currentAdapter != nil) {
+        [self.currentAdapter showInterstitialFromViewController:controller];
+    } else {
+        [self presentNonNativeInterstitialForAdapter:nil fromViewController:controller];
+    }
 }
 
 - (NSArray *)locationDescriptionPair {
@@ -361,28 +416,36 @@ static NSString * const kOrientationBoth				= @"b";
 {
 	_ready = YES;
 	
-	if ([self.parent respondsToSelector:@selector(interstitialDidLoadAd:)])
-		[self.parent interstitialDidLoadAd:self];
+    if ([self.delegate respondsToSelector:@selector(interstitialDidLoadAd:)]) {
+        [self.delegate interstitialDidLoadAd:self];
+    } else if ([_parent respondsToSelector:@selector(interstitialDidLoadAd:)]) {
+        [_parent interstitialDidLoadAd:self];
+    }
 }
 
 - (void)adViewDidFailToLoadAd:(MPAdView *)view
 {
 	_ready = NO;
 	
-	if ([self.parent respondsToSelector:@selector(interstitialDidFailToLoadAd:)])
-		[self.parent interstitialDidFailToLoadAd:self];
+    if ([self.delegate respondsToSelector:@selector(interstitialDidFailToLoadAd:)]) {
+        [self.delegate interstitialDidFailToLoadAd:self];
+    } else if ([_parent respondsToSelector:@selector(interstitialDidFailToLoadAd:)]) {
+        [_parent interstitialDidFailToLoadAd:self];
+    }
 }
 
 - (void)willPresentModalViewForAd:(MPAdView *)view
 {
-	if ([self.parent respondsToSelector:@selector(willPresentModalViewForAd:)])
-		[self.parent willPresentModalViewForAd:view];
+	if ([_parent respondsToSelector:@selector(willPresentModalViewForAd:)]) {
+        [_parent performSelector:@selector(willPresentModalViewForAd:) withObject:view];
+    }
 }
 
 - (void)didDismissModalViewForAd:(MPAdView *)view
 {
-	if ([self.parent respondsToSelector:@selector(didDismissModalViewForAd:)])
-		[self.parent didDismissModalViewForAd:view];
+	if ([_parent respondsToSelector:@selector(didDismissModalViewForAd:)]) {
+		[_parent performSelector:@selector(didDismissModalViewForAd:) withObject:view];
+    }
 }
 
 - (void)adView:(MPAdView *)view didReceiveResponseParams:(NSDictionary *)params
@@ -449,8 +512,12 @@ static NSString * const kOrientationBoth				= @"b";
 {	
 	_ready = YES;
 	_adView.adManager.isLoading = NO;
-	if ([self.parent respondsToSelector:@selector(interstitialDidLoadAd:)])
-		[self.parent interstitialDidLoadAd:self];
+    
+	if ([self.delegate respondsToSelector:@selector(interstitialDidLoadAd:)]) {
+        [self.delegate interstitialDidLoadAd:self];
+    } else if ([_parent respondsToSelector:@selector(interstitialDidLoadAd:)]) {
+        [_parent interstitialDidLoadAd:self];
+    }
 }
 
 - (void)adapter:(MPBaseInterstitialAdapter *)adapter didFailToLoadAdWithError:(NSError *)error
@@ -467,16 +534,17 @@ static NSString * const kOrientationBoth				= @"b";
 
 - (void)adapter:(MPBaseInterstitialAdapter *)adapter requestsPresentationForView:(UIView *)content
 {
-	// Replace the default ad view with the one passed as an argument.
+    // Replace the default ad view with the one passed as an argument.
 	[_adView removeFromSuperview];
 	content.frame = self.view.bounds;
 	content.autoresizingMask = UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth;
 	[self.view addSubview:content];
     [self layoutCloseButton];
 
-	[self interstitialWillAppearForAdapter:adapter];
-	[self presentInterstitialModalViewController];
-	[self interstitialDidAppearForAdapter:adapter];
+    UIViewController *presentingViewController = (self.rootViewController) ?
+        self.rootViewController : _parent;
+    [self presentNonNativeInterstitialForAdapter:adapter
+                              fromViewController:presentingViewController];
 }
 
 - (void)adapter:(MPBaseInterstitialAdapter *)adapter requestsDismissalOfView:(UIView *)content
@@ -487,26 +555,39 @@ static NSString * const kOrientationBoth				= @"b";
 - (void)interstitialWillAppearForAdapter:(MPBaseInterstitialAdapter *)adapter
 {
 	[_adView.adManager trackImpression];
-	if ([self.parent respondsToSelector:@selector(interstitialWillAppear:)])
-		[self.parent interstitialWillAppear:self];
+    
+    if ([self.delegate respondsToSelector:@selector(interstitialWillAppear:)]) {
+        [self.delegate interstitialWillAppear:self];
+    } else if ([_parent respondsToSelector:@selector(interstitialWillAppear:)]) {
+        [_parent interstitialWillAppear:self];
+    }
 }
 
 - (void)interstitialDidAppearForAdapter:(MPBaseInterstitialAdapter *)adapter
 {
-	if ([self.parent respondsToSelector:@selector(interstitialDidAppear:)])
-		[self.parent interstitialDidAppear:self];
+    if ([self.delegate respondsToSelector:@selector(interstitialDidAppear:)]) {
+        [self.delegate interstitialDidAppear:self];
+    } else if ([_parent respondsToSelector:@selector(interstitialDidAppear:)]) {
+        [_parent interstitialDidAppear:self];
+    }
 }
 
 - (void)interstitialWillDisappearForAdapter:(MPBaseInterstitialAdapter *)adapter
 {
-	if ([self.parent respondsToSelector:@selector(interstitialWillDisappear:)])
-		[self.parent interstitialWillDisappear:self];
+    if ([self.delegate respondsToSelector:@selector(interstitialWillDisappear:)]) {
+        [self.delegate interstitialWillDisappear:self];
+    } else if ([_parent respondsToSelector:@selector(interstitialWillDisappear:)]) {
+        [_parent interstitialWillDisappear:self];
+    }
 }
 
 - (void)interstitialDidDisappearForAdapter:(MPBaseInterstitialAdapter *)adapter
 {
-	if ([self.parent respondsToSelector:@selector(interstitialDidDisappear:)])
-		[self.parent interstitialDidDisappear:self];
+    if ([self.delegate respondsToSelector:@selector(interstitialDidDisappear:)]) {
+        [self.delegate interstitialDidDisappear:self];
+    } else if ([_parent respondsToSelector:@selector(interstitialDidDisappear:)]) {
+        [_parent interstitialDidDisappear:self];
+    }
 }
 
 - (void)interstitialWasTappedForAdapter:(MPBaseInterstitialAdapter *)adapter
@@ -517,8 +598,12 @@ static NSString * const kOrientationBoth				= @"b";
 - (void)interstitialDidExpireForAdapter:(MPBaseInterstitialAdapter *)adapter
 {
     _ready = NO;
-    if ([self.parent respondsToSelector:@selector(interstitialDidExpire:)])
-        [self.parent interstitialDidExpire:self];
+    
+    if ([self.delegate respondsToSelector:@selector(interstitialDidExpire:)]) {
+        [self.delegate interstitialDidExpire:self];
+    } else if ([_parent respondsToSelector:@selector(interstitialDidExpire:)]) {
+        [_parent interstitialDidExpire:self];
+    }
 }
 
 #pragma mark -

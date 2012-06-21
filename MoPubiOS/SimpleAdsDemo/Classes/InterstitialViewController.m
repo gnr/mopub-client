@@ -47,12 +47,12 @@
 - (IBAction) getModalInterstitial{
 	getAndShow = NO;
 	self.interstitialAdController = [MPInterstitialAdController interstitialAdControllerForAdUnitId:PUB_ID_INTERSTITIAL];	
-	self.interstitialAdController.parent = self;
+	self.interstitialAdController.delegate = self;
 	[self.interstitialAdController loadAd];
 }
 
 - (IBAction) showModalInterstitial{
-	[interstitialAdController show];
+	[interstitialAdController showFromViewController:self];
 }
 
 #pragma mark Interstitial delegate methods
@@ -63,7 +63,7 @@
 - (void)interstitialDidLoadAd:(MPInterstitialAdController *)interstitial{
 	NSLog(@"Interstitial did load Ad: %@",interstitial);
 	if (getAndShow) {
-        [interstitial show];
+        [interstitial showFromViewController:self];
     } else {
         // otherwise, we enable the button so the user can show it manually
         self.showInterstitialButton.hidden = NO;

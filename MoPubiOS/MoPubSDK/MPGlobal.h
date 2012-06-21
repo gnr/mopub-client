@@ -10,6 +10,8 @@
 #import <UIKit/UIKit.h>
 #import "CJSONDeserializer.h"
 
+#define MOPUB_DEPRECATED __attribute__((deprecated))
+
 UIInterfaceOrientation MPInterfaceOrientation(void);
 UIWindow *MPKeyWindow(void);
 CGFloat MPStatusBarHeight(void);
