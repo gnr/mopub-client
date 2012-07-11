@@ -11,8 +11,9 @@
 #import <CommonCrypto/CommonDigest.h>
 #import "OpenUDID.h"
 
-NSString *MPReadUDIDFromDefaults();
-void MPWriteUDIDToDefaults(NSString *UDID);
+BOOL MPViewHasHiddenAncestor(UIView *view);
+BOOL MPViewIsDescendantOfKeyWindow(UIView *view);
+BOOL MPViewIntersectsKeyWindow(UIView *view);
 NSString *MPGenerateUDID();
 NSString *MPSHA1Digest(NSString *string);
 
@@ -142,6 +143,53 @@ NSString *MPSHA1Digest(NSString *string)
     }
     
     return output;
+}
+
+BOOL MPViewIsVisible(UIView *view)
+{
+    // In order for a view to be visible, it:
+    // 1) must not be hidden,
+    // 2) must not have an ancestor that is hidden,
+    // 3) must be a descendant of the key window, and
+    // 4) must be within the frame of the key window.
+    //
+    // Note: this function does not check whether any part of the view is obscured by another view.
+    
+    return (!view.hidden &&
+            !MPViewHasHiddenAncestor(view) &&
+            MPViewIsDescendantOfKeyWindow(view) &&
+            MPViewIntersectsKeyWindow(view));
+}
+
+BOOL MPViewHasHiddenAncestor(UIView *view)
+{
+    UIView *ancestor = view.superview;
+    while (ancestor) {
+        if (ancestor.hidden) return YES;
+        ancestor = ancestor.superview;
+    }
+    return NO;
+}
+
+BOOL MPViewIsDescendantOfKeyWindow(UIView *view)
+{
+    UIView *ancestor = view.superview;
+    UIWindow *keyWindow = MPKeyWindow();
+    while (ancestor) {
+        if (ancestor == keyWindow) return YES;
+        ancestor = ancestor.superview;
+    }
+    return NO;
+}
+
+BOOL MPViewIntersectsKeyWindow(UIView *view)
+{
+    UIWindow *keyWindow = MPKeyWindow();
+    
+    // We need to call convertRect:toView: on this view's superview rather than on this view itself.
+    CGRect viewFrameInWindowCoordinates = [view.superview convertRect:view.frame toView:keyWindow];
+    
+    return CGRectIntersectsRect(viewFrameInWindowCoordinates, keyWindow.frame);
 }
 
 

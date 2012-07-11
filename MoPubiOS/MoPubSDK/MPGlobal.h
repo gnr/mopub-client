@@ -21,6 +21,7 @@ CGFloat MPDeviceScaleFactor(void);
 NSString *MPHashedUDID(void);
 NSString *MPUserAgentString(void);
 NSDictionary *MPDictionaryFromQueryString(NSString *query);
+BOOL MPViewIsVisible(UIView *view);
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 

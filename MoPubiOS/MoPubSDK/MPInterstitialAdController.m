@@ -37,6 +37,7 @@ static NSString * const kOrientationBoth				= @"b";
 - (void)presentNonNativeInterstitialForAdapter:(MPBaseInterstitialAdapter *)adapter
                             fromViewController:(UIViewController *)controller;
 - (id<MPInterstitialAdControllerDelegate>)customEventDelegate;
+- (void)closeInterstitialAnimated:(BOOL)animated;
 
 @end
 
@@ -312,7 +313,7 @@ static NSString * const kOrientationBoth				= @"b";
 
 - (void)closeButtonPressed
 {
-	[self adViewShouldClose:_adView];
+	[self closeInterstitialAnimated:YES];
 }
 
 - (void)loadAd
@@ -475,14 +476,19 @@ static NSString * const kOrientationBoth				= @"b";
 
 - (void)adViewShouldClose:(MPAdView *)view
 {
-	// Restore previous status/navigation bar state.
+	[self closeInterstitialAnimated:NO];
+}
+
+- (void)closeInterstitialAnimated:(BOOL)animated
+{
+    // Restore previous status/navigation bar state.
 	[[UIApplication sharedApplication] setStatusBarHidden:_statusBarWasHidden];
 	[self.navigationController setNavigationBarHidden:_navigationBarWasHidden animated:NO];
 	
 	[self interstitialWillDisappearForAdapter:nil];
     
     if (self.rootViewController) {
-        [self.rootViewController dismissModalViewControllerAnimated:NO];
+        [self.rootViewController dismissModalViewControllerAnimated:animated];
         
         // Reset the rootViewController reference to avoid accidentally presenting this
         // interstitial from the wrong view controller.

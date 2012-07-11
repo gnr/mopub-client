@@ -1,5 +1,13 @@
 # MoPub Changelog #
 
+Version 1.7.0.0
+o iOS: Improved click experience to avoid blank screens when loading pages with many redirects
+o iOS: Fixed an issue in which MPAdView would implicitly change its 'hidden' property
+o iOS: Fixed an issue in which the in-app browser failed to dismiss properly upon -[UIApplication openURL:]
+o iOS: Fixed issues in which the MRAID.isViewable method would erroneously return true
+o iOS: Fixed a divide-by-zero exception which occurred when presenting MRAID interstitials
+o Android: Added support for Millennial Media leaderboard ads
+
 Version 1.6.0.0
 o iOS: Added new API method for displaying an interstitial (-showFromViewController:)
 o iOS: Added new delegate property on MPInterstitialAdController
