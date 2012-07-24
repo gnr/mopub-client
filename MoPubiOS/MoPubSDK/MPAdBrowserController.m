@@ -10,9 +10,16 @@
 #import "MPLogging.h"
 
 @interface MPAdBrowserController ()
+
 @property (nonatomic, retain) UIActionSheet *actionSheet;
+
 - (void)dismissActionSheet;
+- (void)leaveApplicationForURL:(NSURL *)URL;
+- (void)dismissBrowserAndOpenURL:(NSURL *)URL;
+
 @end
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
 
 @implementation MPAdBrowserController
 
@@ -29,7 +36,7 @@
 
 static NSArray *BROWSER_SCHEMES, *SPECIAL_HOSTS;
 
-+ (void)initialize 
++ (void)initialize
 {
 	// Schemes that should be handled by the in-app browser.
 	BROWSER_SCHEMES = [[NSArray arrayWithObjects:
@@ -85,10 +92,11 @@ static NSArray *BROWSER_SCHEMES, *SPECIAL_HOSTS;
 	[super dealloc];
 }
 
-- (void)viewDidLoad{
+- (void)viewDidLoad
+{
 	[super viewDidLoad];
 	
-	// Set up toolbar buttons
+    // Set up toolbar buttons
 	self.backButton.image = [self backArrowImage];
 	self.backButton.title = nil;
 	self.forwardButton.image = [self forwardArrowImage];
@@ -104,9 +112,35 @@ static NSArray *BROWSER_SCHEMES, *SPECIAL_HOSTS;
 	_forwardButton.enabled = _webView.canGoForward;
 	_refreshButton.enabled = NO;
 	_safariButton.enabled = NO;
-	
-	// Load up webview content.
+    
+    if (animated) {
+        _isPerformingPresentationAnimation = YES;
+    }
+}
+
+- (void)viewDidAppear:(BOOL)animated
+{
+    _isPerformingPresentationAnimation = NO;
+}
+
+- (void)startLoading
+{
+    // XXX: Make sure that the view is loaded and initialized first; otherwise, the webview doesn't
+    // seem to render anything, even though it launches the requests.
+    [self view];
+    
+    [self stopLoading];
+    
+    _webViewLoadCount = 0;
+    _hasLeftApplicationForCurrentURL = NO;
+    _webView.delegate = self;
 	[_webView loadRequest:[NSURLRequest requestWithURL:self.URL]];
+}
+
+- (void)stopLoading
+{
+    [_webView stopLoading];
+    _webView.delegate = nil;
 }
 
 #pragma mark -
@@ -121,7 +155,7 @@ static NSArray *BROWSER_SCHEMES, *SPECIAL_HOSTS;
 - (IBAction)done 
 {
 	[self dismissActionSheet];
-	[self.delegate dismissBrowserController:self];
+    [self.delegate dismissBrowserController:self];
 }
 
 - (IBAction)back 
@@ -201,8 +235,7 @@ static NSArray *BROWSER_SCHEMES, *SPECIAL_HOSTS;
 	{
 		if ([SPECIAL_HOSTS containsObject:request.URL.host])
 		{
-			[self.delegate dismissBrowserController:self animated:NO]; 
-			[[UIApplication sharedApplication] openURL:request.URL];
+            [self leaveApplicationForURL:request.URL];
 			return NO;
 		}
 		else 
@@ -215,8 +248,7 @@ static NSArray *BROWSER_SCHEMES, *SPECIAL_HOSTS;
 	{
 		if ([[UIApplication sharedApplication] canOpenURL:request.URL])
 		{
-			[self.delegate dismissBrowserController:self animated:NO]; 
-			[[UIApplication sharedApplication] openURL:request.URL];
+            [self leaveApplicationForURL:request.URL];
 			return NO;
 		}
 	}
@@ -228,21 +260,73 @@ static NSArray *BROWSER_SCHEMES, *SPECIAL_HOSTS;
 	_refreshButton.enabled = YES;
 	_safariButton.enabled = YES;
 	[_spinner startAnimating];
+    
+    _webViewLoadCount++;
 }
 
 - (void)webViewDidFinishLoad:(UIWebView *)webView 
 {
+    _webViewLoadCount--;
+    if (_webViewLoadCount > 0) return;
+    
 	_refreshButton.enabled = YES;
+	_safariButton.enabled = YES;	
+	_backButton.enabled = _webView.canGoBack;
+	_forwardButton.enabled = _webView.canGoForward;
+	[_spinner stopAnimating];
+    
+    // XXX: The check prevents the -browserControllerDidFinishLoad: callback from firing after the
+    // browser has triggered navigation away from the current application.
+    if (_hasLeftApplicationForCurrentURL) return;
+    
+    if ([self.delegate respondsToSelector:@selector(browserControllerDidFinishLoad:)]) {
+        [self.delegate browserControllerDidFinishLoad:self];
+    }
+}
+
+- (void)webView:(UIWebView *)webView didFailLoadWithError:(NSError *)error 
+{
+    _webViewLoadCount--;
+    
+	MPLogError(@"Ad browser %@ experienced an error: %@.", self, [error localizedDescription]);
+	
+    _refreshButton.enabled = YES;
 	_safariButton.enabled = YES;	
 	_backButton.enabled = _webView.canGoBack;
 	_forwardButton.enabled = _webView.canGoForward;
 	[_spinner stopAnimating];
 }
 
-- (void)webView:(UIWebView *)webView didFailLoadWithError:(NSError *)error 
+#pragma mark - Internal
+
+#define kModalTransitionDelay 0.4
+
+- (void)leaveApplicationForURL:(NSURL *)URL
 {
-	MPLogError(@"Ad browser %@ experienced an error: %@.", self, [error localizedDescription]);
-	[self webViewDidFinishLoad:webView];
+    _hasLeftApplicationForCurrentURL = YES;
+    
+    if ([self.delegate respondsToSelector:@selector(browserControllerWillLeaveApplication:)]) {
+        [self.delegate browserControllerWillLeaveApplication:self];
+    }
+    
+    // XXX: It's possible that our browser may try to leave the application very shortly after
+    // receiving a -webViewDidFinishLoad: callback (e.g. if a landing page uses window.location
+    // right after the page is downloaded). When this happens, the browser's delegate will be asked
+    // to dismiss the browser, possibly during its modal transition animation. To avoid warnings or
+    // potential crashes, we use a short delay to allow the animation to finish before proceeding.
+    
+    if (_isPerformingPresentationAnimation) {
+        [self performSelector:@selector(dismissBrowserAndOpenURL:) withObject:URL
+                   afterDelay:kModalTransitionDelay];
+    } else {
+        [self dismissBrowserAndOpenURL:URL];
+    }
+}
+
+- (void)dismissBrowserAndOpenURL:(NSURL *)URL
+{
+    [self.delegate dismissBrowserController:self animated:NO];
+    [[UIApplication sharedApplication] openURL:URL];
 }
 
 #pragma mark -

@@ -312,21 +312,7 @@ static NSString * const kOrientationBoth				= @"b";
 
 - (void)closeButtonPressed
 {
-	// Restore previous status/navigation bar state.
-	[[UIApplication sharedApplication] setStatusBarHidden:_statusBarWasHidden];
-	[self.navigationController setNavigationBarHidden:_navigationBarWasHidden animated:NO];
-	
-	[self interstitialWillDisappearForAdapter:nil];
-    
-    if (self.rootViewController) {
-        [self.rootViewController dismissModalViewControllerAnimated:YES];
-        
-        // Reset the rootViewController reference to avoid accidentally presenting this
-        // interstitial from the wrong view controller.
-        self.rootViewController = nil;
-    } else if ([_parent respondsToSelector:@selector(dismissInterstitial:)]) {
-        [_parent performSelector:@selector(dismissInterstitial:) withObject:self];
-    }
+	[self adViewShouldClose:_adView];
 }
 
 - (void)loadAd
@@ -489,7 +475,21 @@ static NSString * const kOrientationBoth				= @"b";
 
 - (void)adViewShouldClose:(MPAdView *)view
 {
-	[self closeButtonPressed];
+	// Restore previous status/navigation bar state.
+	[[UIApplication sharedApplication] setStatusBarHidden:_statusBarWasHidden];
+	[self.navigationController setNavigationBarHidden:_navigationBarWasHidden animated:NO];
+	
+	[self interstitialWillDisappearForAdapter:nil];
+    
+    if (self.rootViewController) {
+        [self.rootViewController dismissModalViewControllerAnimated:NO];
+        
+        // Reset the rootViewController reference to avoid accidentally presenting this
+        // interstitial from the wrong view controller.
+        self.rootViewController = nil;
+    } else if ([_parent respondsToSelector:@selector(dismissInterstitial:)]) {
+        [_parent performSelector:@selector(dismissInterstitial:) withObject:self];
+    }
 }
 
 - (void)customEventDidLoadAd {

@@ -32,6 +32,19 @@
 	UIActionSheet *_actionSheet;
 	BOOL _actionSheetIsShowing;
 	NSURL *_URL;
+    
+    // The number of calls to -webViewDidStartLoad: that have not yet been matched by a call to
+    // -webViewDidFinishLoad:. This gives us a rudimentary way to determine when the current page
+    // has loaded completely.
+    NSInteger _webViewLoadCount;
+    
+    // Whether this browser's current page load has caused it to leave the application. This value
+    // is reset to NO upon each call to -startLoading.
+    BOOL _hasLeftApplicationForCurrentURL;
+    
+    // Whether the browser is currently animating onto the screen (i.e. it is between calls to
+    // -viewWillAppear: and -viewDidAppear).
+    BOOL _isPerformingPresentationAnimation;
 }
 
 @property (nonatomic,retain) IBOutlet UIWebView *webView;
@@ -47,6 +60,9 @@
 
 
 - (id)initWithURL:(NSURL *)URL delegate:(id<MPAdBrowserControllerDelegate>)delegate;
+- (void)startLoading;
+- (void)stopLoading;
+
 
 // Navigation methods.
 - (IBAction)back;
@@ -67,4 +83,8 @@
 @required
 - (void)dismissBrowserController:(MPAdBrowserController *)browserController;
 - (void)dismissBrowserController:(MPAdBrowserController *)browserController animated:(BOOL)animated;
+
+@optional
+- (void)browserControllerDidFinishLoad:(MPAdBrowserController *)browserController;
+- (void)browserControllerWillLeaveApplication:(MPAdBrowserController *)browserController;
 @end

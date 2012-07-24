@@ -95,6 +95,8 @@ NSString * const kAdTypeMraid = @"mraid";
 - (void)processResponseHeaders:(NSDictionary *)headers body:(NSData *)data;
 - (void)handleMraidRequest;
 - (void)logResponseBodyToConsole:(NSData *)data;
+- (void)showLoadingIndicatorAnimated:(BOOL)animated;
+- (void)hideLoadingIndicatorAnimated:(BOOL)animated;
 
 @end
 
@@ -172,6 +174,9 @@ NSString * const kAdTypeMraid = @"mraid";
 	[[NSNotificationCenter defaultCenter] removeObserver:self];	
 		
 	[self destroyWebviewPool];
+    
+    // XXX: Remove the loading indicator if it's on-screen.
+    [self hideLoadingIndicatorAnimated:NO];
 	
 	[_currentAdapter unregisterDelegate];
 	[_currentAdapter release];
@@ -192,6 +197,7 @@ NSString * const kAdTypeMraid = @"mraid";
 	[_autorefreshTimer release];
 	[_timerTarget release];
     [_request release];
+    [_currentBrowserController release];
 	
 	_adView = nil;
     [super dealloc];
@@ -476,13 +482,15 @@ NSString * const kAdTypeMraid = @"mraid";
 	
 	if ([self.autorefreshTimer isScheduled])
 		[self.autorefreshTimer pause];
-	
-	// Present ad browser.
-	MPAdBrowserController *browserController = [[MPAdBrowserController alloc] initWithURL:desiredURL 
-																				 delegate:self];
-	[[self viewControllerForPresentingModalView] presentModalViewController:browserController 			
-																   animated:YES];
-	[browserController release];
+    
+	// Create a new browser controller and begin loading content into it.
+    [_currentBrowserController release];
+	_currentBrowserController = [[MPAdBrowserController alloc] initWithURL:desiredURL 
+                                                                  delegate:self];
+    _currentBrowserController.modalTransitionStyle = UIModalTransitionStyleCrossDissolve;
+    [_currentBrowserController startLoading];
+    
+    [self showLoadingIndicatorAnimated:YES];
 }
 
 - (void)replaceCurrentAdapterWithAdapter:(MPBaseAdapter *)newAdapter
@@ -506,10 +514,17 @@ NSString * const kAdTypeMraid = @"mraid";
 - (void)dismissBrowserController:(MPAdBrowserController *)browserController animated:(BOOL)animated
 {
 	_adActionInProgress = NO;
-	[[self viewControllerForPresentingModalView] dismissModalViewControllerAnimated:animated];
-	
-	if ([self.adView.delegate respondsToSelector:@selector(didDismissModalViewForAd:)])
-		[self.adView.delegate didDismissModalViewForAd:self.adView];
+    
+    // XXX: Don't call -dismissModalViewControllerAnimated: until we verify that the receiver is
+    // currently presenting the browser, since that method may forward its message and cause its
+    // receiver to be dismissed. This check ensures that interstitials do not inadvertently dismiss
+    // themselves.
+    if ([self viewControllerForPresentingModalView].modalViewController) {
+        [[self viewControllerForPresentingModalView] dismissModalViewControllerAnimated:animated];
+    }
+    
+    if ([self.adView.delegate respondsToSelector:@selector(didDismissModalViewForAd:)])
+        [self.adView.delegate didDismissModalViewForAd:self.adView];
 	
 	if (_autorefreshTimerNeedsScheduling)
 	{
@@ -517,6 +532,18 @@ NSString * const kAdTypeMraid = @"mraid";
 		_autorefreshTimerNeedsScheduling = NO;
 	}
 	else if ([self.autorefreshTimer isScheduled]) [self.autorefreshTimer resume];
+}
+
+- (void)browserControllerDidFinishLoad:(MPAdBrowserController *)browserController {
+    if ([self viewControllerForPresentingModalView].modalViewController) return;
+    
+    [self hideLoadingIndicatorAnimated:YES];
+    [[self viewControllerForPresentingModalView] presentModalViewController:browserController
+                                                                   animated:YES];
+}
+
+- (void)browserControllerWillLeaveApplication:(MPAdBrowserController *)browserController {
+    [self hideLoadingIndicatorAnimated:NO];
 }
 
 # pragma mark -
@@ -974,6 +1001,28 @@ NSString * const kAdTypeMraid = @"mraid";
     }
 }
 
+#pragma mark - Loading Indicator
+
+- (void)showLoadingIndicatorAnimated:(BOOL)animated
+{
+    [MPProgressOverlayView presentOverlayInWindow:self.adView.window
+                                         animated:animated
+                                         delegate:self];
+}
+
+- (void)overlayCancelButtonPressed
+{
+    [_currentBrowserController stopLoading];
+    [self hideLoadingIndicatorAnimated:YES];
+    [self dismissBrowserController:_currentBrowserController animated:YES];
+    
+}
+
+- (void)hideLoadingIndicatorAnimated:(BOOL)animated
+{
+    [MPProgressOverlayView dismissOverlayFromWindow:self.adView.window animated:animated];
+}
+
 @end
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1001,6 +1050,12 @@ NSString * const kAdTypeMraid = @"mraid";
 	UIWebView *webView = [super adWebViewWithFrame:frame];
 	webView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
 	return webView;
+}
+
+- (void)browserControllerWillLeaveApplication:(MPAdBrowserController *)browserController {
+    [super browserControllerWillLeaveApplication:browserController];
+    if ([self.adView.delegate respondsToSelector:@selector(adViewShouldClose:)])
+		[self.adView.delegate adViewShouldClose:self.adView];
 }
 
 @end
