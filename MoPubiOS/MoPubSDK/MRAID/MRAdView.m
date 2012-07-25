@@ -29,7 +29,8 @@ static NSString * const kMraidURLScheme = @"mraid";
 - (NSMutableString *)HTMLWithJavaScriptBridge:(NSString *)HTML;
 - (void)convertFragmentToFullPayload:(NSMutableString *)fragment;
 - (NSString *)executeJavascript:(NSString *)javascript withVarArgs:(va_list)args;
-- (BOOL)isOnscreen;
+- (BOOL)hasHiddenAncestorView;
+- (BOOL)frameIntersectsKeyWindowFrame;
 - (void)layoutCloseButton;
 - (void)fireChangeEventForProperty:(MRProperty *)property;
 - (void)fireChangeEventsForProperties:(NSArray *)properties;
@@ -164,7 +165,15 @@ static NSString * const kMraidURLScheme = @"mraid";
 }
 
 - (BOOL)isViewable {
-    return (!self.hidden && self.superview && [self isOnscreen]);
+    // In order for the ad to be "viewable", it:
+    // 1) must not be hidden,
+    // 2) must not have an ancestor that is hidden,
+    // 3) must belong to some superview, and
+    // 4) must be within the frame of the key window.
+    return (!self.hidden &&
+            ![self hasHiddenAncestorView] &&
+            self.superview &&
+            [self frameIntersectsKeyWindowFrame]);
 }
 
 - (void)loadCreativeFromURL:(NSURL *)url {
@@ -232,9 +241,21 @@ static NSString * const kMraidURLScheme = @"mraid";
     [_webView loadHTMLString:HTML baseURL:baseURL];
 }
 
-- (BOOL)isOnscreen {
+- (BOOL)hasHiddenAncestorView {
+    UIView *ancestor = self.superview;
+    while (ancestor) {
+        if (ancestor.hidden) return YES;
+        ancestor = ancestor.superview;
+    }
+    return NO;
+}
+
+- (BOOL)frameIntersectsKeyWindowFrame {
     UIWindow *keyWindow = [[UIApplication sharedApplication] keyWindow];
+    
+    // We need to call convertRect:toView: on this view's superview rather than on this view itself.
     CGRect frameInWindowCoordinates = [self.superview convertRect:self.frame toView:keyWindow];
+    
     return CGRectIntersectsRect(frameInWindowCoordinates, keyWindow.frame);
 }
 
