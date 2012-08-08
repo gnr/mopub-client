@@ -36,6 +36,7 @@ import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.Color;
@@ -81,7 +82,6 @@ public class AdView extends WebView {
     public static final String EXTRA_AD_CLICK_DATA = "com.mopub.intent.extra.AD_CLICK_DATA";
     
     private static final int MINIMUM_REFRESH_TIME_MILLISECONDS = 10000;
-    private static final int HTTP_CLIENT_TIMEOUT_MILLISECONDS = 10000;
     
     private String mAdUnitId;
     private String mKeywords;
@@ -94,7 +94,6 @@ public class AdView extends WebView {
     private boolean mIsLoading;
     private boolean mAutorefreshEnabled;
     private int mRefreshTimeMilliseconds = 60000;
-    private int mTimeoutMilliseconds = HTTP_CLIENT_TIMEOUT_MILLISECONDS;
     private int mWidth;
     private int mHeight;
     private String mAdOrientation;
@@ -201,6 +200,22 @@ public class AdView extends WebView {
                         ". Is this intent unsupported on your phone?");
                 }
                 return true;
+            }
+            // Fast fail if market:// intent is called when Google Play is not installed
+            else if (url.startsWith("market://")) {
+                // Determine which activities can handle the market intent
+                Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+                PackageManager packageManager = getContext().getPackageManager();
+                List<ResolveInfo> activities = packageManager.queryIntentActivities(intent, 0);
+                
+                // If there are no relevant activities, don't follow the link
+                boolean isIntentSafe = activities.size() > 0;
+                if (!isIntentSafe) {
+                    Log.w("MoPub", "Could not handle market action: " + url
+                            + ". Perhaps you're running in the emulator, which does not have "
+                            + "the Android Market?");
+                    return true;
+                }
             }
 
             url = urlWithClickTrackingRedirect(adView, url);
@@ -396,10 +411,13 @@ public class AdView extends WebView {
             return;
         }
         
+        mFailUrl = null;
         mUrl = url;
         mIsLoading = true;
         
-        mAdFetcher.fetchAdForUrl(mUrl);
+        if (mAdFetcher != null) {
+            mAdFetcher.fetchAdForUrl(mUrl);
+        }
     }
     
     protected void configureAdViewUsingHeadersFromHttpResponse(HttpResponse response) {
@@ -530,15 +548,9 @@ public class AdView extends WebView {
             context.startActivity(intent);
         } catch (ActivityNotFoundException e) {
             String action = intent.getAction();
-            if (action != null && action.startsWith("market://")) {
-                Log.w("MoPub", "Could not handle market action: " + action
-                        + ". Perhaps you're running in the emulator, which does not have "
-                        + "the Android Market?");
-            } else {
-                Log.w("MoPub", "Could not handle intent action: " + action
-                        + ". Perhaps you forgot to declare com.mopub.mobileads.MraidBrowser"
-                        + " in your Android manifest file.");
-            }
+            Log.w("MoPub", "Could not handle intent action: " + action
+                    + ". Perhaps you forgot to declare com.mopub.mobileads.MraidBrowser"
+                    + " in your Android manifest file.");
             
             getContext().startActivity(
                     new Intent(Intent.ACTION_VIEW, Uri.parse("about:blank"))
@@ -678,6 +690,14 @@ public class AdView extends WebView {
     protected void cancelRefreshTimer() {
         mRefreshHandler.removeCallbacks(mRefreshRunnable);
     }
+    
+    protected int getRefreshTimeMilliseconds() {
+        return mRefreshTimeMilliseconds;
+    }
+    
+    protected void setRefreshTimeMilliseconds(int refreshTimeMilliseconds) {
+        mRefreshTimeMilliseconds = refreshTimeMilliseconds;
+    }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -706,7 +726,9 @@ public class AdView extends WebView {
     }
 
     public void setTimeout(int milliseconds) {
-        mTimeoutMilliseconds = milliseconds;
+        if (mAdFetcher != null) {
+            mAdFetcher.setTimeout(milliseconds);
+        }
     }
 
     public int getAdWidth() {

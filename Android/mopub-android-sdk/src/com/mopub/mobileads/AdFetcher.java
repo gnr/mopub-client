@@ -69,7 +69,7 @@ import android.util.Log;
  * the last completed task to prevent out-of-order execution.
  */
 public class AdFetcher {
-    private static final int HTTP_CLIENT_TIMEOUT_MILLISECONDS = 10000;
+    private int mTimeoutMilliseconds = 10000;
     // This is equivalent to Build.VERSION_CODES.ICE_CREAM_SANDWICH
     private static final int VERSION_CODE_ICE_CREAM_SANDWICH = 14;
     
@@ -78,6 +78,14 @@ public class AdFetcher {
     private String mUserAgent;  
     private long mCurrentTaskId;
     private long mLastCompletedTaskId;
+    
+    private enum FetchStatus {
+        NOT_SET,
+        FETCH_CANCELLED,
+        INVALID_SERVER_RESPONSE_BACKOFF,
+        INVALID_SERVER_RESPONSE_NOBACKOFF,
+        CLEAR_AD_TYPE
+    }
     
     public AdFetcher(AdView adview, String userAgent) {
         mAdView = adview;
@@ -138,13 +146,25 @@ public class AdFetcher {
         mUserAgent = "";
     }
     
+    protected void setTimeout(int milliseconds) {
+        mTimeoutMilliseconds = milliseconds;
+    }
+    
+    protected int getTimeout() {
+        return mTimeoutMilliseconds;
+    }
+    
     private static class AdFetchTask extends AsyncTask<String, Void, AdFetchResult> {
         private AdFetcher mAdFetcher;
         private AdView mAdView;
         private Exception mException;
         private HttpClient mHttpClient;
         private long mTaskId;
-        private int mTimeoutMilliseconds = HTTP_CLIENT_TIMEOUT_MILLISECONDS;
+        
+        private FetchStatus mFetchStatus = FetchStatus.NOT_SET;
+        
+        private static final int MAXIMUM_REFRESH_TIME_MILLISECONDS = 600000;
+        private static final double EXPONENTIAL_BACKOFF_FACTOR = 1.5;
         
         private AdFetchTask(AdFetcher adFetcher) {
             mAdFetcher = adFetcher;
@@ -172,6 +192,7 @@ public class AdFetcher {
             // We check to see if this AsyncTask was cancelled, as per
             // http://developer.android.com/reference/android/os/AsyncTask.html
             if (isCancelled()) {
+                mFetchStatus = FetchStatus.FETCH_CANCELLED;
                 return null;
             }
 
@@ -182,10 +203,15 @@ public class AdFetcher {
 
             HttpResponse response = mHttpClient.execute(httpget);
             HttpEntity entity = response.getEntity();
-
-            if (response == null || entity == null ||
-                    response.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
+            
+            // Client and Server HTTP errors should result in an exponential backoff
+            if (response != null && response.getStatusLine().getStatusCode() >= 400) {
                 Log.d("MoPub", "MoPub server returned invalid response.");
+                mFetchStatus = FetchStatus.INVALID_SERVER_RESPONSE_BACKOFF;
+                return null;
+            } else if (response == null || entity == null || response.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
+                Log.d("MoPub", "MoPub server returned invalid response.");
+                mFetchStatus = FetchStatus.INVALID_SERVER_RESPONSE_NOBACKOFF;
                 return null;
             }
 
@@ -195,6 +221,7 @@ public class AdFetcher {
             Header atHeader = response.getFirstHeader("X-Adtype");
             if (atHeader == null || atHeader.getValue().equals("clear")) {
                 Log.d("MoPub", "MoPub server returned no ad.");
+                mFetchStatus = FetchStatus.CLEAR_AD_TYPE;
                 return null;
             }
 
@@ -262,7 +289,22 @@ public class AdFetcher {
                 if (mException != null) {
                     Log.d("MoPub", "Exception caught while loading ad: " + mException);
                 }
+                
                 mAdView.loadFailUrl();
+                
+                /*
+                 * There are numerous reasons for the ad fetch to fail, but only in the specific
+                 * case of actual server failure should we exponentially back off. 
+                 * 
+                 * Note: When we call AdView's loadFailUrl() from this block, AdView's mFailUrl
+                 * will always be null, forcing a scheduled refresh. Here, we place the exponential
+                 * backoff after AdView's loadFailUrl because we only want to increase refresh times
+                 * after the first failure refresh timer is scheduled, and not before.
+                 */
+                if (mFetchStatus == FetchStatus.INVALID_SERVER_RESPONSE_BACKOFF) {
+                    exponentialBackoff();
+                    mFetchStatus = FetchStatus.NOT_SET;
+                }
             } else {
                 result.execute();
                 result.cleanup();
@@ -306,6 +348,24 @@ public class AdFetcher {
             return out.toString();
         }
         
+        /* This helper function is called when a 4XX or 5XX error is received during an ad fetch.
+         * It exponentially increases the parent AdView's refreshTime up to a specified cap.
+         */
+        private void exponentialBackoff() {
+            if (mAdView == null) {
+                return;
+            }
+            
+            int refreshTimeMilliseconds = mAdView.getRefreshTimeMilliseconds();
+            
+            refreshTimeMilliseconds = (int) (refreshTimeMilliseconds * EXPONENTIAL_BACKOFF_FACTOR);
+            if (refreshTimeMilliseconds > MAXIMUM_REFRESH_TIME_MILLISECONDS) {
+                refreshTimeMilliseconds = MAXIMUM_REFRESH_TIME_MILLISECONDS;
+            }
+            
+            mAdView.setRefreshTimeMilliseconds(refreshTimeMilliseconds);
+        }
+        
         private void releaseResources() {
             mAdFetcher = null;
             
@@ -318,15 +378,17 @@ public class AdFetcher {
             }
             
             mException = null;
+            mFetchStatus = FetchStatus.NOT_SET;
         }
         
         private DefaultHttpClient getDefaultHttpClient() {
             HttpParams httpParameters = new BasicHttpParams();
+            int timeoutMilliseconds = mAdFetcher.getTimeout();
 
-            if (mTimeoutMilliseconds > 0) {
+            if (timeoutMilliseconds > 0) {
                 // Set timeouts to wait for connection establishment / receiving data.
-                HttpConnectionParams.setConnectionTimeout(httpParameters, mTimeoutMilliseconds);
-                HttpConnectionParams.setSoTimeout(httpParameters, mTimeoutMilliseconds);
+                HttpConnectionParams.setConnectionTimeout(httpParameters, timeoutMilliseconds);
+                HttpConnectionParams.setSoTimeout(httpParameters, timeoutMilliseconds);
             }
 
             // Set the buffer size to avoid OutOfMemoryError exceptions on certain HTC devices.

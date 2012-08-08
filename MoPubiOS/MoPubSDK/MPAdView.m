@@ -87,7 +87,7 @@ static NSString * const kNewContentViewKey = @"NewContentView";
 
 - (void)dealloc 
 {
-	_delegate = nil;
+    _delegate = nil;
 	[_adUnitId release];
 	[[NSNotificationCenter defaultCenter] removeObserver:self];	
 	
@@ -97,7 +97,9 @@ static NSString * const kNewContentViewKey = @"NewContentView";
 	[_adContentView release];
 	
 	_adManager.adView = nil;
+    [_adManager cancelAd];
 	[_adManager release];
+    
 	[_location release];
 	[_locationDescriptionPair release];
     [super dealloc];

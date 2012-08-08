@@ -16,6 +16,7 @@
 - (void)dismissActionSheet;
 - (void)leaveApplicationForURL:(NSURL *)URL;
 - (void)dismissBrowserAndOpenURL:(NSURL *)URL;
+- (void)dismissFromPresentingViewControllerAnimated:(BOOL)animated;
 
 @end
 
@@ -155,10 +156,16 @@ static NSArray *BROWSER_SCHEMES, *SPECIAL_HOSTS;
 - (IBAction)done 
 {
 	[self dismissActionSheet];
-    [self.delegate dismissBrowserController:self];
+    
+    // Ensure that the browser controller gets dismissed even if its delegate is set to nil.
+    if (self.delegate) {
+        [self.delegate dismissBrowserController:self];
+    } else {
+        [self dismissFromPresentingViewControllerAnimated:YES];
+    }
 }
 
-- (IBAction)back 
+- (IBAction)back
 {
 	[self dismissActionSheet];
 	[_webView goBack];
@@ -187,9 +194,14 @@ static NSArray *BROWSER_SCHEMES, *SPECIAL_HOSTS;
 											  cancelButtonTitle:@"Cancel" 
 										 destructiveButtonTitle:nil 
 											  otherButtonTitles:@"Open in Safari", nil] autorelease];
-		[self.actionSheet showFromBarButtonItem:self.safariButton animated:YES];
+		
+        if ([UIActionSheet instancesRespondToSelector:@selector(showFromBarButtonItem:animated:)]) {
+            [self.actionSheet showFromBarButtonItem:self.safariButton animated:YES];
+        } else {
+            [self.actionSheet showInView:self.webView];
+        }
 	}
-}	
+}
 
 - (void)dismissActionSheet
 {
@@ -201,7 +213,7 @@ static NSArray *BROWSER_SCHEMES, *SPECIAL_HOSTS;
 #pragma mark UIActionSheetDelegate
 
 - (void)actionSheet:(UIActionSheet *)actionSheet clickedButtonAtIndex:(NSInteger)buttonIndex 
-{	
+{
 	if (buttonIndex == 0) 
 	{
 		// Open in Safari.
@@ -289,7 +301,7 @@ static NSArray *BROWSER_SCHEMES, *SPECIAL_HOSTS;
     _webViewLoadCount--;
     
 	MPLogError(@"Ad browser %@ experienced an error: %@.", self, [error localizedDescription]);
-	
+    
     _refreshButton.enabled = YES;
 	_safariButton.enabled = YES;	
 	_backButton.enabled = _webView.canGoBack;
@@ -325,8 +337,35 @@ static NSArray *BROWSER_SCHEMES, *SPECIAL_HOSTS;
 
 - (void)dismissBrowserAndOpenURL:(NSURL *)URL
 {
-    [self.delegate dismissBrowserController:self animated:NO];
+    // Ensure that the browser controller gets dismissed even if its delegate is set to nil.
+    if (self.delegate) {
+        [self.delegate dismissBrowserController:self animated:NO]; 
+    } else {
+        [self dismissFromPresentingViewControllerAnimated:NO];
+    }
+    
     [[UIApplication sharedApplication] openURL:URL];
+}
+
+- (void)dismissFromPresentingViewControllerAnimated:(BOOL)animated
+{
+    UIViewController *presentingViewController;
+    
+    if ([self respondsToSelector:@selector(presentingViewController)]) {
+        // For iOS 5 and above.
+        presentingViewController = self.presentingViewController;
+    } else {
+        // Prior to iOS 5, the parentViewController property holds the presenting view controller.
+        presentingViewController = self.parentViewController;
+    }
+    
+#if NS_BLOCKS_AVAILABLE
+    if ([presentingViewController respondsToSelector:@selector(dismissViewControllerAnimated:completion:)]) {
+        [presentingViewController dismissViewControllerAnimated:animated completion:nil];
+        return;
+    }
+#endif
+    [presentingViewController dismissModalViewControllerAnimated:animated];
 }
 
 #pragma mark -

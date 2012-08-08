@@ -76,10 +76,12 @@ static void exponentialDecayInterpolation(void *info, const float *input, float 
         _outerContainer.center = self.center;
         _outerContainer.opaque = NO;
         _outerContainer.layer.cornerRadius = kProgressOverlayCornerRadius;
-        _outerContainer.layer.shadowColor = [UIColor blackColor].CGColor;
-        _outerContainer.layer.shadowOffset = CGSizeMake(0.0f, kProgressOverlayShadowRadius - 2.0f);
-        _outerContainer.layer.shadowOpacity = kProgressOverlayShadowOpacity;
-        _outerContainer.layer.shadowRadius = kProgressOverlayShadowRadius;
+        if ([CALayer instancesRespondToSelector:@selector(setShadowColor:)]) {
+            _outerContainer.layer.shadowColor = [UIColor blackColor].CGColor;
+            _outerContainer.layer.shadowOffset = CGSizeMake(0.0f, kProgressOverlayShadowRadius - 2.0f);
+            _outerContainer.layer.shadowOpacity = kProgressOverlayShadowOpacity;
+            _outerContainer.layer.shadowRadius = kProgressOverlayShadowRadius;
+        }
         [self addSubview:_outerContainer];
         
         CGFloat innerSide = kProgressOverlaySide - 2 * kProgressOverlayBorderWidth;

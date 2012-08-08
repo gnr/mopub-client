@@ -103,9 +103,14 @@
             [_interstitialAdController interstitialDidExpireForAdapter:self];
         }
     }
+    else
+    {
+        MPLogInfo(@"Millennial interstitial ad is no longer cached.");
+        [_interstitialAdController interstitialDidExpireForAdapter:self];
+    }
 }
 
-# pragma mark - 
+# pragma mark -
 # pragma mark MMAdDelegate
 
 - (NSDictionary *)requestData 

@@ -29,6 +29,7 @@
     
     [_view adWillPresentModalView];
     [self.viewControllerForPresentingModalView presentModalViewController:controller animated:YES];
+    [controller startLoading];
     [controller release];
 }
 

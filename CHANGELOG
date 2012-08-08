@@ -1,5 +1,21 @@
 # MoPub Changelog #
 
+Version 1.8.0.0
+o iOS: Fixed a crash in MPAdManager due to uncanceled NSURLConnections
+o iOS: Fixed an issue with mraid://open URL decoding
+o iOS: Fixed an issue in which third-party interstitials could block the display of subsequent HTML interstitials
+o iOS: Fixed an issue in which third-party interstitials could trigger lifecycle callbacks after expiration
+o iOS: Added iOS 6 view controller auto-rotation methods to MPInterstitialAdController
+o iOS: Added support for iOS 6 advertising identifier
+o iOS: Removed references to -[UIDevice uniqueIdentifier] and OpenUDID
+o iOS: Added runtime checks for CALayer and UIActionSheet selectors to prevent crashes on iOS 3.1
+o iOS: Improved the Millennial interstitial adapter to handle all return values from -checkForCachedAd
+o Android: Fixed a crash resulting from following market:// links when Google Play is not installed
+o Android: Added in-app browser support for more Google Play redirect styles
+o Android: Added exponential backoff on ad server failure
+o Android: Included new ad unit IDs for sample ads in SimpleAdsDemo
+o Android: Removed extraneous image files
+
 Version 1.7.0.0
 o iOS: Improved click experience to avoid blank screens when loading pages with many redirects
 o iOS: Fixed an issue in which MPAdView would implicitly change its 'hidden' property

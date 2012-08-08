@@ -70,6 +70,7 @@ NSString * const kAdTypeMraid = @"mraid";
 @property (nonatomic, retain) NSMutableURLRequest *request;
 
 - (void)loadAdWithURL:(NSURL *)URL;
+- (void)cancelAd;
 - (void)forceRefreshAd;
 - (void)registerForApplicationStateTransitionNotifications;
 - (void)removeWebviewFromPool:(UIWebView *)webview;
@@ -171,8 +172,9 @@ NSString * const kAdTypeMraid = @"mraid";
 
 - (void)dealloc 
 {
-	[[NSNotificationCenter defaultCenter] removeObserver:self];	
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
 		
+    [self cancelAd];
 	[self destroyWebviewPool];
     
     // XXX: Remove the loading indicator if it's on-screen.
@@ -183,9 +185,6 @@ NSString * const kAdTypeMraid = @"mraid";
 	[_previousAdapter unregisterDelegate];
 	[_previousAdapter release];
 	[_adUnitId release];
-	[_conn cancel];
-	[_conn release];
-	[_data release];
 	[_headers release];
 	[_URL release];
 	[_clickURL release];
@@ -197,6 +196,8 @@ NSString * const kAdTypeMraid = @"mraid";
 	[_autorefreshTimer release];
 	[_timerTarget release];
     [_request release];
+    
+    _currentBrowserController.delegate = nil;
     [_currentBrowserController release];
 	
 	_adView = nil;
@@ -253,10 +254,22 @@ NSString * const kAdTypeMraid = @"mraid";
 	MPLogInfo(@"Ad manager (%p) fired initial ad request.", self);
 }
 
+- (void)cancelAd
+{
+    _isLoading = NO;
+    
+    [_conn cancel];
+    [_conn release];
+    _conn = nil;
+    
+    [_data release];
+    _data = nil;
+}
+
 - (NSURL *)serverRequestURL {
 	NSString *urlString = [NSString stringWithFormat:@"http://%@/m/ad?v=8&udid=%@&q=%@&id=%@&nv=%@", 
 						   HOSTNAME,
-						   MPHashedUDID(),
+						   MPIdentifierForAdvertising(),
 						   [_keywords stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding],
 						   [_adUnitId stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding],
 						   MP_SDK_VERSION];
