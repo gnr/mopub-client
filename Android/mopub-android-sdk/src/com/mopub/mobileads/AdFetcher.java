@@ -84,7 +84,8 @@ public class AdFetcher {
         FETCH_CANCELLED,
         INVALID_SERVER_RESPONSE_BACKOFF,
         INVALID_SERVER_RESPONSE_NOBACKOFF,
-        CLEAR_AD_TYPE
+        CLEAR_AD_TYPE,
+        AD_WARMING_UP;
     }
     
     public AdFetcher(AdView adview, String userAgent) {
@@ -206,35 +207,57 @@ public class AdFetcher {
             HttpResponse response = mHttpClient.execute(httpget);
             HttpEntity entity = response.getEntity();
             
+            if (response == null || entity == null) {
+                Log.d("MoPub", "MoPub server returned null response.");
+                mFetchStatus = FetchStatus.INVALID_SERVER_RESPONSE_NOBACKOFF;
+                return null;
+            }
+            
+            final int statusCode = response.getStatusLine().getStatusCode();
+            
             // Client and Server HTTP errors should result in an exponential backoff
-            if (response != null && response.getStatusLine().getStatusCode() >= 400) {
-                Log.d("MoPub", "MoPub server returned invalid response.");
+            if (statusCode >= 400) {
+                Log.d("MoPub", "Server error: returned HTTP status code " + Integer.toString(statusCode) +
+                        ". Please try again.");
                 mFetchStatus = FetchStatus.INVALID_SERVER_RESPONSE_BACKOFF;
                 return null;
-            } else if (response == null || entity == null || response.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
-                Log.d("MoPub", "MoPub server returned invalid response.");
+            }
+            // Other non-200 HTTP status codes should still fail
+            else if (statusCode != HttpStatus.SC_OK) {
+                Log.d("MoPub", "MoPub server returned invalid response: HTTP status code " +
+                        Integer.toString(statusCode) + ".");
                 mFetchStatus = FetchStatus.INVALID_SERVER_RESPONSE_NOBACKOFF;
                 return null;
             }
 
             mAdView.configureAdViewUsingHeadersFromHttpResponse(response);
 
+            // Ensure that the ad is not warming up.
+            Header warmupHeader = response.getFirstHeader("X-Warmup");
+            if (warmupHeader != null && warmupHeader.getValue().equals("1")) {
+                Log.d("MoPub", "Ad Unit (" + mAdView.getAdUnitId() + ") is still warming up. " +
+                        "Please try again in a few minutes.");
+                mFetchStatus = FetchStatus.AD_WARMING_UP;
+                return null;
+            }
+            
             // Ensure that the ad type header is valid and not "clear".
             Header atHeader = response.getFirstHeader("X-Adtype");
             if (atHeader == null || atHeader.getValue().equals("clear")) {
-                Log.d("MoPub", "MoPub server returned no ad.");
+                Log.d("MoPub", "No inventory found for adunit (" + mAdView.getAdUnitId() + ").");
                 mFetchStatus = FetchStatus.CLEAR_AD_TYPE;
                 return null;
             }
 
-            if (atHeader.getValue().equals("custom")) {
-                // Handle custom native ad type.
+            // Handle custom native ad type.
+            else if (atHeader.getValue().equals("custom")) {
                 Log.i("MoPub", "Performing custom event.");
                 Header cmHeader = response.getFirstHeader("X-Customselector");
                 return new PerformCustomEventTaskResult(mAdView, cmHeader);
-                
-            } else if (atHeader.getValue().equals("mraid")) {
-                // Handle mraid ad type.
+            }
+            
+            // Handle mraid ad type.
+            else if (atHeader.getValue().equals("mraid")) {
                 Log.i("MoPub", "Loading mraid ad");
                 HashMap<String, String> paramsHash = new HashMap<String, String>();
                 paramsHash.put("X-Adtype", atHeader.getValue());
@@ -242,9 +265,10 @@ public class AdFetcher {
                 String data = httpEntityToString(entity);
                 paramsHash.put("X-Nativeparams", data);
                 return new LoadNativeAdTaskResult(mAdView, paramsHash);
-                
-            } else if (!atHeader.getValue().equals("html")) {
-                // Handle native SDK ad type.
+            }
+            
+            // Handle native SDK ad type.
+            else if (!atHeader.getValue().equals("html")) {
                 Log.i("MoPub", "Loading native ad");
 
                 HashMap<String, String> paramsHash = new HashMap<String, String>();
