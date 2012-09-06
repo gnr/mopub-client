@@ -12,7 +12,7 @@
 
 #define HOSTNAME					@"ads.mopub.com"
 #define DEFAULT_PUB_ID				@"agltb3B1Yi1pbmNyDAsSBFNpdGUYkaoMDA"
-#define MP_SDK_VERSION              @"1.8.0.0"
+#define MP_SDK_VERSION              @"1.8.0.1"
 
 // Sizing constants.
 #define MOPUB_BANNER_SIZE			CGSizeMake(320, 50)
@@ -26,7 +26,6 @@
 // In-app purchase constants.
 #define STORE_RECEIPT_SUFFIX		@"/m/purchase"
 
-// Device identifier constants.
-#define MOPUB_IDENTIFIER_DEFAULTS_KEY           @"MOPUB_IDENTIFIER"
-#define MOPUB_IDENTIFIER_VERSION_DEFAULTS_KEY   @"MOPUB_IDENTIFIER_VERSION"
-
+// Constant for conditional compilation of -[UIDevice uniqueIdentifier] (UDID). The SDK will not
+// utilize -[UIDevice uniqueIdentifier] if this value is set to 0.
+#define MOPUB_ENABLE_UDID           0

@@ -13,8 +13,7 @@
 BOOL MPViewHasHiddenAncestor(UIView *view);
 BOOL MPViewIsDescendantOfKeyWindow(UIView *view);
 BOOL MPViewIntersectsKeyWindow(UIView *view);
-NSString *MPGenerateIdentifierForAdvertising();
-BOOL MPSDKVersionIsGreaterThan(NSString *version);
+NSString *MPSHA1Digest(NSString *string);
 
 UIInterfaceOrientation MPInterfaceOrientation()
 {
@@ -97,47 +96,51 @@ NSDictionary *MPDictionaryFromQueryString(NSString *query) {
 
 NSString *MPIdentifierForAdvertising()
 {
-	static NSString *cachedIdentifier = nil;
-    
-    if (cachedIdentifier) return cachedIdentifier;
-    
-    NSString *cachedIdVersion;
-    NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
-    cachedIdentifier = [[userDefaults objectForKey:MOPUB_IDENTIFIER_DEFAULTS_KEY] retain];
-    cachedIdVersion = [userDefaults objectForKey:MOPUB_IDENTIFIER_VERSION_DEFAULTS_KEY];
-    
-    if (!cachedIdentifier || !cachedIdVersion || MPSDKVersionIsGreaterThan(cachedIdVersion)) {
-        [cachedIdentifier release];
-        cachedIdentifier = [MPGenerateIdentifierForAdvertising() retain];
-        [userDefaults setObject:cachedIdentifier forKey:MOPUB_IDENTIFIER_DEFAULTS_KEY];
-        [userDefaults setObject:MP_SDK_VERSION forKey:MOPUB_IDENTIFIER_VERSION_DEFAULTS_KEY];
-        [userDefaults synchronize];
-    }
-    
-	return cachedIdentifier;
-}
-
-NSString *MPGenerateIdentifierForAdvertising()
-{
     // In iOS 6, the identifierForAdvertising property of UIDevice can be used to uniquely identify
-    // a device for advertising purposes. Devices running OS versions prior to iOS 6 will not be
-    // identifiable.
+    // a device for advertising purposes. Note: devices running OS versions prior to iOS 6 will not
+    // be identifiable unless the MOPUB_ENABLE_UDID preprocessor constant is set.
+
+    // Cache the identifier for the lifetime of the process.
+    static NSString *cachedIdentifier = nil;
     
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 60000
-    if (![UIDevice instancesRespondToSelector:@selector(identifierForAdvertising)]) {
-        return @"";
+    if (cachedIdentifier) {
+        return cachedIdentifier;
     }
     
-    NSString *identifier = [[[UIDevice currentDevice] identifierForAdvertising] UUIDString];
-    return [NSString stringWithFormat:@"ifa:%@", [identifier uppercaseString]];
-#else
-    return @"";
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= MP_IOS_6_0
+    NSString *identifier;
+    if ([UIDevice instancesRespondToSelector:@selector(identifierForAdvertising)]) {
+        identifier = [[[UIDevice currentDevice] identifierForAdvertising] UUIDString];
+        cachedIdentifier = [NSString stringWithFormat:@"ifa:%@", [identifier uppercaseString]];
+    }
+    #if MOPUB_ENABLE_UDID
+    else {
+        identifier = MPSHA1Digest([[UIDevice currentDevice] uniqueIdentifier]);
+        cachedIdentifier = [NSString stringWithFormat:@"sha:%@", [identifier uppercaseString]];
+    }
+    #endif
+#elif MOPUB_ENABLE_UDID
+    NSString *identifier = MPSHA1Digest([[UIDevice currentDevice] uniqueIdentifier]);
+    cachedIdentifier = [NSString stringWithFormat:@"sha:%@", [identifier uppercaseString]];
 #endif
+    
+    [cachedIdentifier retain];
+    return cachedIdentifier;
 }
 
-BOOL MPSDKVersionIsGreaterThan(NSString *version)
+NSString *MPSHA1Digest(NSString *string)
 {
-    return ([MP_SDK_VERSION compare:version options:NSNumericSearch] == NSOrderedDescending);
+    unsigned char digest[CC_SHA1_DIGEST_LENGTH];
+    NSData *data = [string dataUsingEncoding:NSASCIIStringEncoding];
+    CC_SHA1([data bytes], [data length], digest);
+    
+    NSMutableString *output = [NSMutableString stringWithCapacity:CC_SHA1_DIGEST_LENGTH * 2];
+    for (int i = 0; i < CC_SHA1_DIGEST_LENGTH; i++)
+    {
+        [output appendFormat:@"%02x", digest[i]];
+    }
+    
+    return output;
 }
 
 BOOL MPViewIsVisible(UIView *view)
