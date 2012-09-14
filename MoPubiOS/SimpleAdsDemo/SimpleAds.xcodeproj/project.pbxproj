@@ -32,6 +32,7 @@
 		3CB4A0F2113F5E75000DB158 /* MainWindow.xib in Resources */ = {isa = PBXBuildFile; fileRef = 3CB4A0F0113F5E75000DB158 /* MainWindow.xib */; };
 		3CB4A0F3113F5E75000DB158 /* SimpleAdsViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 3CB4A0F1113F5E75000DB158 /* SimpleAdsViewController.xib */; };
 		3CC4D7791264DC6800212F16 /* SecondViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 3CC4D7771264DC6800212F16 /* SecondViewController.xib */; };
+		A776EF0E160B92BB0096750F /* AdSupport.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A776EF0C160B92AF0096750F /* AdSupport.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
 		A77B547F15F839B500FCAB6E /* MPAdapterMap.m in Sources */ = {isa = PBXBuildFile; fileRef = A77B544415F839B500FCAB6E /* MPAdapterMap.m */; };
 		A77B548015F839B500FCAB6E /* MPAdBrowserController.m in Sources */ = {isa = PBXBuildFile; fileRef = A77B544615F839B500FCAB6E /* MPAdBrowserController.m */; };
 		A77B548115F839B500FCAB6E /* MPAdBrowserController.xib in Resources */ = {isa = PBXBuildFile; fileRef = A77B544715F839B500FCAB6E /* MPAdBrowserController.xib */; };
@@ -107,6 +108,7 @@
 		3CB4A0F1113F5E75000DB158 /* SimpleAdsViewController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = SimpleAdsViewController.xib; path = Classes/SimpleAdsViewController.xib; sourceTree = "<group>"; };
 		3CC4D7771264DC6800212F16 /* SecondViewController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = SecondViewController.xib; path = Classes/SecondViewController.xib; sourceTree = "<group>"; };
 		8D1107310486CEB800E47090 /* SimpleAds-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "SimpleAds-Info.plist"; plistStructureDefinitionIdentifier = "com.apple.xcode.plist.structure-definition.iphone.info-plist"; sourceTree = "<group>"; };
+		A776EF0C160B92AF0096750F /* AdSupport.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AdSupport.framework; path = System/Library/Frameworks/AdSupport.framework; sourceTree = SDKROOT; };
 		A77B543E15F839B500FCAB6E /* MPAdManager+MPAdViewFriend.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "MPAdManager+MPAdViewFriend.h"; sourceTree = "<group>"; };
 		A77B543F15F839B500FCAB6E /* MPAdManager+MPInterstitialAdControllerFriend.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "MPAdManager+MPInterstitialAdControllerFriend.h"; sourceTree = "<group>"; };
 		A77B544015F839B500FCAB6E /* MPAdView+MPAdManagerFriend.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "MPAdView+MPAdManagerFriend.h"; sourceTree = "<group>"; };
@@ -195,6 +197,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A776EF0E160B92BB0096750F /* AdSupport.framework in Frameworks */,
 				1D60589F0D05DD5A006BFB54 /* Foundation.framework in Frameworks */,
 				288765A50DF7441C002DB57D /* CoreGraphics.framework in Frameworks */,
 				3C06392C130517E900D7EB70 /* StoreKit.framework in Frameworks */,
@@ -278,6 +281,7 @@
 		29B97323FDCFA39411CA2CEA /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				A776EF0C160B92AF0096750F /* AdSupport.framework */,
 				1D30AB110D05D00D00671497 /* Foundation.framework */,
 				288765A40DF7441C002DB57D /* CoreGraphics.framework */,
 				3C06392B130517E900D7EB70 /* StoreKit.framework */,

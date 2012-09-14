@@ -67,7 +67,7 @@
 	
 	NSString *appOpenUrlString = [NSString stringWithFormat:@"http://%@/m/open?v=8&udid=%@&id=%@",
 								  HOSTNAME,
-								  MPIdentifierForAdvertising(),
+								  MPAdvertisingIdentifier(),
 								  appID];
 	
 	MPLogInfo(@"Reporting application did launch for the first time to MoPub: %@", appOpenUrlString);

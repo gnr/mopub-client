@@ -269,7 +269,7 @@ NSString * const kAdTypeMraid = @"mraid";
 - (NSURL *)serverRequestURL {
 	NSString *urlString = [NSString stringWithFormat:@"http://%@/m/ad?v=8&udid=%@&q=%@&id=%@&nv=%@", 
 						   HOSTNAME,
-						   MPIdentifierForAdvertising(),
+						   MPAdvertisingIdentifier(),
 						   [_keywords stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding],
 						   [_adUnitId stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding],
 						   MP_SDK_VERSION];
@@ -281,6 +281,10 @@ NSString * const kAdTypeMraid = @"mraid";
     
     if (NSClassFromString(@"MPMraidAdapter") != nil) {
         urlString = [urlString stringByAppendingString:@"&mr=1"];
+    }
+    
+    if (!MPAdvertisingTrackingEnabled()) {
+        urlString = [urlString stringByAppendingString:@"&dnt=1"];
     }
     
 	return [NSURL URLWithString:urlString];
