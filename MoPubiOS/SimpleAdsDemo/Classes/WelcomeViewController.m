@@ -11,6 +11,19 @@
 
 @implementation WelcomeViewController
 
+@synthesize welcomeImageView = _welcomeImageView;
+
+- (void)viewDidLoad
+{
+    if ([UIScreen mainScreen].bounds.size.height == 568) {
+        UIImage *backgroundImage = [UIImage imageNamed:@"Default-568h@2x.png"];
+        self.welcomeImageView.image = backgroundImage;
+    } else {
+        UIImage *backgroundImage = [UIImage imageNamed:@"Default.png"];
+        self.welcomeImageView.image = backgroundImage;
+    }
+}
+
 - (IBAction)visitWebsite {
 	[[UIApplication sharedApplication] openURL:[NSURL URLWithString:@"http://www.mopub.com"]];
 }
@@ -28,10 +41,23 @@
     // e.g. self.myOutlet = nil;
 }
 
-
 - (void)dealloc {
     [super dealloc];
 }
 
+- (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation
+{
+    return (interfaceOrientation == UIInterfaceOrientationPortrait);
+}
+
+- (BOOL)shouldAutorotate
+{
+    return NO;
+}
+
+- (NSUInteger)supportedInterfaceOrientations
+{
+    return UIInterfaceOrientationMaskPortrait;
+}
 
 @end

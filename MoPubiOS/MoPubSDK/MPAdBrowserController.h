@@ -47,22 +47,20 @@
     BOOL _isPerformingPresentationAnimation;
 }
 
-@property (nonatomic,retain) IBOutlet UIWebView *webView;
-@property (nonatomic,retain) IBOutlet UIBarButtonItem *backButton;
-@property (nonatomic,retain) IBOutlet UIBarButtonItem *forwardButton;
-@property (nonatomic,retain) IBOutlet UIBarButtonItem *refreshButton;
-@property (nonatomic,retain) IBOutlet UIBarButtonItem *safariButton;
-@property (nonatomic,retain) IBOutlet UIBarButtonItem *doneButton;
-@property (nonatomic,retain) IBOutlet UIBarButtonItem *spinnerItem;
+@property (nonatomic, retain) IBOutlet UIWebView *webView;
+@property (nonatomic, retain) IBOutlet UIBarButtonItem *backButton;
+@property (nonatomic, retain) IBOutlet UIBarButtonItem *forwardButton;
+@property (nonatomic, retain) IBOutlet UIBarButtonItem *refreshButton;
+@property (nonatomic, retain) IBOutlet UIBarButtonItem *safariButton;
+@property (nonatomic, retain) IBOutlet UIBarButtonItem *doneButton;
+@property (nonatomic, retain) IBOutlet UIBarButtonItem *spinnerItem;
 
 @property (nonatomic, assign) id<MPAdBrowserControllerDelegate> delegate;
 @property (nonatomic, copy) NSURL *URL;
 
-
 - (id)initWithURL:(NSURL *)URL delegate:(id<MPAdBrowserControllerDelegate>)delegate;
 - (void)startLoading;
 - (void)stopLoading;
-
 
 // Navigation methods.
 - (IBAction)back;
@@ -76,8 +74,9 @@
 - (UIImage *)backArrowImage;
 - (UIImage *)forwardArrowImage;
 
-
 @end
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
 
 @protocol MPAdBrowserControllerDelegate <NSObject>
 @required

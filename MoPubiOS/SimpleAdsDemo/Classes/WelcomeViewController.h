@@ -10,9 +10,11 @@
 
 
 @interface WelcomeViewController : UIViewController {
-
+    UIImageView *_welcomeImageView;
 }
 
--(IBAction)visitWebsite;
+@property (nonatomic, retain) IBOutlet UIImageView *welcomeImageView;
+
+- (IBAction)visitWebsite;
 
 @end

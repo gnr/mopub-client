@@ -67,6 +67,7 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
 
 import java.io.IOException;
+import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -355,8 +356,11 @@ public class AdView extends WebView {
         String udid = Secure.getString(getContext().getContentResolver(), Secure.ANDROID_ID);
         String udidDigest = (udid == null) ? "" : Utils.sha1(udid);
         sz.append("&udid=sha:" + udidDigest);
-
-        if (mKeywords != null) sz.append("&q=" + Uri.encode(mKeywords));
+        
+        String keywords = addKeyword(mKeywords, getFacebookKeyword());
+        if (keywords != null && keywords.length() > 0) {
+            sz.append("&q=" + Uri.encode(keywords));
+        }
         
         if (mLocation != null) {
             sz.append("&ll=" + mLocation.getLatitude() + "," + mLocation.getLongitude());
@@ -394,6 +398,17 @@ public class AdView extends WebView {
         SimpleDateFormat format = new SimpleDateFormat("Z");
         format.setTimeZone(TimeZone.getDefault());
         return format.format(new Date());
+    }
+    
+    private String getFacebookKeyword() {
+        try {
+            Class<?> facebookKeywordProviderClass = Class.forName("com.mopub.mobileads.FacebookKeywordProvider");
+            Method getKeywordMethod = facebookKeywordProviderClass.getMethod("getKeyword", Context.class);
+            
+            return (String) getKeywordMethod.invoke(facebookKeywordProviderClass, getContext());
+        } catch (Exception exception) {
+            return null;
+        }
     }
     
     /*
@@ -697,6 +712,16 @@ public class AdView extends WebView {
     
     protected void setRefreshTimeMilliseconds(int refreshTimeMilliseconds) {
         mRefreshTimeMilliseconds = refreshTimeMilliseconds;
+    }
+    
+    private String addKeyword(String keywords, String addition) {
+        if (addition == null || addition.length() == 0) {
+            return keywords;
+        } else if (keywords == null || keywords.length() == 0) {
+            return addition;
+        } else {
+            return keywords + "," + addition;
+        }
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////

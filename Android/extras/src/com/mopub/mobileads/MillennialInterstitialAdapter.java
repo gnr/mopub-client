@@ -48,6 +48,13 @@ import android.os.Handler;
 import android.util.Log;
 import android.view.View;
 
+/*
+ * Compatible with version 4.6.0 of the Millennial Media SDK.
+ * 
+ * NOTE: If you see build errors relating to a missing implementation of MMAdClickedToNewBrowser,
+ * please update your Millennial Media SDK to 4.6.0 or above.
+ */
+
 public class MillennialInterstitialAdapter extends BaseInterstitialAdapter implements MMAdListener {
 
     private MMAdView mMillennialAdView;
@@ -152,18 +159,6 @@ public class MillennialInterstitialAdapter extends BaseInterstitialAdapter imple
                 if (mAdapterListener != null) {
                     //mAdapterListener.onNativeInterstitialLoaded(MillennialInterstitialAdapter.this);
                 }
-            }
-        });
-    }
-
-    @Override
-    public void MMAdClickedToNewBrowser(MMAdView adview) {
-        mHandler.post(new Runnable() {
-            public void run() {
-                if (isInvalidated()) return;
-                
-                Log.d("MoPub", "Millennial interstitial clicked to new browser");
-                recordClickIfNecessary();
             }
         });
     }

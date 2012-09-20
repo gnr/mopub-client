@@ -74,6 +74,7 @@ static void exponentialDecayInterpolation(void *info, const float *input, float 
         _outerContainer.alpha = 0.6;
         _outerContainer.backgroundColor = [UIColor whiteColor];
         _outerContainer.center = self.center;
+        _outerContainer.frame = CGRectIntegral(_outerContainer.frame);
         _outerContainer.opaque = NO;
         _outerContainer.layer.cornerRadius = kProgressOverlayCornerRadius;
         if ([_outerContainer.layer respondsToSelector:@selector(setShadowColor:)]) {
@@ -88,8 +89,9 @@ static void exponentialDecayInterpolation(void *info, const float *input, float 
         CGRect innerFrame = CGRectMake(0, 0, innerSide, innerSide);
         _innerContainer = [[UIView alloc] initWithFrame:innerFrame];
         _innerContainer.backgroundColor = [UIColor blackColor];
-        _innerContainer.center = CGPointMake(floorf(CGRectGetMidX(_outerContainer.bounds)),
-                                             floorf(CGRectGetMidY(_outerContainer.bounds)));
+        _innerContainer.center = CGPointMake(CGRectGetMidX(_outerContainer.bounds),
+                                             CGRectGetMidY(_outerContainer.bounds));
+        _innerContainer.frame = CGRectIntegral(_innerContainer.frame);
         _innerContainer.layer.cornerRadius =
             kProgressOverlayCornerRadius - kProgressOverlayBorderWidth;
         _innerContainer.opaque = NO;
@@ -102,6 +104,7 @@ static void exponentialDecayInterpolation(void *info, const float *input, float 
         [_activityIndicator sizeToFit];
         [_activityIndicator startAnimating];
         _activityIndicator.center = self.center;
+        _activityIndicator.frame = CGRectIntegral(_activityIndicator.frame);
         [self addSubview:_activityIndicator];
         
         [self registerForDeviceOrientationNotifications];

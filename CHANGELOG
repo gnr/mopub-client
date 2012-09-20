@@ -1,5 +1,18 @@
 # MoPub Changelog #
 
+Version 1.9.0.0 (September 27, 2012)
+o iOS: Added support for iOS 6 and the new iPhone 5 screen size
+o iOS: Added support for the Facebook ads test program
+o iOS: Added support for ASIdentifierManager (UIDevice.identifierForAdvertising replacement)
+o iOS: Re-introduced UDID as a fall-back identifier on earlier iOS versions (with an opt-out mechanism)
+o iOS: Fixed issues with redirecting certain native iOS URLs (e.g. itunes.apple.com) in the in-app browser
+o iOS: Fixed an issue in which an interstitial might not dismiss properly when leaving an app via a click
+o iOS: Updated the SimpleAdsDemo sample app for iOS 6
+o iOS: Added clarity to certain console log entries
+o iOS: Added some minor visual improvements to the click progress indicator
+o Android: Added support for the Facebook ads test program
+o Android: Updated the Millennial adapters to support SDK version 4.6.0
+
 Version 1.8.0.0
 o iOS: Fixed a crash in MPAdManager due to uncanceled NSURLConnections
 o iOS: Fixed an issue with mraid://open URL decoding

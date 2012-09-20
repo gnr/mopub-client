@@ -37,9 +37,12 @@ static NSString * const kOrientationBoth				= @"b";
 - (void)presentNonNativeInterstitialForAdapter:(MPBaseInterstitialAdapter *)adapter
                             fromViewController:(UIViewController *)controller;
 - (id<MPInterstitialAdControllerDelegate>)customEventDelegate;
+- (void)setApplicationStatusBarHidden:(BOOL)hidden;
 - (void)closeInterstitialAnimated:(BOOL)animated;
 
 @end
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
 
 @implementation MPInterstitialAdController
 
@@ -260,7 +263,7 @@ static NSString * const kOrientationBoth				= @"b";
     
     // Track the previous state of the status bar, so that we can restore it.
 	_statusBarWasHidden = [UIApplication sharedApplication].statusBarHidden;
-	[[UIApplication sharedApplication] setStatusBarHidden:YES];
+    [self setApplicationStatusBarHidden:YES];
 	
 	// Likewise, track the previous state of the navigation bar.
 	_navigationBarWasHidden = self.navigationController.navigationBarHidden;
@@ -273,6 +276,15 @@ static NSString * const kOrientationBoth				= @"b";
 
 - (id<MPInterstitialAdControllerDelegate>)customEventDelegate {
     return (self.delegate) ? self.delegate : _parent;
+}
+
+- (void)setApplicationStatusBarHidden:(BOOL)hidden {
+    if ([UIApplication instancesRespondToSelector:@selector(setStatusBarHidden:withAnimation:)]) {
+        UIStatusBarAnimation animation = hidden ? UIStatusBarAnimationFade : UIStatusBarAnimationNone;
+        [[UIApplication sharedApplication] setStatusBarHidden:hidden withAnimation:animation];
+    } else {
+        [[UIApplication sharedApplication] setStatusBarHidden:hidden];
+    }
 }
 
 #pragma mark -
@@ -558,8 +570,8 @@ static NSString * const kOrientationBoth				= @"b";
 - (void)closeInterstitialAnimated:(BOOL)animated
 {
     // Restore previous status/navigation bar state.
-	[[UIApplication sharedApplication] setStatusBarHidden:_statusBarWasHidden];
-	[self.navigationController setNavigationBarHidden:_navigationBarWasHidden animated:NO];
+    [self setApplicationStatusBarHidden:_statusBarWasHidden];
+	[self.navigationController setNavigationBarHidden:_navigationBarWasHidden animated:YES];
 	
 	[self interstitialWillDisappearForAdapter:nil];
     

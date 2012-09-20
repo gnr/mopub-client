@@ -47,6 +47,10 @@ import com.google.ads.AdRequest;
 import com.google.ads.AdRequest.ErrorCode;
 import com.google.ads.AdSize;
 
+/*
+ * Compatible with version 6.1.0 of the Google AdMob Ads SDK.
+ */
+
 public class GoogleAdMobAdapter extends BaseAdapter implements AdListener {
     
     private com.google.ads.AdView mAdMobView;
