@@ -181,6 +181,8 @@ public class AdFetcher {
                 result = fetch(urls[0]);
             } catch (Exception exception) {
                 mException = exception;
+            } finally {
+                shutdownHttpClient();
             }
             return result;
         }
@@ -368,15 +370,6 @@ public class AdFetcher {
         
         private void releaseResources() {
             mAdFetcher = null;
-            
-            if (mHttpClient != null) {
-                ClientConnectionManager manager = mHttpClient.getConnectionManager();
-                if (manager != null) {
-                    manager.shutdown();
-                }
-                mHttpClient = null;
-            }
-            
             mException = null;
             mFetchStatus = FetchStatus.NOT_SET;
         }
@@ -396,6 +389,16 @@ public class AdFetcher {
             HttpConnectionParams.setSocketBufferSize(httpParameters, 8192);
 
             return new DefaultHttpClient(httpParameters);
+        }
+        
+        private void shutdownHttpClient() {
+            if (mHttpClient != null) {
+                ClientConnectionManager manager = mHttpClient.getConnectionManager();
+                if (manager != null) {
+                    manager.shutdown();
+                }
+                mHttpClient = null;
+            }
         }
         
         private boolean isMostCurrentTask() {
