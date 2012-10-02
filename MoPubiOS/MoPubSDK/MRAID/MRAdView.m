@@ -29,7 +29,6 @@ static NSString * const kMraidURLScheme = @"mraid";
 - (NSMutableString *)HTMLWithJavaScriptBridge:(NSString *)HTML;
 - (void)convertFragmentToFullPayload:(NSMutableString *)fragment;
 - (NSString *)executeJavascript:(NSString *)javascript withVarArgs:(va_list)args;
-- (BOOL)isOnscreen;
 - (void)layoutCloseButton;
 - (void)fireChangeEventForProperty:(MRProperty *)property;
 - (void)fireChangeEventsForProperties:(NSArray *)properties;
@@ -164,7 +163,7 @@ static NSString * const kMraidURLScheme = @"mraid";
 }
 
 - (BOOL)isViewable {
-    return (!self.hidden && self.superview && [self isOnscreen]);
+    return MPViewIsVisible(self);
 }
 
 - (void)loadCreativeFromURL:(NSURL *)url {
@@ -230,12 +229,6 @@ static NSString * const kMraidURLScheme = @"mraid";
 - (void)loadHTMLString:(NSString *)string baseURL:(NSURL *)baseURL {
     NSString *HTML = [self HTMLWithJavaScriptBridge:string];
     [_webView loadHTMLString:HTML baseURL:baseURL];
-}
-
-- (BOOL)isOnscreen {
-    UIWindow *keyWindow = [[UIApplication sharedApplication] keyWindow];
-    CGRect frameInWindowCoordinates = [self.superview convertRect:self.frame toView:keyWindow];
-    return CGRectIntersectsRect(frameInWindowCoordinates, keyWindow.frame);
 }
 
 - (NSMutableString *)HTMLWithJavaScriptBridge:(NSString *)HTML {

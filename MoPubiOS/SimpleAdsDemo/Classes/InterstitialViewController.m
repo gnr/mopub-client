@@ -25,18 +25,6 @@
 	self.showInterstitialButton.hidden = YES;
 }
 
-#pragma mark Orientations
-
-- (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation {
-	return YES;
-}
-
-- (void)willRotateToInterfaceOrientation:(UIInterfaceOrientation)newOrientation
-								duration:(NSTimeInterval)duration {
-	[super willRotateToInterfaceOrientation:newOrientation
-								   duration:duration];
-}
-
 #pragma mark Basic Interstitials
 
 - (IBAction) getAndShowModalInterstitial{
@@ -47,12 +35,12 @@
 - (IBAction) getModalInterstitial{
 	getAndShow = NO;
 	self.interstitialAdController = [MPInterstitialAdController interstitialAdControllerForAdUnitId:PUB_ID_INTERSTITIAL];	
-	self.interstitialAdController.parent = self;
+	self.interstitialAdController.delegate = self;
 	[self.interstitialAdController loadAd];
 }
 
 - (IBAction) showModalInterstitial{
-	[interstitialAdController show];
+	[interstitialAdController showFromViewController:self];
 }
 
 #pragma mark Interstitial delegate methods
@@ -63,7 +51,7 @@
 - (void)interstitialDidLoadAd:(MPInterstitialAdController *)interstitial{
 	NSLog(@"Interstitial did load Ad: %@",interstitial);
 	if (getAndShow) {
-        [interstitial show];
+        [interstitial showFromViewController:self];
     } else {
         // otherwise, we enable the button so the user can show it manually
         self.showInterstitialButton.hidden = NO;
@@ -96,6 +84,21 @@
 - (void)viewDidUnload {
 	// Release any retained subviews of the main view.
 	// e.g. self.myOutlet = nil;
+}
+
+- (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation
+{
+    return (interfaceOrientation == UIInterfaceOrientationPortrait);
+}
+
+- (BOOL)shouldAutorotate
+{
+    return NO;
+}
+
+- (NSUInteger)supportedInterfaceOrientations
+{
+    return UIInterfaceOrientationMaskPortrait;
 }
 
 @end

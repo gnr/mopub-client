@@ -51,6 +51,13 @@ import com.mopub.mobileads.MoPubView;
 
 import java.lang.ref.WeakReference;
 
+/*
+ * Compatible with version 4.6.0 of the Millennial Media SDK.
+ * 
+ * NOTE: If you see build errors relating to a missing implementation of MMAdClickedToNewBrowser,
+ * please update your Millennial Media SDK to 4.6.0 or above.
+ */
+
 public class MillennialAdapter extends BaseAdapter implements MMAdListener {
 
     private MMAdView mMillennialAdView;
@@ -97,6 +104,10 @@ public class MillennialAdapter extends BaseAdapter implements MMAdListener {
         
         if (adWidth == 300 && adHeight == 250) {
             mmAdType = MMAdView.BANNER_AD_RECTANGLE;
+            widthString = Integer.toString(adWidth);
+            heightString = Integer.toString(adHeight);
+        } else if (adWidth == 728 && adHeight == 90) {
+            mmAdType = MMAdView.BANNER_AD_TOP;
             widthString = Integer.toString(adWidth);
             heightString = Integer.toString(adHeight);
         }
@@ -173,18 +184,6 @@ public class MillennialAdapter extends BaseAdapter implements MMAdListener {
                 }
             }
         });
-    }
-
-    @Override
-    public void MMAdClickedToNewBrowser(MMAdView adview) {
-        mHandler.post(new Runnable() {
-            public void run() {
-                if (isInvalidated()) return;
-                
-                Log.d("MoPub", "Millennial clicked");
-                mMoPubView.registerClick();
-            }
-        }); 
     }
 
     @Override

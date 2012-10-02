@@ -144,7 +144,7 @@ public class MraidView extends WebView {
         }
         
         // Inject the MRAID JavaScript bridge.
-        String mraid = "file:/" + copyRawResourceToFilesDir(R.raw.mraid, "mraid.js");
+        String mraid = "file://" + copyRawResourceToFilesDir(R.raw.mraid, "mraid.js");
         data = data.replace("<head>", "<head><script src='" + mraid + "'></script>");
         
         loadDataWithBaseURL(null, data, "text/html", "UTF-8", null);

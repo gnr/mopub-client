@@ -24,6 +24,7 @@
 - (id)init;
 - (void)removeWebviewFromPool:(UIWebView *)webview;
 - (void)loadAdWithURL:(NSURL *)URL;
+- (void)cancelAd;
 - (void)refreshAd;
 - (void)forceRefreshAd;
 - (void)trackImpression;

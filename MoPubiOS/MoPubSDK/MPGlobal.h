@@ -10,15 +10,39 @@
 #import <UIKit/UIKit.h>
 #import "CJSONDeserializer.h"
 
+#define MOPUB_DEPRECATED __attribute__((deprecated))
+
 UIInterfaceOrientation MPInterfaceOrientation(void);
 UIWindow *MPKeyWindow(void);
 CGFloat MPStatusBarHeight(void);
 CGRect MPApplicationFrame(void);
 CGRect MPScreenBounds(void);
 CGFloat MPDeviceScaleFactor(void);
-NSString *MPHashedUDID(void);
+NSString *MPAdvertisingIdentifier(void);
+BOOL MPAdvertisingTrackingEnabled(void);
 NSString *MPUserAgentString(void);
 NSDictionary *MPDictionaryFromQueryString(NSString *query);
+BOOL MPViewIsVisible(UIView *view);
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/*
+ * Availability constants.
+ */
+
+#define MP_IOS_2_0  20000
+#define MP_IOS_2_1  20100
+#define MP_IOS_2_2  20200
+#define MP_IOS_3_0  30000
+#define MP_IOS_3_1  30100
+#define MP_IOS_3_2  30200
+#define MP_IOS_4_0  40000
+#define MP_IOS_4_1  40100
+#define MP_IOS_4_2  40200
+#define MP_IOS_4_3  40300
+#define MP_IOS_5_0  50000
+#define MP_IOS_5_1  50100
+#define MP_IOS_6_0  60000
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 

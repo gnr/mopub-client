@@ -9,11 +9,14 @@
 #import "MPGlobal.h"
 #import "MPConstants.h"
 #import <CommonCrypto/CommonDigest.h>
-#import "OpenUDID.h"
 
-NSString *MPReadUDIDFromDefaults();
-void MPWriteUDIDToDefaults(NSString *UDID);
-NSString *MPGenerateUDID();
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= MP_IOS_6_0
+#import <AdSupport/AdSupport.h>
+#endif
+
+BOOL MPViewHasHiddenAncestor(UIView *view);
+BOOL MPViewIsDescendantOfKeyWindow(UIView *view);
+BOOL MPViewIntersectsKeyWindow(UIView *view);
 NSString *MPSHA1Digest(NSString *string);
 
 UIInterfaceOrientation MPInterfaceOrientation()
@@ -95,38 +98,49 @@ NSDictionary *MPDictionaryFromQueryString(NSString *query) {
 	return queryDict;
 }
 
-NSString *MPHashedUDID()
+NSString *MPAdvertisingIdentifier()
 {
-	static NSString *cachedIdentifier = nil;
+    // In iOS 6, the advertisingIdentifier property of ASIdentifierManager can be used to uniquely
+    // identify a device for advertising purposes. Note: devices running OS versions prior to iOS 6
+    // will not be identifiable unless the MOPUB_ENABLE_UDID preprocessor constant is set.
+
+    // Cache the identifier for the lifetime of the process.
+    static NSString *cachedIdentifier = nil;
     
-    if (cachedIdentifier) return cachedIdentifier;
-    
-    NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
-    cachedIdentifier = [[userDefaults objectForKey:MOPUB_IDENTIFIER_DEFAULTS_KEY] retain];
-    if (!cachedIdentifier)
-    {
-        cachedIdentifier = [MPGenerateUDID() retain];
-        [userDefaults setObject:cachedIdentifier forKey:MOPUB_IDENTIFIER_DEFAULTS_KEY];
-        [userDefaults synchronize];
+    if (cachedIdentifier) {
+        return cachedIdentifier;
     }
     
-	return cachedIdentifier;
-}
-
-NSString *MPGenerateUDID()
-{
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= MP_IOS_6_0
     NSString *identifier;
-    NSString *identifierLabel;
-    
-#if MOPUB_USE_OPENUDID
-    identifierLabel = @"openudid";
-    identifier = [OpenUDID value];
-#else
-    identifierLabel = @"sha";
-    identifier = MPSHA1Digest([[UIDevice currentDevice] uniqueIdentifier]);
+    if (NSClassFromString(@"ASIdentifierManager")) {
+        identifier = [[ASIdentifierManager sharedManager].advertisingIdentifier UUIDString];
+        cachedIdentifier = [NSString stringWithFormat:@"ifa:%@", [identifier uppercaseString]];
+    }
+    #if MOPUB_ENABLE_UDID
+    else {
+        identifier = MPSHA1Digest([[UIDevice currentDevice] uniqueIdentifier]);
+        cachedIdentifier = [NSString stringWithFormat:@"sha:%@", [identifier uppercaseString]];
+    }
+    #endif
+#elif MOPUB_ENABLE_UDID
+    NSString *identifier = MPSHA1Digest([[UIDevice currentDevice] uniqueIdentifier]);
+    cachedIdentifier = [NSString stringWithFormat:@"sha:%@", [identifier uppercaseString]];
 #endif
     
-    return [NSString stringWithFormat:@"%@:%@", identifierLabel, [identifier uppercaseString]];
+    [cachedIdentifier retain];
+    return cachedIdentifier;
+}
+
+BOOL MPAdvertisingTrackingEnabled()
+{
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= MP_IOS_6_0
+    if (NSClassFromString(@"ASIdentifierManager")) {
+        return [ASIdentifierManager sharedManager].advertisingTrackingEnabled;
+    }
+#endif
+    
+    return YES;
 }
 
 NSString *MPSHA1Digest(NSString *string)
@@ -144,6 +158,52 @@ NSString *MPSHA1Digest(NSString *string)
     return output;
 }
 
+BOOL MPViewIsVisible(UIView *view)
+{
+    // In order for a view to be visible, it:
+    // 1) must not be hidden,
+    // 2) must not have an ancestor that is hidden,
+    // 3) must be a descendant of the key window, and
+    // 4) must be within the frame of the key window.
+    //
+    // Note: this function does not check whether any part of the view is obscured by another view.
+    
+    return (!view.hidden &&
+            !MPViewHasHiddenAncestor(view) &&
+            MPViewIsDescendantOfKeyWindow(view) &&
+            MPViewIntersectsKeyWindow(view));
+}
+
+BOOL MPViewHasHiddenAncestor(UIView *view)
+{
+    UIView *ancestor = view.superview;
+    while (ancestor) {
+        if (ancestor.hidden) return YES;
+        ancestor = ancestor.superview;
+    }
+    return NO;
+}
+
+BOOL MPViewIsDescendantOfKeyWindow(UIView *view)
+{
+    UIView *ancestor = view.superview;
+    UIWindow *keyWindow = MPKeyWindow();
+    while (ancestor) {
+        if (ancestor == keyWindow) return YES;
+        ancestor = ancestor.superview;
+    }
+    return NO;
+}
+
+BOOL MPViewIntersectsKeyWindow(UIView *view)
+{
+    UIWindow *keyWindow = MPKeyWindow();
+    
+    // We need to call convertRect:toView: on this view's superview rather than on this view itself.
+    CGRect viewFrameInWindowCoordinates = [view.superview convertRect:view.frame toView:keyWindow];
+    
+    return CGRectIntersectsRect(viewFrameInWindowCoordinates, keyWindow.frame);
+}
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 

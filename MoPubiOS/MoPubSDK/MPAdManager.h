@@ -11,6 +11,7 @@
 #import "MPStore.h"
 #import "MPBaseAdapter.h"
 #import "MPAdBrowserController.h"
+#import "MPProgressOverlayView.h"
 
 extern NSString * const kTimerNotificationName;
 extern NSString * const kErrorDomain;
@@ -43,10 +44,10 @@ extern NSString * const kAdTypeClear;
 
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= 50000 // iOS 5.0+
 @interface MPAdManager : NSObject <MPAdapterDelegate, MPAdBrowserControllerDelegate, 
-    UIWebViewDelegate, NSURLConnectionDataDelegate>
+    UIWebViewDelegate, NSURLConnectionDataDelegate, MPProgressOverlayViewDelegate>
 #else
 @interface MPAdManager : NSObject <MPAdapterDelegate, MPAdBrowserControllerDelegate, 
-    UIWebViewDelegate>
+    UIWebViewDelegate, MPProgressOverlayViewDelegate>
 #endif
 {
 	MPAdView *_adView;
@@ -121,6 +122,8 @@ extern NSString * const kAdTypeClear;
     BOOL _previousIgnoresAutorefresh;
     
     BOOL _shouldLoadMRAIDAd;
+    
+    MPAdBrowserController *_currentBrowserController;
 }
 
 @property (nonatomic, readonly) MPAdView *adView;

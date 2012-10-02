@@ -45,6 +45,10 @@ import com.google.ads.AdRequest;
 import com.google.ads.AdRequest.ErrorCode;
 import com.google.ads.InterstitialAd;
 
+/*
+ * Compatible with version 6.1.0 of the Google AdMob Ads SDK.
+ */
+
 public class GoogleAdMobInterstitialAdapter extends BaseInterstitialAdapter implements 
         AdListener {
 

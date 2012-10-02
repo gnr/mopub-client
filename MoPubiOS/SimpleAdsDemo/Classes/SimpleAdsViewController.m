@@ -19,13 +19,13 @@
 	// 320x50 size
 	mpAdView = [[MPAdView alloc] initWithAdUnitId:PUB_ID_320x50 size:MOPUB_BANNER_SIZE];
 	mpAdView.delegate = self;
-	[mpAdView loadAd];
+	//[mpAdView loadAd];
 	[self.adView addSubview:mpAdView];
 	
 	// MRect size
 	mpMrectView = [[MPAdView alloc] initWithAdUnitId:PUB_ID_300x250 size:MOPUB_MEDIUM_RECT_SIZE];
 	mpMrectView.delegate = self;
-	[mpMrectView loadAd];
+	//[mpMrectView loadAd];
 	[self.mrectView addSubview:mpMrectView];	
 }
 
@@ -67,6 +67,21 @@
 - (UIViewController *)viewControllerForPresentingModalView
 {
 	return self;
+}
+
+- (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation
+{
+    return (interfaceOrientation == UIInterfaceOrientationPortrait);
+}
+
+- (BOOL)shouldAutorotate
+{
+    return NO;
+}
+
+- (NSUInteger)supportedInterfaceOrientations
+{
+    return UIInterfaceOrientationMaskPortrait;
 }
 
 @end

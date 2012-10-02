@@ -16,6 +16,7 @@
 #import "MPGlobal.h"
 #import "MPMraidAdapter.h"
 #import "MPMraidInterstitialAdapter.h"
+#import "MPKeywordProvider.h"
 #import "CJSONDeserializer.h"
 
 NSString * const kTimerNotificationName = @"Autorefresh";
@@ -69,10 +70,12 @@ NSString * const kAdTypeMraid = @"mraid";
 @property (nonatomic, retain) NSMutableURLRequest *request;
 
 - (void)loadAdWithURL:(NSURL *)URL;
+- (void)cancelAd;
 - (void)forceRefreshAd;
 - (void)registerForApplicationStateTransitionNotifications;
 - (void)removeWebviewFromPool:(UIWebView *)webview;
 - (void)destroyWebviewPool;
+- (NSString *)keywordsQueryStringComponent;
 - (NSString *)orientationQueryStringComponent;
 - (NSString *)scaleFactorQueryStringComponent;
 - (NSString *)timeZoneQueryStringComponent;
@@ -81,6 +84,7 @@ NSString * const kAdTypeMraid = @"mraid";
 - (void)scheduleAutorefreshTimerIfEnabled;
 - (void)scheduleAutorefreshTimer;
 - (void)cancelPendingAutorefreshTimer;
+- (void)resumeAutorefreshAfterUserAction;
 - (NSURL *)serverRequestURL;
 - (UIWebView *)adWebViewWithFrame:(CGRect)frame;
 - (void)trackClick;
@@ -94,6 +98,8 @@ NSString * const kAdTypeMraid = @"mraid";
 - (void)processResponseHeaders:(NSDictionary *)headers body:(NSData *)data;
 - (void)handleMraidRequest;
 - (void)logResponseBodyToConsole:(NSData *)data;
+- (void)showLoadingIndicatorAnimated:(BOOL)animated;
+- (void)hideLoadingIndicatorAnimated:(BOOL)animated;
 
 @end
 
@@ -168,18 +174,19 @@ NSString * const kAdTypeMraid = @"mraid";
 
 - (void)dealloc 
 {
-	[[NSNotificationCenter defaultCenter] removeObserver:self];	
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
 		
+    [self cancelAd];
 	[self destroyWebviewPool];
+    
+    // XXX: Remove the loading indicator if it's on-screen.
+    [self hideLoadingIndicatorAnimated:NO];
 	
 	[_currentAdapter unregisterDelegate];
 	[_currentAdapter release];
 	[_previousAdapter unregisterDelegate];
 	[_previousAdapter release];
 	[_adUnitId release];
-	[_conn cancel];
-	[_conn release];
-	[_data release];
 	[_headers release];
 	[_URL release];
 	[_clickURL release];
@@ -191,6 +198,9 @@ NSString * const kAdTypeMraid = @"mraid";
 	[_autorefreshTimer release];
 	[_timerTarget release];
     [_request release];
+    
+    _currentBrowserController.delegate = nil;
+    [_currentBrowserController release];
 	
 	_adView = nil;
     [super dealloc];
@@ -236,24 +246,34 @@ NSString * const kAdTypeMraid = @"mraid";
 	}
 	
 	self.URL = (URL) ? URL : [self serverRequestURL];
-	MPLogDebug(@"Ad view (%p) loading ad with MoPub server URL: %@", self.adView, self.URL);
+	MPLogInfo(@"Ad view (%p) loading ad with MoPub server URL: %@", self.adView, self.URL);
 	
     _request.URL = self.URL;
 	[_conn release];
 	_conn = [[NSURLConnection connectionWithRequest:_request delegate:self] retain];
 	_isLoading = YES;
-	
-	MPLogInfo(@"Ad manager (%p) fired initial ad request.", self);
+}
+
+- (void)cancelAd
+{
+    _isLoading = NO;
+    
+    [_conn cancel];
+    [_conn release];
+    _conn = nil;
+    
+    [_data release];
+    _data = nil;
 }
 
 - (NSURL *)serverRequestURL {
-	NSString *urlString = [NSString stringWithFormat:@"http://%@/m/ad?v=8&udid=%@&q=%@&id=%@&nv=%@", 
+	NSString *urlString = [NSString stringWithFormat:@"http://%@/m/ad?v=8&udid=%@&id=%@&nv=%@", 
 						   HOSTNAME,
-						   MPHashedUDID(),
-						   [_keywords stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding],
+                           MPAdvertisingIdentifier(),
 						   [_adUnitId stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding],
 						   MP_SDK_VERSION];
 	
+    urlString = [urlString stringByAppendingString:[self keywordsQueryStringComponent]];
 	urlString = [urlString stringByAppendingString:[self orientationQueryStringComponent]];
 	urlString = [urlString stringByAppendingString:[self scaleFactorQueryStringComponent]];
 	urlString = [urlString stringByAppendingString:[self timeZoneQueryStringComponent]];
@@ -263,7 +283,39 @@ NSString * const kAdTypeMraid = @"mraid";
         urlString = [urlString stringByAppendingString:@"&mr=1"];
     }
     
+    if (!MPAdvertisingTrackingEnabled()) {
+        urlString = [urlString stringByAppendingString:@"&dnt=1"];
+    }
+    
 	return [NSURL URLWithString:urlString];
+}
+
+- (NSString *)keywordsQueryStringComponent
+{
+    NSMutableArray *keywordsArray = [NSMutableArray array];
+    NSString *trimmedKeywords = [_keywords stringByTrimmingCharactersInSet:
+                                 [NSCharacterSet whitespaceCharacterSet]];
+    if ([trimmedKeywords length] > 0) {
+        [keywordsArray addObject:trimmedKeywords];
+    }
+    
+    // Append the Facebook attribution keyword (if available).
+    Class fbKeywordProviderClass = NSClassFromString(@"MPFacebookKeywordProvider");
+    if ([fbKeywordProviderClass conformsToProtocol:@protocol(MPKeywordProvider)])
+    {
+        NSString *fbAttributionKeyword = [(Class<MPKeywordProvider>) fbKeywordProviderClass keyword];
+        if ([fbAttributionKeyword length] > 0) {
+            [keywordsArray addObject:fbAttributionKeyword];
+        }
+    }
+    
+    if ([keywordsArray count] == 0) {
+        return @"";
+    } else {
+        NSString *keywords = [[keywordsArray componentsJoinedByString:@","]
+                              stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
+        return [NSString stringWithFormat:@"&q=%@", keywords];
+    }
 }
 
 - (NSString *)orientationQueryStringComponent
@@ -324,14 +376,14 @@ NSString * const kAdTypeMraid = @"mraid";
 {
     [_request setURL:self.clickURL];
 	[NSURLConnection connectionWithRequest:_request delegate:nil];
-	MPLogDebug(@"Ad view (%p) tracking click %@", self, self.clickURL);
+	MPLogDebug(@"Ad view (%p) tracking click %@", self.adView, self.clickURL);
 }
 
 - (void)trackImpression
 {
     [_request setURL:self.impTrackerURL];
 	[NSURLConnection connectionWithRequest:_request delegate:nil];
-	MPLogDebug(@"Ad view (%p) tracking impression %@", self, self.impTrackerURL);
+	MPLogDebug(@"Ad view (%p) tracking impression %@", self.adView, self.impTrackerURL);
 }
 
 - (void)setAdContentView:(UIView *)view
@@ -343,10 +395,10 @@ NSString * const kAdTypeMraid = @"mraid";
 {
     _ignoresAutorefresh = ignoresAutorefresh;
     if (_ignoresAutorefresh) {
-        MPLogDebug(@"Ad view (%p) is now ignoring autorefresh.", self);
+        MPLogDebug(@"Ad view (%p) is now ignoring autorefresh.", self.adView);
         if ([self.autorefreshTimer isScheduled]) [self.autorefreshTimer pause];
     } else {
-        MPLogDebug(@"Ad view (%p) is no longer ignoring autorefresh.", self);
+        MPLogDebug(@"Ad view (%p) is no longer ignoring autorefresh.", self.adView);
         if ([self.autorefreshTimer isScheduled]) [self.autorefreshTimer resume];
     }
 }
@@ -475,13 +527,15 @@ NSString * const kAdTypeMraid = @"mraid";
 	
 	if ([self.autorefreshTimer isScheduled])
 		[self.autorefreshTimer pause];
-	
-	// Present ad browser.
-	MPAdBrowserController *browserController = [[MPAdBrowserController alloc] initWithURL:desiredURL 
-																				 delegate:self];
-	[[self viewControllerForPresentingModalView] presentModalViewController:browserController 			
-																   animated:YES];
-	[browserController release];
+    
+	// Create a new browser controller and begin loading content into it.
+    [_currentBrowserController release];
+	_currentBrowserController = [[MPAdBrowserController alloc] initWithURL:desiredURL 
+                                                                  delegate:self];
+    _currentBrowserController.modalTransitionStyle = UIModalTransitionStyleCrossDissolve;
+    [_currentBrowserController startLoading];
+    
+    [self showLoadingIndicatorAnimated:YES];
 }
 
 - (void)replaceCurrentAdapterWithAdapter:(MPBaseAdapter *)newAdapter
@@ -505,17 +559,40 @@ NSString * const kAdTypeMraid = @"mraid";
 - (void)dismissBrowserController:(MPAdBrowserController *)browserController animated:(BOOL)animated
 {
 	_adActionInProgress = NO;
-	[[self viewControllerForPresentingModalView] dismissModalViewControllerAnimated:animated];
+
+    [[self viewControllerForPresentingModalView] dismissModalViewControllerAnimated:animated];
+    
+    if ([self.adView.delegate respondsToSelector:@selector(didDismissModalViewForAd:)])
+        [self.adView.delegate didDismissModalViewForAd:self.adView];
 	
-	if ([self.adView.delegate respondsToSelector:@selector(didDismissModalViewForAd:)])
-		[self.adView.delegate didDismissModalViewForAd:self.adView];
-	
-	if (_autorefreshTimerNeedsScheduling)
-	{
-		[self.autorefreshTimer scheduleNow];
-		_autorefreshTimerNeedsScheduling = NO;
-	}
-	else if ([self.autorefreshTimer isScheduled]) [self.autorefreshTimer resume];
+	[self resumeAutorefreshAfterUserAction];
+}
+
+- (void)browserControllerDidFinishLoad:(MPAdBrowserController *)browserController {
+    UIViewController *presentingViewController = [self viewControllerForPresentingModalView];
+    UIViewController *presentedViewController;
+    
+    if ([presentingViewController respondsToSelector:@selector(presentedViewController)]) {
+        // For iOS 5 and above.
+        presentedViewController = presentingViewController.presentedViewController;
+    } else {
+        // Prior to iOS 5, the modalViewController property holds the presented view controller.
+        presentedViewController = presentingViewController.modalViewController;
+    }
+    
+    // If the browser controller is already on-screen, don't try to present it again, or an
+    // exception will be thrown (iOS 5 and above).
+    if (presentedViewController == browserController) return;
+    
+    [self hideLoadingIndicatorAnimated:YES];
+    [[self viewControllerForPresentingModalView] presentModalViewController:browserController
+                                                                   animated:YES];
+}
+
+- (void)browserControllerWillLeaveApplication:(MPAdBrowserController *)browserController {
+    _adActionInProgress = NO;
+    [self resumeAutorefreshAfterUserAction];
+    [self hideLoadingIndicatorAnimated:NO];
 }
 
 # pragma mark -
@@ -541,7 +618,7 @@ NSString * const kAdTypeMraid = @"mraid";
 		}
 	}
 	
-	MPLogInfo(@"Ad view (%p) received valid response from MoPub server.", self);
+	MPLogInfo(@"Ad view (%p) received valid response from MoPub server.", self.adView);
 	
 	// Initialize data.
 	[_data release];
@@ -603,7 +680,7 @@ NSString * const kAdTypeMraid = @"mraid";
 								   objectForKey:kNetworkTypeHeaderKey];
 	if (networkTypeHeader && ![networkTypeHeader isEqualToString:@""])
 	{
-		MPLogInfo(@"Fetching Ad Network Type: %@", networkTypeHeader);
+		MPLogInfo(@"Ad view (%p) is fetching ad network type: %@", self.adView, networkTypeHeader);
 	}
 
 	self.headers = headers;
@@ -615,7 +692,7 @@ NSString * const kAdTypeMraid = @"mraid";
 		[self replaceCurrentAdapterWithAdapter:nil];
 		
 		// Show a blank.
-		MPLogInfo(@"No ad available");
+		MPLogInfo(@"Ad view (%p) server response indicated no ad available.", self.adView);
 		[connection cancel];
 		_isLoading = NO;
 		[self.adView backFillWithNothing];
@@ -666,7 +743,7 @@ NSString * const kAdTypeMraid = @"mraid";
 - (void)connection:(NSURLConnection *)connection didFailWithError:(NSError *)error
 {
 	MPLogError(@"Ad view (%p) failed to get a valid response from MoPub server. Error: %@", 
-			   self, error);
+			   self.adView, error);
 	
 	// If the initial request to MoPub fails, replace the current ad content with a blank.
 	_isLoading = NO;
@@ -733,7 +810,7 @@ NSString * const kAdTypeMraid = @"mraid";
 	if (MPLogGetLevel() <= MPLogLevelTrace)
 	{
 		NSString *response = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
-		MPLogTrace(@"Ad view (%p) loaded HTML content: %@", self, response);
+		MPLogTrace(@"Ad view (%p) loaded HTML content: %@", self.adView, response);
 		[response release];
 	}
 }
@@ -767,6 +844,20 @@ NSString * const kAdTypeMraid = @"mraid";
 
 - (void)cancelPendingAutorefreshTimer {
 	[self.autorefreshTimer invalidate];
+}
+
+- (void)resumeAutorefreshAfterUserAction
+{
+    // If an ad view refreshes while an ad action is in progress, it will have a new autorefresh
+    // timer, which must be scheduled once the ad action is complete.
+    if (_autorefreshTimerNeedsScheduling) {
+        [self.autorefreshTimer scheduleNow];
+        _autorefreshTimerNeedsScheduling = NO;
+    }
+    // Otherwise, simply resume the refresh timer that was previously paused when the action began.
+    else if ([self.autorefreshTimer isScheduled]) {
+        [self.autorefreshTimer resume];
+    }
 }
 
 #pragma mark -
@@ -832,12 +923,7 @@ NSString * const kAdTypeMraid = @"mraid";
 {
 	_adActionInProgress = NO;
 	
-	if (_autorefreshTimerNeedsScheduling)
-	{
-		[self.autorefreshTimer scheduleNow];
-		_autorefreshTimerNeedsScheduling = NO;
-	}
-	else if ([self.autorefreshTimer isScheduled]) [self.autorefreshTimer resume];
+	[self resumeAutorefreshAfterUserAction];
 	
 	// Notify delegate that the ad's modal view was dismissed, returning focus to the app.
 	if ([self.adView.delegate respondsToSelector:@selector(didDismissModalViewForAd:)])
@@ -846,7 +932,9 @@ NSString * const kAdTypeMraid = @"mraid";
 
 - (void)userWillLeaveApplicationFromAdapter:(MPBaseAdapter *)adapter
 {
-	// TODO: Implement.
+	_adActionInProgress = NO;
+    
+    [self resumeAutorefreshAfterUserAction];
 }
 
 - (CGSize)maximumAdSize
@@ -973,7 +1061,34 @@ NSString * const kAdTypeMraid = @"mraid";
     }
 }
 
+#pragma mark - Loading Indicator
+
+- (void)showLoadingIndicatorAnimated:(BOOL)animated
+{
+    [MPProgressOverlayView presentOverlayInWindow:self.adView.window
+                                         animated:animated
+                                         delegate:self];
+}
+
+- (void)overlayCancelButtonPressed
+{
+    _adActionInProgress = NO;
+    [_currentBrowserController stopLoading];
+    [self hideLoadingIndicatorAnimated:YES];
+    [self resumeAutorefreshAfterUserAction];
+    
+    if ([self.adView.delegate respondsToSelector:@selector(didDismissModalViewForAd:)])
+        [self.adView.delegate didDismissModalViewForAd:self.adView];
+}
+
+- (void)hideLoadingIndicatorAnimated:(BOOL)animated
+{
+    [MPProgressOverlayView dismissOverlayFromWindow:self.adView.window animated:animated];
+}
+
 @end
+
+#pragma mark -
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -982,7 +1097,7 @@ NSString * const kAdTypeMraid = @"mraid";
 - (void)connection:(NSURLConnection *)connection didFailWithError:(NSError *)error
 {
 	MPLogError(@"Ad view (%p) failed to get a valid response from MoPub server. Error: %@", 
-			   self, error);
+			   self.adView, error);
 	
 	// If the initial request to MoPub fails, replace the current ad content with a blank.
 	_isLoading = NO;
@@ -1000,6 +1115,12 @@ NSString * const kAdTypeMraid = @"mraid";
 	UIWebView *webView = [super adWebViewWithFrame:frame];
 	webView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
 	return webView;
+}
+
+- (void)browserControllerWillLeaveApplication:(MPAdBrowserController *)browserController {
+    [super browserControllerWillLeaveApplication:browserController];
+    if ([self.adView.delegate respondsToSelector:@selector(adViewShouldClose:)])
+		[self.adView.delegate adViewShouldClose:self.adView];
 }
 
 @end

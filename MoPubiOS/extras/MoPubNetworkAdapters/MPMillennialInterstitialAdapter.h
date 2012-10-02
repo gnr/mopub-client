@@ -10,6 +10,9 @@
 #import "MPBaseInterstitialAdapter.h"
 #import "MMAdView.h"
 
+/*
+ * Compatible with version 4.6.1 of the Millennial Media SDK.
+ */
 
 @interface MPMillennialInterstitialAdapter : MPBaseInterstitialAdapter <MMAdDelegate>
 {

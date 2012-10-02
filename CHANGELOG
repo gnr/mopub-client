@@ -1,5 +1,53 @@
 # MoPub Changelog #
 
+Version 1.9.0.0 (September 27, 2012)
+o iOS: Added support for iOS 6 and the new iPhone 5 screen size
+o iOS: Added support for the Facebook ads test program
+o iOS: Added support for ASIdentifierManager (UIDevice.identifierForAdvertising replacement)
+o iOS: Re-introduced UDID as a fall-back identifier on earlier iOS versions (with an opt-out mechanism)
+o iOS: Fixed issues with redirecting certain native iOS URLs (e.g. itunes.apple.com) in the in-app browser
+o iOS: Fixed an issue in which an interstitial might not dismiss properly when leaving an app via a click
+o iOS: Updated the SimpleAdsDemo sample app for iOS 6
+o iOS: Added clarity to certain console log entries
+o iOS: Added some minor visual improvements to the click progress indicator
+o Android: Added support for the Facebook ads test program
+o Android: Updated the Millennial adapters to support SDK version 4.6.0
+
+Version 1.8.0.0
+o iOS: Fixed a crash in MPAdManager due to uncanceled NSURLConnections
+o iOS: Fixed an issue with mraid://open URL decoding
+o iOS: Fixed an issue in which third-party interstitials could block the display of subsequent HTML interstitials
+o iOS: Fixed an issue in which third-party interstitials could trigger lifecycle callbacks after expiration
+o iOS: Added iOS 6 view controller auto-rotation methods to MPInterstitialAdController
+o iOS: Added support for iOS 6 advertising identifier
+o iOS: Removed references to -[UIDevice uniqueIdentifier] and OpenUDID
+o iOS: Added runtime checks for CALayer and UIActionSheet selectors to prevent crashes on iOS 3.1
+o iOS: Improved the Millennial interstitial adapter to handle all return values from -checkForCachedAd
+o Android: Fixed a crash resulting from following market:// links when Google Play is not installed
+o Android: Added in-app browser support for more Google Play redirect styles
+o Android: Added exponential backoff on ad server failure
+o Android: Included new ad unit IDs for sample ads in SimpleAdsDemo
+o Android: Removed extraneous image files
+
+Version 1.7.0.0
+o iOS: Improved click experience to avoid blank screens when loading pages with many redirects
+o iOS: Fixed an issue in which MPAdView would implicitly change its 'hidden' property
+o iOS: Fixed an issue in which the in-app browser failed to dismiss properly upon -[UIApplication openURL:]
+o iOS: Fixed issues in which the MRAID.isViewable method would erroneously return true
+o iOS: Fixed a divide-by-zero exception which occurred when presenting MRAID interstitials
+o Android: Added support for Millennial Media leaderboard ads
+
+Version 1.6.0.0
+o iOS: Added new API method for displaying an interstitial (-showFromViewController:)
+o iOS: Added new delegate property on MPInterstitialAdController
+o iOS: Deprecated old API method for displaying an interstitial (-show:)
+o iOS: Deprecated parent property on MPInterstitialAdController
+o iOS: Deprecated various callbacks in MPInterstitialAdControllerDelegate
+o Android: Improved click experience by directing clicks to an in-app browser
+o Android: Fixed errors loading mraid.js from disk on Android 4.0+
+o Android: Added ThreadPoolExecutor for AsyncTasks on Android 4.0+
+o Android: Fixed incorrect failover behavior for Custom Native Network banners
+
 Version 1.5.0.0
 o iOS: Added support for Millennial Media SDK 4.5.5
 o iOS: Modified Millennial Media interstitial adapter to be more robust to ad display failures

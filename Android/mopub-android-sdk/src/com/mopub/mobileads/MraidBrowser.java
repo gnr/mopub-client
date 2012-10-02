@@ -1,16 +1,19 @@
 package com.mopub.mobileads;
 
 import android.app.Activity;
+import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.Window;
 import android.webkit.CookieSyncManager;
 import android.webkit.WebChromeClient;
+import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.ImageButton;
@@ -39,7 +42,18 @@ public class MraidBrowser extends Activity {
     
     private void initializeWebView(Intent intent) {
         WebView webView = (WebView) findViewById(R.id.webView);
-        webView.getSettings().setJavaScriptEnabled(true);
+        WebSettings webSettings = webView.getSettings();
+        
+        webSettings.setJavaScriptEnabled(true);
+        
+        /* Pinch to zoom is apparently not enabled by default on all devices, so
+         * declare zoom support explicitly.
+         * http://stackoverflow.com/questions/5125851/enable-disable-zoom-in-android-webview
+         */
+        webSettings.setSupportZoom(true);
+        webSettings.setBuiltInZoomControls(true);
+        webSettings.setUseWideViewPort(true);
+        
         webView.loadUrl(intent.getStringExtra(URL_EXTRA));
         webView.setWebViewClient(new WebViewClient() {
             @Override
@@ -53,13 +67,26 @@ public class MraidBrowser extends Activity {
             public boolean shouldOverrideUrlLoading(WebView view, String url) {
                 if (url == null) return false;
                 
+                Uri uri = Uri.parse(url);
+                String host = uri.getHost();
+                
                 if (url.startsWith("market:") || url.startsWith("tel:") || 
                         url.startsWith("voicemail:") || url.startsWith("sms:") || 
                         url.startsWith("mailto:") || url.startsWith("geo:") || 
-                        url.startsWith("google.streetview:")) {
-                    startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(url)));
+                        url.startsWith("google.streetview:") ||
+                        "play.google.com".equals(host) ||
+                        "market.android.com".equals(host)) {
+                    try {
+                        startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(url)));
+                    } catch (ActivityNotFoundException exception) {
+                        Log.w("MoPub", "Unable to start activity for " + url + ". " +
+                                "Ensure that your phone can handle this intent.");
+                    }
+                    
+                    finish();
                     return true;
                 }
+                
                 return false;
             }
             

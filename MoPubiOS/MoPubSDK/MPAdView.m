@@ -87,7 +87,7 @@ static NSString * const kNewContentViewKey = @"NewContentView";
 
 - (void)dealloc 
 {
-	_delegate = nil;
+    _delegate = nil;
 	[_adUnitId release];
 	[[NSNotificationCenter defaultCenter] removeObserver:self];	
 	
@@ -97,7 +97,9 @@ static NSString * const kNewContentViewKey = @"NewContentView";
 	[_adContentView release];
 	
 	_adManager.adView = nil;
+    [_adManager cancelAd];
 	[_adManager release];
+    
 	[_location release];
 	[_locationDescriptionPair release];
     [super dealloc];
@@ -171,8 +173,6 @@ static NSString * const kNewContentViewKey = @"NewContentView";
 {
 	if (!view) return;
 	[view retain];
-	
-	self.hidden = NO;
 	
 	// We don't necessarily know where this view came from, so make sure its scrollability
 	// corresponds to our value of self.scrollable.
@@ -354,10 +354,8 @@ static NSString * const kNewContentViewKey = @"NewContentView";
 
 - (void)backFillWithNothing
 {
-	// Make the ad view disappear.
-	self.backgroundColor = [UIColor clearColor];
-	self.hidden = YES;
-	
+	[self setAdContentView:nil];
+    
 	// Notify delegate that the ad has failed to load.
 	if ([self.delegate respondsToSelector:@selector(adViewDidFailToLoadAd:)])
 		[self.delegate adViewDidFailToLoadAd:self];
@@ -415,8 +413,6 @@ static NSString * const kNewContentViewKey = @"NewContentView";
     {
         // Disable expansion.
     }
-	
-	self.hidden = NO;
 	
 	// We don't necessarily know where this view came from, so make sure its scrollability
 	// corresponds to our value of self.scrollable.

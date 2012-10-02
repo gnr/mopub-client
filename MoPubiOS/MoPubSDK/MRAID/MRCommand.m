@@ -188,11 +188,11 @@
 }
 
 - (BOOL)execute {
-    NSString *encodedURLString = [self stringFromParametersForKey:@"url"];
-    NSString *URLString =
-        [encodedURLString stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding]; 
-    [self.view.browsingController openBrowserWithUrlString:URLString enableBack:YES 
-                                                   enableForward:YES enableRefresh:YES];
+    NSString *URLString = [self stringFromParametersForKey:@"url"];
+    [self.view.browsingController openBrowserWithUrlString:URLString
+                                                enableBack:YES
+                                             enableForward:YES
+                                             enableRefresh:YES];
     return YES;
 }
 

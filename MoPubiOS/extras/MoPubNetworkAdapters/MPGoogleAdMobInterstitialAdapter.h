@@ -10,6 +10,10 @@
 #import "GADInterstitial.h"
 #import "MPBaseInterstitialAdapter.h"
 
+/*
+ * Compatible with version 6.2.0 of the Google AdMob Ads SDK.
+ */
+
 @interface MPGoogleAdMobInterstitialAdapter : MPBaseInterstitialAdapter <GADInterstitialDelegate> 
 {
 	GADInterstitial *_gAdInterstitial;

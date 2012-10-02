@@ -10,6 +10,10 @@
 #import "MPBaseAdapter.h"
 #import "GADBannerView.h"
 
+/*
+ * Compatible with version 6.2.0 of the Google AdMob Ads SDK.
+ */
+
 @interface MPGoogleAdMobAdapter : MPBaseAdapter <GADBannerViewDelegate>
 {
 	GADBannerView *_adBannerView;
