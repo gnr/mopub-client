@@ -228,6 +228,14 @@ public class MoPubInterstitial implements OnAdLoadedListener, OnAdFailedListener
         return mAdapterListener;
     }
     
+    public void setTesting(boolean testing) {
+        mInterstitialView.setTesting(testing);
+    }
+    
+    public boolean getTesting() {
+        return mInterstitialView.getTesting();
+    }
+    
     ////////////////////////////////////////////////////////////////////////////////////////////////
     
     public class DefaultInterstitialAdapterListener implements BaseInterstitialAdapterListener {

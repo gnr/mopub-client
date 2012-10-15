@@ -94,6 +94,7 @@ public class AdView extends WebView {
     private Location mLocation;
     private boolean mIsLoading;
     private boolean mAutorefreshEnabled;
+    private boolean mTesting;
     private int mRefreshTimeMilliseconds = 60000;
     private int mWidth;
     private int mHeight;
@@ -349,7 +350,8 @@ public class AdView extends WebView {
     }
     
     private String generateAdUrl() {
-        StringBuilder sz = new StringBuilder("http://" + MoPubView.HOST + MoPubView.AD_HANDLER);
+        StringBuilder sz = new StringBuilder("http://" + getServerHostname() + 
+                MoPubView.AD_HANDLER);
         sz.append("?v=6&id=" + mAdUnitId);
         sz.append("&nv=" + MoPub.SDK_VERSION);
         
@@ -637,8 +639,8 @@ public class AdView extends WebView {
     }
     
     protected void loadResponseString(String responseString) {
-        loadDataWithBaseURL("http://"+MoPubView.HOST+"/",
-                responseString,"text/html","utf-8", null);
+        loadDataWithBaseURL("http://" + getServerHostname() + "/", responseString, "text/html",
+                "utf-8", null);
     }
 
     protected void trackImpression() {
@@ -723,6 +725,10 @@ public class AdView extends WebView {
             return keywords + "," + addition;
         }
     }
+    
+    protected String getServerHostname() {
+        return mTesting ? MoPubView.HOST_FOR_TESTING : MoPubView.HOST;
+    }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -803,5 +809,13 @@ public class AdView extends WebView {
     
     public boolean getAutorefreshEnabled() {
         return mAutorefreshEnabled;
+    }
+    
+    public void setTesting(boolean testing) {
+        mTesting = testing;
+    }
+    
+    public boolean getTesting() {
+        return mTesting;
     }
 }

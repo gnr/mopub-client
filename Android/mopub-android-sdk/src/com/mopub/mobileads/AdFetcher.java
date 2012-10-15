@@ -513,7 +513,7 @@ public class AdFetcher {
             }
             
             adView.setResponseString(mData);
-            adView.loadDataWithBaseURL("http://" + MoPubView.HOST + "/", mData,
+            adView.loadDataWithBaseURL("http://" + adView.getServerHostname() + "/", mData,
                     "text/html", "utf-8", null);
         }
         
