@@ -82,7 +82,7 @@
 		if ([_adBannerView isBannerLoaded])
 		{
 			MPLogInfo(@"iAd banner has previously loaded an ad, so just show it.");
-			[self.delegate adapter:self didFinishLoadingAd:_adBannerView shouldTrackImpression:YES];
+			[self.delegate adapter:self didFinishLoadingAd:_adBannerView shouldTrackImpression:NO];
 		}
 	} 
 	else 
