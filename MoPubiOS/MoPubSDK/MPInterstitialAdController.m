@@ -55,6 +55,7 @@ static NSString * const kOrientationBoth				= @"b";
 @synthesize adWantsNativeCloseButton = _adWantsNativeCloseButton;
 @synthesize closeButton = _closeButton;
 @synthesize currentAdapter = _currentAdapter;
+@synthesize testing = _testing;
 @synthesize keywords;
 @synthesize location;
 @synthesize locationEnabled;
@@ -321,6 +322,14 @@ static NSString * const kOrientationBoth				= @"b";
 
 - (NSUInteger)locationPrecision {
 	return _adView.locationPrecision;
+}
+
+- (void)setTesting:(BOOL)testing {
+    _adView.testing = testing;
+}
+
+- (BOOL)isTesting {
+    return _adView.testing;
 }
 
 - (void)closeButtonPressed

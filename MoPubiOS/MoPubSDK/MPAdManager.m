@@ -269,7 +269,7 @@ NSString * const kAdTypeMraid = @"mraid";
 
 - (NSURL *)serverRequestURL {
 	NSString *urlString = [NSString stringWithFormat:@"http://%@/m/ad?v=8&udid=%@&id=%@&nv=%@", 
-						   HOSTNAME,
+						   self.adView.testing ? HOSTNAME_FOR_TESTING : HOSTNAME,
                            MPAdvertisingIdentifier(),
 						   [_adUnitId stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding],
 						   MP_SDK_VERSION];
