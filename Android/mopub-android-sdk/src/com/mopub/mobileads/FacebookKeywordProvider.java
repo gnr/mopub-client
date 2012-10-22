@@ -3,6 +3,7 @@ package com.mopub.mobileads;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
+import android.util.Log;
 
 /*
  * This class enables the MoPub SDK to deliver targeted ads from Facebook via MoPub Marketplace
@@ -18,19 +19,24 @@ public class FacebookKeywordProvider {
     private static final String ID_PREFIX = "FBATTRID:";
     
     public static String getKeyword(Context context) {
-        String projection[] = {ID_COLUMN_NAME};
-        Cursor c = context.getContentResolver().query(ID_URL, projection, null, null, null);
-        
-        if (c == null || !c.moveToFirst()) {
+        try {
+            String projection[] = {ID_COLUMN_NAME};
+            Cursor c = context.getContentResolver().query(ID_URL, projection, null, null, null);
+            
+            if (c == null || !c.moveToFirst()) {
+                return null;
+            }
+            
+            String attributionId = c.getString(c.getColumnIndex(ID_COLUMN_NAME));
+            
+            if (attributionId == null || attributionId.length() == 0) {
+                return null;
+            }
+            
+            return ID_PREFIX + attributionId;
+        } catch (Exception exception) {
+            Log.d("MoPub", "Unable to retrieve FBATTRID: " + exception.toString());
             return null;
         }
-        
-        String attributionId = c.getString(c.getColumnIndex(ID_COLUMN_NAME));
-        
-        if (attributionId == null || attributionId.length() == 0) {
-            return null;
-        }
-        
-        return ID_PREFIX + attributionId;
     }
 }
