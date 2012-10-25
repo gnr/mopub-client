@@ -7,9 +7,10 @@
 //
 
 #import "MPAdView.h"
-#import "MPAdManager+MPAdViewFriend.h"
+#import "MPInterstitialAdManager.h"
 #import "UIWebView+MPAdditions.h"
 #import "MRAdView.h"
+#import "MPBannerAdManager.h"
 #import <stdlib.h>
 #import <time.h>
 
@@ -21,12 +22,10 @@ static NSString * const kNewContentViewKey = @"NewContentView";
 
 @interface MPAdView ()
 
-@property (nonatomic, retain) MPAdManager *adManager;
-@property (nonatomic, retain) UIView *adContentView;
-@property (nonatomic, assign) CGSize originalSize;
+@property (nonatomic, retain) MPBannerAdManager *adManager;
 @property (nonatomic, retain) NSArray *locationDescriptionPair;
 
-- (id)initWithAdUnitId:(NSString *)adUnitId size:(CGSize)size adManager:(MPAdManager *)adManager;
+- (id)initWithAdUnitId:(NSString *)adUnitId size:(CGSize)size adManager:(MPBannerAdManager *)adManager;
 - (void)updateLocationDescriptionPair;
 - (void)setScrollable:(BOOL)scrollable forView:(UIView *)view;
 - (void)animateTransitionToAdView:(UIView *)view;
@@ -62,11 +61,11 @@ static NSString * const kNewContentViewKey = @"NewContentView";
 
 - (id)initWithAdUnitId:(NSString *)adUnitId size:(CGSize)size 
 {   
-    MPAdManager *adManager = [[[MPAdManager alloc] init] autorelease];
+    MPBannerAdManager *adManager = [[[MPBannerAdManager alloc] init] autorelease];
 	return [self initWithAdUnitId:adUnitId size:size adManager:adManager];
 }
 
-- (id)initWithAdUnitId:(NSString *)adUnitId size:(CGSize)size adManager:(MPAdManager *)adManager
+- (id)initWithAdUnitId:(NSString *)adUnitId size:(CGSize)size adManager:(MPBannerAdManager *)adManager
 {
     CGRect f = (CGRect){{0, 0}, size};
     if (self = [super initWithFrame:f]) 
@@ -106,22 +105,6 @@ static NSString * const kNewContentViewKey = @"NewContentView";
 }
 
 #pragma mark -
-
-- (void)setAdUnitId:(NSString *)adUnitId {
-	if (_adUnitId != adUnitId) {
-		[_adUnitId release];
-		_adUnitId = [adUnitId copy];
-	}
-	_adManager.adUnitId = _adUnitId;
-}
-
-- (NSString *)keywords {
-	return _adManager.keywords;
-}
-
-- (void)setKeywords:(NSString *)words {
-	_adManager.keywords = words; 
-}
 
 - (void)setLocation:(CLLocation *)location {
 	if (_location != location) {
@@ -273,19 +256,8 @@ static NSString * const kNewContentViewKey = @"NewContentView";
 		
 		// Remove the old ad content view from the view hierarchy, but first confirm that it's
 		// not the same as the new view; otherwise, we'll be left with no content view.
-		if (oldContentView != newContentView)
-		{
+		if (oldContentView != newContentView) {
 			[oldContentView removeFromSuperview];
-			
-			// Additionally, do webview-related cleanup if the old content view was a webview.
-			if ([oldContentView isKindOfClass:[UIWebView class]])
-			{
-				UIWebView *webView = (UIWebView *)oldContentView;
-				[webView setDelegate:nil];
-				[webView stopLoading];
-                [webView loadHTMLString:@"" baseURL:nil];
-				[_adManager removeWebviewFromPool:webView];
-			}
 		}
 		
 		// Release the old content view to balance the retain in -setAdContentView:.
@@ -357,8 +329,16 @@ static NSString * const kNewContentViewKey = @"NewContentView";
 	return _allowedNativeAdOrientation;
 }
 
-# pragma mark -
-# pragma mark Custom Events
+- (void)backFillWithNothing
+{
+	[self setAdContentView:nil];
+    
+	// Notify delegate that the ad has failed to load.
+	if ([self.delegate respondsToSelector:@selector(adViewDidFailToLoadAd:)])
+		[self.delegate adViewDidFailToLoadAd:self];
+}
+
+# pragma mark - Deprecated Custom Events Mechanism
 
 - (void)customEventDidLoadAd
 {
@@ -378,54 +358,6 @@ static NSString * const kNewContentViewKey = @"NewContentView";
 - (void)customEventActionDidEnd
 {
     [_adManager customEventActionDidEnd];
-}
-
-@end
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-@implementation MPInterstitialAdView
-
-@synthesize isDismissed = _isDismissed;
-
-- (id)initWithAdUnitId:(NSString *)adUnitId size:(CGSize)size
-{
-    MPInterstitialAdManager *adManager = [[[MPInterstitialAdManager alloc] init] autorelease];
-	return [self initWithAdUnitId:adUnitId size:size adManager:adManager];
-}
-
-- (void)setAdContentView:(UIView *)view
-{
-	[view retain];
-	
-	if ([view isKindOfClass:[UIWebView class]])
-	{
-		// Avoids a race condition: 
-		// 1) a webview is initialized with the ad view's bounds
-		// 2) ad view resizes its frame before the webview gets set as the content view
-		view.frame = self.bounds;
-	}
-    
-    if ([view isKindOfClass:[MRAdView class]])
-    {
-        // Disable expansion.
-    }
-	
-	// We don't necessarily know where this view came from, so make sure its scrollability
-	// corresponds to our value of self.scrollable.
-	[self setScrollable:self.scrollable forView:view];
-	
-	[self animateTransitionToAdView:view];
-}
-
-- (void)forceRedraw {
-    // XXX: Fix for interstitials appearing off-center when the application is in landscape.
-    // UIWebView doesn't seem to redraw itself when it is rotated / auto-resized while off-
-    // screen. This call sets UIWebView's viewport width, which essentially forces UIWebView to
-    // redraw. See comments in the method implementation for details.
-    if ([_adContentView isKindOfClass:[UIWebView class]]) {
-        [_adManager updateOrientationPropertiesForWebView:(UIWebView *)_adContentView];
-    }
 }
 
 @end

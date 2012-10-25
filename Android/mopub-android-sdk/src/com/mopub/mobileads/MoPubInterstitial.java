@@ -32,7 +32,7 @@
 
 package com.mopub.mobileads;
 
-import java.util.HashMap;
+import java.util.Map;
 
 import com.mopub.mobileads.BaseInterstitialAdapter.BaseInterstitialAdapterListener;
 import com.mopub.mobileads.MoPubView.LocationAwareness;
@@ -126,11 +126,13 @@ public class MoPubInterstitial implements OnAdLoadedListener, OnAdFailedListener
         if (mInterstitialAdapter != null) mInterstitialAdapter.showInterstitial();
     }
     
+    @Override
     public void OnAdFailed(MoPubView m) {
         mCurrentInterstitialState = InterstitialState.NOT_READY;
         if (mListener != null) mListener.OnInterstitialFailed();
     }
 
+    @Override
     public void OnAdLoaded(MoPubView m) {
         mCurrentInterstitialState = InterstitialState.HTML_AD_READY;
         
@@ -142,40 +144,8 @@ public class MoPubInterstitial implements OnAdLoadedListener, OnAdFailedListener
         if (mListener != null) mListener.OnInterstitialLoaded();
     }
     
-    public void customEventDidLoadAd() {
-        if (mInterstitialView != null) mInterstitialView.trackImpression();
-    }
-
-    public void customEventDidFailToLoadAd() {
-        if (mInterstitialView != null) mInterstitialView.loadFailUrl();
-    }
-
-    public void customEventActionWillBegin() {
-        if (mInterstitialView != null) mInterstitialView.registerClick();
-    }
-
-    @Deprecated
-    public void showAd() {
-        /* 
-         * To show the ad immediately upon loading, we need to register a new OnAdLoadedListener,
-         * as well as a new interstitial adapter listener.
-         */
-        
-        mAdapterListener = new DefaultInterstitialAdapterListener() {
-            public void onNativeInterstitialLoaded(BaseInterstitialAdapter adapter) {
-                super.onNativeInterstitialLoaded(adapter);
-                MoPubInterstitial.this.show();
-            }
-        };
-        
-        mInterstitialView.setOnAdLoadedListener(new OnAdLoadedListener() {
-            public void OnAdLoaded(MoPubView m) {
-                MoPubInterstitial.this.OnAdLoaded(m);
-                MoPubInterstitial.this.show();
-            }
-        });
-        
-        mInterstitialView.loadAd();
+    AdView getAdView() {
+        return mInterstitialView.mAdView;
     }
     
     ////////////////////////////////////////////////////////////////////////////////////////////////
@@ -245,6 +215,14 @@ public class MoPubInterstitial implements OnAdLoadedListener, OnAdFailedListener
         return mInterstitialView.getTesting();
     }
     
+    public void setLocalExtras(Map<String, Object> extras) {
+        mInterstitialView.setLocalExtras(extras);
+    }
+    
+    public Map<String, Object> getLocalExtras() {
+        return mInterstitialView.getLocalExtras();
+    }
+    
     ////////////////////////////////////////////////////////////////////////////////////////////////
     
     public class DefaultInterstitialAdapterListener implements BaseInterstitialAdapterListener {
@@ -278,24 +256,24 @@ public class MoPubInterstitial implements OnAdLoadedListener, OnAdFailedListener
         }
         
         @Override
-        protected void loadNativeSDK(HashMap<String, String> paramsHash) {
-            if (paramsHash == null) return;
+        protected void loadNativeSDK(Map<String, String> paramsMap) {
+            if (paramsMap == null) return;
             
             MoPubInterstitial interstitial = MoPubInterstitial.this;
             BaseInterstitialAdapterListener adapterListener = 
                 interstitial.getInterstitialAdapterListener();
-            String type = paramsHash.get("X-Adtype");
+            String type = paramsMap.get("X-Adtype");
             
             if (type != null && (type.equals("interstitial") || type.equals("mraid"))) {
                 String interstitialType = type.equals("interstitial") ? 
-                        paramsHash.get("X-Fulladtype") : "mraid";
+                        paramsMap.get("X-Fulladtype") : "mraid";
                 
                 Log.i("MoPub", "Loading native adapter for interstitial type: " + interstitialType);
                 mInterstitialAdapter =
                         BaseInterstitialAdapter.getAdapterForType(interstitialType);
                 
                 if (mInterstitialAdapter != null) {
-                    String jsonParams = paramsHash.get("X-Nativeparams");
+                    String jsonParams = paramsMap.get("X-Nativeparams");
                     mInterstitialAdapter.init(interstitial, jsonParams);
                     mInterstitialAdapter.setAdapterListener(adapterListener);
                     mInterstitialAdapter.loadInterstitial();
@@ -307,9 +285,71 @@ public class MoPubInterstitial implements OnAdLoadedListener, OnAdFailedListener
             adapterListener.onNativeInterstitialFailed(null);
         }
         
+        @Override
+        protected void loadCustomEvent(Map<String, String> paramsMap) {
+            if (mInterstitialAdapter != null) mAdapter.invalidate();
+            
+            mInterstitialAdapter = BaseInterstitialAdapter.getAdapterForType("custom_event");
+            
+            if (mInterstitialAdapter != null) {
+                Log.i("MoPub", "Loading custom event interstitial adapter.");
+                
+                // Get the className and classData from the passed in paramsMap.
+                String className = paramsMap.get("X-Custom-Event-Class-Name");
+                String classData = paramsMap.get("X-Custom-Event-Class-Data");
+                
+                ((CustomEventInterstitialAdapter) mInterstitialAdapter)
+                        .init(MoPubInterstitial.this, className, classData);
+                
+                mInterstitialAdapter.loadInterstitial();
+            } else {
+                Log.i("MoPub", "Couldn't load custom event interstitial adapter. Trying next ad...");
+                loadFailUrl();
+            }
+        }
+        
         protected void trackImpression() {
             Log.d("MoPub", "Tracking impression for interstitial.");
             if (mAdView != null) mAdView.trackImpression();
         }
+    }
+    
+    @Deprecated
+    public void customEventDidLoadAd() {
+        if (mInterstitialView != null) mInterstitialView.trackImpression();
+    }
+
+    @Deprecated
+    public void customEventDidFailToLoadAd() {
+        if (mInterstitialView != null) mInterstitialView.loadFailUrl();
+    }
+
+    @Deprecated
+    public void customEventActionWillBegin() {
+        if (mInterstitialView != null) mInterstitialView.registerClick();
+    }
+
+    @Deprecated
+    public void showAd() {
+        /* 
+         * To show the ad immediately upon loading, we need to register a new OnAdLoadedListener,
+         * as well as a new interstitial adapter listener.
+         */
+        
+        mAdapterListener = new DefaultInterstitialAdapterListener() {
+            public void onNativeInterstitialLoaded(BaseInterstitialAdapter adapter) {
+                super.onNativeInterstitialLoaded(adapter);
+                MoPubInterstitial.this.show();
+            }
+        };
+        
+        mInterstitialView.setOnAdLoadedListener(new OnAdLoadedListener() {
+            public void OnAdLoaded(MoPubView m) {
+                MoPubInterstitial.this.OnAdLoaded(m);
+                MoPubInterstitial.this.show();
+            }
+        });
+        
+        mInterstitialView.loadAd();
     }
 }

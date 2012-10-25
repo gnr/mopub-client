@@ -99,6 +99,7 @@ public class AdView extends WebView {
     private int mWidth;
     private int mHeight;
     private String mAdOrientation;
+    private Map<String, Object> mLocalExtras = new HashMap<String, Object>();
 
     protected MoPubView mMoPubView;
     private String mResponseString;
@@ -120,7 +121,6 @@ public class AdView extends WebView {
          * thread operations.
          */
         mUserAgent = getSettings().getUserAgentString();
-        
         mAdFetcher = new AdFetcher(this, mUserAgent);
         
         disableScrollingAndZoom();
@@ -575,16 +575,19 @@ public class AdView extends WebView {
         }
     }
     
+    @Deprecated
     public void customEventDidLoadAd() {
         mIsLoading = false;
         trackImpression();
         scheduleRefreshTimerIfEnabled();
     }
 
+    @Deprecated
     public void customEventDidFailToLoadAd() {
         loadFailUrl();
     }
 
+    @Deprecated
     public void customEventActionWillBegin() {
         registerClick();
     }
@@ -611,6 +614,8 @@ public class AdView extends WebView {
         
         mAdFetcher.cleanup();
         mAdFetcher = null;
+        
+        mLocalExtras = null;
         
         mResponseString = null;
         
@@ -794,7 +799,7 @@ public class AdView extends WebView {
         mResponseString = responseString;
     }
     
-    protected void setIsLoading (boolean isLoading) {
+    protected void setIsLoading(boolean isLoading) {
         mIsLoading = isLoading;
     }
     
@@ -822,5 +827,17 @@ public class AdView extends WebView {
     public void forceRefresh() {
         mIsLoading = false;
         loadAd();
+    }
+    
+    void setLocalExtras(Map<String, Object> localExtras) {
+        mLocalExtras = (localExtras != null)
+                ? new HashMap<String,Object>(localExtras)
+                : new HashMap<String,Object>();
+    }
+    
+    Map<String, Object> getLocalExtras() {
+        return (mLocalExtras != null)
+                ? new HashMap<String,Object>(mLocalExtras)
+                : new HashMap<String,Object>();
     }
 }

@@ -2,150 +2,134 @@
 //  MPInterstitialAdController.h
 //  MoPub
 //
-//  Created by Andrew He on 2/2/11.
-//  Copyright 2011 MoPub, Inc. All rights reserved.
+//  Copyright (c) 2012 MoPub, Inc. All rights reserved.
 //
 
 #import <UIKit/UIKit.h>
+#import <CoreLocation/CoreLocation.h>
+
 #import "MPAdView.h"
-#import "MPBaseInterstitialAdapter.h"
-
-enum
-{
-	InterstitialCloseButtonStyleAlwaysVisible,
-	InterstitialCloseButtonStyleAlwaysHidden,
-	InterstitialCloseButtonStyleAdControlled
-};
-typedef NSUInteger InterstitialCloseButtonStyle;
-
-enum 
-{
-	InterstitialOrientationTypePortrait,
-	InterstitialOrientationTypeLandscape,
-	InterstitialOrientationTypeBoth
-};
-typedef NSUInteger InterstitialOrientationType;
+#import "MPGlobal.h"
+#import "MPInterstitialAdManager.h"
 
 @protocol MPInterstitialAdControllerDelegate;
 
-@interface MPInterstitialAdController : UIViewController <MPAdViewDelegate, MPBaseInterstitialAdapterDelegate>
+@interface MPInterstitialAdController : UIViewController <MPInterstitialAdManagerDelegate,
+    MPBaseInterstitialAdapterDelegate>
 {
-	// Previous state of the status bar, before the interstitial appears.
-	BOOL _statusBarWasHidden;
-	
-	// Previous state of the nav bar, before the interstitial appears.
-	BOOL _navigationBarWasHidden;
-	
-	// Whether the interstitial is fully loaded.
-	BOOL _ready;
-	
-	// Underlying ad view used for the interstitial.
-	MPInterstitialAdView *_adView;
-    
-    // Delegate for this interstitial.
     id<MPInterstitialAdControllerDelegate> _delegate;
+    MPInterstitialAdManager *_manager;
+    BOOL _ready;
     
-    // The view controller being used to present the interstitial.
-    UIViewController *_rootViewController;
-	
-	// The ad unit ID.
-	NSString *_adUnitId;
-	
-	// Determines how/when the interstitial should display a native close button.
-	InterstitialCloseButtonStyle _closeButtonStyle;
-
-	// Whether the ad content has requested that a native close button be shown.
-	BOOL _adWantsNativeCloseButton;
-	
-	// Determines the allowed orientations for the interstitial.
-	InterstitialOrientationType _orientationType;
-	
-	// Button used to dismiss the interstitial.
-	UIButton *_closeButton;
-	
-	MPBaseInterstitialAdapter *_currentAdapter;
+    NSString *_adUnitId;
+    NSString *_keywords;
+    CLLocation *_location;
+    BOOL _locationEnabled;
+    NSUInteger _locationPrecision;
+    BOOL _testing;
     
-    // Whether the interstitial is currently being presented.
-    BOOL _isOnModalViewControllerStack;
-    
-    // Deprecated: reference to the view controller that is presenting this interstitial.
-	UIViewController<MPInterstitialAdControllerDelegate> *_parent;
+    // DEPRECATED:
+    UIViewController<MPInterstitialAdControllerDelegate> *_parent;
 }
 
-@property (nonatomic, readonly, assign) BOOL ready;
 @property (nonatomic, assign) id<MPInterstitialAdControllerDelegate> delegate;
+@property (nonatomic, assign, readonly) BOOL ready;
 @property (nonatomic, copy) NSString *adUnitId;
 @property (nonatomic, copy) NSString *keywords;
 @property (nonatomic, copy) CLLocation *location;
 @property (nonatomic, assign) BOOL locationEnabled;
 @property (nonatomic, assign) NSUInteger locationPrecision;
-@property (nonatomic, assign) BOOL adWantsNativeCloseButton;
-@property (nonatomic, assign, getter = isTesting) BOOL testing;
-
-// Deprecated properties.
-@property (nonatomic, assign) UIViewController<MPInterstitialAdControllerDelegate> *parent
-    MOPUB_DEPRECATED;
+@property (nonatomic, assign, getter=isTesting) BOOL testing;
 
 /*
- * A shared pool of interstitial ads.
+ * Returns the shared pool of interstitial objects for your application.
  */
 + (NSMutableArray *)sharedInterstitialAdControllers;
 
 /*
- * Gets an interstitial for the given ad unit ID. Once created, an interstitial will stay around
- * so that you can retrieve it later.
- */
-+ (MPInterstitialAdController *)interstitialAdControllerForAdUnitId:(NSString *)ID;
-
-/*
- * Removes an interstitial from the shared pool.
+ * Removes the given interstitial object from the shared pool.
  */
 + (void)removeSharedInterstitialAdController:(MPInterstitialAdController *)controller;
 
 /*
- * Begin loading the content for the interstitial ad. You may implement the -interstitialDidLoadAd
- * and -interstitialDidFailToLoadAd delegate methods, so that you can decide when to show the ad.
- * This method does not automatically retry if it fails.
+ * Returns an interstitial object matching the given ad unit ID. If no interstitial exists for the
+ * ad unit ID, a new object will be created and returned.
+ */
++ (MPInterstitialAdController *)interstitialAdControllerForAdUnitId:(NSString *)adUnitId;
+
+/*
+ * Begins loading ad content for this interstitial. You should implement the -interstitialDidLoadAd
+ * and -interstitialDidFailToLoadAd methods on your delegate object if you would like to be notified 
+ * as the loading succeeds or fails.
  */
 - (void)loadAd;
 
 /*
- * Display the interstitial modally from the specified view controller.
+ * Displays this interstitial modally from the specified view controller.
  */
 - (void)showFromViewController:(UIViewController *)controller;
 
+#pragma mark - Deprecated
+
+/*
+ * Returns the view controller that is presenting this interstitial.
+ *
+ * DEPRECATED:
+ */ 
+@property (nonatomic, assign) UIViewController<MPInterstitialAdControllerDelegate> *parent
+    MOPUB_DEPRECATED;
+
+/*
+ * A Boolean value indicating whether the interstitial should display a dismissal button for HTML
+ * ads -- that is, ads which do not originate from a third-party SDK. If YES, a dismissal button is
+ * displayed in the top-right corner of the ad; otherwise, no button is displayed.
+ *
+ * The default value of this property is YES.
+ *
+ * DEPRECATED in v2.0: The dismissal button of HTML ads is no longer managed by the interstitial
+ * object.
+ */
+@property (nonatomic, assign) BOOL adWantsNativeCloseButton MOPUB_DEPRECATED;
+
+/*
+ * Displays this interstitial modally from the view controller that is referenced by this
+ * interstitial's `parent` property.
+ *
+ * DEPRECATED: Use -showFromViewController: instead.
+ */
+- (void)show MOPUB_DEPRECATED;
+
 /*
  * Returns the result of -locationDescriptionPair on the embedded ad view.
+ *
+ * DEPRECATED:
  */
 - (NSArray *)locationDescriptionPair;
 
 /*
- * Signals to the ad view that a custom event has caused ad content to load
- * successfully. You must call this method if you implement custom events.
+ * Notifies MoPub that a custom event has successfully loaded an interstitial.
+ *
+ * DEPRECATED:
  */
-- (void)customEventDidLoadAd;
+- (void)customEventDidLoadAd MOPUB_DEPRECATED;
 
 /*
- * Signals to the ad view that a custom event has resulted in a failed load.
- * You must call this method if you implement custom events.
+ * Notifies MoPub that a custom event has failed to load an interstitial.
+ *
+ * DEPRECATED:
  */
-- (void)customEventDidFailToLoadAd;
+- (void)customEventDidFailToLoadAd MOPUB_DEPRECATED;
 
 /*
- * Signals to the ad view that a user has tapped on a custom-event-triggered ad.
- * You must call this method if you implement custom events, for proper click tracking.
+ * Notifies MoPub that a user has tapped on a custom event interstitial.
+ *
+ * DEPRECATED:
  */
-- (void)customEventActionWillBegin;
-
-// Deprecated methods.
-
-/*
- * DEPRECATED: Display the interstitial modally. Use -showFromViewController: instead.
- * This method will only work correctly if the interstitial's parent property is set.
- */
-- (void)show MOPUB_DEPRECATED;
+- (void)customEventActionWillBegin MOPUB_DEPRECATED;
 
 @end
+
+#pragma mark -
 
 @protocol MPInterstitialAdControllerDelegate <NSObject>
 
@@ -168,10 +152,10 @@ typedef NSUInteger InterstitialOrientationType;
 - (void)interstitialDidDisappear:(MPInterstitialAdController *)interstitial;
 
 /*
- * Interstitial ads from certain networks (e.g. iAd) may expire their content at any time, 
+ * Interstitial ads from certain networks (e.g. iAd) may expire their content at any time,
  * regardless of whether the content is currently on-screen. This callback notifies you when the
  * currently-loaded interstitial has expired and is no longer eligible for display. If the ad
- * was on-screen when it expired, you can expect that the ad will already have been dismissed 
+ * was on-screen when it expired, you can expect that the ad will already have been dismissed
  * by the time this callback was fired. Your implementation may include a call to -loadAd to fetch a
  * new ad, if desired.
  */
@@ -188,17 +172,4 @@ typedef NSUInteger InterstitialOrientationType;
  */
 - (void)dismissInterstitial:(MPInterstitialAdController *)interstitial MOPUB_DEPRECATED;
 
-/*
- * DEPRECATED: These methods were previously inherited from MPAdViewDelegate. They should no longer
- * be used.
- */
-- (UIViewController *)viewControllerForPresentingModalView MOPUB_DEPRECATED;
-- (void)adViewDidFailToLoadAd:(MPAdView *)view MOPUB_DEPRECATED;
-- (void)adViewDidLoadAd:(MPAdView *)view MOPUB_DEPRECATED;
-- (void)willPresentModalViewForAd:(MPAdView *)view MOPUB_DEPRECATED;
-- (void)didDismissModalViewForAd:(MPAdView *)view MOPUB_DEPRECATED;
-- (void)adView:(MPAdView *)view didReceiveResponseParams:(NSDictionary *)params MOPUB_DEPRECATED;
-- (void)adViewShouldClose:(MPAdView *)view MOPUB_DEPRECATED;
-
 @end
-

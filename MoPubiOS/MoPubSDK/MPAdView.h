@@ -33,7 +33,7 @@ typedef enum
 } MPNativeAdOrientation;
 
 @protocol MPAdViewDelegate;
-@class MPAdManager;
+@class MPBannerAdManager;
 
 @interface MPAdView : UIView  
 {
@@ -41,7 +41,7 @@ typedef enum
 	id<MPAdViewDelegate> _delegate;
 	
 	// "Business-logic" object for the ad view.
-	MPAdManager *_adManager;
+	MPBannerAdManager *_adManager;
 	
 	// Ad unit identifier for the ad view.
 	NSString *_adUnitId;
@@ -94,6 +94,8 @@ typedef enum
 @property (nonatomic, assign) MPAdAnimationType animationType;
 @property (nonatomic, assign) BOOL ignoresAutorefresh;
 @property (nonatomic, assign, getter = isTesting) BOOL testing;
+@property (nonatomic, retain) UIView *adContentView;
+@property (nonatomic, assign) CGSize originalSize;
 
 /*
  * Returns an MPAdView with the given ad unit ID.
@@ -166,6 +168,24 @@ typedef enum
 - (void)didCloseAd:(id)sender;
 
 /*
+ * Forces native ad networks to only use ads sized for the specified orientation. For instance, 
+ * if you call this with UIInterfaceOrientationPortrait, native networks (e.g. iAd) will never 
+ * return ads sized for the landscape orientation.
+ */
+- (void)lockNativeAdsToOrientation:(MPNativeAdOrientation)orientation;
+
+/*
+ * Allows native ad networks to use ads sized for any orientation. See -lockNativeAdsToOrientation:.
+ */
+- (void)unlockNativeAdsOrientation;
+
+- (MPNativeAdOrientation)allowedNativeAdsOrientation;
+
+- (void)backFillWithNothing;
+
+#pragma mark - Deprecated
+
+/*
  * Signals to the ad view that a custom event has caused ad content to load
  * successfully. You must call this method if you implement custom events.
  */
@@ -184,28 +204,16 @@ typedef enum
 - (void)customEventActionWillBegin;
 
 /*
- * Signals to the ad view that a user has stopped interacting with a custom-event-triggered ad. 
+ * Signals to the ad view that a user has stopped interacting with a custom-event-triggered ad.
  * You must call this method if you implement custom events.
  */
 - (void)customEventActionDidEnd;
 
-/*
- * Forces native ad networks to only use ads sized for the specified orientation. For instance, 
- * if you call this with UIInterfaceOrientationPortrait, native networks (e.g. iAd) will never 
- * return ads sized for the landscape orientation.
- */
-- (void)lockNativeAdsToOrientation:(MPNativeAdOrientation)orientation;
-
-/*
- * Allows native ad networks to use ads sized for any orientation. See -lockNativeAdsToOrientation:.
- */
-- (void)unlockNativeAdsOrientation;
-
-- (MPNativeAdOrientation)allowedNativeAdsOrientation;
-
 @end
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
+
+#pragma mark -
 
 @protocol MPAdViewDelegate <NSObject>
 
@@ -235,29 +243,12 @@ typedef enum
 - (void)didDismissModalViewForAd:(MPAdView *)view;
 
 /*
- * This callback is triggered when the ad view has retrieved ad parameters
- * (headers) from the MoPub server. See MPInterstitialAdController for an
- * example of how this should be used.
- */
-- (void)adView:(MPAdView *)view didReceiveResponseParams:(NSDictionary *)params;
-
-/*
  * This method is called when a mopub://close link is activated. Your implementation of this
  * method should remove the ad view from the screen (see MPInterstitialAdController for an example).
  */
 - (void)adViewShouldClose:(MPAdView *)view;
 
-@end
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-@interface MPInterstitialAdView : MPAdView
-{
-    BOOL _isDismissed;
-}
-
-@property (nonatomic, assign) BOOL isDismissed;
-
-- (void)forceRedraw;
+// TODO: Comment.
+- (void)willLeaveApplicationFromAd:(MPAdView *)view;
 
 @end

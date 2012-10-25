@@ -41,6 +41,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.Executor;
 
 import org.apache.http.Header;
@@ -252,40 +253,60 @@ public class AdFetcher {
             // Handle custom native ad type.
             else if (atHeader.getValue().equals("custom")) {
                 Log.i("MoPub", "Performing custom event.");
-                Header cmHeader = response.getFirstHeader("X-Customselector");
-                return new PerformCustomEventTaskResult(mAdView, cmHeader);
+                
+                // If applicable, try to invoke the new custom event system (which uses custom classes)
+                Header customEventClassNameHeader =
+                        response.getFirstHeader("X-Custom-Event-Class-Name");
+                if (customEventClassNameHeader != null) {
+                    Map<String, String> paramsMap = new HashMap<String, String>();
+                    paramsMap.put("X-Custom-Event-Class-Name", customEventClassNameHeader.getValue());
+                    
+                    Header customEventClassDataHeader =
+                            response.getFirstHeader("X-Custom-Event-Class-Data");
+                    if (customEventClassDataHeader != null) {
+                        paramsMap.put("X-Custom-Event-Class-Data", customEventClassDataHeader.getValue());
+                    }
+                    
+                    return new PerformCustomEventTaskResult(mAdView, paramsMap);
+                }
+                
+                // Otherwise, use the (deprecated) legacy custom event system for older clients
+                Header oldCustomEventHeader = response.getFirstHeader("X-Customselector");
+                return new PerformLegacyCustomEventTaskResult(mAdView, oldCustomEventHeader);
+                
             }
             
             // Handle mraid ad type.
             else if (atHeader.getValue().equals("mraid")) {
                 Log.i("MoPub", "Loading mraid ad");
-                HashMap<String, String> paramsHash = new HashMap<String, String>();
-                paramsHash.put("X-Adtype", atHeader.getValue());
+                Map<String, String> paramsMap = new HashMap<String, String>();
+                paramsMap.put("X-Adtype", atHeader.getValue());
 
                 String data = httpEntityToString(entity);
-                paramsHash.put("X-Nativeparams", data);
-                return new LoadNativeAdTaskResult(mAdView, paramsHash);
+                paramsMap.put("X-Nativeparams", data);
+                return new LoadNativeAdTaskResult(mAdView, paramsMap);
+                
             }
             
             // Handle native SDK ad type.
             else if (!atHeader.getValue().equals("html")) {
                 Log.i("MoPub", "Loading native ad");
 
-                HashMap<String, String> paramsHash = new HashMap<String, String>();
-                paramsHash.put("X-Adtype", atHeader.getValue());
+                Map<String, String> paramsMap = new HashMap<String, String>();
+                paramsMap.put("X-Adtype", atHeader.getValue());
 
                 Header npHeader = response.getFirstHeader("X-Nativeparams");
-                paramsHash.put("X-Nativeparams", "{}");
+                paramsMap.put("X-Nativeparams", "{}");
                 if (npHeader != null) {
-                    paramsHash.put("X-Nativeparams", npHeader.getValue());
+                    paramsMap.put("X-Nativeparams", npHeader.getValue());
                 }
 
                 Header ftHeader = response.getFirstHeader("X-Fulladtype");
                 if (ftHeader != null) {
-                    paramsHash.put("X-Fulladtype", ftHeader.getValue());
+                    paramsMap.put("X-Fulladtype", ftHeader.getValue());
                 }
 
-                return new LoadNativeAdTaskResult(mAdView, paramsHash);
+                return new LoadNativeAdTaskResult(mAdView, paramsMap);
             }
 
             // Handle HTML ad.
@@ -446,10 +467,16 @@ public class AdFetcher {
         abstract void cleanup();
     }
     
-    private static class PerformCustomEventTaskResult extends AdFetchResult {
+    /*
+     * This is the old way of performing Custom Events, and is now deprecated. This will still be
+     * invoked on old clients when X-Adtype is "custom" and the new X-Custom-Event-Class-Name header
+     * is not specified (legacy custom events parse the X-Customselector header instead).
+     */
+    @Deprecated
+    private static class PerformLegacyCustomEventTaskResult extends AdFetchResult {
         protected Header mHeader;
         
-        public PerformCustomEventTaskResult(AdView adView, Header header) {
+        public PerformLegacyCustomEventTaskResult(AdView adView, Header header) {
             super(adView);
             mHeader = header;
         }
@@ -496,12 +523,47 @@ public class AdFetcher {
         }
     }
     
-    private static class LoadNativeAdTaskResult extends AdFetchResult {
-        protected HashMap<String, String> mParamsHash;
+    /*
+     * This is the new way of performing Custom Events. This will  be invoked on new clients when
+     * X-Adtype is "custom" and the X-Custom-Event-Class-Name header is specified.
+     */
+    private static class PerformCustomEventTaskResult extends AdFetchResult {
+        protected Map<String,String> mParamsMap;
         
-        private LoadNativeAdTaskResult(AdView adView, HashMap<String, String> hash) {
+        public PerformCustomEventTaskResult(AdView adView, Map<String,String> paramsMap) {
             super(adView);
-            mParamsHash = hash;
+            mParamsMap = paramsMap;
+        }
+        
+        public void execute() {
+            AdView adView = mWeakAdView.get();
+            if (adView == null || adView.isDestroyed()) {
+                return;
+            }
+            
+            adView.setIsLoading(false);
+            MoPubView moPubView = adView.mMoPubView;
+            
+            if (mParamsMap == null) {
+                Log.i("MoPub", "Couldn't invoke custom event because the server did not specify one.");
+                moPubView.adFailed();
+                return;
+            }
+            
+            moPubView.loadCustomEvent(mParamsMap);
+        }
+        
+        public void cleanup() {
+            mParamsMap = null;
+        }
+    }
+    
+    private static class LoadNativeAdTaskResult extends AdFetchResult {
+        protected Map<String, String> mParamsMap;
+        
+        private LoadNativeAdTaskResult(AdView adView, Map<String, String> paramsMap) {
+            super(adView);
+            mParamsMap = paramsMap;
         }
         
         public void execute() {
@@ -512,11 +574,11 @@ public class AdFetcher {
             
             adView.setIsLoading(false);
             MoPubView mpv = adView.mMoPubView;
-            mpv.loadNativeSDK(mParamsHash);
+            mpv.loadNativeSDK(mParamsMap);
         }
 
         public void cleanup() {
-            mParamsHash = null;
+            mParamsMap = null;
         }
     }
     

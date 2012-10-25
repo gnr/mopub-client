@@ -47,7 +47,8 @@ import android.widget.FrameLayout;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
-import java.util.HashMap;
+import java.util.Collections;
+import java.util.Map;
 
 public class MoPubView extends FrameLayout {
 
@@ -242,19 +243,39 @@ public class MoPubView extends FrameLayout {
         if (mAdView != null) mAdView.loadFailUrl();
     }
 
-    protected void loadNativeSDK(HashMap<String, String> paramsHash) {
+    protected void loadNativeSDK(Map<String, String> paramsMap) {
         if (mAdapter != null) mAdapter.invalidate();
 
-        String type = paramsHash.get("X-Adtype");
+        String type = paramsMap.get("X-Adtype");
         mAdapter = BaseAdapter.getAdapterForType(type);
 
         if (mAdapter != null) {
             Log.i("MoPub", "Loading native adapter for type: " + type);
-            String jsonParams = paramsHash.get("X-Nativeparams");
+            String jsonParams = paramsMap.get("X-Nativeparams");
             mAdapter.init(this, jsonParams);
             mAdapter.loadAd();
         } else {
             Log.i("MoPub", "Couldn't load native adapter. Trying next ad...");
+            loadFailUrl();
+        }
+    }
+    
+    protected void loadCustomEvent(Map<String, String> paramsMap) {
+        if (mAdapter != null) mAdapter.invalidate();
+        
+        mAdapter = BaseAdapter.getAdapterForType("custom_event");
+        
+        if (mAdapter != null) {
+            Log.i("MoPub", "Loading custom event adapter.");
+            
+            // Get the className and classData from the passed in paramsMap.
+            String className = paramsMap.get("X-Custom-Event-Class-Name");
+            String classData = paramsMap.get("X-Custom-Event-Class-Data");
+            
+            ((CustomEventBannerAdapter) mAdapter).init(this, className, classData);
+            mAdapter.loadAd();
+        } else {
+            Log.i("MoPub", "Couldn't load custom event adapter. Trying next ad...");
             loadFailUrl();
         }
     }
@@ -328,18 +349,6 @@ public class MoPubView extends FrameLayout {
     
     protected void adAppeared() {
         if (mAdView != null) mAdView.adAppeared();
-    }
-
-    public void customEventDidLoadAd() {
-        if (mAdView != null) mAdView.customEventDidLoadAd();
-    }
-    
-    public void customEventDidFailToLoadAd() {
-        if (mAdView != null) mAdView.customEventDidFailToLoadAd();
-    }
-    
-    public void customEventActionWillBegin() {
-        if (mAdView != null) mAdView.customEventActionWillBegin();
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////
@@ -432,6 +441,15 @@ public class MoPubView extends FrameLayout {
         return mLocationPrecision;
     }
     
+    public void setLocalExtras(Map<String, Object> localExtras) {
+        if (mAdView != null) mAdView.setLocalExtras(localExtras);
+    }
+    
+    public Map<String, Object> getLocalExtras() {
+        if (mAdView != null) return mAdView.getLocalExtras();
+        return Collections.emptyMap();
+    }
+    
     public void setAutorefreshEnabled(boolean enabled) {
         if (mAdView != null) mAdView.setAutorefreshEnabled(enabled);
     }
@@ -469,5 +487,20 @@ public class MoPubView extends FrameLayout {
         }
         
         if (mAdView != null) mAdView.forceRefresh();
+    }
+    
+    @Deprecated
+    public void customEventDidLoadAd() {
+        if (mAdView != null) mAdView.customEventDidLoadAd();
+    }
+    
+    @Deprecated
+    public void customEventDidFailToLoadAd() {
+        if (mAdView != null) mAdView.customEventDidFailToLoadAd();
+    }
+    
+    @Deprecated
+    public void customEventActionWillBegin() {
+        if (mAdView != null) mAdView.customEventActionWillBegin();
     }
 }

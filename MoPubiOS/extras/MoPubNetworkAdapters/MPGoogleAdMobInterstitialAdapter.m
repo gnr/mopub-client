@@ -75,7 +75,9 @@
 
 - (void)interstitialDidDismissScreen:(GADInterstitial *)ad
 {
+    [self retain];
 	[_interstitialAdController interstitialDidDisappearForAdapter:self];
+    [self release];
 }
 
 - (void)interstitialWillLeaveApplication:(GADInterstitial *)ad
