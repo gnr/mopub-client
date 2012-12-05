@@ -76,6 +76,16 @@ public class MoPubInterstitial implements OnAdLoadedListener, OnAdFailedListener
     }
 
     public void load() {
+        invalidateCurrentInterstitial();
+        mInterstitialView.loadAd();
+    }
+    
+    public void forceRefresh() {
+        invalidateCurrentInterstitial();
+        mInterstitialView.forceRefresh();
+    }
+    
+    private void invalidateCurrentInterstitial() {
         mCurrentInterstitialState = InterstitialState.NOT_READY;
         
         if (mInterstitialAdapter != null) {
@@ -87,7 +97,6 @@ public class MoPubInterstitial implements OnAdLoadedListener, OnAdFailedListener
         
         mInterstitialView.setOnAdLoadedListener(this);
         mInterstitialView.setOnAdFailedListener(this);
-        mInterstitialView.loadAd();
     }
     
     public boolean isReady() {

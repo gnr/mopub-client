@@ -461,4 +461,13 @@ public class MoPubView extends FrameLayout {
             return false;
         }
     }
+    
+    public void forceRefresh() {
+        if (mAdapter != null) {
+            mAdapter.invalidate();
+            mAdapter = null;
+        }
+        
+        if (mAdView != null) mAdView.forceRefresh();
+    }
 }

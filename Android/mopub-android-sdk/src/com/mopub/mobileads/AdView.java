@@ -818,4 +818,9 @@ public class AdView extends WebView {
     public boolean getTesting() {
         return mTesting;
     }
+    
+    public void forceRefresh() {
+        mIsLoading = false;
+        loadAd();
+    }
 }
