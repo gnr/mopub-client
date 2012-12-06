@@ -96,6 +96,7 @@ NSString * const kAdTypeMraid = @"mraid";
 - (NSDictionary *)dictionaryFromQueryString:(NSString *)query;
 - (void)customLinkClickedForSelectorString:(NSString *)selectorString 
 							withDataString:(NSString *)dataString;
+- (void)adLinkClicked:(NSURL *)URL;
 - (void)processResponseHeaders:(NSDictionary *)headers body:(NSData *)data;
 - (void)handleMraidRequest;
 - (void)logResponseBodyToConsole:(NSData *)data;
@@ -560,7 +561,9 @@ NSString * const kAdTypeMraid = @"mraid";
 - (void)dismissBrowserController:(MPAdBrowserController *)browserController animated:(BOOL)animated
 {
 	_adActionInProgress = NO;
-
+    
+    [browserController stopLoading];
+    
     [[self viewControllerForPresentingModalView] dismissModalViewControllerAnimated:animated];
     
     if ([self.adView.delegate respondsToSelector:@selector(didDismissModalViewForAd:)])
@@ -1084,7 +1087,8 @@ NSString * const kAdTypeMraid = @"mraid";
 
 - (void)hideLoadingIndicatorAnimated:(BOOL)animated
 {
-    [MPProgressOverlayView dismissOverlayFromWindow:self.adView.window animated:animated];
+    UIWindow *window = self.adView.window ? self.adView.window : MPKeyWindow();
+    [MPProgressOverlayView dismissOverlayFromWindow:window animated:animated];
 }
 
 @end
@@ -1122,6 +1126,23 @@ NSString * const kAdTypeMraid = @"mraid";
     [super browserControllerWillLeaveApplication:browserController];
     if ([self.adView.delegate respondsToSelector:@selector(adViewShouldClose:)])
 		[self.adView.delegate adViewShouldClose:self.adView];
+}
+
+- (void)adLinkClicked:(NSURL *)URL
+{
+    if ([(MPInterstitialAdView *)_adView isDismissed]) {
+        MPLogInfo(@"Interstitial has been dismissed: aborting any in-progress clicks.");
+        return;
+    }
+    
+    [super adLinkClicked:URL];
+}
+
+- (void)overlayDidAppear
+{
+    if ([(MPInterstitialAdView *)_adView isDismissed]) {
+        [self overlayCancelButtonPressed];
+    }
 }
 
 @end

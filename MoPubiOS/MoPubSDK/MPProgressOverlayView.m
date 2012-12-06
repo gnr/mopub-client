@@ -22,7 +22,11 @@
 - (void)unregisterForDeviceOrientationNotifications;
 - (void)deviceOrientationDidChange:(NSNotification *)notification;
 - (void)displayUsingAnimation:(BOOL)animated;
+- (void)displayAnimationDidStop:(NSString *)animationID finished:(NSNumber *)finished
+                        context:(void *)context;
 - (void)hideUsingAnimation:(BOOL)animated;
+- (void)hideAnimationDidStop:(NSString *)animationID finished:(NSNumber *)finished
+                     context:(void *)context;
 - (void)setTransformForCurrentOrientationAnimated:(BOOL)animated;
 - (void)setTransformForAllSubviews:(CGAffineTransform)transform;
 
@@ -271,15 +275,23 @@ static void exponentialDecayInterpolation(void *info, const float *input, float 
 {
     if (animated) {
         [UIView beginAnimations:nil context:nil];
+        [UIView setAnimationDelegate:self];
+        [UIView setAnimationDidStopSelector:@selector(displayAnimationDidStop:finished:context:)];
         self.alpha = 1.0;
         [UIView commitAnimations];
     } else {
-        self.alpha = 0.0;
+        self.alpha = 1.0;
     }
     
     [self performSelector:@selector(enableCloseButton)
                withObject:nil
                afterDelay:kProgressOverlayCloseButtonDelay];
+}
+
+- (void)displayAnimationDidStop:(NSString *)animationID finished:(NSNumber *)finished
+                        context:(void *)context
+{
+    [self.delegate overlayDidAppear];
 }
 
 - (void)enableCloseButton

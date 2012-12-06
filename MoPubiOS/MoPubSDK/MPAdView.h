@@ -252,6 +252,11 @@ typedef enum
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 @interface MPInterstitialAdView : MPAdView
+{
+    BOOL _isDismissed;
+}
+
+@property (nonatomic, assign) BOOL isDismissed;
 
 - (void)forceRedraw;
 

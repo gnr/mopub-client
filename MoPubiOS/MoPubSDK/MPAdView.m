@@ -391,6 +391,8 @@ static NSString * const kNewContentViewKey = @"NewContentView";
 
 @implementation MPInterstitialAdView
 
+@synthesize isDismissed = _isDismissed;
+
 - (id)initWithAdUnitId:(NSString *)adUnitId size:(CGSize)size
 {
     MPInterstitialAdManager *adManager = [[[MPInterstitialAdManager alloc] init] autorelease];

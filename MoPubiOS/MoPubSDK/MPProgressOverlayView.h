@@ -31,5 +31,6 @@
 
 @optional
 - (void)overlayCancelButtonPressed;
+- (void)overlayDidAppear;
 
 @end
