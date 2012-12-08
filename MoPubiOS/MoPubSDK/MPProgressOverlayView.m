@@ -291,7 +291,9 @@ static void exponentialDecayInterpolation(void *info, const float *input, float 
 - (void)displayAnimationDidStop:(NSString *)animationID finished:(NSNumber *)finished
                         context:(void *)context
 {
-    [self.delegate overlayDidAppear];
+    if ([self.delegate respondsToSelector:@selector(overlayDidAppear)]) {
+        [self.delegate overlayDidAppear];
+    }
 }
 
 - (void)enableCloseButton
