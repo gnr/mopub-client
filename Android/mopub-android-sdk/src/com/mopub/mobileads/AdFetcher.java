@@ -441,7 +441,7 @@ public class AdFetcher {
             
             if (mHeader == null) {
                 Log.i("MoPub", "Couldn't call custom method because the server did not specify one.");
-                mpv.adFailed();
+                mpv.loadFailUrl();
                 return;
             }
             
@@ -458,9 +458,11 @@ public class AdFetcher {
             } catch (NoSuchMethodException e) {
                 Log.d("MoPub", "Couldn't perform custom method named " + methodName +
                         "(MoPubView view) because your activity class has no such method");
+                mpv.loadFailUrl();
                 return;
             } catch (Exception e) {
                 Log.d("MoPub", "Couldn't perform custom method named " + methodName);
+                mpv.loadFailUrl();
                 return;
             }
         }
