@@ -51,6 +51,7 @@ static NSString * const kNewContentViewKey = @"NewContentView";
 @synthesize locationDescriptionPair = _locationDescriptionPair;
 @synthesize animationType = _animationType;
 @synthesize ignoresAutorefresh = _ignoresAutorefresh;
+@synthesize testing = _testing;
 
 #pragma mark -
 #pragma mark Lifecycle
@@ -389,6 +390,8 @@ static NSString * const kNewContentViewKey = @"NewContentView";
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 @implementation MPInterstitialAdView
+
+@synthesize isDismissed = _isDismissed;
 
 - (id)initWithAdUnitId:(NSString *)adUnitId size:(CGSize)size
 {

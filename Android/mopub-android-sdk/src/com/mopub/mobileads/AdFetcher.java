@@ -181,6 +181,8 @@ public class AdFetcher {
                 result = fetch(urls[0]);
             } catch (Exception exception) {
                 mException = exception;
+            } finally {
+                shutdownHttpClient();
             }
             return result;
         }
@@ -368,15 +370,6 @@ public class AdFetcher {
         
         private void releaseResources() {
             mAdFetcher = null;
-            
-            if (mHttpClient != null) {
-                ClientConnectionManager manager = mHttpClient.getConnectionManager();
-                if (manager != null) {
-                    manager.shutdown();
-                }
-                mHttpClient = null;
-            }
-            
             mException = null;
             mFetchStatus = FetchStatus.NOT_SET;
         }
@@ -396,6 +389,16 @@ public class AdFetcher {
             HttpConnectionParams.setSocketBufferSize(httpParameters, 8192);
 
             return new DefaultHttpClient(httpParameters);
+        }
+        
+        private void shutdownHttpClient() {
+            if (mHttpClient != null) {
+                ClientConnectionManager manager = mHttpClient.getConnectionManager();
+                if (manager != null) {
+                    manager.shutdown();
+                }
+                mHttpClient = null;
+            }
         }
         
         private boolean isMostCurrentTask() {
@@ -438,7 +441,7 @@ public class AdFetcher {
             
             if (mHeader == null) {
                 Log.i("MoPub", "Couldn't call custom method because the server did not specify one.");
-                mpv.adFailed();
+                mpv.loadFailUrl();
                 return;
             }
             
@@ -455,9 +458,11 @@ public class AdFetcher {
             } catch (NoSuchMethodException e) {
                 Log.d("MoPub", "Couldn't perform custom method named " + methodName +
                         "(MoPubView view) because your activity class has no such method");
+                mpv.loadFailUrl();
                 return;
             } catch (Exception e) {
                 Log.d("MoPub", "Couldn't perform custom method named " + methodName);
+                mpv.loadFailUrl();
                 return;
             }
         }
@@ -510,7 +515,7 @@ public class AdFetcher {
             }
             
             adView.setResponseString(mData);
-            adView.loadDataWithBaseURL("http://" + MoPubView.HOST + "/", mData,
+            adView.loadDataWithBaseURL("http://" + adView.getServerHostname() + "/", mData,
                     "text/html", "utf-8", null);
         }
         

@@ -80,6 +80,7 @@ typedef NSUInteger InterstitialOrientationType;
 @property (nonatomic, assign) BOOL locationEnabled;
 @property (nonatomic, assign) NSUInteger locationPrecision;
 @property (nonatomic, assign) BOOL adWantsNativeCloseButton;
+@property (nonatomic, assign, getter = isTesting) BOOL testing;
 
 // Deprecated properties.
 @property (nonatomic, assign) UIViewController<MPInterstitialAdControllerDelegate> *parent

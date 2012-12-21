@@ -55,6 +55,7 @@ static NSString * const kOrientationBoth				= @"b";
 @synthesize adWantsNativeCloseButton = _adWantsNativeCloseButton;
 @synthesize closeButton = _closeButton;
 @synthesize currentAdapter = _currentAdapter;
+@synthesize testing = _testing;
 @synthesize keywords;
 @synthesize location;
 @synthesize locationEnabled;
@@ -169,6 +170,7 @@ static NSString * const kOrientationBoth				= @"b";
     
 	if (!_isOnModalViewControllerStack) {
         _isOnModalViewControllerStack = YES;
+        _adView.isDismissed = NO;
         [_adView adViewDidAppear];
         
         // XXX: In certain cases, UIWebView's content appears off-center due to rotation / auto-
@@ -321,6 +323,14 @@ static NSString * const kOrientationBoth				= @"b";
 
 - (NSUInteger)locationPrecision {
 	return _adView.locationPrecision;
+}
+
+- (void)setTesting:(BOOL)testing {
+    _adView.testing = testing;
+}
+
+- (BOOL)isTesting {
+    return _adView.testing;
 }
 
 - (void)closeButtonPressed
@@ -569,6 +579,9 @@ static NSString * const kOrientationBoth				= @"b";
 
 - (void)closeInterstitialAnimated:(BOOL)animated
 {
+    _adView.isDismissed = YES;
+    _isOnModalViewControllerStack = NO;
+    
     // Restore previous status/navigation bar state.
     [self setApplicationStatusBarHidden:_statusBarWasHidden];
 	[self.navigationController setNavigationBarHidden:_navigationBarWasHidden animated:YES];

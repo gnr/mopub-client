@@ -93,6 +93,7 @@ typedef enum
 @property (nonatomic, assign) NSUInteger locationPrecision;
 @property (nonatomic, assign) MPAdAnimationType animationType;
 @property (nonatomic, assign) BOOL ignoresAutorefresh;
+@property (nonatomic, assign, getter = isTesting) BOOL testing;
 
 /*
  * Returns an MPAdView with the given ad unit ID.
@@ -253,6 +254,11 @@ typedef enum
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 @interface MPInterstitialAdView : MPAdView
+{
+    BOOL _isDismissed;
+}
+
+@property (nonatomic, assign) BOOL isDismissed;
 
 - (void)forceRedraw;
 
