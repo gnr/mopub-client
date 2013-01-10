@@ -222,9 +222,9 @@ class MraidDisplayController extends MraidAbstractController {
     
     private void resetViewToDefaultState() {        
         FrameLayout adContainerLayout = 
-            (FrameLayout) mRootView.findViewById(MraidView.AD_CONTAINER_LAYOUT_ID);
+            (FrameLayout) mRootView.findViewById(R.id.ad_container_layout_id);
         RelativeLayout expansionLayout = (RelativeLayout) mRootView.findViewById(
-                MraidView.MODAL_CONTAINER_LAYOUT_ID);
+                R.id.modal_container_layout_id);
         
         setNativeCloseButtonEnabled(false);
         adContainerLayout.removeAllViewsInLayout();
@@ -310,7 +310,7 @@ class MraidDisplayController extends MraidAbstractController {
         if (expandHeight < closeButtonSize) expandHeight = closeButtonSize;
 
         RelativeLayout expansionLayout = new RelativeLayout(getView().getContext());
-        expansionLayout.setId(MraidView.MODAL_CONTAINER_LAYOUT_ID);
+        expansionLayout.setId(R.id.modal_container_layout_id);
         
         View dimmingView = new View(getView().getContext());
         dimmingView.setBackgroundColor(Color.TRANSPARENT);
@@ -324,7 +324,7 @@ class MraidDisplayController extends MraidAbstractController {
                 RelativeLayout.LayoutParams.FILL_PARENT, RelativeLayout.LayoutParams.FILL_PARENT));
         
         FrameLayout adContainerLayout = new FrameLayout(getView().getContext());
-        adContainerLayout.setId(MraidView.AD_CONTAINER_LAYOUT_ID);
+        adContainerLayout.setId(R.id.ad_container_layout_id);
         
         adContainerLayout.addView(expansionContentView, new RelativeLayout.LayoutParams(
                 RelativeLayout.LayoutParams.FILL_PARENT, RelativeLayout.LayoutParams.FILL_PARENT));
@@ -354,7 +354,7 @@ class MraidDisplayController extends MraidAbstractController {
         if (mRootView == null) return;
         
         FrameLayout adContainerLayout = 
-            (FrameLayout) mRootView.findViewById(MraidView.AD_CONTAINER_LAYOUT_ID);
+            (FrameLayout) mRootView.findViewById(R.id.ad_container_layout_id);
         
         if (enabled) {
             if (mCloseButton == null) {

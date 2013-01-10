@@ -20,8 +20,6 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.utils.URLEncodedUtils;
 import org.apache.http.impl.client.DefaultHttpClient;
 
-import com.mopub.mobileads.R;
-
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
@@ -56,10 +54,6 @@ public class MraidView extends WebView {
         private OnOpenListener mOnOpenListener;
     }
     private MraidListenerInfo mListenerInfo;
-    
-    public static final int PLACEHOLDER_VIEW_ID = 100;
-    public static final int MODAL_CONTAINER_LAYOUT_ID = 101;
-    public static final int AD_CONTAINER_LAYOUT_ID = 102;
     
     public enum ViewState {
         LOADING,
