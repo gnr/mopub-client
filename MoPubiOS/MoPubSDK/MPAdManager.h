@@ -73,18 +73,9 @@ extern NSString * const kAdTypeClear;
 	
 	// Connection data object for ad request.
 	NSMutableData *_data;
-
-	// Dictionary of response headers for the current ad request.
-	NSDictionary *_headers;
 	
 	// Pool of webviews being used as HTML ads.
 	NSMutableSet *_webviewPool;
-		
-	// Current adapter being used for serving native ads.
-	MPBaseAdapter *_currentAdapter;
-	
-	// Previous adapter.
-	MPBaseAdapter *_previousAdapter;	
 	
 	// Click-tracking URL.
 	NSURL *_clickURL;
@@ -124,6 +115,19 @@ extern NSString * const kAdTypeClear;
     BOOL _shouldLoadMRAIDAd;
     
     MPAdBrowserController *_currentBrowserController;
+    
+    // The adapter that is currently requesting an ad.
+    MPBaseAdapter *_requestingAdapter;
+    
+    // Response headers for the currently-requesting adapter. These headers will be used to
+    // configure the ad manager if the requesting adapter successfully receives an ad.
+    NSDictionary *_headersForRequestingAdapter;
+    
+    // The adapter whose content is currently on the screen.
+    MPBaseAdapter *_currentOnscreenAdapter;
+    
+    // The adapter whose content was most recently removed from the screen.
+    MPBaseAdapter *_previousOnscreenAdapter;
 }
 
 @property (nonatomic, readonly) MPAdView *adView;

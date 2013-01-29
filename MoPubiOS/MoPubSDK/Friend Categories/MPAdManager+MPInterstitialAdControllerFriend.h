@@ -10,9 +10,10 @@
 
 @interface MPAdManager (MPInterstitialAdControllerFriend)
 
-@property (nonatomic, assign) BOOL isLoading;
 @property (nonatomic, assign) BOOL ignoresAutorefresh;
 
+- (void)didLoadAdFromExternalAdapter;
+- (void)didFailToLoadAdFromExternalAdapter;
 - (void)trackClick;
 - (void)trackImpression;
 

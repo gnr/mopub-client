@@ -30,7 +30,6 @@ static NSString * const kNewContentViewKey = @"NewContentView";
 - (void)updateLocationDescriptionPair;
 - (void)setScrollable:(BOOL)scrollable forView:(UIView *)view;
 - (void)animateTransitionToAdView:(UIView *)view;
-- (void)backFillWithNothing;
 - (void)animationDidStop:(NSString *)animationID finished:(NSNumber *)finished 
 				 context:(void *)context;
 
@@ -172,8 +171,7 @@ static NSString * const kNewContentViewKey = @"NewContentView";
 
 - (void)setAdContentView:(UIView *)view
 {
-	if (!view) return;
-	[view retain];
+    [view retain];
 	
 	// We don't necessarily know where this view came from, so make sure its scrollability
 	// corresponds to our value of self.scrollable.
@@ -221,7 +219,11 @@ static NSString * const kNewContentViewKey = @"NewContentView";
     [UIView setAnimationDelegate:self];
     [UIView setAnimationDidStopSelector:@selector(animationDidStop:finished:context:)];
     [UIView setAnimationDuration:1.0];
-  
+    
+    // Prevent interactions with ads during transition animations.
+    [_adContentView setUserInteractionEnabled:NO];
+    [oldContentView setUserInteractionEnabled:NO];
+    
     switch (type)
     {
         case MPAdAnimationTypeFlipFromLeft:
@@ -288,6 +290,8 @@ static NSString * const kNewContentViewKey = @"NewContentView";
 		
 		// Release the old content view to balance the retain in -setAdContentView:.
 		[oldContentView release];
+        
+        [newContentView setUserInteractionEnabled:YES];
 	}
 }
 
@@ -353,15 +357,6 @@ static NSString * const kNewContentViewKey = @"NewContentView";
 	return _allowedNativeAdOrientation;
 }
 
-- (void)backFillWithNothing
-{
-	[self setAdContentView:nil];
-    
-	// Notify delegate that the ad has failed to load.
-	if ([self.delegate respondsToSelector:@selector(adViewDidFailToLoadAd:)])
-		[self.delegate adViewDidFailToLoadAd:self];
-}
-
 # pragma mark -
 # pragma mark Custom Events
 
@@ -401,7 +396,6 @@ static NSString * const kNewContentViewKey = @"NewContentView";
 
 - (void)setAdContentView:(UIView *)view
 {
-	if (!view) return;
 	[view retain];
 	
 	if ([view isKindOfClass:[UIWebView class]])

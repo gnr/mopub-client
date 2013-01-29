@@ -129,7 +129,7 @@ static NSString * const kOrientationBoth				= @"b";
 		_adWantsNativeCloseButton = YES;
 		_orientationType = InterstitialOrientationTypeBoth;
 		
-		CGRect bounds = [UIScreen mainScreen].bounds;
+		CGRect bounds = [UIScreen mainScreen].applicationFrame;
 		_adView = [[MPInterstitialAdView alloc] initWithAdUnitId:self.adUnitId size:bounds.size];
 		_adView.ignoresAutorefresh = YES;
 		_adView.delegate = self;
@@ -567,8 +567,7 @@ static NSString * const kOrientationBoth				= @"b";
 	}
 	else 
 	{
-		// TODO: Generate error.
-		[self adapter:nil didFailToLoadAdWithError:nil];
+		[view.adManager didFailToLoadAdFromExternalAdapter];
 	}
 }
 
@@ -600,16 +599,16 @@ static NSString * const kOrientationBoth				= @"b";
 }
 
 - (void)customEventDidLoadAd {
-  _adView.adManager.isLoading = NO;
-  [_adView.adManager trackImpression];
+    [_adView.adManager didLoadAdFromExternalAdapter];
+    [_adView.adManager trackImpression];
 }
 
 - (void)customEventDidFailToLoadAd {
-  [_adView.adManager adapter:nil didFailToLoadAdWithError:nil];
+    [_adView.adManager didFailToLoadAdFromExternalAdapter];
 }
 
 - (void)customEventActionWillBegin {
-  [_adView.adManager trackClick];
+    [_adView.adManager trackClick];
 }
 
 #pragma mark -
@@ -618,7 +617,7 @@ static NSString * const kOrientationBoth				= @"b";
 - (void)adapterDidFinishLoadingAd:(MPBaseInterstitialAdapter *)adapter
 {	
 	_ready = YES;
-	_adView.adManager.isLoading = NO;
+    [_adView.adManager didLoadAdFromExternalAdapter];
     
 	if ([self.delegate respondsToSelector:@selector(interstitialDidLoadAd:)]) {
         [self.delegate interstitialDidLoadAd:self];
@@ -636,7 +635,7 @@ static NSString * const kOrientationBoth				= @"b";
 	[self.currentAdapter unregisterDelegate];
 	self.currentAdapter = nil;
 	
-	[_adView.adManager adapter:nil didFailToLoadAdWithError:error];
+	[_adView.adManager didFailToLoadAdFromExternalAdapter];
 }
 
 - (void)adapter:(MPBaseInterstitialAdapter *)adapter requestsPresentationForView:(UIView *)content

@@ -67,8 +67,11 @@ NSString * const kAdTypeMraid = @"mraid";
 @property (nonatomic, retain) NSMutableData *data;
 @property (nonatomic, retain) NSDictionary *headers;
 @property (nonatomic, retain) NSMutableSet *webviewPool;
-@property (nonatomic, retain) MPBaseAdapter *currentAdapter;
 @property (nonatomic, retain) NSMutableURLRequest *request;
+@property (nonatomic, retain) MPBaseAdapter *requestingAdapter;
+@property (nonatomic, retain) NSDictionary *headersForRequestingAdapter;
+@property (nonatomic, retain) MPBaseAdapter *currentOnscreenAdapter;
+@property (nonatomic, retain) MPBaseAdapter *previousOnscreenAdapter;
 
 - (void)loadAdWithURL:(NSURL *)URL;
 - (void)cancelAd;
@@ -81,7 +84,10 @@ NSString * const kAdTypeMraid = @"mraid";
 - (NSString *)scaleFactorQueryStringComponent;
 - (NSString *)timeZoneQueryStringComponent;
 - (NSString *)locationQueryStringComponent;
-- (void)replaceCurrentAdapterWithAdapter:(MPBaseAdapter *)newAdapter;
+- (void)replaceCurrentAdapterWithAdapter:(MPBaseAdapter *)adapter;
+- (void)configureFromHeaders:(NSDictionary *)headers;
+- (void)didLoadAdFromExternalAdapter;
+- (void)didFailToLoadAdFromExternalAdapter;
 - (void)scheduleAutorefreshTimerIfEnabled;
 - (void)scheduleAutorefreshTimer;
 - (void)cancelPendingAutorefreshTimer;
@@ -124,10 +130,12 @@ NSString * const kAdTypeMraid = @"mraid";
 @synthesize ignoresAutorefresh = _ignoresAutorefresh;
 @synthesize autorefreshTimerNeedsScheduling = _autorefreshTimerNeedsScheduling;
 @synthesize data = _data;
-@synthesize headers = _headers;
 @synthesize webviewPool = _webviewPool;
-@synthesize currentAdapter = _currentAdapter;
 @synthesize request = _request;
+@synthesize requestingAdapter = _requestingAdapter;
+@synthesize headersForRequestingAdapter = _headersForRequestingAdapter;
+@synthesize currentOnscreenAdapter = _currentOnscreenAdapter;
+@synthesize previousOnscreenAdapter = _previousOnscreenAdapter;
 
 - (id)init {
 	if (self = [super init]) {
@@ -184,12 +192,18 @@ NSString * const kAdTypeMraid = @"mraid";
     // XXX: Remove the loading indicator if it's on-screen.
     [self hideLoadingIndicatorAnimated:NO];
 	
-	[_currentAdapter unregisterDelegate];
-	[_currentAdapter release];
-	[_previousAdapter unregisterDelegate];
-	[_previousAdapter release];
-	[_adUnitId release];
-	[_headers release];
+    [_headersForRequestingAdapter release];
+    
+    [_requestingAdapter unregisterDelegate];
+    [_requestingAdapter release];
+	
+    [_currentOnscreenAdapter unregisterDelegate];
+    [_currentOnscreenAdapter release];
+    
+    [_previousOnscreenAdapter unregisterDelegate];
+    [_previousOnscreenAdapter release];
+    
+    [_adUnitId release];
 	[_URL release];
 	[_clickURL release];
 	[_interceptURL release];
@@ -407,8 +421,8 @@ NSString * const kAdTypeMraid = @"mraid";
 
 - (void)rotateToOrientation:(UIInterfaceOrientation)orientation
 {
-	if (self.currentAdapter) {
-		[self.currentAdapter rotateToOrientation:orientation];
+	if (self.currentOnscreenAdapter) {
+		[self.currentOnscreenAdapter rotateToOrientation:orientation];
 	} else if ([self.adView.adContentView isKindOfClass:[UIWebView class]]) {
 		[self updateOrientationPropertiesForWebView:(UIWebView *)self.adView.adContentView];
 	}
@@ -450,7 +464,8 @@ NSString * const kAdTypeMraid = @"mraid";
 - (void)customEventDidLoadAd
 {
 	_isLoading = NO;
-  [self scheduleAutorefreshTimerIfEnabled];
+    [self configureFromHeaders:self.headersForRequestingAdapter];
+    [self scheduleAutorefreshTimerIfEnabled];
 	[self trackImpression];
 }
 
@@ -462,12 +477,12 @@ NSString * const kAdTypeMraid = @"mraid";
 
 - (void)customEventActionWillBegin 
 {
-    [self userActionWillBeginForAdapter:self.currentAdapter];
+    [self userActionWillBeginForAdapter:self.currentOnscreenAdapter];
 }
 
 - (void)customEventActionDidEnd
 {
-    [self userActionDidFinishForAdapter:self.currentAdapter];
+    [self userActionDidFinishForAdapter:self.currentOnscreenAdapter];
 }
 
 - (UIViewController *)viewControllerForPresentingModalView 
@@ -540,15 +555,49 @@ NSString * const kAdTypeMraid = @"mraid";
     [self showLoadingIndicatorAnimated:YES];
 }
 
-- (void)replaceCurrentAdapterWithAdapter:(MPBaseAdapter *)newAdapter
+- (void)replaceCurrentAdapterWithAdapter:(MPBaseAdapter *)adapter
 {
-	// Dispose of the last adapter stored in _previousAdapter.
-	[_previousAdapter unregisterDelegate];
-  [_previousAdapter release];
-	
-	_previousAdapter = _currentAdapter;
-	_currentAdapter = newAdapter;
-  [_currentAdapter retain];
+    [self.previousOnscreenAdapter unregisterDelegate];
+    
+    self.previousOnscreenAdapter = self.currentOnscreenAdapter;
+    self.currentOnscreenAdapter = adapter;
+}
+
+- (void)configureFromHeaders:(NSDictionary *)headers
+{
+    NSString *urlString = nil;
+    
+    urlString = [headers objectForKey:kClickthroughHeaderKey];
+    self.clickURL = urlString ? [NSURL URLWithString:urlString] : nil;
+    
+    urlString = [headers objectForKey:kLaunchpageHeaderKey];
+    self.interceptURL = urlString ? [NSURL URLWithString:urlString] : nil;
+    
+    urlString = [headers objectForKey:kImpressionTrackerHeaderKey];
+    self.impTrackerURL = urlString ? [NSURL URLWithString:urlString] : nil;
+    
+    NSString *shouldInterceptLinksString = [headers objectForKey:kInterceptLinksHeaderKey];
+    if (shouldInterceptLinksString)
+        self.shouldInterceptLinks = [shouldInterceptLinksString boolValue];
+    
+    NSString *scrollableString = [headers objectForKey:kScrollableHeaderKey];
+    if (scrollableString)
+        self.adView.scrollable = [scrollableString boolValue];
+    
+    NSString *animationString = [headers objectForKey:kAnimationHeaderKey];
+    if (animationString)
+        self.adView.animationType = [animationString intValue];
+}
+
+- (void)didLoadAdFromExternalAdapter
+{
+    _isLoading = NO;
+    [self configureFromHeaders:self.headersForRequestingAdapter];
+}
+
+- (void)didFailToLoadAdFromExternalAdapter
+{
+    [self adapter:self.requestingAdapter didFailToLoadAdWithError:nil];
 }
 
 #pragma mark -
@@ -628,32 +677,15 @@ NSString * const kAdTypeMraid = @"mraid";
 	[_data release];
 	_data = [[NSMutableData data] retain];
 	
-	// Parse response headers, set relevant URLs and booleans.
 	NSDictionary *headers = [(NSHTTPURLResponse *)response allHeaderFields];
-	NSString *urlString = nil;
-	
-	urlString = [headers objectForKey:kClickthroughHeaderKey];
-	self.clickURL = urlString ? [NSURL URLWithString:urlString] : nil;
-	
-	urlString = [headers objectForKey:kLaunchpageHeaderKey];
-	self.interceptURL = urlString ? [NSURL URLWithString:urlString] : nil;
-	
-	urlString = [headers objectForKey:kFailUrlHeaderKey];
-	self.failURL = urlString ? [NSURL URLWithString:urlString] : nil;
-	
-	urlString = [headers objectForKey:kImpressionTrackerHeaderKey];
-	self.impTrackerURL = urlString ? [NSURL URLWithString:urlString] : nil;
-	
-	NSString *shouldInterceptLinksString = [headers objectForKey:kInterceptLinksHeaderKey];
-	if (shouldInterceptLinksString)
-		self.shouldInterceptLinks = [shouldInterceptLinksString boolValue];
-	
-	NSString *scrollableString = [headers objectForKey:kScrollableHeaderKey];
-	if (scrollableString)
-		self.adView.scrollable = [scrollableString boolValue];
-	
-	NSString *widthString = [headers objectForKey:kWidthHeaderKey];
-	NSString *heightString = [headers objectForKey:kHeightHeaderKey];
+    self.headersForRequestingAdapter = headers;
+    
+    // Set the failover URL, so that we can get another ad if this request fails.
+    NSString *failURLString = [headers objectForKey:kFailUrlHeaderKey];
+    self.failURL = failURLString ? [NSURL URLWithString:failURLString] : nil;
+    
+    NSString *widthString = [headers objectForKey:kWidthHeaderKey];
+    NSString *heightString = [headers objectForKey:kHeightHeaderKey];
 	
 	// Try to get the creative size from the server or otherwise use the original container's size.
 	if (widthString && heightString)
@@ -675,40 +707,36 @@ NSString * const kAdTypeMraid = @"mraid";
 													  repeats:NO];
 	}
 	
-	NSString *animationString = [headers objectForKey:kAnimationHeaderKey];
-	if (animationString)
-		self.adView.animationType = [animationString intValue];
-	
 	// Log if the ad is from an ad network
-	NSString *networkTypeHeader = [[(NSHTTPURLResponse *)response allHeaderFields] 
-								   objectForKey:kNetworkTypeHeaderKey];
+	NSString *networkTypeHeader = [headers objectForKey:kNetworkTypeHeaderKey];
 	if (networkTypeHeader && ![networkTypeHeader isEqualToString:@""])
 	{
 		MPLogInfo(@"Ad view (%p) is fetching ad network type: %@", self.adView, networkTypeHeader);
 	}
-
-	self.headers = headers;
+    
+    [self.requestingAdapter unregisterDelegate];
+    self.requestingAdapter = nil;
 	
 	// Determine ad type.
 	NSString *typeHeader = [headers	objectForKey:kAdTypeHeaderKey];
 	
 	if (!typeHeader || [typeHeader isEqualToString:kAdTypeClear]) {
-		[self replaceCurrentAdapterWithAdapter:nil];
-		
 		// Show a blank.
 		MPLogInfo(@"Ad view (%p) server response indicated no ad available.", self.adView);
 		[connection cancel];
 		_isLoading = NO;
-		[self.adView backFillWithNothing];
+		
+        if ([self.adView.delegate respondsToSelector:@selector(adViewDidFailToLoadAd:)]) {
+            [self.adView.delegate adViewDidFailToLoadAd:self.adView];
+        }
+        
 		[self scheduleAutorefreshTimerIfEnabled];
 		return;
 	} else if ([typeHeader isEqualToString:kAdTypeHtml] || 
 			[typeHeader isEqualToString:kAdTypeInterstitial]) {
 		// HTML ad, so just return. connectionDidFinishLoading: will take care of the rest.
-		[self replaceCurrentAdapterWithAdapter:nil];
 		return;
 	} else if ([typeHeader isEqualToString:kAdTypeMraid]) {
-		[self replaceCurrentAdapterWithAdapter:nil];
         _shouldLoadMRAIDAd = YES;
         return;
     }
@@ -718,23 +746,16 @@ NSString * const kAdTypeMraid = @"mraid";
 	Class cls = NSClassFromString(classString);
 	if (cls != nil)
 	{
-		MPBaseAdapter *newAdapter = [(MPBaseAdapter *)[[cls alloc] initWithAdapterDelegate:self] autorelease];
-		[self replaceCurrentAdapterWithAdapter:newAdapter];
-		
-		[connection cancel];
-		
-		// Tell adapter to fire off ad request.
-		NSDictionary *params = [(NSHTTPURLResponse *)response allHeaderFields];
-		[_currentAdapter _getAdWithParams:params];
+        [connection cancel];
+        
+        self.requestingAdapter = [[[cls alloc] initWithAdapterDelegate:self] autorelease];
+		[self.requestingAdapter _getAdWithParams:[(NSHTTPURLResponse *)response allHeaderFields]];
 	}
 	// Else: no adapter for the specified ad type, so just fail over.
 	else 
 	{
-		[self replaceCurrentAdapterWithAdapter:nil];
-		
-		[connection cancel];
-		_isLoading = NO;
-		
+        [connection cancel];
+        _isLoading = NO;
 		[self loadAdWithURL:self.failURL];
 	}	
 }
@@ -749,9 +770,12 @@ NSString * const kAdTypeMraid = @"mraid";
 	MPLogError(@"Ad view (%p) failed to get a valid response from MoPub server. Error: %@", 
 			   self.adView, error);
 	
-	// If the initial request to MoPub fails, replace the current ad content with a blank.
 	_isLoading = NO;
-	[self.adView backFillWithNothing];
+	
+    // Inform the developer that an ad request failed.
+    if ([self.adView.delegate respondsToSelector:@selector(adViewDidFailToLoadAd:)]) {
+        [self.adView.delegate adViewDidFailToLoadAd:self.adView];
+    }
 	
 	// Create an autorefresh timer if there isn't a valid one.
 	if (!self.autorefreshTimer || ![self.autorefreshTimer isValid])
@@ -770,13 +794,13 @@ NSString * const kAdTypeMraid = @"mraid";
 
 - (void)connectionDidFinishLoading:(NSURLConnection *)connection
 {
-    NSMutableDictionary *params = [NSMutableDictionary dictionaryWithDictionary:self.headers];
+    NSMutableDictionary *params = [NSMutableDictionary dictionaryWithDictionary:self.headersForRequestingAdapter];
     [params setObject:_data forKey:@"payload"];
     
 	if ([self.adView.delegate respondsToSelector:@selector(adView:didReceiveResponseParams:)])
 		[self.adView.delegate adView:self.adView didReceiveResponseParams:params];
 	
-	[self processResponseHeaders:self.headers body:_data];
+	[self processResponseHeaders:self.headersForRequestingAdapter body:_data];
 	[self logResponseBodyToConsole:_data];
 }
 
@@ -797,8 +821,7 @@ NSString * const kAdTypeMraid = @"mraid";
 
 - (void)handleMraidRequest
 {
-	MPMraidAdapter *adapter = [[[MPMraidAdapter alloc] initWithAdapterDelegate:self] autorelease];
-	[self replaceCurrentAdapterWithAdapter:adapter];
+	self.requestingAdapter = [[[MPMraidAdapter alloc] initWithAdapterDelegate:self] autorelease];
 
 	CGSize size = self.adView.creativeSize;
 	NSDictionary *params = [NSDictionary dictionaryWithObjectsAndKeys:
@@ -806,7 +829,7 @@ NSString * const kAdTypeMraid = @"mraid";
                         [NSString stringWithFormat:@"%f", size.height], @"adHeight",
                         _data, @"payload",
                         nil];
-	[adapter getAdWithParams:params];
+	[self.requestingAdapter _getAdWithParams:params];
 }
 
 - (void)logResponseBodyToConsole:(NSData *)data
@@ -870,72 +893,130 @@ NSString * const kAdTypeMraid = @"mraid";
 - (void)adapter:(MPBaseAdapter *)adapter didFinishLoadingAd:(UIView *)ad
 		shouldTrackImpression:(BOOL)shouldTrack
 {
-	_isLoading = NO;
-	[self.adView setAdContentView:ad];
-	
-	if (shouldTrack) [self trackImpression];
-	[self scheduleAutorefreshTimerIfEnabled];
-	
-	if ([self.adView.delegate respondsToSelector:@selector(adViewDidLoadAd:)])
-		[self.adView.delegate adViewDidLoadAd:self.adView];	
+    if (adapter == self.previousOnscreenAdapter) {
+        // Ignore success messages from an adapter if its content is no longer on the screen.
+        return;
+    }
+    else if (adapter == self.currentOnscreenAdapter) {
+        // If the current adapter refreshes its content while it is on-screen, make sure that
+        // the content is still being presented.
+        [self.adView setAdContentView:ad];
+    }
+    else if (adapter == self.requestingAdapter) {
+        _isLoading = NO;
+        
+        [self configureFromHeaders:self.headersForRequestingAdapter];
+        
+        [self replaceCurrentAdapterWithAdapter:self.requestingAdapter];
+        self.requestingAdapter = nil;
+        
+        [self.adView setAdContentView:ad];
+        
+        [self scheduleAutorefreshTimerIfEnabled];
+        
+        if ([self.adView.delegate respondsToSelector:@selector(adViewDidLoadAd:)]) {
+            [self.adView.delegate adViewDidLoadAd:self.adView];
+        }
+    }
+    
+    if (shouldTrack) {
+        [self trackImpression];
+    }
 }
 
 - (void)adapter:(MPBaseAdapter *)adapter didFailToLoadAdWithError:(NSError *)error
 {
-	// Ignore fail messages from the previous adapter.
-	if (_previousAdapter && adapter == _previousAdapter) return;
-	
-	_isLoading = NO;
-	MPLogError(@"Adapter (%p) failed to load ad. Error: %@", adapter, error);
-	
-	// Dispose of the current adapter, because we don't want it to try loading again.
-	[_currentAdapter unregisterDelegate];
-    
-    if (_currentAdapter.class == NSClassFromString(@"MPMillennialAdapter")) {
-        // XXX: Millennial says an MMAdView must not be deallocated immediately after it fails
-        // to load an ad, because it will result in a crash. This means that we can't immediately 
-        // release our Millennial adapters. Their suggestion was to use this ugly delay.
-        [_currentAdapter performSelector:@selector(release) withObject:nil afterDelay:1];
-    } else {
-        [_currentAdapter release];
+    if (adapter != self.requestingAdapter && adapter != self.currentOnscreenAdapter) {
+        // Ignore failure messages from any adapter that is not the prospective adapter or the
+        // current on-screen adapter.
+        return;
     }
     
-	_currentAdapter = nil;
-	
-	// An adapter will sometimes send this message during a user action (example: user taps on an 
-	// iAd; iAd then does an internal refresh and fails). In this case, we schedule a new request
-	// to occur after the action ends. Otherwise, just start a new request using the fall-back URL.
-	if (_adActionInProgress) [self scheduleAutorefreshTimerIfEnabled];
-	else [self loadAdWithURL:self.failURL];
-	
+    if (adapter == self.requestingAdapter) {
+        _isLoading = NO;
+        MPLogError(@"Adapter (%p) failed to load ad. Error: %@", adapter, error);
+        
+        [self.requestingAdapter unregisterDelegate];
+        
+        if ([self.requestingAdapter class] == NSClassFromString(@"MPMillennialAdapter")) {
+            // XXX: Millennial says an MMAdView must not be deallocated immediately after it fails
+            // to load an ad, because it will result in a crash. This means that we can't immediately
+            // release our Millennial adapters. Their suggestion was to use this ugly delay.
+            [_requestingAdapter performSelector:@selector(release) withObject:nil afterDelay:1];
+            _requestingAdapter = nil;
+        }
+        else {
+            self.requestingAdapter = nil;
+        }
+        
+        if (_adActionInProgress) {
+            [self scheduleAutorefreshTimerIfEnabled];
+        }
+        else {
+            [self loadAdWithURL:self.failURL];
+        }
+    }
+    else if (adapter == self.currentOnscreenAdapter) {
+        [self.adView setAdContentView:nil];
+        [self replaceCurrentAdapterWithAdapter:nil];
+        
+        if (self.requestingAdapter) {
+            // The current adapter has failed, but another adapter is already in the process of
+            // trying to replace it. As an optimization, we'll choose not to fire off another retry.
+            return;
+        } else {
+            [self loadAdWithURL:self.failURL];
+            return;
+        }
+    }
 }
 
 - (void)userActionWillBeginForAdapter:(MPBaseAdapter *)adapter
 {
-	_adActionInProgress = YES;
-	[self trackClick];
-	
-	if ([self.autorefreshTimer isScheduled])
-		[self.autorefreshTimer pause];
-	
-	// Notify delegate that the ad will present a modal view / disrupt the app.
-	if ([self.adView.delegate respondsToSelector:@selector(willPresentModalViewForAd:)])
-		[self.adView.delegate willPresentModalViewForAd:self.adView];	
+    if (adapter != self.currentOnscreenAdapter) {
+        // Only handle "click" messages from adapters whose content is currently on-screen.
+        return;
+    }
+    
+    _adActionInProgress = YES;
+    [self trackClick];
+    
+    if ([self.autorefreshTimer isScheduled]) {
+        [self.autorefreshTimer pause];
+    }
+    
+    // Notify delegate that the ad will present a modal view / disrupt the app.
+    if ([self.adView.delegate respondsToSelector:@selector(willPresentModalViewForAd:)]) {
+        [self.adView.delegate willPresentModalViewForAd:self.adView];
+    }
 }
 
 - (void)userActionDidFinishForAdapter:(MPBaseAdapter *)adapter
 {
-	_adActionInProgress = NO;
-	
-	[self resumeAutorefreshAfterUserAction];
-	
-	// Notify delegate that the ad's modal view was dismissed, returning focus to the app.
-	if ([self.adView.delegate respondsToSelector:@selector(didDismissModalViewForAd:)])
-		[self.adView.delegate didDismissModalViewForAd:self.adView];	
+    if (adapter != self.currentOnscreenAdapter && adapter != self.previousOnscreenAdapter) {
+        // Only handle "dismiss" messages from adapters whose content is either currently on-screen
+        // or was recently displaced from the screen. The latter case is included to ensure that the
+        // developer receives the proper callbacks if one banner is displaced by another while the
+        // first banner's click content is still on-screen.
+        return;
+    }
+    
+    _adActionInProgress = NO;
+    
+    [self resumeAutorefreshAfterUserAction];
+    
+    // Notify delegate that the ad's modal view was dismissed, returning focus to the app.
+    if ([self.adView.delegate respondsToSelector:@selector(didDismissModalViewForAd:)]) {
+        [self.adView.delegate didDismissModalViewForAd:self.adView];
+    }
 }
 
 - (void)userWillLeaveApplicationFromAdapter:(MPBaseAdapter *)adapter
 {
+    if (adapter != self.currentOnscreenAdapter && adapter != self.previousOnscreenAdapter) {
+        return;
+    }
+    
 	_adActionInProgress = NO;
     
     [self resumeAutorefreshAfterUserAction];
@@ -981,8 +1062,10 @@ NSString * const kAdTypeMraid = @"mraid";
 		else if ([host isEqualToString:kMoPubFinishLoadHost])
 		{
 			_isLoading = NO;
+            
+			[self configureFromHeaders:self.headersForRequestingAdapter];
 			
-			[self.adView setAdContentView:webView];
+            [self.adView setAdContentView:webView];
 			[self scheduleAutorefreshTimerIfEnabled];
 			
 			// Notify delegate that an ad has been loaded.
@@ -1106,7 +1189,11 @@ NSString * const kAdTypeMraid = @"mraid";
 	
 	// If the initial request to MoPub fails, replace the current ad content with a blank.
 	_isLoading = NO;
-	[self.adView backFillWithNothing];
+	
+    // Inform the developer that an ad request failed.
+    if ([self.adView.delegate respondsToSelector:@selector(adViewDidFailToLoadAd:)]) {
+        [self.adView.delegate adViewDidFailToLoadAd:self.adView];
+    }
 }
 
 - (void)handleMraidRequest

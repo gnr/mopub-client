@@ -15,6 +15,4 @@
 @property (nonatomic, retain) UIView *adContentView;
 @property (nonatomic, assign) CGSize originalSize;
 
-- (void)backFillWithNothing;
-
 @end
