@@ -11,6 +11,9 @@ import com.greystripe.sdk.GSAdListener;
 import com.greystripe.sdk.GSMobileBannerAdView;
 import com.mopub.mobileads.CustomEventBanner;
 
+/*
+ * Tested with Greystripe SDK 2.1.
+ */
 public class GreystripeBanner extends CustomEventBanner implements GSAdListener {
     private CustomEventBanner.Listener mBannerListener;
     private GSMobileBannerAdView mGreystripeAd;
@@ -36,8 +39,7 @@ public class GreystripeBanner extends CustomEventBanner implements GSAdListener 
 
     @Override
     public void onInvalidate() {
-        mBannerListener = null;
-        mGreystripeAd = null;
+        mGreystripeAd.removeListener(this);
     }
 
     /*
@@ -69,5 +71,13 @@ public class GreystripeBanner extends CustomEventBanner implements GSAdListener 
         } else {
             mBannerListener.onAdFailed();
         }
+    }
+
+    @Override
+    public void onAdCollapse(GSAd greystripeAd) {
+    }
+
+    @Override
+    public void onAdExpansion(GSAd greystripeAd) {
     }
 }

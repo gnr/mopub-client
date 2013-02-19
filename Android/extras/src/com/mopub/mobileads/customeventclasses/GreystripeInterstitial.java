@@ -11,6 +11,9 @@ import com.greystripe.sdk.GSAdListener;
 import com.greystripe.sdk.GSFullscreenAd;
 import com.mopub.mobileads.CustomEventInterstitial;
 
+/*
+ * Tested with Greystripe SDK 2.1.
+ */
 public class GreystripeInterstitial extends CustomEventInterstitial implements GSAdListener {
     private CustomEventInterstitial.Listener mInterstitialListener;
     private GSFullscreenAd mGreystripeAd;
@@ -28,6 +31,7 @@ public class GreystripeInterstitial extends CustomEventInterstitial implements G
          * in MoPub's web interface.
          */
         String greystripeAppId = "YOUR_GREYSTRIPE_APP_ID";
+        
         mGreystripeAd = new GSFullscreenAd(context, greystripeAppId);
         mGreystripeAd.addListener(this);
         
@@ -36,15 +40,19 @@ public class GreystripeInterstitial extends CustomEventInterstitial implements G
 
     @Override
     public void showInterstitial() {
+        if (!mGreystripeAd.isAdReady()) {
+            mInterstitialListener.onAdFailed();
+            return;
+        }
+        
         Log.d("MoPub", "Showing Greystripe interstitial ad.");
-        if (mGreystripeAd != null) mGreystripeAd.display();
+        mGreystripeAd.display();
         mInterstitialListener.onShowInterstitial();
     }
     
     @Override
     public void onInvalidate() {
-        mInterstitialListener = null;
-        mGreystripeAd = null;
+        mGreystripeAd.removeListener(this);
     }
 
     /*
@@ -54,6 +62,13 @@ public class GreystripeInterstitial extends CustomEventInterstitial implements G
     public void onAdClickthrough(GSAd greystripeAd) {
         Log.d("MoPub", "Greystripe interstitial ad clicked.");
         mInterstitialListener.onClick();
+
+        /*
+         * XXX: When a Greystripe interstitial is dismissed as a result of a user click, the
+         * onAdDismissal callback does not get fired. This call ensures that the custom event
+         * listener is informed of all dismissals.
+         */
+        mInterstitialListener.onDismissInterstitial();
     }
 
     @Override
@@ -73,9 +88,16 @@ public class GreystripeInterstitial extends CustomEventInterstitial implements G
         if (mGreystripeAd != null && mGreystripeAd.isAdReady()) {
             Log.d("MoPub", "Greysripe interstitial ad loaded successfully.");
             mInterstitialListener.onAdLoaded();
-            showInterstitial();
         } else {
             mInterstitialListener.onAdFailed();
         }
+    }
+
+    @Override
+    public void onAdCollapse(GSAd greystripeAd) {
+    }
+
+    @Override
+    public void onAdExpansion(GSAd greystripeAd) {
     }
 }

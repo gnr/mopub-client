@@ -10,10 +10,17 @@ import com.chartboost.sdk.Chartboost;
 import com.chartboost.sdk.ChartboostDelegate;
 import com.mopub.mobileads.CustomEventInterstitial;
 
+/*
+ * Tested with Chartboost SDK 3.1.5.
+ */
 public class ChartboostInterstitial extends CustomEventInterstitial {
-    private Chartboost mChartboostInterstitial;
-    private ChartboostDelegate mChartboostDelegate;
     private CustomEventInterstitial.Listener mInterstitialListener;
+
+    /*
+     * Note: Chartboost recommends implementing their specific Activity lifecycle callbacks in your
+     * Activity's onStart(), onStop(), onBackPressed() methods for proper results. Please see their
+     * documentation for more information.
+     */
 
     /*
      * Abstract methods from CustomEventInterstitial
@@ -22,8 +29,6 @@ public class ChartboostInterstitial extends CustomEventInterstitial {
     public void loadInterstitial(Context context, CustomEventInterstitial.Listener interstitialListener,
             Map<String, Object> localExtras, Map<String, String> serverExtras) {
         mInterstitialListener = interstitialListener;
-        mChartboostInterstitial = Chartboost.sharedChartboost();
-        mChartboostDelegate = getChartboostDelegate();
         
         Activity activity = null;
         if (context instanceof Activity) {
@@ -44,24 +49,25 @@ public class ChartboostInterstitial extends CustomEventInterstitial {
         String appId = "YOUR_CHARTBOOST_APP_ID";
         String appSignature = "YOUR_CHARTBOOST_APP_SIGNATURE";
         
-        mChartboostInterstitial.onCreate(activity, appId, appSignature, mChartboostDelegate);
-        mChartboostInterstitial.startSession();
+        Chartboost chartboost = Chartboost.sharedChartboost();
+        ChartboostDelegate chartboostDelegate = getChartboostDelegate();
         
-        mChartboostInterstitial.cacheInterstitial();
+        chartboost.onCreate(activity, appId, appSignature, chartboostDelegate);
+        chartboost.onStart(activity);
+        
+        chartboost.cacheInterstitial();
     }
 
     @Override
     public void showInterstitial() {
         Log.d("MoPub", "Showing Chartboost interstitial ad.");
-        if (mChartboostInterstitial != null) mChartboostInterstitial.showInterstitial();
+        Chartboost.sharedChartboost().showInterstitial();
         mInterstitialListener.onShowInterstitial();
     }
     
     @Override
     public void onInvalidate() {
-        mInterstitialListener = null;
-        mChartboostInterstitial = null;
-        mChartboostDelegate = null;
+        Chartboost.sharedChartboost().setDelegate(null);
     }
     
     private ChartboostDelegate getChartboostDelegate() {
@@ -87,7 +93,7 @@ public class ChartboostInterstitial extends CustomEventInterstitial {
             @Override
             public void didCacheInterstitial(String location) {
                 Log.d("MoPub", "Chartboost interstitial loaded successfully.");
-                showInterstitial();
+                mInterstitialListener.onAdLoaded();
             }
             
             @Override
@@ -98,13 +104,13 @@ public class ChartboostInterstitial extends CustomEventInterstitial {
             
             @Override
             public void didDismissInterstitial(String location) {
-                // Note that this method is called on interstitial click and close.
+                // Note that this method is fired before didCloseInterstitial and didClickInterstitial.
+                Log.d("MoPub", "Chartboost interstitial ad dismissed.");
+                mInterstitialListener.onDismissInterstitial();
             }
             
             @Override
             public void didCloseInterstitial(String location) {
-                Log.d("MoPub", "Chartboost interstitial ad dismissed.");
-                mInterstitialListener.onDismissInterstitial();
             }
             
             @Override
@@ -115,6 +121,8 @@ public class ChartboostInterstitial extends CustomEventInterstitial {
             
             @Override
             public void didShowInterstitial(String location) {
+                Log.d("MoPub", "Chartboost interstitial ad shown.");
+                mInterstitialListener.onShowInterstitial();
             }
             
             /*
