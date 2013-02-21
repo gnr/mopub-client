@@ -66,14 +66,14 @@
 	_mmInterstitialAdView = [[[self class] sharedMMAdViewForAPID:apid delegate:self] retain];
 	
 	if (!_mmInterstitialAdView) {
-		[_interstitialAdController adapter:self didFailToLoadAdWithError:nil];
+		[_manager adapter:self didFailToLoadAdWithError:nil];
 		return;
 	}
     
     // If a Millennial interstitial has already been cached, we don't need to fetch another one.
     if ([_mmInterstitialAdView checkForCachedAd]) {
         MPLogInfo(@"Previous Millennial interstitial ad was found in the cache.");
-        [_interstitialAdController adapterDidFinishLoadingAd:self];
+        [_manager adapterDidFinishLoadingAd:self];
         return;
     }
 
@@ -100,13 +100,13 @@
         if (![_mmInterstitialAdView displayCachedAd])
         {
             MPLogInfo(@"Millennial interstitial ad could not be displayed.");
-            [_interstitialAdController interstitialDidExpireForAdapter:self];
+            [_manager interstitialDidExpireForAdapter:self];
         }
     }
     else
     {
         MPLogInfo(@"Millennial interstitial ad is no longer cached.");
-        [_interstitialAdController interstitialDidExpireForAdapter:self];
+        [_manager interstitialDidExpireForAdapter:self];
     }
 }
 
@@ -137,28 +137,30 @@
 - (void)adRequestFinishedCaching:(MMAdView *)adView successful:(BOOL)didSucceed {
     if (didSucceed) {
         MPLogInfo(@"Millennial interstitial ad was cached successfully.");
-        [_interstitialAdController adapterDidFinishLoadingAd:self];
+        [_manager adapterDidFinishLoadingAd:self];
     } else {
         MPLogInfo(@"Millennial interstitial ad caching failed.");
-        [_interstitialAdController adapter:self didFailToLoadAdWithError:nil];
+        [_manager adapter:self didFailToLoadAdWithError:nil];
     }
 }
 
 - (void)adModalWillAppear
 {
-	[_interstitialAdController interstitialWillAppearForAdapter:self];
+	[_manager interstitialWillAppearForAdapter:self];
 }
 
 - (void)adModalDidAppear
 {
-	[_interstitialAdController interstitialDidAppearForAdapter:self];
+	[_manager interstitialDidAppearForAdapter:self];
 }
 
 - (void)adModalWasDismissed
 {
-	[_interstitialAdController interstitialWillDisappearForAdapter:self];
-	[_interstitialAdController interstitialDidDisappearForAdapter:self];
-    [_interstitialAdController interstitialDidExpireForAdapter:self];
+    [self retain];
+	[_manager interstitialWillDisappearForAdapter:self];
+	[_manager interstitialDidDisappearForAdapter:self];
+    [_manager interstitialDidExpireForAdapter:self];
+    [self release];
 }
 
 @end

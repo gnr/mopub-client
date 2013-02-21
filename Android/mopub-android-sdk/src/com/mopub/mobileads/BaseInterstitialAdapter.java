@@ -25,6 +25,7 @@ public abstract class BaseInterstitialAdapter {
         sInterstitialAdapterMap.put("mraid", "com.mopub.mobileads.MraidInterstitialAdapter");
         sInterstitialAdapterMap.put("admob_full", "com.mopub.mobileads.GoogleAdMobInterstitialAdapter");
         sInterstitialAdapterMap.put("millennial_full", "com.mopub.mobileads.MillennialInterstitialAdapter");
+        sInterstitialAdapterMap.put("custom_event", "com.mopub.mobileads.CustomEventInterstitialAdapter");
     }
     
     public abstract void loadInterstitial();

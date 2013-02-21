@@ -1,5 +1,22 @@
 # MoPub Changelog #
 
+Version 1.10 (February 13, 2013)
+o iOS: Introduced custom event classes
+o iOS: Fixed issue causing metrics-recording URLs to be incorrect when certain ad sources fail 
+o iOS: Fixed issue causing interstitials to be sized incorrectly when the status bar changes state
+o iOS: Fixed issue preventing loading indicator from being dismissed properly for HTML interstitials
+o iOS: Fixed issue that allows the browser controller to continue loading after it has been dismissed
+o iOS: Added 'testing' property on MPAdView and MPInterstitialAdController
+o iOS: Increased accuracy of iAd impression tracking
+o Android: Introduced custom event classes
+o Android: Improved error logging during AdFetch
+o Android: Fixed view resource ID conflicts in MraidDisplayController
+o Android: Fixed issue in which un-implemented custom events could disrupt the mediation waterfall
+o Android: Added ability to force refresh ad units
+o Android: Added testing accessors to MoPubView and MoPubInterstitial
+o Android: Updated to correctly reflect MRAID capabilities in ad request
+o Android: Updated to perform HttpClient shutdown on background thread
+
 Version 1.9.0.0 (September 27, 2012)
 o iOS: Added support for iOS 6 and the new iPhone 5 screen size
 o iOS: Added support for the Facebook ads test program

@@ -7,7 +7,6 @@
 //
 
 #import "MPGoogleAdMobAdapter.h"
-#import "MPAdManager.h"
 #import "MPLogging.h"
 #import "CJSONDeserializer.h"
 

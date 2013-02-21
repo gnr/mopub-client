@@ -34,8 +34,15 @@ package com.mopub.mobileads;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+
+import org.json.JSONObject;
+import org.json.JSONTokener;
 
 public class Utils {
+    private Utils() {}
 
 	public static String sha1(String s) {
 		try { 
@@ -52,4 +59,20 @@ public class Utils {
 			return "";
 		}
 	}
+	
+    public static Map<String,String> jsonStringToMap(String jsonParams) throws Exception {
+        Map<String,String> jsonMap = new HashMap<String,String>();
+        
+        if (jsonParams == null || jsonParams.equals("")) return jsonMap;
+        
+        JSONObject jsonObject = (JSONObject) new JSONTokener(jsonParams).nextValue();
+        Iterator<?> keys = jsonObject.keys();
+        
+        while (keys.hasNext()) {
+            String key = (String) keys.next();
+            jsonMap.put(key, jsonObject.getString(key));
+        }
+        
+        return jsonMap;
+    }
 }
