@@ -103,6 +103,8 @@ const CGFloat kMoPubRequestRetryInterval = 60.0;
 		return;
 	}
 	
+    _loading = YES;
+    
 	URL = (URL) ? URL : [MPAdServerURLBuilder URLWithAdUnitID:[self adUnitID]
                                                      keywords:[self keywords]
                                                 locationArray:[self locationDescriptionPair]
@@ -111,7 +113,6 @@ const CGFloat kMoPubRequestRetryInterval = 60.0;
 	MPLogInfo(@"Banner view (%p) loading ad with MoPub server URL: %@", self.adView, URL);
     
     [_communicator loadURL:URL];
-	_loading = YES;
 }
 
 - (void)refreshAd
@@ -184,7 +185,7 @@ const CGFloat kMoPubRequestRetryInterval = 60.0;
 {
     _loading = NO;
     
-	if (!self.autorefreshTimer) {
+	if (!self.autorefreshTimer || ![self.autorefreshTimer isValid]) {
         [self scheduleDefaultAutorefreshTimer];
     } else {
         [self scheduleAutorefreshTimerIfEnabled];

@@ -298,15 +298,6 @@ static NSString * const kNewContentViewKey = @"NewContentView";
 	[_adManager loadAdWithURL:URL];
 }
 
-- (void)didCloseAd:(id)sender
-{
-	if ([_adContentView isKindOfClass:[UIWebView class]])
-		[(UIWebView *)_adContentView stringByEvaluatingJavaScriptFromString:@"webviewDidClose();"];
-	
-	if ([self.delegate respondsToSelector:@selector(adViewShouldClose:)])
-		[self.delegate adViewShouldClose:self];
-}
-
 - (void)adViewDidAppear
 {
 	if ([_adContentView isKindOfClass:[UIWebView class]]) {

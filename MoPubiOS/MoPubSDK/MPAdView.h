@@ -162,12 +162,6 @@ typedef enum
 - (void)rotateToOrientation:(UIInterfaceOrientation)newOrientation;
 
 /*
- * Signals the internal webview that it has been closed. This will trigger
- * the -adViewShouldClose delegate callback, if it is implemented.
- */
-- (void)didCloseAd:(id)sender;
-
-/*
  * Forces native ad networks to only use ads sized for the specified orientation. For instance, 
  * if you call this with UIInterfaceOrientationPortrait, native networks (e.g. iAd) will never 
  * return ads sized for the landscape orientation.
@@ -243,12 +237,9 @@ typedef enum
 - (void)didDismissModalViewForAd:(MPAdView *)view;
 
 /*
- * This method is called when a mopub://close link is activated. Your implementation of this
- * method should remove the ad view from the screen (see MPInterstitialAdController for an example).
+ * This method is called when the user is about to leave your application as a result of tapping on
+ * an ad. 
  */
-- (void)adViewShouldClose:(MPAdView *)view;
-
-// TODO: Comment.
 - (void)willLeaveApplicationFromAd:(MPAdView *)view;
 
 @end

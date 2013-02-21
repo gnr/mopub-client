@@ -58,7 +58,7 @@
     
     SEL customEventOneArgumentSelector = NSSelectorFromString(oneArgumentSelectorName);
     if ([[self.delegate adViewDelegate] respondsToSelector:customEventOneArgumentSelector]) {
-        [[self.delegate adViewDelegate] performSelector:customEventSelector
+        [[self.delegate adViewDelegate] performSelector:customEventOneArgumentSelector
                                              withObject:[self.delegate adView]];
         return;
     }
