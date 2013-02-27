@@ -283,7 +283,7 @@ public class MoPubInterstitial implements OnAdLoadedListener, OnAdFailedListener
         
         @Override
         protected void loadCustomEvent(Map<String, String> paramsMap) {
-            if (mInterstitialAdapter != null) mAdapter.invalidate();
+            if (mInterstitialAdapter != null) mInterstitialAdapter.invalidate();
             
             BaseInterstitialAdapterListener adapterListener = getInterstitialAdapterListener();
             
