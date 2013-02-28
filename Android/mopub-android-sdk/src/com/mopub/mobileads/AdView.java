@@ -49,10 +49,10 @@ import android.os.Handler;
 import android.provider.Settings.Secure;
 import android.util.DisplayMetrics;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.WindowManager;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.FrameLayout;
@@ -83,6 +83,11 @@ public class AdView extends WebView {
     public static final String EXTRA_AD_CLICK_DATA = "com.mopub.intent.extra.AD_CLICK_DATA";
     
     private static final int MINIMUM_REFRESH_TIME_MILLISECONDS = 10000;
+    private static final FrameLayout.LayoutParams WRAP_AND_CENTER_LAYOUT_PARAMS =
+            new FrameLayout.LayoutParams(
+                    FrameLayout.LayoutParams.WRAP_CONTENT,
+                    FrameLayout.LayoutParams.WRAP_CONTENT,
+                    Gravity.CENTER);
     
     private String mAdUnitId;
     private String mKeywords;
@@ -381,9 +386,8 @@ public class AdView extends WebView {
         }
         sz.append("&o=" + orString);
         
-        DisplayMetrics metrics = new DisplayMetrics();
-        ((WindowManager) getContext().getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay().getMetrics(metrics);
-        sz.append("&sc_a=" + metrics.density);
+        float density = getContext().getResources().getDisplayMetrics().density;
+        sz.append("&sc_a=" + density);
         
         boolean mraid = true;
         try {
@@ -511,17 +515,32 @@ public class AdView extends WebView {
         Log.i("MoPub", "Ad successfully loaded.");
         mIsLoading = false;
         scheduleRefreshTimerIfEnabled();
-        setAdContentView(this);
+        setAdContentView(this, getHtmlAdLayoutParams());
         mMoPubView.adLoaded();
     }
     
     public void setAdContentView(View view) {
+        setAdContentView(view, WRAP_AND_CENTER_LAYOUT_PARAMS);
+    }
+    
+    private void setAdContentView(View view, FrameLayout.LayoutParams layoutParams) {
         mMoPubView.removeAllViews();
-        FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(
-                FrameLayout.LayoutParams.WRAP_CONTENT,
-                FrameLayout.LayoutParams.WRAP_CONTENT,
-                Gravity.CENTER);
         mMoPubView.addView(view, layoutParams);
+    }
+    
+    private FrameLayout.LayoutParams getHtmlAdLayoutParams() {
+        if (mWidth > 0 && mHeight > 0) {
+          DisplayMetrics displayMetrics = getContext().getResources().getDisplayMetrics();
+          
+          int scaledWidth = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, mWidth,
+                  displayMetrics);
+          int scaledHeight = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, mHeight,
+                  displayMetrics);
+          
+          return new FrameLayout.LayoutParams(scaledWidth, scaledHeight, Gravity.CENTER);
+        } else {
+            return WRAP_AND_CENTER_LAYOUT_PARAMS;
+        }
     }
 
     private void adDidFail() {
