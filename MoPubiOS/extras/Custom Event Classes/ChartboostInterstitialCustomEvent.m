@@ -49,7 +49,13 @@
 - (void)dealloc
 {
     Chartboost *cb = [Chartboost sharedChartboost];
-    cb.delegate = nil;
+
+    // Don't set the delegate to nil unless we are the delegate, because another instance of
+    // this custom class could be active (which would make it the active delegate instead). Note:
+    // this check is only necessary because the Chartboost object is a shared instance.
+    if (cb.delegate == self) {
+        cb.delegate = nil;
+    }
     
     [super dealloc];
 }
