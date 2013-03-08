@@ -11,6 +11,9 @@ import com.inmobi.androidsdk.IMAdRequest.ErrorCode;
 import com.inmobi.androidsdk.IMAdView;
 import com.mopub.mobileads.CustomEventBanner;
 
+/*
+ * Tested with InMobi SDK 3.6.2.
+ */
 public class InMobiBanner extends CustomEventBanner implements IMAdListener {
     private CustomEventBanner.Listener mBannerListener;
     private IMAdView mInMobiBanner;
@@ -42,13 +45,13 @@ public class InMobiBanner extends CustomEventBanner implements IMAdListener {
         String inMobiAppId = "YOUR_INMOBI_APP_ID";
         mInMobiBanner = new IMAdView(activity, IMAdView.INMOBI_AD_UNIT_320X50, inMobiAppId);
         
+        mInMobiBanner.setIMAdListener(this);
         mInMobiBanner.loadNewAd();
     }
 
     @Override
     public void onInvalidate() {
-        mBannerListener = null;
-        mInMobiBanner = null;
+        mInMobiBanner.setIMAdListener(null);
     }
 
     /*

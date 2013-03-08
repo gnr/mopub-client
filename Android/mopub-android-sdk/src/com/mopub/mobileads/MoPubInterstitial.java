@@ -182,11 +182,14 @@ public class MoPubInterstitial implements OnAdLoadedListener, OnAdFailedListener
         mInterstitialView.loadAd();
 =======
     
+<<<<<<< HEAD
     AdView getAdView() {
         return mInterstitialView.mAdView;
 >>>>>>> 62c1301aa876779b6a32144d698cc22a5c008c7b
     }
 
+=======
+>>>>>>> upstream/master
     ////////////////////////////////////////////////////////////////////////////////////////////////
 
     public void setKeywords(String keywords) {
@@ -330,7 +333,9 @@ public class MoPubInterstitial implements OnAdLoadedListener, OnAdFailedListener
         
         @Override
         protected void loadCustomEvent(Map<String, String> paramsMap) {
-            if (mInterstitialAdapter != null) mAdapter.invalidate();
+            if (mInterstitialAdapter != null) mInterstitialAdapter.invalidate();
+            
+            BaseInterstitialAdapterListener adapterListener = getInterstitialAdapterListener();
             
             mInterstitialAdapter = BaseInterstitialAdapter.getAdapterForType("custom_event");
             
@@ -343,11 +348,11 @@ public class MoPubInterstitial implements OnAdLoadedListener, OnAdFailedListener
                 
                 ((CustomEventInterstitialAdapter) mInterstitialAdapter)
                         .init(MoPubInterstitial.this, className, classData);
-                
+                mInterstitialAdapter.setAdapterListener(adapterListener);
                 mInterstitialAdapter.loadInterstitial();
             } else {
                 Log.i("MoPub", "Couldn't load custom event interstitial adapter. Trying next ad...");
-                loadFailUrl();
+                adapterListener.onNativeInterstitialFailed(null);
             }
         }
         

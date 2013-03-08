@@ -11,6 +11,9 @@ import com.inmobi.androidsdk.IMAdInterstitialListener;
 import com.inmobi.androidsdk.IMAdRequest.ErrorCode;
 import com.mopub.mobileads.CustomEventInterstitial;
 
+/*
+ * Tested with InMobi SDK 3.6.2.
+ */
 public class InMobiInterstitial extends CustomEventInterstitial implements IMAdInterstitialListener {
     private CustomEventInterstitial.Listener mInterstitialListener;
     private IMAdInterstitial mInMobiInterstitial;
@@ -42,20 +45,20 @@ public class InMobiInterstitial extends CustomEventInterstitial implements IMAdI
         String inMobiAppId = "YOUR_INMOBI_APP_ID";
         mInMobiInterstitial = new IMAdInterstitial(activity, inMobiAppId);
         
+        mInMobiInterstitial.setIMAdInterstitialListener(this);
         mInMobiInterstitial.loadNewAd();
     }
     
     @Override
     public void showInterstitial() {
         Log.d("MoPub", "Showing InMobi interstitial ad.");
-        if (mInMobiInterstitial != null) mInMobiInterstitial.show();
+        mInMobiInterstitial.show();
         mInterstitialListener.onShowInterstitial();
     }
 
     @Override
     public void onInvalidate() {
-        mInterstitialListener = null;
-        mInMobiInterstitial = null;
+        mInMobiInterstitial.setIMAdInterstitialListener(null);
     }
 
     /*
@@ -70,7 +73,7 @@ public class InMobiInterstitial extends CustomEventInterstitial implements IMAdI
     @Override
     public void onAdRequestLoaded(IMAdInterstitial adInterstitial) {
         Log.d("MoPub", "InMobi interstitial ad loaded successfully.");
-        showInterstitial();
+        mInterstitialListener.onAdLoaded();
     }
 
     @Override

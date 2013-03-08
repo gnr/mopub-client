@@ -5,7 +5,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.mopub.mobileads.CustomEventInterstitial;
-import com.mopub.mobileads.MoPubInterstitial.MoPubInterstitialListener;
 
 import android.content.Context;
 import android.util.Log;
@@ -13,7 +12,6 @@ import android.util.Log;
 public class CustomEventInterstitialAdapter extends BaseInterstitialAdapter implements CustomEventInterstitial.Listener {
     private CustomEventInterstitial mCustomEventInterstitial;
     private Context mContext;
-    private AdView mAdView;
     private Map<String, Object> mLocalExtras = new HashMap<String, Object>();
     private Map<String, String> mServerExtras = new HashMap<String, String>();
     
@@ -26,7 +24,6 @@ public class CustomEventInterstitialAdapter extends BaseInterstitialAdapter impl
         super.init(moPubInterstitial, jsonParams);
         
         mContext = moPubInterstitial.getActivity();
-        mAdView = moPubInterstitial.getAdView();
         
         Log.d("MoPub", "Attempting to invoke custom event: " + className);
         
@@ -37,7 +34,8 @@ public class CustomEventInterstitialAdapter extends BaseInterstitialAdapter impl
             Constructor<?> interstitialConstructor = interstitialClass.getConstructor((Class[]) null);
             mCustomEventInterstitial = (CustomEventInterstitial) interstitialConstructor.newInstance();
         } catch (Exception exception) {
-            Log.d("MoPub", "Couldn't invoke custom event: " + className + ".");
+            Log.d("MoPub", "Couldn't locate or instantiate custom event: " + className + ".");
+            if (mAdapterListener != null) mAdapterListener.onNativeInterstitialFailed(this);
         }
         
         // Attempt to load the JSON extras into mServerExtras.
@@ -69,7 +67,6 @@ public class CustomEventInterstitialAdapter extends BaseInterstitialAdapter impl
         if (mCustomEventInterstitial != null) mCustomEventInterstitial.onInvalidate();
         mCustomEventInterstitial = null;
         mContext = null;
-        mAdView = null;
         mServerExtras = null;
         mLocalExtras = null;
         super.invalidate();
@@ -80,22 +77,23 @@ public class CustomEventInterstitialAdapter extends BaseInterstitialAdapter impl
      */
     @Override
     public void onAdLoaded() {
-        if (mAdView != null) mAdView.setIsLoading(false);
+        if (isInvalidated()) return;
         
-        if (mInterstitial != null && mInterstitial.getListener() != null) {
-            MoPubInterstitialListener listener = mInterstitial.getListener();
-            listener.OnInterstitialLoaded();
-        }
+        if (mAdapterListener != null) mAdapterListener.onNativeInterstitialLoaded(this);
     }
 
     @Override
     public void onAdFailed() {
-        if (mAdView != null) mAdView.loadFailUrl();
+        if (isInvalidated()) return;
+        
+        if (mAdapterListener != null) mAdapterListener.onNativeInterstitialFailed(this);
     }
 
     @Override
     public void onClick() {
-        if (mAdView != null) mAdView.registerClick();
+        if (isInvalidated()) return;
+        
+        if (mAdapterListener != null) mAdapterListener.onNativeInterstitialClicked(this);
     }
 
     @Override
@@ -104,10 +102,13 @@ public class CustomEventInterstitialAdapter extends BaseInterstitialAdapter impl
 
     @Override
     public void onShowInterstitial() {
-        if (mAdView != null) mAdView.trackImpression();
     }
 
     @Override
     public void onDismissInterstitial() {
+        if (isInvalidated()) return;
+        
+        // Upon dismissing an interstitial, make sure any pre-fetched interstitials are expired.
+        if (mAdapterListener != null) mAdapterListener.onNativeInterstitialExpired(this);
     }
 }
