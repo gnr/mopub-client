@@ -144,10 +144,6 @@ public class MoPubInterstitial implements OnAdLoadedListener, OnAdFailedListener
         if (mListener != null) mListener.OnInterstitialLoaded();
     }
 
-    AdView getAdView() {
-        return mInterstitialView.mAdView;
-    }
-
     ////////////////////////////////////////////////////////////////////////////////////////////////
 
     public void setKeywords(String keywords) {
@@ -351,7 +347,8 @@ public class MoPubInterstitial implements OnAdLoadedListener, OnAdFailedListener
         };
 
         mInterstitialView.setOnAdLoadedListener(new OnAdLoadedListener() {
-            public void OnAdLoaded(MoPubView m) {
+            @Override
+			public void OnAdLoaded(MoPubView m) {
                 MoPubInterstitial.this.OnAdLoaded(m);
                 MoPubInterstitial.this.show();
             }

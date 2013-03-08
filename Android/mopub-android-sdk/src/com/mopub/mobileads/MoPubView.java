@@ -57,23 +57,23 @@ import java.util.Map;
 public class MoPubView extends FrameLayout {
 
     public interface OnAdWillLoadListener {
-        public void onAdWillLoad(MoPubView m, String url);
+        public void OnAdWillLoad(MoPubView m, String url);
     }
 
     public interface OnAdLoadedListener {
-        public void onAdLoaded(MoPubView m);
+        public void OnAdLoaded(MoPubView m);
     }
 
     public interface OnAdFailedListener {
-        public void onAdFailed(MoPubView m);
+        public void OnAdFailed(MoPubView m);
     }
 
     public interface OnAdClosedListener {
-        public void onAdClosed(MoPubView m);
+        public void OnAdClosed(MoPubView m);
     }
 
     public interface OnAdClickedListener {
-        public void onAdClicked(MoPubView m);
+        public void OnAdClicked(MoPubView m);
     }
 
     public interface OnAdPresentedOverlayListener {
@@ -324,16 +324,16 @@ public class MoPubView extends FrameLayout {
 
     protected void adWillLoad(String url) {
         Log.d("MoPub", "adWillLoad: " + url);
-        if (mOnAdWillLoadListener != null) mOnAdWillLoadListener.onAdWillLoad(this, url);
+        if (mOnAdWillLoadListener != null) mOnAdWillLoadListener.OnAdWillLoad(this, url);
     }
 
     protected void adLoaded() {
         Log.d("MoPub", "adLoaded");
-        if (mOnAdLoadedListener != null) mOnAdLoadedListener.onAdLoaded(this);
+        if (mOnAdLoadedListener != null) mOnAdLoadedListener.OnAdLoaded(this);
     }
 
     protected void adFailed() {
-        if (mOnAdFailedListener != null) mOnAdFailedListener.onAdFailed(this);
+        if (mOnAdFailedListener != null) mOnAdFailedListener.OnAdFailed(this);
     }
 
     protected void adPresentedOverlay() {
@@ -343,11 +343,11 @@ public class MoPubView extends FrameLayout {
     }
 
     protected void adClosed() {
-        if (mOnAdClosedListener != null) mOnAdClosedListener.onAdClosed(this);
+        if (mOnAdClosedListener != null) mOnAdClosedListener.OnAdClosed(this);
     }
 
     protected void adClicked() {
-        if (mOnAdClickedListener != null) mOnAdClickedListener.onAdClicked(this);
+        if (mOnAdClickedListener != null) mOnAdClickedListener.OnAdClicked(this);
     }
 
     protected void nativeAdLoaded() {
