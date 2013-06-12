@@ -24,10 +24,6 @@ public class AmazonBanner extends CustomEventBanner implements AdListener {
                               Map<String, Object> localExtras, Map<String, String> serverExtras) {
         mBannerListener = bannerListener;
 
-        /*
-         * You may also pass this String down in the serverExtras Map by specifying Custom Event Data
-         * in MoPub's web interface.
-         */
         Log.d("AmazonBanner", "loadAd()");
         mAmazonAd = new AdLayout(context, AdSize.AD_SIZE_320x50);
         mAmazonAd.setListener(this);
@@ -38,10 +34,13 @@ public class AmazonBanner extends CustomEventBanner implements AdListener {
     @Override
 	public void onInvalidate() {
         Log.d("AmazonBanner", "onInvalidate()");
-        mAmazonAd.destroy();
-        mAmazonAd = null;
+//        mAmazonAd.destroy();
+//        mAmazonAd = null;
     }
 
+    /*
+     * Methods from Amazon's AdListener
+     */
 	@Override
 	public void onAdCollapsed(AdLayout view) {
         Log.d("AmazonBanner", "onAdCollapsed()");
