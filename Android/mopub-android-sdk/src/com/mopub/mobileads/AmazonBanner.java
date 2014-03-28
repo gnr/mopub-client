@@ -2,14 +2,14 @@ package com.mopub.mobileads;
 
 import java.util.Map;
 
-import android.content.Context;
+import android.app.Activity;
 import android.util.Log;
 
 import com.amazon.device.ads.AdError;
 import com.amazon.device.ads.AdLayout;
-import com.amazon.device.ads.AdLayout.AdSize;
 import com.amazon.device.ads.AdListener;
 import com.amazon.device.ads.AdProperties;
+import com.amazon.device.ads.AdSize;
 import com.amazon.device.ads.AdTargetingOptions;
 
 public class AmazonBanner extends CustomEventBanner implements AdListener {
@@ -20,12 +20,12 @@ public class AmazonBanner extends CustomEventBanner implements AdListener {
      * Abstract methods from CustomEventBanner
      */
     @Override
-	public void loadAd(Context context, CustomEventBanner.Listener bannerListener,
+	public void loadAd(Activity activity, CustomEventBanner.Listener bannerListener,
                               Map<String, Object> localExtras, Map<String, String> serverExtras) {
         mBannerListener = bannerListener;
 
         Log.d("AmazonBanner", "loadAd()");
-        mAmazonAd = new AdLayout(context, AdSize.AD_SIZE_320x50);
+        mAmazonAd = new AdLayout(activity, AdSize.SIZE_320x50);
         mAmazonAd.setListener(this);
         mAmazonAd.loadAd(new AdTargetingOptions());
 		mBannerListener.setAdContentView(mAmazonAd);

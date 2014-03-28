@@ -4,14 +4,12 @@ import java.lang.reflect.Constructor;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.mopub.mobileads.CustomEventBanner;
-
-import android.content.Context;
+import android.app.Activity;
 import android.util.Log;
 import android.view.View;
 
 public class CustomEventBannerAdapter extends BaseAdapter implements CustomEventBanner.Listener {
-    private Context mContext;
+    private Activity mContext;
     private CustomEventBanner mCustomEventBanner;
     private Map<String, Object> mLocalExtras = new HashMap<String, Object>();
     private Map<String, String> mServerExtras = new HashMap<String, String>();
@@ -24,7 +22,7 @@ public class CustomEventBannerAdapter extends BaseAdapter implements CustomEvent
     public void init(MoPubView moPubView, String className, String jsonParams) {
         super.init(moPubView, jsonParams);
         
-        mContext = moPubView.getContext();
+        mContext = moPubView.getActivity();
         
         Log.d("MoPub", "Attempting to invoke custom event: " + className);
         

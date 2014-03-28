@@ -2,6 +2,7 @@ package com.mopub.mobileads;
 
 import java.util.Map;
 
+import android.app.Activity;
 import android.content.Context;
 import android.view.View;
 
@@ -29,7 +30,7 @@ public abstract class CustomEventBanner {
      * MoPub website that you want to associate with a given custom event request. This data may be
      * used to pass dynamic information, such as publisher IDs, without changes in application code.
      */
-    public abstract void loadAd(Context context,
+    public abstract void loadAd(Activity activity,
             CustomEventBanner.Listener customEventBannerListener, Map<String, Object> localExtras,
             Map<String, String> serverExtras);
     
